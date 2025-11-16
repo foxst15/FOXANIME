@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png">
+    <title>ADMIN NII-CHAN FOXANIME </title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tải thư viện Icons (ĐÃ CẬP NHẬT) -->
+    <!-- Đã cập nhật từ phiên bản beta 6.0.0-beta3 lên 6.5.2 (bản ổn định mới nhất) -->
+    <!-- Thêm crossorigin và referrerpolicy để tuân thủ các chính sách bảo mật trình duyệt tốt hơn -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* Thiết lập font Inter mặc định */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a0f3d; /* Nền tím than đậm (Deep Space) */
+            color: #e0e7ff; /* Màu chữ trắng xanh nhạt */
+            min-height: 100vh;
+        }
+        /* Custom scrollbar for JRPG Theme */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #2f1d56; }
+        ::-webkit-scrollbar-thumb { background: #00ffaa; border-radius: 5px; } /* Xanh Neon */
+        ::-webkit-scrollbar-thumb:hover { background: #00cc88; }
+        
+        /* Hiệu ứng Glow cho Header và Buttons */
+        .neon-glow {
+            text-shadow: 0 0 5px #00ffaa, 0 0 10px #00ffaa;
+        }
+        .panel-border {
+            border: 2px solid #5d3f9e; /* Border tím đậm */
+            box-shadow: 0 0 10px rgba(93, 63, 158, 0.5), 0 0 20px rgba(0, 255, 170, 0.1);
+        }
+        .anime-button {
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+            position: relative;
+        }
+        .anime-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.7); /* Pink glow on hover */
+        }
+        .anime-button:active {
+             transform: scale(0.95);
+        }
+        .movie-card-anime {
+            transition: all 0.3s ease-in-out;
+            border-left: 5px solid transparent;
+        }
+        .movie-card-anime:hover {
+            transform: translateX(5px);
+            border-left-color: #ff69b4; /* Hồng Neon */
+        }
+
+        /* === CSS CHO TAG THỂ LOẠI === */
+        .genre-tag {
+            background-color: #5d3f9e; /* Màu nền tím */
+            color: #e0e7ff;
+            padding: 6px 12px;
+            border-radius: 99px; /* bo tròn */
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .genre-tag:hover {
+            border-color: #00ffaa;
+        }
+        .genre-tag.selected {
+            background-color: #ff69b4; /* Màu hồng neon */
+            color: #1a0f3d; /* Màu nền đậm */
+            font-weight: 700;
+            border-color: #ff69b4;
+        }
+        /* Ẩn input[type=file] gốc */
+        .custom-file-input::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+        .custom-file-input::before {
+            content: 'Chọn tệp Base64 (Max 5MB)';
+            display: inline-block;
+            background: #5d3f9e;
+            border: 1px solid #00ffaa;
+            border-radius: 5px;
+            padding: 5px 8px;
+            outline: none;
+            white-space: nowrap;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #00ffaa;
+        }
+        .custom-file-input:hover::before {
+            background: #00ffaa;
+            color: #1a0f3d;
+        }
+        
+        /* FIX CHỮ BỊ MỜ TRONG INPUT VÀ SELECT TRIỆT ĐỂ */
+        .form-input {
+            /* Các class Tailwind chung */
+            @apply shadow-sm appearance-none border border-[#5d3f9e] rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4];
+            /* Ghi đè màu chữ và nền để tránh xung đột Dark Mode */
+            background-color: white; 
+            color: #111827 !important; /* ÉP BUỘC MÀU CHỮ ĐEN CHO INPUT, SELECT, VÀ TEXTAREA */
+        }
+
+        /* Đảm bảo textarea cũng dùng nền trắng và chữ đen */
+        textarea.form-input {
+            background-color: white;
+            color: #111827 !important;
+        }
+        
+        /* Đảm bảo option trong select cũng là chữ đen */
+        .form-input option {
+            color: #111827; 
+        }
+        
+        /* Tối ưu CSS cho lịch chiếu */
+        .schedule-grid-container {
+             /* Thay đổi: Chia lưới 4 cột trên màn hình lớn để tăng chiều rộng mỗi cột */
+             display: grid; 
+             grid-template-columns: repeat(2, 1fr); /* 2 cột trên mobile */
+             gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .schedule-grid-container {
+                 grid-template-columns: repeat(4, 1fr); /* 4 cột trên desktop */
+            }
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-300 hidden opacity-0">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-[#00ffaa] mb-4 neon-glow"></i>
+            <p class="text-white text-lg">Đang kết nối Database... Xin chờ Senpai!</p>
+        </div>
+    </div>
+    
+    <!-- Trang Đăng Nhập -->
+    <div id="auth-page" class="min-h-screen flex items-center justify-center">
+        <div class="bg-[#2f1d56] p-8 rounded-xl shadow-2xl w-full max-w-md panel-border">
+            <h2 class="text-3xl font-bold text-[#00ffaa] text-center mb-6 neon-glow">ADMIN LOGIN</h2>
+            <p class="text-center text-gray-400 text-sm mb-4">
+                Đăng nhập bằng tài khoản Admin đã được tạo.
+            </p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="login-email">Email</label>
+                    <input class="form-input" id="login-email" type="email" placeholder="admin@foxanime.com" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="login-password">Password</label>
+                    <input class="form-input" id="login-password" type="password" placeholder="••••••••" required>
+                </div>
+                <p id="auth-error-message" class="text-[#ff69b4] text-sm text-center mb-4"></p>
+                <button type="submit" class="anime-button w-full bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4] mb-4">
+                    LOGIN (Enter World)
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Trang Quản Lý (Dashboard/Profile) -->
+    <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
+        <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png" 
+                     alt="FoxAnime Logo" 
+                     class="w-16 h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg"
+                     onerror="this.onerror=null;this.src='https://placehold.co/64x64/ff69b4/ffffff?text=FX';" 
+                />
+                <div>
+                    <h1 class="text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN</h1>
+                    <p class="text-gray-400">Quản lý Phim và Tài khoản Admin.</p>
+                    <div id="auth-status" class="mt-2 text-sm text-[#ff69b4]"></div>
+                </div>
+            </div>
+            <!-- Admin Profile & Logout -->
+            <div id="admin-profile-header" class="hidden items-center space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border">
+                <img id="admin-avatar-header" src="https://placehold.co/40x40/ff69b4/ffffff?text=AD" alt="Admin Avatar" class="w-10 h-10 rounded-full border-2 border-[#00ffaa] object-cover">
+                <div>
+                    <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block"></span>
+                    <a href="#profile" class="text-xs text-[#ff69b4] hover:underline transition">Chỉnh sửa Profile</a>
+                </div>
+                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-4">
+                    <i class="fas fa-sign-out-alt text-lg" title="Đăng Xuất"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Navigation -->
+        <div class="flex space-x-4 mb-8 border-b border-gray-700">
+            <button id="nav-dashboard" data-hash="#dashboard" class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa]">DASHBOARD</button>
+            <button id="nav-schedule" data-hash="#schedule" class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH CHIẾU</button>
+            <button id="nav-profile" data-hash="#profile" class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI KHOẢN ADMIN</button>
+        </div>
+
+        <!-- Vùng nội dung chính (Dashboard/Profile) -->
+        <main id="main-content" class="min-h-[70vh]">
+            <!-- Nội dung sẽ được render bởi JS -->
+        </main>
+    </div>
+
+    <!-- Modals (Add Movie, Edit Movie, Add/Edit Episode, etc.) -->
+    
+    <!-- Modal: Thêm Phim Mới -->
+    <div id="add-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">CREATE NEW MOVIE CARD</h3>
+            <form id="add-movie-form">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-title">Tên Phim Tiếng Việt (*)</label>
+                        <input class="form-input" id="movie-title" type="text" placeholder="Gundam Seed Freedom" required>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-title-original">Tên Gốc (JP/EN)</label>
+                        <input class="form-input" id="movie-title-original" type="text" placeholder="機動戦士ガンダムSEED FREEDOM">
+                    </div>
+                </div>
+
+                <!-- === DÀNH RIÊNG CHO CÁC TRƯỜNG MỚI (GRID 3 CỘT) === -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-formatType">Dạng Anime (*)</label>
+                        <select id="movie-formatType" class="form-input">
+                            <option value="tv-series">TV/Series</option>
+                            <option value="movie-ova">Movie/OVA</option>
+                            <option value="hh-trung-quoc">HH Trung Quốc</option>
+                            <option value="anime-tron-bo">Anime Trọn Bộ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-season">Season (*)</label>
+                        <select id="movie-season" class="form-input">
+                            <option value="mua-he-2025">Mùa Hè 2025</option>
+                            <option value="mua-thu-2025">Mùa Thu 2025</option>
+                            <option value="mua-dong-2026">Mùa Đông 2026</option>
+                            <option value="mua-xuan-2026">Mùa Xuân 2026</option>
+                            <option value="mua-he-2024">Mùa Hè 2024</option>
+                            <option value="mua-thu-2024">Mùa Thu 2024</option>
+                            <option value="mua-dong-2024">Mùa Đông 2024</option>
+                            <option value="mua-xuan-2024">Mùa Xuân 2024</option>
+                            <option value="khac">Khác</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-totalEpisodes">Tổng số tập</label>
+                        <input class="form-input" id="movie-totalEpisodes" type="number" min="0" placeholder="0 = ??">
+                        <p class="text-xs text-gray-400 mt-1">Nhập 0 nếu là '??' (Đang cập nhật)</p>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-status">Trạng thái (*)</label>
+                        <select id="movie-status" class="form-input">
+                            <option value="dang-chieu">Đang tiến hành (Đang Chiếu)</option>
+                            <option value="tron-bo">Hoàn thành (Trọn Bộ)</option>
+                            <option value="sap-chieu">Sắp chiếu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-airingDay">Lịch chiếu</label>
+                        <select id="movie-airingDay" class="form-input">
+                            <option value="Không có">Không có</option>
+                            <option value="Thứ 2">Thứ 2</option>
+                            <option value="Thứ 3">Thứ 3</option>
+                            <option value="Thứ 4">Thứ 4</option>
+                            <option value="Thứ 5">Thứ 5</option>
+                            <option value="Thứ 6">Thứ 6</option>
+                            <option value="Thứ 7">Thứ 7</option>
+                            <option value="Chủ Nhật">Chủ Nhật</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- === KẾT THÚC CÁC TRƯỜNG MỚI === -->
+
+
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2">Thể loại (*) <span class="text-xs text-gray-400">(Chọn ít nhất 1)</span></label>
+                    <div id="genre-tag-container" class="flex flex-wrap gap-2 p-3 bg-[#1a0f3d] border border-[#5d3f9e] rounded-lg max-h-[200px] overflow-y-auto">
+                        <!-- 46 Thể loại -->
+                        <button type="button" class="genre-tag" data-genre="Action">Action</button>
+                        <button type="button" class="genre-tag" data-genre="Adventure">Adventure</button>
+                        <button type="button" class="genre-tag" data-genre="Boys Love">Boys Love</button>
+                        <button type="button" class="genre-tag" data-genre="Cartoon">Cartoon</button>
+                        <button type="button" class="genre-tag" data-genre="Comedy">Comedy</button>
+                        <button type="button" class="genre-tag" data-genre="Dementia">Dementia</button>
+                        <button type="button" class="genre-tag" data-genre="Demons">Demons</button>
+                        <button type="button" class="genre-tag" data-genre="Drama">Drama</button>
+                        <button type="button" class="genre-tag" data-genre="Ecchi">Ecchi</button>
+                        <button type="button" class="genre-tag" data-genre="Fantasy">Fantasy</button>
+                        <button type="button" class="genre-tag" data-genre="Game">Game</button>
+                        <button type="button" class="genre-tag" data-genre="Harem">Harem</button>
+                        <button type="button" class="genre-tag" data-genre="Historical">Historical</button>
+                        <button type="button" class="genre-tag" data-genre="Horror">Horror</button>
+                        <button type="button" class="genre-tag" data-genre="Josei">Josei</button>
+                        <button type="button" class="genre-tag" data-genre="Kids">Kids</button>
+                        <button type="button" class="genre-tag" data-genre="Live Action">Live Action</button>
+                        <button type="button" class="genre-tag" data-genre="Magic">Magic</button>
+                        <button type="button" class="genre-tag" data-genre="Martial Arts">Martial Arts</button>
+                        <button type="button" class="genre-tag" data-genre="Mecha">Mecha</button>
+                        <button type="button" class="genre-tag" data-genre="Military">Military</button>
+                        <button type="button" class="genre-tag" data-genre="Music">Music</button>
+                        <button type="button" class="genre-tag" data-genre="Mystery">Mystery</button>
+                        <button type="button" class="genre-tag" data-genre="Parody">Parody</button>
+                        <button type="button" class="genre-tag" data-genre="Police">Police</button>
+                        <button type="button" class="genre-tag" data-genre="Psychological">Psychological</button>
+                        <button type="button" class="genre-tag" data-genre="Romance">Romance</button>
+                        <button type="button" class="genre-tag" data-genre="Samurai">Samurai</button>
+                        <button type="button" class="genre-tag" data-genre="School">School</button>
+                        <button type="button" class="genre-tag" data-genre="Sci-Fi">Sci-Fi</button>
+                        <button type="button" class="genre-tag" data-genre="Seinen">Seinen</button>
+                        <button type="button" class="genre-tag" data-genre="Shoujo">Shoujo</button>
+                        <button type="button" class="genre-tag" data-genre="Shoujo Ai">Shoujo Ai</button>
+                        <button type="button" class="genre-tag" data-genre="Shounen">Shounen</button>
+                        <button type="button" class="genre-tag" data-genre="Shounen Ai">Shounen Ai</button>
+                        <button type="button" class="genre-tag" data-genre="Slice of Life">Slice of Life</button>
+                        <button type="button" class="genre-tag" data-genre="Space">Space</button>
+                        <button type="button" class="genre-tag" data-genre="Sports">Sports</button>
+                        <button type="button" class="genre-tag" data-genre="Super Power">Super Power</button>
+                        <button type="button" class="genre-tag" data-genre="Supernatural">Supernatural</button>
+                        <button type="button" class="genre-tag" data-genre="Suspense">Suspense</button>
+                        <button type="button" class="genre-tag" data-genre="Thriller">Thriller</button>
+                        <button type="button" class="genre-tag" data-genre="Tokusatsu">Tokusatsu</button>
+                        <button type="button" class="genre-tag" data-genre="Vampire">Vampire</button>
+                        <button type="button" class="genre-tag" data-genre="Yaoi">Yaoi</button>
+                        <button type="button" class="genre-tag" data-genre="Yuri">Yuri</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2">URL Ảnh Poster (*)</label>
+                    <input class="form-input" id="movie-poster" type="url" placeholder="https://example.com/poster.jpg">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-poster-file">HOẶC Tải tệp lên (*)</label>
+                    <input class="custom-file-input text-gray-400" id="movie-poster-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="poster-upload-status" class="text-xs text-[#00ffaa] mt-2"></p>
+                </div>
+                
+                <!-- === TRƯỜNG BANNER === -->
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-banner">URL Ảnh Banner (Ngang, 1200x600)</label>
+                    <input class="form-input" id="movie-banner" type="url" placeholder="https://example.com/banner.jpg">
+                    <p class="text-xs text-gray-400 mt-1">Dùng cho Hero/Backdrop. Nếu bỏ trống, sẽ dùng ảnh Poster.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-banner-file">HOẶC Tải tệp Banner lên</label>
+                    <input class="custom-file-input text-gray-400" id="movie-banner-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="banner-upload-status" class="text-xs text-[#00ffaa] mt-2"></p>
+                </div>
+                <!-- === KẾT THÚC TRƯỜNG BANNER === -->
+                
+                <div class="mb-6">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-summary">Tóm tắt Phim</label>
+                    <textarea class="form-input h-24" id="movie-summary" placeholder="Mô tả tóm tắt nội dung phim..."></textarea>
+                </div>
+                
+                <div id="movie-form-message" class="text-[#ff69b4] text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4]">
+                        <i class="fas fa-save mr-2"></i> SAVE MOVIE (Quest Complete)
+                    </button>
+                    <button type="button" onclick="hideModal('add-movie-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Exit)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Chỉnh Sửa Phim -->
+    <div id="edit-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT MOVIE CARD</h3>
+            <form id="edit-movie-form">
+                <input type="hidden" id="edit-movie-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-title">Tên Phim Tiếng Việt (*)</label>
+                        <input class="form-input" id="edit-movie-title" type="text" required>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-title-original">Tên Gốc (JP/EN)</label>
+                        <input class="form-input" id="edit-movie-title-original" type="text">
+                    </div>
+                </div>
+                
+                <!-- === DÀNH RIÊNG CHO CÁC TRƯỜNG MỚI (GRID 3 CỘT) === -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-formatType">Dạng Anime (*)</label>
+                        <select id="edit-movie-formatType" class="form-input">
+                            <option value="tv-series">TV/Series</option>
+                            <option value="movie-ova">Movie/OVA</option>
+                            <option value="hh-trung-quoc">HH Trung Quốc</option>
+                            <option value="anime-tron-bo">Anime Trọn Bộ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-season">Season (*)</label>
+                        <select id="edit-movie-season" class="form-input">
+                            <option value="mua-he-2025">Mùa Hè 2025</option>
+                            <option value="mua-thu-2025">Mùa Thu 2025</option>
+                            <option value="mua-dong-2026">Mùa Đông 2026</option>
+                            <option value="mua-xuan-2026">Mùa Xuân 2026</option>
+                            <option value="mua-he-2024">Mùa Hè 2024</option>
+                            <option value="mua-thu-2024">Mùa Thu 2024</option>
+                            <option value="mua-dong-2024">Mùa Đông 2024</option>
+                            <option value="mua-xuan-2024">Mùa Xuân 2024</option>
+                            <option value="khac">Khác</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-totalEpisodes">Tổng số tập</label>
+                        <input class="form-input" id="edit-movie-totalEpisodes" type="number" min="0" placeholder="0 = ??">
+                        <p class="text-xs text-gray-400 mt-1">Nhập 0 nếu là '??' (Đang cập nhật)</p>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-status">Trạng thái (*)</label>
+                        <select id="edit-movie-status" class="form-input">
+                            <option value="dang-chieu">Đang tiến hành (Đang Chiếu)</option>
+                            <option value="tron-bo">Hoàn thành (Trọn Bộ)</option>
+                            <option value="sap-chieu">Sắp chiếu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-airingDay">Lịch chiếu</label>
+                        <select id="edit-movie-airingDay" class="form-input">
+                            <option value="Không có">Không có</option>
+                            <option value="Thứ 2">Thứ 2</option>
+                            <option value="Thứ 3">Thứ 3</option>
+                            <option value="Thứ 4">Thứ 4</option>
+                            <option value="Thứ 5">Thứ 5</option>
+                            <option value="Thứ 6">Thứ 6</option>
+                            <option value="Thứ 7">Thứ 7</option>
+                            <option value="Chủ Nhật">Chủ Nhật</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- === KẾT THÚC CÁC TRƯỜNG MỚI === -->
+
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2">Thể loại (*)</label>
+                    <div id="edit-genre-tag-container" class="flex flex-wrap gap-2 p-3 bg-[#1a0f3d] border border-[#5d3f9e] rounded-lg max-h-[200px] overflow-y-auto">
+                        <!-- Các tag (46 thể loại) sẽ được JS copy vào đây -->
+                        <button type="button" class="genre-tag" data-genre="Action">Action</button>
+                        <button type="button" class="genre-tag" data-genre="Adventure">Adventure</button>
+                        <button type="button" class="genre-tag" data-genre="Boys Love">Boys Love</button>
+                        <button type="button" class="genre-tag" data-genre="Cartoon">Cartoon</button>
+                        <button type="button" class="genre-tag" data-genre="Comedy">Comedy</button>
+                        <button type="button" class="genre-tag" data-genre="Dementia">Dementia</button>
+                        <button type="button" class="genre-tag" data-genre="Demons">Demons</button>
+                        <button type="button" class="genre-tag" data-genre="Drama">Drama</button>
+                        <button type="button" class="genre-tag" data-genre="Ecchi">Ecchi</button>
+                        <button type="button" class="genre-tag" data-genre="Fantasy">Fantasy</button>
+                        <button type="button" class="genre-tag" data-genre="Game">Game</button>
+                        <button type="button" class="genre-tag" data-genre="Harem">Harem</button>
+                        <button type="button" class="genre-tag" data-genre="Historical">Historical</button>
+                        <button type="button" class="genre-tag" data-genre="Horror">Horror</button>
+                        <button type="button" class="genre-tag" data-genre="Josei">Josei</button>
+                        <button type="button" class="genre-tag" data-genre="Kids">Kids</button>
+                        <button type="button" class="genre-tag" data-genre="Live Action">Live Action</button>
+                        <button type="button" class="genre-tag" data-genre="Magic">Magic</button>
+                        <button type="button" class="genre-tag" data-genre="Martial Arts">Martial Arts</button>
+                        <button type="button" class="genre-tag" data-genre="Mecha">Mecha</button>
+                        <button type="button" class="genre-tag" data-genre="Military">Military</button>
+                        <button type="button" class="genre-tag" data-genre="Music">Music</button>
+                        <button type="button" class="genre-tag" data-genre="Mystery">Mystery</button>
+                        <button type="button" class="genre-tag" data-genre="Parody">Parody</button>
+                        <button type="button" class="genre-tag" data-genre="Police">Police</button>
+                        <button type="button" class="genre-tag" data-genre="Psychological">Psychological</button>
+                        <button type="button" class="genre-tag" data-genre="Romance">Romance</button>
+                        <button type="button" class="genre-tag" data-genre="Samurai">Samurai</button>
+                        <button type="button" class="genre-tag" data-genre="School">School</button>
+                        <button type="button" class="genre-tag" data-genre="Sci-Fi">Sci-Fi</button>
+                        <button type="button" class="genre-tag" data-genre="Seinen">Seinen</button>
+                        <button type="button" class="genre-tag" data-genre="Shoujo">Shoujo</button>
+                        <button type="button" class="genre-tag" data-genre="Shoujo Ai">Shoujo Ai</button>
+                        <button type="button" class="genre-tag" data-genre="Shounen">Shounen</button>
+                        <button type="button" class="genre-tag" data-genre="Shounen Ai">Shounen Ai</button>
+                        <button type="button" class="genre-tag" data-genre="Slice of Life">Slice of Life</button>
+                        <button type="button" class="genre-tag" data-genre="Space">Space</button>
+                        <button type="button" class="genre-tag" data-genre="Sports">Sports</button>
+                        <button type="button" class="genre-tag" data-genre="Super Power">Super Power</button>
+                        <button type="button" class="genre-tag" data-genre="Supernatural">Supernatural</button>
+                        <button type="button" class="genre-tag" data-genre="Suspense">Suspense</button>
+                        <button type="button" class="genre-tag" data-genre="Thriller">Thriller</button>
+                        <button type="button" class="genre-tag" data-genre="Tokusatsu">Tokusatsu</button>
+                        <button type="button" class="genre-tag" data-genre="Vampire">Vampire</button>
+                        <button type="button" class="genre-tag" data-genre="Yaoi">Yaoi</button>
+                        <button type="button" class="genre-tag" data-genre="Yuri">Yuri</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2">URL Ảnh Poster (*)</label>
+                    <input class="form-input" id="edit-movie-poster" type="url" placeholder="https://example.com/poster.jpg">
+                    <p class="text-xs text-gray-400 mt-2">Lưu ý: Nếu ảnh cũ là Base64, trường này sẽ trống. Tải tệp mới hoặc dán URL mới sẽ ghi đè ảnh cũ.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-poster-file">HOẶC Tải tệp mới để thay thế (*)</label>
+                    <input class="custom-file-input text-gray-400" id="edit-movie-poster-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="edit-poster-upload-status" class="text-xs text-[#00ffaa] mt-2"></p>
+                </div>
+                
+                <!-- === TRƯỜNG EDIT BANNER === -->
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-banner">URL Ảnh Banner (Ngang, 1200x600)</label>
+                    <input class="form-input" id="edit-movie-banner" type="url" placeholder="https://example.com/banner.jpg">
+                    <p class="text-xs text-gray-400 mt-1">Dùng cho Hero/Backdrop. Nếu bỏ trống, sẽ dùng ảnh Poster.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-banner-file">HOẶC Tải tệp Banner mới</label>
+                    <input class="custom-file-input text-gray-400" id="edit-movie-banner-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="edit-banner-upload-status" class="text-xs text-[#00ffaa] mt-2"></p>
+                </div>
+                <!-- === KẾT THÚC TRƯỜNG EDIT BANNER === -->
+                
+                <div class="mb-6">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-summary">Tóm tắt Phim</label>
+                    <textarea class="form-input h-24" id="edit-movie-summary"></textarea>
+                </div>
+                
+                <div id="edit-movie-form-message" class="text-[#ff69b4] text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4]">
+                        UPDATE MOVIE (Save Changes)
+                    </button>
+                    <button type="button" onclick="hideModal('edit-movie-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Thêm Tập Mới -->
+    <div id="add-episode-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+            <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">ADD NEW EPISODE</h3>
+            <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="episode-movie-title" class="text-white"></span></h4>
+            <form id="add-episode-form">
+                <input type="hidden" id="episode-movie-id">
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="episode-number">Số Tập (*)</label>
+                    <input class="form-input" id="episode-number" type="number" min="1" placeholder="Ví dụ: 1, 2, 3...">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="episode-title">Tên Tập (*)</label>
+                    <input class="form-input" id="episode-title" type="text" placeholder="Ví dụ: Khởi đầu mới">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="episode-url">URL Video (*)</label>
+                    <input class="form-input" id="episode-url" type="url" placeholder="https://example.com/video/tap-1.mp4">
+                </div>
+                
+                <div id="episode-form-message" class="text-[#ff69b4] text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="add-episode-submit-btn" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4]">
+                        ADD EPISODE (Commit Data)
+                    </button>
+                    <button type="button" onclick="hideModal('add-episode-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Chỉnh Sửa Tập Phim -->
+    <div id="edit-episode-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+            <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT EPISODE</h3>
+            <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="edit-episode-movie-title" class="text-white"></span></h4>
+            <form id="edit-episode-form">
+                <input type="hidden" id="edit-episode-movie-id">
+                <input type="hidden" id="edit-episode-number-original"> <!-- Lưu số tập cũ -->
+                
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-episode-number">Số Tập (*)</label>
+                    <input class="form-input" id="edit-episode-number" type="number" min="1" placeholder="Ví dụ: 1">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-episode-title">Tên Tập (*)</label>
+                    <input class="form-input" id="edit-episode-title" type="text" placeholder="Ví dụ: Khởi đầu mới">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-episode-url">URL Video (*)</label>
+                    <input class="form-input" id="edit-episode-url" type="url" placeholder="https://example.com/video/tap-1.mp4">
+                </div>
+                
+                <div id="edit-episode-form-message" class="text-[#ff69b4] text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="edit-episode-submit-btn" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4]">
+                        UPDATE EPISODE (Save Changes)
+                    </button>
+                    <button type="button" onclick="hideModal('edit-episode-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <!-- Modal: Xác nhận xóa (Dùng cho cả Phim và Tập phim) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#2f1d56] p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl panel-border text-center">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-2xl font-bold text-white mb-4">XÁC NHẬN HÀNH ĐỘNG</h3>
+            <p id="confirm-modal-text" class="text-gray-300 mb-6">Bạn có chắc chắn muốn xóa mục này?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-modal-yes" class="anime-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Xác nhận
+                </button>
+                <button id="confirm-modal-no" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- FIREBASE SDKs -->
+    <script type="module">
+        // === KHỐI IMPORT FIREBASE ===
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            signOut,
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            updatePassword,
+            setPersistence,
+            browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        import { 
+            getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, 
+            onSnapshot, collection, query, getDocs, 
+            serverTimestamp, setLogLevel, writeBatch, increment 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        setLogLevel('error'); 
+
+        // --- CONSTANTS VÀ HELPER FUNCTIONS ĐƯỢC TỐI ƯU ---
+        
+        const $ = (id) => document.getElementById(id); 
+        
+        const COLORS = {
+            SUCCESS: '#00ffaa',
+            ERROR: '#ff69b4',
+        };
+        
+        const MAX_AVATAR_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
+        const MAX_POSTER_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+        
+        // --- CẤU HÌNH FIREBASE ---
+        // Vui lòng thay thế cấu hình dưới đây bằng cấu hình Firebase Project của bạn
+        const FIREBASE_DEFAULT_CONFIG = {
+            "apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", 
+            "authDomain": "foxanime-e77d4.firebaseapp.com",
+            "projectId": "foxanime-e77d4", 
+            "storageBucket": "foxanime-e77d4.firebasestorage.app",
+            "messagingSenderId": "1025177423292", 
+            "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"
+        };
+        // --- KẾT THÚC CẤU HÌNH ---
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
+
+        let app, db, auth;
+        let userId = null;
+        let userEmail = null;
+        let moviesCollectionRef = null; 
+        let userProfileDocRef = null;
+        let currentUserProfile = {};
+        let globalAdminMoviesCache = [];
+        let unsubscribeMoviesListener = null;
+
+        // --- MODAL UTILS ---
+        let resolveConfirm;
+
+        window.showConfirmModal = (text) => {
+            $('confirm-modal-text').textContent = text;
+            showModal('confirm-modal');
+            return new Promise(resolve => {
+                resolveConfirm = resolve;
+            });
+        };
+
+        $('confirm-modal-yes').addEventListener('click', () => {
+            hideModal('confirm-modal');
+            resolveConfirm(true);
+        });
+
+        $('confirm-modal-no').addEventListener('click', () => {
+            hideModal('confirm-modal');
+            resolveConfirm(false);
+        });
+
+        window.showModal = (id) => { $(id).classList.remove('hidden'); $(id).classList.add('flex'); };
+        window.hideModal = (id) => { $(id).classList.add('hidden'); $(id).classList.remove('flex'); };
+        
+        const showLoading = (isLoading) => {
+            const overlay = $('loading-overlay');
+            overlay.classList.toggle('hidden', !isLoading);
+            overlay.classList.toggle('flex', isLoading);
+            overlay.classList.toggle('opacity-0', !isLoading);
+            overlay.classList.toggle('opacity-100', isLoading);
+        };
+
+        const updateAuthStatusHeader = (message, isError = false) => {
+             const authStatusEl = $('auth-status');
+             if (authStatusEl) {
+                 authStatusEl.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle text-[#ff69b4]' : 'fa-check-circle text-[#00ffaa]'} mr-1"></i> ${message}`;
+             }
+        };
+
+        const updateProfileHeader = () => {
+            const headerEl = $('admin-profile-header');
+            const displayNameEl = $('admin-display-name-header');
+            const avatarEl = $('admin-avatar-header');
+
+            const displayName = currentUserProfile.displayName || (userEmail ? userEmail.split('@')[0] : 'Admin-san');
+            displayNameEl.textContent = displayName;
+            
+            const avatarSrc = currentUserProfile.avatarBase64 || currentUserProfile.avatarUrl || 
+                `https://placehold.co/40x40/ff69b4/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
+            avatarEl.src = avatarSrc;
+
+            // Chỉ hiện header nếu có userId
+            headerEl.classList.toggle('hidden', !userId);
+            headerEl.classList.toggle('flex', !!userId);
+            $('auth-page').classList.toggle('hidden', !!userId);
+            $('admin-main-view').classList.toggle('hidden', !userId);
+        };
+        
+        // --- DATA UTILS ---
+        
+        const readFileAsBase64 = (file, maxSizeInBytes) => {
+            return new Promise((resolve, reject) => {
+                if (file.size > maxSizeInBytes) {
+                    const limitMB = (maxSizeInBytes / 1024 / 1024).toFixed(1);
+                    reject(new Error(`Kích thước file quá lớn (tối đa ${limitMB}MB).`));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+        
+        const getAdminPreviewUrl = (videoUrl) => {
+            try {
+                const urlObj = new URL(videoUrl);
+                const hostname = urlObj.hostname;
+                if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+                    const videoId = urlObj.searchParams.get('v') || (hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
+                    return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : videoUrl;
+                }
+                if (hostname.includes('drive.google.com')) {
+                    let fileId = '';
+                    if (urlObj.pathname.startsWith('/file/d/')) {
+                        fileId = urlObj.pathname.split('/')[3];
+                    } else if (urlObj.pathname.startsWith('/uc')) {
+                        fileId = urlObj.searchParams.get('id');
+                    }
+                    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : videoUrl;
+                }
+            } catch (e) {
+                // Not a valid URL, treat as direct video link
+            }
+            return videoUrl;
+        };
+        
+        // --- AUTH LOGIC ---
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const email = e.target['login-email'].value;
+            const password = e.target['login-password'].value;
+            const errorEl = $('auth-error-message');
+            errorEl.textContent = '';
+            try {
+                showLoading(true);
+                // [FIX PERSISTENCE] Đặt Persistence trước khi đăng nhập để giữ phiên
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithEmailAndPassword(auth, email, password);
+                
+            } catch (error) {
+                errorEl.textContent = 'Login Error: ' + error.message;
+            } finally {
+                showLoading(false);
+            }
+        };
+        
+        window.handleLogout = async () => {
+            const confirmed = await window.showConfirmModal("Bạn có chắc chắn muốn đăng xuất khỏi Bảng Điều Khiển Admin?");
+            if (confirmed) {
+                 await signOut(auth);
+                 window.location.hash = '#dashboard'; // Redirect về trang chính sau khi logout
+            }
+        };
+        
+        // --- PROFILE LOGIC (Tích hợp từ file Admin cũ) ---
+        
+        const handleSaveProfile = async (e) => {
+            e.preventDefault();
+            const displayName = $('profile-display-name').value.trim();
+            const avatarFile = $('profile-avatar-file').files[0];
+            const messageEl = $('profile-message');
+            messageEl.textContent = '';
+
+            if (!userProfileDocRef || !userId) { messageEl.textContent = 'Lỗi hệ thống: User ID không hợp lệ.'; return; }
+
+            try {
+                let avatarBase64 = currentUserProfile.avatarBase64 || null;
+
+                if (avatarFile) {
+                    messageEl.textContent = 'Đang xử lý và tải ảnh lên...';
+                    avatarBase64 = await readFileAsBase64(avatarFile, MAX_AVATAR_SIZE_BYTES);
+                }
+                
+                const profileData = {
+                    displayName: displayName || userEmail.split('@')[0],
+                    avatarBase64: avatarBase64, 
+                    updatedAt: serverTimestamp()
+                };
+                
+                await setDoc(userProfileDocRef, profileData, { merge: true });
+
+                messageEl.textContent = 'SUCCESS! Đã lưu profile Admin.';
+                messageEl.className = 'text-sm mb-4 text-[#00ffaa]'; 
+                
+            } catch (error) {
+                console.error("Lỗi khi lưu profile:", error);
+                messageEl.textContent = 'FATAL ERROR: Lỗi khi lưu profile: ' + error.message;
+                messageEl.className = 'text-sm mb-4 text-[#ff69b4]'; 
+            }
+        };
+
+        const handleCreateAdmin = async (e) => {
+            e.preventDefault();
+            const email = $('newAdminEmail').value;
+            const password = $('newAdminPass').value;
+            const msgEl = $('create-admin-msg');
+            
+            if (password.length < 6) {
+                msgEl.textContent = 'Lỗi: Mật khẩu phải có ít nhất 6 ký tự.';
+                msgEl.style.color = COLORS.ERROR;
+                return;
+            }
+            
+            msgEl.textContent = 'Đang tạo...';
+            msgEl.style.color = COLORS.SUCCESS;
+
+            try {
+                // Tạo app phụ để tạo user (chức năng này chỉ chạy được trên server)
+                const appName = "secondaryAdminApp-" + Date.now();
+                const secondaryApp = initializeApp(finalConfig, appName);
+                const secondaryAuth = getAuth(secondaryApp);
+                
+                await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                
+                msgEl.textContent = `Tạo thành công admin: ${email}`;
+                msgEl.style.color = COLORS.SUCCESS;
+                
+                $('create-admin-form').reset();
+                
+            } catch (error) {
+                console.error("Lỗi khi tạo Admin mới:", error);
+                msgEl.textContent = `Lỗi: ${error.message}`;
+                msgEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const handleChangePassword = async (e) => {
+            e.preventDefault();
+            const newPass = $('newPass').value;
+            const confirmNewPass = $('confirmNewPass').value;
+            const msgEl = $('change-pass-msg');
+
+            if (newPass !== confirmNewPass) {
+                msgEl.innerText = "Mật khẩu xác nhận không khớp!";
+                msgEl.style.color = COLORS.ERROR;
+                return;
+            }
+            if (newPass.length < 6) {
+                msgEl.innerText = "Mật khẩu phải có ít nhất 6 ký tự.";
+                msgEl.style.color = COLORS.ERROR;
+                return;
+            }
+            
+            msgEl.innerText = 'Đang đổi mật khẩu...';
+            msgEl.style.color = COLORS.SUCCESS;
+
+            try {
+                // Đổi mật khẩu cho user đang đăng nhập
+                await updatePassword(auth.currentUser, newPass);
+                
+                msgEl.innerText = "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.";
+                msgEl.style.color = COLORS.SUCCESS;
+                // Buộc đăng xuất sau khi đổi mật khẩu để xác thực lại
+                await signOut(auth); 
+                
+            } catch (error) {
+                console.error("Lỗi đổi mật khẩu:", error);
+                msgEl.innerText = `Lỗi: ${error.message}`;
+                if (error.code === 'auth/requires-recent-login') {
+                    msgEl.innerText = "Lỗi: Phiên đăng nhập quá cũ. Vui lòng đăng xuất, đăng nhập lại trước khi đổi mật khẩu.";
+                }
+                msgEl.style.color = COLORS.ERROR;
+            }
+        };
+        
+        // --- ROUTER VÀ RENDER VIEW ---
+
+        const renderAdminDashboard = () => {
+            const movies = globalAdminMoviesCache;
+            const movieListHtml = renderMovieListContent(movies);
+            // ... (Phần còn lại của renderAdminDashboard giữ nguyên)
+        
+            const totalMovies = movies.length;
+            const totalEpisodes = movies.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
+            
+            $('main-content').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-semibold text-[#00ffaa]">DANH SÁCH MOVIE</h2>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="#schedule" class="anime-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-sm">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Lịch Chiếu
+                                </a>
+                                <button onclick="showModal('add-movie-modal')" class="anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-plus mr-2"></i> Thêm Phim Mới
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="movie-list" class="space-y-4">${movieListHtml}</div>
+                    </div>
+
+                    <div class="lg:col-span-1">
+                        <div id="admin-info" class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border sticky top-8">
+                            <h2 class="text-xl font-semibold text-[#00ffaa] mb-4">THỐNG KÊ (STATS)</h2>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
+                                    <p class="text-sm text-gray-400">TỔNG SỐ PHIM</p>
+                                    <p id="stat-total-movies" class="text-3xl font-bold text-[#00ffaa]">${totalMovies}</p>
+                                </div>
+                                <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
+                                    <p class="text-sm text-gray-400">TỔNG SỐ TẬP</p>
+                                    <p id="stat-total-episodes" class="text-3xl font-bold text-[#ff69b4]">${totalEpisodes}</p>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-xl font-semibold text-[#00ffaa] mb-4">HỆ THỐNG INFO</h2>
+                            <div class="space-y-3 text-sm text-[#e0e7ff]">
+                                <p><strong>App ID:</strong> <span id="display-app-id" class="break-all text-blue-300">${appId}</span></p>
+                                <p><strong>User ID:</strong> <span id="display-user-id" class="break-all text-[#00ffaa]">${userId || 'CHƯA ĐĂNG NHẬP'}</span></p>
+                                <p class="pt-2 border-t border-gray-600 text-xs">Database Location: <code class="bg-gray-800 p-1 rounded text-yellow-300 break-all">/artifacts/{appId}/public/data/movies</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Gắn listener cho các nút ADD EP / EDIT MOVIE
+            $('main-content').querySelectorAll('.add-episode-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showAddEpisodeModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+            $('main-content').querySelectorAll('.edit-movie-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showEditMovieModal(this.getAttribute('data-movie-id'));
+                });
+            });
+        };
+        
+        const renderProfilePage = () => {
+            const profile = currentUserProfile;
+             $('main-content').innerHTML = `
+                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- CỘT 1: PROFILE & AVATAR -->
+                    <div class="card bg-[#2f1d56] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-[#ff69b4] mb-6 border-b border-[#5d3f9e] pb-2">CHỈNH SỬA PROFILE</h2>
+                        <div class="flex items-center space-x-4 mb-8">
+                            <img id="profile-avatar-preview" src="${profile.avatarBase64 || `https://placehold.co/80x80/ff69b4/ffffff?text=${(profile.displayName || (userEmail ? userEmail.charAt(0) : 'AD')).toUpperCase()}`}" alt="Admin Avatar" class="w-20 h-20 rounded-full border-4 border-[#00ffaa] object-cover">
+                            <div>
+                                <p class="text-2xl font-bold text-[#00ffaa]">${profile.displayName || userEmail}</p>
+                                <p class="text-sm text-gray-400">Email: ${userEmail}</p>
+                            </div>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="mb-4">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-display-name">Tên Hiển Thị</label>
+                                <input class="form-input" id="profile-display-name" type="text" placeholder="Ví dụ: Sensei, Dev-chan" value="${profile.displayName || ''}">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-avatar-file">Ảnh Đại Diện (Max 1MB)</label>
+                                <input class="shadow border border-[#5d3f9e] rounded w-full py-2 px-3 bg-[#1a0f3d] text-white leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff69b4]/20 file:text-[#ff69b4]" 
+                                       id="profile-avatar-file" type="file" accept="image/png, image/jpeg">
+                                <p class="text-xs text-gray-500 mt-2">Ảnh được lưu dưới dạng Base64 trong Firestore.</p>
+                            </div>
+                            
+                            <p id="profile-message" class="text-[#00aa] text-sm mb-4"></p>
+
+                            <button type="submit" class="anime-button bg-[#00aa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4] w-full">
+                                <i class="fas fa-save mr-2"></i> LƯU PROFILE
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- CỘT 2: QUẢN LÝ TÀI KHOẢN -->
+                    <div class="card bg-[#2f1d56] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-[#00ffaa] mb-6 border-b border-[#5d3f9e] pb-2">QUẢN LÝ TÀI KHOẢN</h2>
+                        
+                        <!-- Form Đổi Mật khẩu -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-[#e0e7ff] mb-3">Đổi Mật khẩu Của Bạn</h3>
+                            <form id="changePasswordForm">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="newPass" required placeholder="Nhập mật khẩu mới (min 6 ký tự)">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Xác nhận mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="confirmNewPass" required placeholder="Xác nhận mật khẩu">
+                                <p id="change-pass-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-key mr-2"></i> ĐỔI MẬT KHẨU
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Form Tạo Admin Mới -->
+                        <hr class="border-t border-gray-700 my-6">
+                        <div class="pt-2">
+                            <h3 class="text-xl font-bold text-[#e0e7ff] mb-3">Tạo Tài Khoản Admin Mới</h3>
+                            <form id="create-admin-form">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Email Admin Mới:</label>
+                                <input class="form-input" type="email" id="newAdminEmail" placeholder="ví dụ: sub@admin.com" required>
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Mật khẩu:</label>
+                                <input class="form-input" type="password" id="newAdminPass" placeholder="Ít nhất 6 ký tự" required>
+                                <p id="create-admin-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-user-plus mr-2"></i> TẠO TÀI KHOẢN
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Gắn listeners cho Profile Page
+            $('profile-avatar-file')?.addEventListener('change', (e) => {
+                 const file = e.target.files[0];
+                 if (file) {
+                     const reader = new FileReader();
+                     reader.onload = (e) => {
+                         $('profile-avatar-preview').src = e.target.result;
+                     };
+                     reader.readAsDataURL(file);
+                 }
+            });
+            $('profile-form')?.addEventListener('submit', handleSaveProfile);
+            $('create-admin-form')?.addEventListener('submit', handleCreateAdmin);
+            $('changePasswordForm')?.addEventListener('submit', handleChangePassword);
+        };
+
+        const renderSchedulePage = () => {
+            const movies = globalAdminMoviesCache;
+            // Thay đổi: Chỉ hiển thị 4 cột cho 4 ngày chính
+            const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+            const moviesByDay = {
+                "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []
+            };
+            
+            const airingMovies = movies.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
+            
+            airingMovies.forEach(movie => {
+                const day = movie.airingDay || "Không có";
+                moviesByDay[day] ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie);
+            });
+            
+            const renderScheduleCard = (movie) => `
+                <div class="bg-[#1e1346] p-3 rounded-lg flex items-center space-x-3 transition-all duration-200 hover:bg-[#2f1d56]">
+                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-12 h-16 object-cover rounded flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/48x64/1f2937/d1d5db?text=...'">
+                    <div class="flex-grow overflow-hidden">
+                        <p class="text-white font-semibold text-sm truncate">${movie.title}</p>
+                        <p class="text-gray-400 text-xs">${movie.episodes ? movie.episodes.length : 0} / ${movie.totalEpisodes || '??'} tập</p>
+                    </div>
+                    <button onclick="window.showEditMovieModal('${movie.id}')" class="text-yellow-400 hover:text-yellow-300 ml-auto flex-shrink-0" title="Sửa phim này">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `;
+
+            $('main-content').innerHTML = `
+                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
+                    <h2 class="text-2xl font-semibold text-[#00ffaa] mb-6 border-b border-gray-700 pb-3">LỊCH CHIẾU PHIM TRONG TUẦN</h2>
+                    
+                    <!-- THAY ĐỔI: Dùng class schedule-grid-container -->
+                    <div class="schedule-grid-container">
+                        ${daysOfWeek.map(day => `
+                            <div class="bg-[#1a0f3d] p-4 rounded-lg border border-[#5d3f9e]">
+                                <h3 class="text-xl font-bold text-[#ff69b4] mb-4 text-center border-b border-[#5d3f9e] pb-2">${day}</h3>
+                                <div class="space-y-3 max-h-[60vh] overflow-y-auto">
+                                    ${(moviesByDay[day] && moviesByDay[day].length > 0)
+                                        ? moviesByDay[day].map(renderScheduleCard).join('')
+                                        : '<p class="text-gray-500 text-sm italic text-center">Chưa có phim nào.</p>'
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- PHIM CHƯA GÁN LỊCH -->
+                    ${(moviesByDay["Không có"] && moviesByDay["Không có"].length > 0) ? `
+                        <div class="mt-8 pt-6 border-t border-gray-700">
+                             <h3 class="text-xl font-bold text-[#00ffaa] mb-4">Phim chưa gán lịch</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                ${(moviesByDay["Không có"]).map(movie => `
+                                    <div class="bg-[#1e1346] p-3 rounded-lg flex items-center space-x-3">
+                                        <img src="${movie.posterUrl}" class="w-10 h-14 object-cover rounded" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                                        <p class="text-sm font-semibold truncate flex-grow">${movie.title}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                </div>
+            `;
+        };
+        
+        // --- CÁC HÀM XỬ LÝ CRUD KHÁC (Đã được tối ưu ở các bước trước) ---
+        
+        const renderEpisodeList = (episodes, movieId) => {
+            if (!episodes || episodes.length === 0) {
+                return '<p class="text-gray-500 italic text-sm">Chưa có tập phim nào. (No Data)</p>';
+            }
+            episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
+            return episodes.map(ep => {
+                const safeTitle = (ep.title || '').replace(/'/g, "\\'"); 
+                const previewUrl = getAdminPreviewUrl(ep.videoUrl); 
+                return `
+                <li class="flex items-center justify-between p-2 border-b border-[#5d3f9e] last:border-b-0 text-sm">
+                    <div class="flex-grow truncate">
+                        <span class="font-medium text-[#00ffaa]">EP ${ep.episodeNumber || 'N/A'}:</span>
+                        <span class="mx-2 text-white">${ep.title || 'Không có tên'}</span>
+                    </div>
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video (Mở Preview)">
+                            <i class="fas fa-external-link-alt"></i> LINK
+                        </a>
+                        <button onclick="window.showEditEpisodeModal('${movieId}', ${ep.episodeNumber})" class="text-yellow-400 hover:text-yellow-300 ml-3" title="Sửa tập">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="window.handleDeleteEpisode('${movieId}', ${ep.episodeNumber}, '${safeTitle}')" class="text-red-500 hover:text-red-700 ml-2" title="Xóa tập">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `}).join('');
+        };
+        
+        const renderMovieListContent = (movies) => {
+            if (movies.length === 0) {
+                return '<p class="text-center text-[#ff69b4] font-bold py-8" id="no-movies-message">Chưa có phim nào. Hãy thêm phim đầu tiên! </p>';
+            }
+            // ... (Phần còn lại của renderMovieListContent giữ nguyên)
+            
+            return movies.map(movie => {
+                const titleHtml = movie.titleOriginal 
+                    ? `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3><h4 class="text-sm font-normal text-gray-400 -mt-1 mb-1">${movie.titleOriginal}</h4>`
+                    : `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3>`;
+                const posterSrc = movie.posterUrl || 'https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';
+                const episodeCount = movie.episodes ? movie.episodes.length : 0;
+                const totalEpisodes = movie.totalEpisodes || 0;
+                const episodeText = totalEpisodes > 0 ? `${episodeCount} / ${totalEpisodes} tập` : `Tập ${episodeCount}`;
+
+                return `
+                    <div class="movie-card-anime bg-[#1e1346] p-4 rounded-xl shadow-md border border-[#5d3f9e] transition duration-300 hover:border-[#ff69b4]">
+                        <div class="flex items-start space-x-4">
+                            <img src="${posterSrc}" onerror="this.onerror=null;this.src='https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';" 
+                                 class="w-20 h-30 object-cover rounded-lg shadow-lg flex-shrink-0 border-2 border-[#ff69b4]" alt="Poster ${movie.title}">
+                            
+                            <div class="flex-grow">
+                                ${titleHtml}
+                                <p class="text-sm text-[#00ffaa] mb-2 italic">Genre: ${movie.genre || 'N/A'}</p>
+                                <p class="text-gray-300 text-sm line-clamp-2">${movie.summary || 'Không có tóm tắt.'}</p>
+                                
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    ${getStatusBadge(movie.status)}
+                                    <span class="bg-[#2f1d56] text-[#00ffaa] text-xs font-semibold py-1 px-3 rounded-full border border-[#00ffaa]">Lượt Xem: ${movie.viewCount || 0}</span>
+                                    
+                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-bolt mr-1"></i> ADD EP
+                                        </button>
+                                        
+                                        <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-edit mr-1"></i> EDIT
+                                        </button>
+                                        
+                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-skull-crossbones mr-1"></i> DELETE
+                                        </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-[#5d3f9e]">
+                            <h4 class="text-lg font-semibold text-[#00ffaa] mb-2">EPISODE LIST (${episodeText})</h4>
+                            <ul class="divide-y divide-[#1e1346]">
+                                ${renderEpisodeList(movie.episodes, movie.id)} 
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        const getStatusBadge = (statusKey) => {
+            switch(statusKey) {
+                case 'dang-chieu': return '<span class="bg-[#5d3f9e] text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Đang Chiếu</span>';
+                case 'tron-bo': return '<span class="bg-green-500 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Hoàn Thành</span>';
+                case 'sap-chieu': return '<span class="bg-yellow-500 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Sắp Chiếu</span>';
+                default: return `<span class="bg-gray-700 text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">${statusKey || 'N/A'}</span>`;
+            }
+        };
+
+        // --- ROUTER & INIT ---
+        
+        const initFirebase = async () => {
+            try {
+                // Khởi tạo app
+                if (!getApps().length) {
+                    app = initializeApp(finalConfig);
+                } else {
+                    app = getApps()[0];
+                }
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // --- LẮNG NGHE AUTH STATE ---
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && !user.isAnonymous) {
+                        userId = user.uid;
+                        userEmail = user.email;
+                        
+                        moviesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'movies');
+                        
+                        // [FIX LỖI THAM CHIẾU] Đường dẫn Admin Profile tách biệt (4 segment)
+                        // Đường dẫn MỚI: /artifacts/{appId}/adminProfiles/{userId}
+                        userProfileDocRef = doc(db, 'artifacts', appId, 'adminProfiles', userId); 
+                        
+                        try {
+                            // Load Profile và lắng nghe thay đổi
+                            onSnapshot(userProfileDocRef, (docSnap) => {
+                                currentUserProfile = docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : {};
+                                updateProfileHeader();
+                            }, (error) => { 
+                                console.error("Lỗi tải profile:", error.message); 
+                                currentUserProfile = {}; 
+                                updateProfileHeader(); 
+                            });
+                        } catch (e) {
+                             console.error("Lỗi nghiêm trọng khi gắn listener profile:", e);
+                        }
+                        
+                        updateAuthStatusHeader(`Đã đăng nhập: ${userEmail}`, false);
+                        loadMovies(); // Bắt đầu tải và lắng nghe phim
+                        router(); 
+
+                    } else {
+                        // Đã đăng xuất
+                        userId = userEmail = moviesCollectionRef = null;
+                        currentUserProfile = {};
+                        globalAdminMoviesCache = [];
+                        updateProfileHeader();
+                        updateAuthStatusHeader('Vui lòng Đăng nhập Admin.');
+                        // Tắt listener phim nếu đang bật
+                        if (unsubscribeMoviesListener) {
+                            unsubscribeMoviesListener();
+                            unsubscribeMoviesListener = null;
+                        }
+                        router();
+                    }
+                    showLoading(false);
+                });
+                
+                if (initialAuthToken) {
+                    try {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } catch (e) {
+                        console.warn("Lỗi đăng nhập bằng token (bỏ qua):", e.message);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Lỗi khởi tạo Firebase:", error);
+                updateAuthStatusHeader(`Cấu hình Firebase không hợp lệ. Chi tiết: ${error.message}`, true); 
+                showLoading(false);
+            }
+        };
+
+        const loadMovies = () => {
+            if (!moviesCollectionRef || unsubscribeMoviesListener) return;
+            
+            const q = query(moviesCollectionRef);
+            
+            unsubscribeMoviesListener = onSnapshot(q, (snapshot) => {
+                const movies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                movies.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                
+                globalAdminMoviesCache = movies;
+                
+                const hash = window.location.hash.substring(1) || 'dashboard';
+                // Chỉ render lại nếu đang ở Dashboard hoặc Schedule
+                if (hash === 'dashboard') {
+                     renderAdminDashboard();
+                } else if (hash === 'schedule') {
+                     renderSchedulePage();
+                }
+                
+            }, (error) => {
+                console.error("Lỗi khi tải danh sách phim:", error);
+                // Xử lý lỗi tải dữ liệu
+                if (window.location.hash.substring(1) === 'dashboard') {
+                    $('main-content').innerHTML = '<p class="text-[#ff69b4] font-bold text-center py-8">Lỗi tải dữ liệu. Vui lòng kiểm tra Quy tắc Bảo mật.</p>';
+                }
+            });
+        };
+        
+        const router = () => {
+            const hash = window.location.hash.substring(1) || 'dashboard';
+            
+            // Xử lý Navigation UI
+            document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
+                btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? '#00ffaa' : 'transparent';
+                btn.style.color = btn.dataset.hash === `#${hash}` ? '#00ffaa' : '#e0e7ff';
+            });
+            
+            if (!userId) {
+                // Chưa đăng nhập: Luôn ở trang Auth
+                if (hash !== 'login') window.location.hash = '#login';
+                $('main-content').innerHTML = ''; // Xóa nội dung cũ
+                return;
+            }
+
+            // Đã đăng nhập
+            switch (hash) {
+                case 'dashboard':
+                    renderAdminDashboard();
+                    break;
+                case 'profile':
+                    renderProfilePage();
+                    break;
+css
+                case 'schedule':
+                    renderSchedulePage();
+                    break;
+                case 'login':
+                    window.location.hash = '#dashboard'; // Đã đăng nhập thì chuyển về dashboard
+                    break;
+                default:
+                    window.location.hash = '#dashboard';
+            }
+        };
+        
+        // --- CÁC HÀM XỬ LÝ CRUD KHÁC --- (Đã tối ưu logic ở các bước trước)
+        
+        const extractMovieData = (prefix = '') => {
+            const containerId = prefix === 'edit-' ? 'edit-genre-tag-container' : 'genre-tag-container';
+            const selectedTags = document.querySelectorAll(`#${containerId} .genre-tag.selected`);
+            
+            return {
+                title: $(`${prefix}movie-title`).value.trim(),
+                titleOriginal: $(`${prefix}movie-title-original`).value.trim(),
+                summary: $(`${prefix}movie-summary`).value.trim(),
+                genres: Array.from(selectedTags).map(tag => tag.dataset.genre),
+                formatType: $(`${prefix}movie-formatType`).value,
+                season: $(`${prefix}movie-season`).value,
+                totalEpisodes: parseInt($(`${prefix}movie-totalEpisodes`).value) || 0,
+                status: $(`${prefix}movie-status`).value,
+                airingDay: $(`${prefix}movie-airingDay`).value,
+                posterUrlInput: $(`${prefix}movie-poster`).value.trim(),
+                posterFileInput: $(`${prefix}movie-poster-file`).files?.[0],
+                bannerUrlInput: $(`${prefix}movie-banner`).value.trim(),
+                bannerFileInput: $(`${prefix}movie-banner-file`).files?.[0]
+            };
+        };
+        
+        const handleAddMovie = async (e) => {
+            e.preventDefault();
+            const data = extractMovieData();
+            const messageEl = $('movie-form-message');
+            const posterStatusEl = $('poster-upload-status');
+            const bannerStatusEl = $('banner-upload-status');
+
+            messageEl.textContent = posterStatusEl.textContent = bannerStatusEl.textContent = '';
+            
+            if (!data.title || data.genres.length === 0 || (!data.posterUrlInput && !data.posterFileInput)) {
+                messageEl.textContent = 'WARNING! Vui lòng điền Tên Phim, chọn ít nhất 1 Thể Loại, và cung cấp URL hoặc Tệp Poster.';
+                return;
+            }
+            if (!moviesCollectionRef || !userId) {
+                messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.';
+                return;
+            }
+            
+            try {
+                let finalPosterUrl = data.posterUrlInput;
+                let finalBannerUrl = data.bannerUrlInput;
+                
+                // Handle poster upload
+                if (data.posterFileInput) {
+                    posterStatusEl.textContent = 'Đang xử lý ảnh (Base64)...';
+                    posterStatusEl.style.color = COLORS.SUCCESS;
+                    finalPosterUrl = await readFileAsBase64(data.posterFileInput, MAX_POSTER_SIZE_BYTES); 
+                    posterStatusEl.textContent = 'Tệp Base64 đã sẵn sàng!';
+                }
+                
+                // Handle banner upload
+                if (data.bannerFileInput) {
+                    bannerStatusEl.textContent = 'Đang xử lý banner (Base64)...';
+                    bannerStatusEl.style.color = COLORS.SUCCESS;
+                    finalBannerUrl = await readFileAsBase64(data.bannerFileInput, MAX_POSTER_SIZE_BYTES); 
+                    bannerStatusEl.textContent = 'Banner Base64 đã sẵn sàng!';
+                }
+
+                const newDocRef = doc(moviesCollectionRef); 
+                await setDoc(newDocRef, {
+                    title: data.title,
+                    titleOriginal: data.titleOriginal || '', 
+                    genre: data.genres.join(', '), 
+                    posterUrl: finalPosterUrl, 
+                    bannerUrl: finalBannerUrl, 
+                    summary: data.summary,
+                    viewCount: 0,
+                    likeCount: 0,
+                    episodes: [], 
+                    createdAt: serverTimestamp(),
+                    updatedBy: userId,
+                    formatType: data.formatType,
+                    season: data.season,
+                    totalEpisodes: data.totalEpisodes,
+                    status: data.status,
+                    airingDay: data.airingDay
+                });
+
+                $('add-movie-form').reset();
+                posterStatusEl.textContent = bannerStatusEl.textContent = '';
+                document.querySelectorAll('#genre-tag-container .genre-tag.selected').forEach(tag => tag.classList.remove('selected'));
+                hideModal('add-movie-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi thêm phim mới:", error);
+                messageEl.textContent = 'FATAL ERROR: ' + error.message;
+                posterStatusEl.textContent = 'Lỗi xử lý ảnh.';
+                posterStatusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const handleEditMovie = async (e) => {
+            e.preventDefault();
+            const movieId = $('edit-movie-id').value;
+            const data = extractMovieData('edit-');
+            const messageEl = $('edit-movie-form-message');
+            const posterStatusEl = $('edit-poster-upload-status');
+            const bannerStatusEl = $('edit-banner-upload-status');
+
+            messageEl.textContent = posterStatusEl.textContent = bannerStatusEl.textContent = '';
+            
+            if (!movieId) { messageEl.textContent = 'FATAL ERROR: Không tìm thấy Movie ID.'; return; }
+            if (!data.title || data.genres.length === 0) { messageEl.textContent = 'WARNING! Vui lòng điền Tên Phim và chọn ít nhất 1 Thể Loại.'; return; }
+            
+            let isPosterUpdated = false;
+            let finalPosterUrl = data.posterUrlInput;
+            let isBannerUpdated = false;
+            let finalBannerUrl = data.bannerUrlInput;
+
+            try {
+                // Handle new poster file/url
+                if (data.posterFileInput) {
+                    isPosterUpdated = true;
+                    posterStatusEl.textContent = 'Đang xử lý ảnh mới (Base64)...';
+                    posterStatusEl.style.color = COLORS.SUCCESS;
+                    finalPosterUrl = await readFileAsBase64(data.posterFileInput, MAX_POSTER_SIZE_BYTES);
+                    posterStatusEl.textContent = 'Tệp Base64 mới đã sẵn sàng!';
+                } else if (data.posterUrlInput) {
+                     isPosterUpdated = true;
+                }
+
+                // Handle new banner file/url
+                if (data.bannerFileInput) {
+                    isBannerUpdated = true;
+                    bannerStatusEl.textContent = 'Đang xử lý banner mới (Base64)...';
+                    bannerStatusEl.style.color = COLORS.SUCCESS;
+                    finalBannerUrl = await readFileAsBase64(data.bannerFileInput, MAX_POSTER_SIZE_BYTES);
+                    bannerStatusEl.textContent = 'Banner Base64 mới đã sẵn sàng!';
+                } else if (data.bannerUrlInput) {
+                    isBannerUpdated = true;
+                }
+                
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+                
+                const updateData = {
+                    title: data.title,
+                    titleOriginal: data.titleOriginal || '',
+                    genre: data.genres.join(', '),
+                    summary: data.summary,
+                    updatedBy: userId,
+                    formatType: data.formatType,
+                    season: data.season,
+                    totalEpisodes: data.totalEpisodes,
+                    status: data.status,
+                    airingDay: data.airingDay
+                };
+                
+                if (isPosterUpdated) { updateData.posterUrl = finalPosterUrl; }
+                if (isBannerUpdated) { updateData.bannerUrl = finalBannerUrl; }
+
+                await updateDoc(movieDocRef, updateData);
+
+                $('edit-movie-form').reset();
+                posterStatusEl.textContent = bannerStatusEl.textContent = ''; 
+                document.querySelectorAll('#edit-genre-tag-container .genre-tag.selected').forEach(tag => tag.classList.remove('selected'));
+                
+                hideModal('edit-movie-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi cập nhật phim:", error);
+                messageEl.textContent = 'FATAL ERROR: ' + error.message;
+                posterStatusEl.textContent = 'Lỗi xử lý ảnh.';
+                posterStatusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const handleAddEpisode = async (e) => {
+            e.preventDefault();
+            const movieId = $('episode-movie-id').value;
+            const episodeNumber = parseInt($('episode-number').value);
+            const title = $('episode-title').value.trim();
+            const videoUrl = $('episode-url').value.trim();
+            const messageEl = $('episode-form-message');
+
+            if (isNaN(episodeNumber) || !title || !videoUrl || episodeNumber < 1) {
+                messageEl.textContent = 'INVALID INPUT! Vui lòng điền thông tin tập phim hợp lệ.';
+                return;
+            }
+            messageEl.textContent = '';
+            
+            if (!moviesCollectionRef || !userId) { messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.'; return; }
+
+            try {
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+                const movieSnap = await getDoc(movieDocRef);
+                const existingEpisodes = movieSnap.data()?.episodes || [];
+                
+                if (existingEpisodes.some(ep => ep.episodeNumber === episodeNumber)) {
+                    messageEl.textContent = `LỖI: Số tập ${episodeNumber} đã tồn tại trong phim này.`;
+                    return;
+                }
+                
+                const newEpisode = { episodeNumber, title, videoUrl, addedAt: serverTimestamp() }; // Dùng serverTimestamp
+                
+                existingEpisodes.push(newEpisode);
+                existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+                await updateDoc(movieDocRef, { episodes: existingEpisodes });
+                
+                $('add-episode-form').reset();
+                hideModal('add-episode-modal');
+            } catch (error) {
+                console.error("Lỗi khi thêm tập phim mới:", error);
+                messageEl.textContent = 'EPISODE ADD ERROR: Lỗi hệ thống khi lưu tập phim: ' + error.message;
+            }
+        };
+
+        const handleEditEpisode = async (e) => {
+            e.preventDefault();
+            const movieId = $('edit-episode-movie-id').value;
+            const originalEpisodeNumber = parseInt($('edit-episode-number-original').value);
+            
+            const newEpisodeNumber = parseInt($('edit-episode-number').value);
+            const newTitle = $('edit-episode-title').value.trim();
+            const newVideoUrl = $('edit-episode-url').value.trim();
+            const messageEl = $('edit-episode-form-message');
+
+            if (isNaN(newEpisodeNumber) || !newTitle || !newVideoUrl || newEpisodeNumber < 1) {
+                messageEl.textContent = 'INVALID INPUT! Vui lòng điền thông tin hợp lệ.';
+                return;
+            }
+            messageEl.textContent = '';
+            
+            try {
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+                const movieSnap = await getDoc(movieDocRef);
+                const movieData = movieSnap.data();
+                let episodes = movieData.episodes || [];
+                
+                if (newEpisodeNumber !== originalEpisodeNumber && episodes.some(ep => ep.episodeNumber === newEpisodeNumber)) {
+                    messageEl.textContent = `LỖI: Số tập ${newEpisodeNumber} đã tồn tại.`;
+                    return;
+                }
+
+                const episodeIndex = episodes.findIndex(ep => ep.episodeNumber === originalEpisodeNumber);
+                if (episodeIndex === -1) {
+                    messageEl.textContent = 'LỖI HỆ THỐNG: Không tìm thấy tập gốc để cập nhật.';
+                    return;
+                }
+                
+                episodes[episodeIndex] = { 
+                    ...(episodes[episodeIndex] || {}), 
+                    episodeNumber: newEpisodeNumber, 
+                    title: newTitle, 
+                    videoUrl: newVideoUrl,
+                    updatedAt: serverTimestamp() // Thêm updated time
+                };
+                
+                episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+                await updateDoc(movieDocRef, { episodes });
+                
+                $('edit-episode-form').reset();
+                hideModal('edit-episode-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi cập nhật tập phim:", error);
+                messageEl.textContent = 'EPISODE UPDATE ERROR: ' + error.message;
+            }
+        };
+        
+        window.handleDeleteMovie = async (movieId, movieTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc chắn muốn xóa TOÀN BỘ phim "${movieTitle}"?`);
+            if (confirmed) {
+                try {
+                    await deleteDoc(doc(moviesCollectionRef, movieId));
+                } catch (error) { console.error("Lỗi khi xóa phim:", error); }
+            }
+        };
+        window.handleDeleteEpisode = async (movieId, episodeNumber, episodeTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc muốn xóa TẬP ${episodeNumber} ("${episodeTitle}")?`);
+            if (!confirmed) return;
+            
+            try {
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+                const movieSnap = await getDoc(movieDocRef);
+                const episodes = movieSnap.data()?.episodes || [];
+                
+                const updatedEpisodes = episodes.filter(ep => ep.episodeNumber !== episodeNumber);
+                
+                await updateDoc(movieDocRef, { episodes: updatedEpisodes });
+                
+            } catch (error) {
+                console.error("Lỗi khi xóa tập phim:", error);
+            }
+        };
+
+        window.showAddEpisodeModal = (movieId, movieTitle) => {
+            $('episode-movie-id').value = movieId;
+            $('episode-movie-title').textContent = movieTitle;
+            $('episode-form-message').textContent = '';
+            $('add-episode-form').reset();
+            showModal('add-episode-modal');
+        };
+
+        window.showEditMovieModal = async (movieId) => {
+            if (!moviesCollectionRef) return;
+            // ... (Logic nạp dữ liệu phim cho form chỉnh sửa)
+            const movie = globalAdminMoviesCache.find(m => m.id === movieId);
+            if (!movie) {
+                 alert("Lỗi: Không tìm thấy phim trong cache.");
+                 return;
+            }
+            
+            $('edit-movie-id').value = movieId;
+            $('edit-movie-title').value = movie.title || '';
+            $('edit-movie-title-original').value = movie.titleOriginal || '';
+            $('edit-movie-summary').value = movie.summary || '';
+            
+            $('edit-movie-formatType').value = movie.formatType || 'tv-series';
+            $('edit-movie-season').value = movie.season || 'khac';
+            $('edit-movie-totalEpisodes').value = movie.totalEpisodes || 0;
+            $('edit-movie-status').value = movie.status || 'dang-chieu';
+            $('edit-movie-airingDay').value = movie.airingDay || 'Không có';
+
+            // Xử lý Poster
+            const isPosterBase64 = movie.posterUrl && movie.posterUrl.startsWith('data:image');
+            $('edit-poster-upload-status').textContent = isPosterBase64 ? 'Phim đang dùng ảnh Base64. Tải tệp mới hoặc dán URL sẽ ghi đè.' : '';
+            $('edit-movie-poster').value = isPosterBase64 ? '' : movie.posterUrl || '';
+            
+            // Xử lý Banner
+            const isBannerBase64 = movie.bannerUrl && movie.bannerUrl.startsWith('data:image');
+            $('edit-banner-upload-status').textContent = isBannerBase64 ? 'Phim đang dùng banner Base64. Tải tệp mới/dán URL sẽ ghi đè.' : '';
+            $('edit-movie-banner').value = isBannerBase64 ? '' : movie.bannerUrl || '';
+            
+            // Xử lý Thể loại
+            const savedGenres = (movie.genre || '').split(',').map(g => g.trim());
+            document.querySelectorAll('#edit-genre-tag-container .genre-tag').forEach(tag => {
+                tag.classList.toggle('selected', savedGenres.includes(tag.dataset.genre));
+            });
+            
+            showModal('edit-movie-modal');
+        };
+
+        window.showEditEpisodeModal = (movieId, episodeNumber) => {
+            const movie = globalAdminMoviesCache.find(m => m.id === movieId);
+            const episodeToEdit = (movie?.episodes || []).find(ep => ep.episodeNumber === episodeNumber);
+
+            if (!episodeToEdit) {
+                 alert("Lỗi: Không tìm thấy tập phim để sửa.");
+                 return;
+            }
+            
+            $('edit-episode-movie-id').value = movieId;
+            $('edit-episode-movie-title').textContent = movie.title;
+            $('edit-episode-number-original').value = episodeToEdit.episodeNumber; 
+            $('edit-episode-number').value = episodeToEdit.episodeNumber;
+            $('edit-episode-title').value = episodeToEdit.title;
+            $('edit-episode-url').value = episodeToEdit.videoUrl;
+            $('edit-episode-form-message').textContent = '';
+            
+            showModal('edit-episode-modal');
+        };
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            
+            // Listeners cho Auth Page
+            $('login-form')?.addEventListener('submit', handleLogin);
+            
+            // Listeners cho Main View Navigation
+            $('nav-dashboard')?.addEventListener('click', () => window.location.hash = '#dashboard');
+            $('nav-schedule')?.addEventListener('click', () => window.location.hash = '#schedule');
+            $('nav-profile')?.addEventListener('click', () => window.location.hash = '#profile');
+            
+            // Listener cho Profile Page (Form submit)
+            // LƯU Ý: Các form này chỉ tồn tại sau khi renderProfilePage() chạy, cần dùng Optional Chaining (?)
+            $('profile-form')?.addEventListener('submit', handleSaveProfile);
+            $('create-admin-form')?.addEventListener('submit', handleCreateAdmin);
+            $('changePasswordForm')?.addEventListener('submit', handleChangePassword);
+        });
+        
+        window.addEventListener('hashchange', router);
+
+    </script>
+</body>
+</html>
