@@ -549,7 +549,7 @@
         // [Cập nhật] Hàm tải cache phim lần đầu và subscribe updates
         const loadInitialMovieCache = () => {
              if (!db) return;
-             if (isGlobalCacheLoaded) return;
+             if (isGlobalCacheLoaded) return; // Vẫn giữ để tránh re-subscribe
              
              const q = query(collection(db, dataCollectionPath));
              
@@ -559,16 +559,25 @@
                 movieList.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 
                 globalMovieCache = movieList;
+                
+                const wasCacheLoaded = isGlobalCacheLoaded; // Kiểm tra xem đây có phải lần tải đầu tiên không
                 isGlobalCacheLoaded = true;
                 
-                // Sau khi cache được cập nhật, render lại trang hiện tại (nếu cần)
-                if (window.location.hash.startsWith('#home') || window.location.hash.startsWith('#schedule')) {
+                // [FIX] Nếu đây là LẦN ĐẦU TIÊN cache được tải,
+                // chúng ta PHẢI gọi router() để render nội dung.
+                if (!wasCacheLoaded) {
+                    router(); // Gọi router() để render trang (bất kể hash là gì)
+                } 
+                // Nếu đây là CẬP NHẬT (cache đã tải từ trước),
+                // thì chỉ render lại nếu đang ở trang chủ/lịch chiếu.
+                else if (window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
                     router(false); // Render lại mà không thay đổi hash
                 }
 
              }, (error) => {
                 console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
-                // Giữ nguyên lỗi nếu có
+                isGlobalCacheLoaded = true; // Vẫn set là true để dừng xoay vòng nếu lỗi
+                showError("Lỗi tải dữ liệu phim.", error.message);
              });
         };
         
@@ -862,11 +871,16 @@
         
         // [Cập nhật] Thêm biến shouldUpdateHash để kiểm soát việc render lại
         const router = (shouldUpdateHash = true) => {
-            if (!isAuthInitialised) return;
+            // [FIX] Chỉ chạy router NẾU auth đã sẵn sàng VÀ cache phim đã tải (hoặc có lỗi)
+             if (!isAuthInitialised || !isGlobalCacheLoaded) {
+                 if (!isAuthInitialised) console.log("Router: Chờ Auth...");
+                 if (!isGlobalCacheLoaded) console.log("Router: Chờ Cache Phim...");
+                 return; // Không chạy router nếu chưa sẵn sàng
+             }
 
             const activeNav = window.location.hash || '#home';
             let pathSegments = activeNav.substring(1).split('/');
-            let primaryHash = '#' + pathSegments[0];
+            let primaryHash = '#' + (pathSegments[0] || 'home'); // Mặc định là #home nếu hash rỗng
             
             // [Tối ưu] Xóa tất cả active class chỉ trong một lần query
             document.querySelectorAll('.nav-active, .mobile-nav-active').forEach(el => {
@@ -1215,7 +1229,9 @@
                     if(!isAuthInitialised) {
                          isAuthInitialised = true;
                          loadInitialMovieCache(); // Bắt đầu tải phim sau khi Auth sẵn sàng
-                         router();
+                         // [FIX] KHÔNG gọi router() ở đây nữa.
+                         // Hãy để loadInitialMovieCache() gọi router() SAU KHI có dữ liệu.
+                         // router(); // <-- DÒNG NÀY ĐÃ BỊ VÔ HIỆU HÓA
                     } else if(needsRerender) {
                         router();
                     }
