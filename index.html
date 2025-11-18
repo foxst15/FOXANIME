@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png">
     <title>FOXANIME - Xem Anime Miễn Phí</title>
-    <!-- Tải Tailwind CSS -->
+    <!-- TẢI LẠI TAILWIND CDN ĐỂ GIẢM ĐỘ DÀI FILE VÀ KHẮC PHỤC LỖI CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tải icon (Heroicons/Ionicons) -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -21,13 +21,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
-            signInAnonymously, 
             signInWithCustomToken, 
             onAuthStateChanged,
             signOut,
             GoogleAuthProvider,
             signInWithPopup,
-            // [FIX 1] THÊM setPersistence và browserLocalPersistence
             setPersistence,
             browserLocalPersistence 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -42,7 +40,6 @@
 
         // === CẤU HÌNH FIREBASE VÀ BIẾN TOÀN CỤC ===
         
-        // Cấu hình dự phòng (HARDCODED CONFIG) từ admin.html để đảm bảo app chạy
         const FIREBASE_DEFAULT_CONFIG = {
             "apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", 
             "authDomain": "foxanime-e77d4.firebaseapp.com",
@@ -51,58 +48,457 @@
             "messagingSenderId": "1025177423292", 
             "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"
         };
-        // END CONFIG
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
         
-        // Ưu tiên config từ Canvas, nếu không có, dùng config dự phòng
         const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
 
         let app, db, auth;
         let userId = null; 
         let userEmail = null; 
-        let dataCollectionPath, userLikesCollectionPath;
+        let dataCollectionPath, userLikesCollectionPath, userRoleCollectionPath; 
         let isAuthInitialised = false; 
         let globalMovieCache = []; 
         let unsubscribeCommentsListener = null; 
         let currentUserLikeDocIds = {}; 
         let setupError = null; 
-        let isGlobalCacheLoaded = false; // Cờ theo dõi cache phim đã tải lần đầu chưa
+        let isGlobalCacheLoaded = false; 
+        let resolveResumeModal; 
+        
+        // === HÀM TIỆN ÍCH CHUNG ===
+        
+        const getEl = (selector) => document.querySelector(selector);
+        const getAllEl = (selector) => document.querySelectorAll(selector);
 
-        // Khởi tạo đường dẫn mặc định
         const updatePaths = (currentUserId) => {
-            const safeUserId = currentUserId || 'guest';
+            if (!appId && appId !== '') {
+                console.error("FATAL: appId is not defined. Path creation failed.");
+                setupError = new Error("Lỗi Cấu hình: appId không hợp lệ.");
+                return; 
+            }
+            const safeUserId = currentUserId || crypto.randomUUID(); 
             dataCollectionPath = `artifacts/${appId}/public/data/movies`; 
-            // Lưu likes vào collection 'likes' của user
             userLikesCollectionPath = `artifacts/${appId}/users/${safeUserId}/likes`;
+            userRoleCollectionPath = `artifacts/${appId}/users`; 
         };
         
         updatePaths(null);
-
-        // --- SLUG UTILS ---
-        const createSlug = (text) => {
-            if (!text) return '';
-            return text.toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "") 
-                .replace(/đ/g, 'd').replace(/Đ/g, 'D')
-                .replace(/[^a-z0-9\s-]/g, "") 
-                .trim()
-                .replace(/\s+/g, '-') 
-                .replace(/-+/g, '-'); 
+        
+        const isGoogleAuth = (userFromCallback = null) => {
+             const user = userFromCallback || auth?.currentUser; 
+             return user && user.providerData.some(p => p.providerId === 'google.com');
+        };
+        
+        // --- Danh sách từ cấm (RÚT GỌN) ---
+        const BANNED_WORDS = [
+            "đụ", "cặc", "lồn", "buồi", "địt", "mẹ mày", "đm", "dcm", "cc", 
+            "chó chết", "súc vật", "phản động", "kích war", "xuyên tạc",
+            "tự tử", "chết đi", "đánh nhau", "chia rẽ", "phá hoại", "vô học",
+            "thằng ngu", "con điên", "chửi", "bố láo", "cút", "biến", "đồ khốn",
+            "khốn nạn", "sản", "ngu xuẩn", "óc chó", "thiếu văn minh", "fuck", "shit"
+        ];
+        
+        const isCommentProfane = (content) => {
+            const normalizedContent = content.toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+                .replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/[^a-z0-9\s]/g, ""); 
+            
+            for (const word of BANNED_WORDS) {
+                const normalizedBannedWord = word.toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, 'd').replace(/Đ/g, 'd');
+                if (normalizedContent.includes(normalizedBannedWord.replace(/\s+/g, '')) || content.toLowerCase().includes(word.toLowerCase())) {
+                    return true;
+                }
+            }
+            return false;
         };
 
-        // === GIAO DIỆN MẪU (TEMPLATES) ===
+        const createSlug = (text) => {
+            if (!text) return '';
+            return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-z0-9\s-]/g, "") 
+                .trim().replace(/\s+/g, '-').replace(/-+/g, '-'); 
+        };
         
-        // Template cho Hero Section
+        // --- MODAL UTILS ---
+        window.showResumeModal = (movieTitle, time) => {
+            const modal = getEl('#resume-modal');
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            getEl('#resume-modal-text').textContent = 
+                `Bạn đã xem "${movieTitle}" đến ${minutes} phút ${seconds} giây. Bạn có muốn xem tiếp không?`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            return new Promise(resolve => { resolveResumeModal = resolve; });
+        };
+
+        window.hideResumeModal = () => {
+            const modal = getEl('#resume-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resolveResumeModal = null;
+        };
+        
+        // --- HÀM LƯU THỜI GIAN XEM (RÚT GỌN) ---
+        const saveWatchTime = (episodeId, time) => {
+            if (episodeId && time >= 5 && (Date.now() - parseInt(localStorage.getItem(`_lastSave_${episodeId}`) || '0') > 30000)) {
+                localStorage.setItem(`_watchTime_${episodeId}`, time);
+                localStorage.setItem(`_lastSave_${episodeId}`, Date.now());
+            }
+        };
+
+        // --- HÀM LẮNG NGHE BÌNH LUẬN (RÚT GỌN LOGIC) ---
+        const setupCommentsListener = (movieId) => {
+            if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+            
+            const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
+            const commentsQuery = query(commentsColRef); 
+
+            unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
+                const updatedComments = [];
+                snapshot.forEach(doc => {
+                    updatedComments.push({ id: doc.id, ...doc.data() });
+                });
+                updatedComments.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                
+                const commentsListElement = getEl('#comments-list');
+                if (commentsListElement) {
+                    commentsListElement.innerHTML = updatedComments.length > 0
+                        ? updatedComments.map(CommentTemplate).join('')
+                        : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>';
+                }
+            }, (error) => {
+                console.error("Lỗi listener bình luận:", error);
+                const commentsListElement = getEl('#comments-list');
+                if (commentsListElement) {
+                    commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';
+                }
+            });
+        };
+
+        // --- HÀM TEMPLATE UI (RÚT GỌN) ---
+        
+        const MovieCardTemplate = (movie) => {
+            const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`; 
+            const statusText = movie.status || 'N/A';
+            const epCount = movie.episodes ? movie.episodes.length : 0;
+            const genres = movie.genre ? movie.genre.split(',').map(g => g.trim()).join(', ') : '';
+            
+            return `
+                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2">
+                    <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
+                        <span class="inline-block bg-black/70 text-lime-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
+                            ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
+                        </span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
+                            ${epCount > 0 ? `Tập ${epCount}` : 'Chưa có tập'}
+                        </span>
+                    </div>
+                    <div class="absolute inset-0 z-10"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 108 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                        </div>
+                    </div>
+                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-white truncate group-hover:text-lime-400 transition-colors z-20 relative">${movie.title}</h3>
+                        <p class="text-sm text-gray-400">${genres}</p>
+                    </div>
+                </a>
+            `;
+        };
+        
+        // Template Trang Kết Quả (RÚT GỌN)
+        const SearchPageTemplate = (movieList, title) => `
+            <section>
+                <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                    ${movieList.length > 0 ? movieList.map(MovieCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy bộ anime nào phù hợp.</p>'}
+                </div>
+            </section>
+        `;
+
+        // === LOGIC XỬ LÝ AUTH UI (RÚT GỌN) ===
+
+        const updateAuthStateUI = (user) => {
+            const authButtonDesktop = getEl('#auth-button-desktop');
+            const authButtonMobile = getEl('#auth-button-mobile');
+            if (!authButtonDesktop || !authButtonMobile) return;
+
+            if (isGoogleAuth(user)) {
+                const displayName = user.displayName || user.email.split('@')[0];
+                const photoURL = user.photoURL || `https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
+
+                // Desktop: Avatar + Dropdown
+                authButtonDesktop.innerHTML = `
+                    <div class="user-profile-dropdown">
+                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-lime-500 transition-shadow">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                        </button>
+                        <div id="user-dropdown-menu" class="user-dropdown-content">
+                            <div class="p-4 border-b border-gray-600">
+                                <p class="text-white font-bold">${displayName}</p>
+                                <p class="text-gray-400 text-sm truncate">${user.email}</p>
+                            </div>
+                            <button id="logout-button-desktop" class="w-full text-left flex items-center px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
+                                <ion-icon name="log-out-outline" class="text-xl mr-2"></ion-icon>
+                                Đăng Xuất
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Mobile: Avatar + Đăng xuất
+                authButtonMobile.innerHTML = `
+                        <div class="flex items-center mb-3">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-lime-400">${displayName}</span></p>
+                        </div>
+                        <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
+                
+                // Gắn listener cho dropdown profile
+                getEl('#profile-avatar-btn')?.addEventListener('click', function() {
+                    getEl('#user-dropdown-menu')?.classList.toggle('active');
+                });
+                
+                // Gắn listener cho nút Đăng xuất
+                getEl('#logout-button-desktop')?.addEventListener('click', handleLogout);
+                getEl('#logout-button-mobile')?.addEventListener('click', (e) => {
+                    handleLogout(e);
+                    getEl('#mobile-menu')?.classList.add('hidden');
+                });
+                
+            } else {
+                // Hiển thị nút Đăng nhập
+                authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+                authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+            }
+        };
+
+        // === ROUTER VÀ PAGE RENDERING (RÚT GỌN CODE) ===
+        
+        const showError = (message, details = '') => {
+            console.error(message, details);
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
+                        <p class="text-lg mb-2">${message}</p>
+                        ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
+                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
+                    </div>
+                `;
+            }
+        };
+
+        const showLoading = () => {
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="flex justify-center items-center h-[50vh]">
+                        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                `;
+            }
+        };
+        
+        const renderPage = (pageType, param) => {
+            if (!db || !isGlobalCacheLoaded) {
+                 showLoading();
+                 return;
+            }
+
+            const cache = globalMovieCache;
+            let results = [];
+            let title = '';
+
+            switch (pageType) {
+                case '#home':
+                    const moiCapNhatList = cache.filter(a => a.status === 'dang-chieu').slice(0, 6);
+                    const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, 6);
+                    const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, 6);
+                    const heroMovie = moiCapNhatList.length > 0 ? moiCapNhatList[0] : (cache.length > 0 ? cache[0] : null);
+                    getEl('#app').innerHTML = HeroSectionTemplate(heroMovie) + MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') + MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') + MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
+                    return;
+                case '#login':
+                    getEl('#app').innerHTML = AuthPageTemplate();
+                    getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
+                    return;
+                case '#search':
+                    title = `Kết quả tìm kiếm cho: "${param}"`;
+                    const lowerCaseTerm = param.toLowerCase();
+                    results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
+                    break;
+                case '#genre':
+                    const filter = param.toLowerCase();
+                    title = `Thể loại: ${param.replace(/-/g, ' ')}`;
+                    results = cache.filter(m => (m.formatType && m.formatType.toLowerCase() === filter) || (m.status && m.status.toLowerCase() === filter) || (m.genre && m.genre.toLowerCase().includes(filter.replace(/-/g, ' '))));
+                    break;
+                case '#top':
+                    title = `Top ${param ? param.replace(/-/g, ' ') : 'Anime'} (Sắp xếp theo Lượt xem)`;
+                    results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+                    break;
+                case '#season':
+                    title = `Anime ${param ? decodeURIComponent(param).replace(/-/g, ' ') : 'Mùa (Mới nhất)'}`;
+                    results = cache.filter(m => m.season && m.season.toLowerCase() === param.toLowerCase());
+                    break;
+                case '#library':
+                    if (!isGoogleAuth()) {
+                        getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập bằng Google</a> để xem thư viện cá nhân.</p></div>`;
+                        return;
+                    }
+                    title = "Thư Viện (Phim đã thích)";
+                    const likedMovieIds = Object.keys(currentUserLikeDocIds);
+                    results = cache.filter(m => likedMovieIds.includes(m.id));
+                    break;
+                case '#schedule':
+                    return renderSchedulePage(); // Giữ lại hàm renderSchedulePage do logic phức tạp
+                default:
+                    window.location.hash = '#home';
+                    return;
+            }
+
+            getEl('#app').innerHTML = SearchPageTemplate(results, title);
+        };
+        
+        const router = (shouldUpdateHash = true) => {
+            if (setupError) {
+                showError(setupError.message, setupError.stack || '');
+                return;
+            }
+            if (!isAuthInitialised) return;
+
+            const activeHash = window.location.hash || '#home';
+            const pathSegments = activeHash.substring(1).split('/');
+            const primaryHash = '#' + pathSegments[0];
+            
+            getAllEl('.nav-active, .mobile-nav-active').forEach(el => el.classList.remove('nav-active', 'mobile-nav-active'));
+            
+            const navMap = { '#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule' };
+            const groupMap = { '#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season' };
+            const targetHash = navMap[primaryHash] || groupMap[primaryHash];
+            
+            if (targetHash) {
+                const selector = `.nav-link[href="${targetHash}"], .nav-link[data-hash-group="${targetHash}"], .mobile-nav-link[href="${targetHash}"], .mobile-nav-link[data-hash-group="${targetHash}"]`;
+                getAllEl(selector).forEach(el => el.classList.add(el.classList.contains('nav-link') ? 'nav-active' : 'mobile-nav-active'));
+            }
+
+            if (primaryHash !== '#phim' && unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+
+            if (primaryHash === '#phim' && pathSegments.length >= 2) {
+                const movieIdMatch = pathSegments[1].match(/-([a-zA-Z0-9]+)$/);
+                const movieId = movieIdMatch ? movieIdMatch[1] : null; 
+                if (!movieId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
+                
+                if (pathSegments.length === 2) {
+                    renderInfoPage(movieId);
+                } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
+                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/); 
+                    const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
+                    if (episodeUniqueId) renderWatchPage(movieId, episodeUniqueId);
+                }
+                return;
+            }
+            
+            renderPage(primaryHash, pathSegments[1]);
+        };
+
+        // Giữ nguyên các hàm phức tạp (Info, Watch, Schedule, Firebase setup)
+        // [CÁC HÀM CÒN LẠI GIỮ NGUYÊN NHƯ PHIÊN BẢN TRƯỚC VÌ CHÚNG LÀ LOGIC CHỨC NĂNG]
+        
+        // --- CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN ĐỂ TỐI ƯU HÓA CODEBASE KHÔNG BỊ PHỨC TẠP QUÁ MỨC) ---
+        
+        // <start_of_retained_logic>
+        
+        // Hàm Tăng Lượt Xem (Đã rút gọn logic ở trên)
+        const incrementViewCount = async (movieId) => {
+            const viewedKey = `viewed_${movieId}`;
+            if (!sessionStorage.getItem(viewedKey)) {
+                try {
+                    if (db && dataCollectionPath) { 
+                         const movieDocRef = doc(db, dataCollectionPath, movieId);
+                         await updateDoc(movieDocRef, { viewCount: increment(1) });
+                         sessionStorage.setItem(viewedKey, 'true');
+                    }
+                } catch (e) { console.error("Lỗi khi tăng lượt xem:", e); }
+            }
+        };
+
+        // Hàm Video Embed (Giữ nguyên)
+        const getYoutubeEmbedUrl = (url) => {
+            try {
+                const urlObj = new URL(url);
+                const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
+                if (videoId) { return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${window.location.origin}&modestbranding=1`; }
+            } catch (e) { /* Bỏ qua lỗi URL */ }
+            return null;
+        };
+        
+        const getGoogleDriveEmbedUrl = (url) => {
+             try {
+                const urlObj = new URL(url);
+                let fileId = '';
+                if (urlObj.pathname.startsWith('/file/d/')) { fileId = urlObj.pathname.split('/')[3]; } 
+                else if (urlObj.pathname.startsWith('/uc')) { fileId = urlObj.searchParams.get('id'); }
+                if (fileId) { return `https://drive.google.com/file/d/${fileId}/preview`; }
+            } catch (e) { /* Bỏ qua lỗi URL */ }
+            return null; 
+        };
+
+        const getVideoPlayer = (videoUrl, posterUrl) => {
+            const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
+            const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
+
+            if (youtubeEmbedUrl || googleDriveEmbedUrl) {
+                const src = youtubeEmbedUrl || googleDriveEmbedUrl;
+                return {
+                    html: `<iframe id="video-player-iframe" class="w-full h-full" src="${src}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`,
+                    isHtml5Video: false
+                };
+            }
+            return {
+                html: `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`,
+                isHtml5Video: true
+            };
+        };
+
+        const handlePlayVideo = (e) => {
+            e.preventDefault();
+            const overlay = getEl('#video-overlay');
+            if (!overlay) return;
+
+            overlay.classList.add('fade-out');
+            
+            const videoElement = getEl('#video-player-element');
+            const iframeElement = getEl('#video-player-iframe');
+            
+            if (videoElement) {
+                videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
+            } else if (iframeElement) {
+                let src = iframeElement.src;
+                if (src.includes('youtube.com/embed') && !src.includes('autoplay=1')) {
+                    src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
+                    iframeElement.src = src;
+                }
+            }
+            setTimeout(() => { overlay.remove(); }, 500); 
+        };
+        
         const HeroSectionTemplate = (movie) => {
             if (!movie) return '';
             const movieSlug = createSlug(movie.title);
             const infoUrl = `#phim/${movieSlug}-${movie.id}`; 
             const imageUrl = movie.bannerUrl || movie.posterUrl; 
-            
+            const genres = movie.genre ? movie.genre.split(',').slice(0, 2).map(genre => `<span class="bg-gray-700/80 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
+
             return `
                 <section class="relative h-[60vh] md:h-[70vh] rounded-xl overflow-hidden mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
                     <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-80" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
@@ -118,55 +514,13 @@
                                 <ion-icon name="information-circle-outline" class="text-2xl mr-2"></ion-icon>
                                 Xem Thông Tin
                             </a>
-                            <div class="flex space-x-2">
-                                ${movie.genre ? movie.genre.split(',').slice(0, 2).map(genre => `<span class="bg-gray-700/80 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
-                            </div>
+                            <div class="flex space-x-2">${genres}</div>
                         </div>
                     </div>
                 </section>
             `;
         };
 
-        // Template cho thẻ Anime
-        const MovieCardTemplate = (movie) => {
-            const genres = movie.genre ? movie.genre.split(',').map(g => g.trim()) : [];
-            const statusText = movie.status || 'N/A';
-            const episodeCount = movie.episodes ? movie.episodes.length : 0;
-            const movieSlug = createSlug(movie.title);
-            const infoUrl = `#phim/${movieSlug}-${movie.id}`; 
-            
-            return `
-                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2">
-                    <!-- Overlay Tags -->
-                    <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
-                        <!-- Thẻ Tình trạng -->
-                        <span class="inline-block bg-black/70 text-lime-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
-                            ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
-                        </span>
-                        <!-- Thẻ HD -->
-                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
-                        <!-- Thẻ Tập -->
-                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
-                            ${episodeCount > 0 ? `Tập ${episodeCount}` : 'Chưa có tập'}
-                        </span>
-                    </div>
-
-                    <!-- Play Icon Overlay -->
-                    <div class="absolute inset-0 z-10">
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                        </div>
-                    </div>
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-white truncate group-hover:text-lime-400 transition-colors z-20 relative">${movie.title}</h3>
-                        <p class="text-sm text-gray-400">${genres.join(', ')}</p>
-                    </div>
-                </a>
-            `;
-        };
-
-        // Template cho 1 section phim
         const MovieSectionTemplate = (title, movieList, xemThemLink = "#") => {
             if (movieList.length === 0) return '';
             return `
@@ -189,16 +543,6 @@
             `;
         };
 
-        // Template Trang Chủ
-        const HomePageTemplate = (heroMovie, moiCapNhatList, sapChieuList, deCuList) => `
-            ${HeroSectionTemplate(heroMovie)}
-            ${MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList.slice(0, 6), '#genre/dang-chieu')}
-            ${MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu')}
-            ${MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo')}
-        `;
-
-
-        // Template Trang Đăng Nhập chỉ dùng Google Login
         const AuthPageTemplate = () => {
             return `
                 <div class="min-h-[70vh] flex items-center justify-center">
@@ -206,7 +550,6 @@
                         <h2 class="text-3xl font-bold text-white text-center mb-6">Đăng Nhập</h2>
                         <p class="text-gray-400 text-center mb-8">Sử dụng tài khoản Google để bình luận và lưu phim yêu thích.</p>
                         <div class="space-y-4">
-                            <!-- Nút Đăng nhập Google -->
                             <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
                                 <ion-icon name="logo-google" class="text-xl mr-3 text-red-500"></ion-icon>
                                 Đăng nhập với Google
@@ -217,8 +560,7 @@
                 </div>
             `;
         };
-        
-        // Template cho một bình luận
+
         const CommentTemplate = (comment) => {
             const displayName = comment.displayName || comment.email || 'Người dùng ẩn danh'; 
             const photoURL = comment.photoURL || `https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}`; 
@@ -237,145 +579,23 @@
             </div>
             `;
         };
-
-
-        // Hàm Tăng Lượt Xem
-        const incrementViewCount = async (movieId) => {
-            const viewedKey = `viewed_${movieId}`;
-            if (!sessionStorage.getItem(viewedKey)) {
-                try {
-                    if (db) { 
-                         const movieDocRef = doc(db, dataCollectionPath, movieId);
-                         await updateDoc(movieDocRef, {
-                             viewCount: increment(1)
-                         });
-                         sessionStorage.setItem(viewedKey, 'true');
-                    }
-                } catch (e) {
-                    console.error("Lỗi khi tăng lượt xem:", e);
-                }
-            }
-        };
-
-        // --- LOGIC VIDEO ---
-
-        const getYoutubeEmbedUrl = (url) => {
-            try {
-                const urlObj = new URL(url);
-                const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
-                if (videoId) {
-                    // Thêm rel=0 để tránh gợi ý video không liên quan
-                    return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${window.location.origin}&modestbranding=1`;
-                }
-            } catch (e) { }
-            return null;
-        };
         
-        const getGoogleDriveEmbedUrl = (url) => {
-             try {
-                const urlObj = new URL(url);
-                let fileId = '';
-                if (urlObj.pathname.startsWith('/file/d/')) {
-                    fileId = urlObj.pathname.split('/')[3];
-                } else if (urlObj.pathname.startsWith('/uc')) {
-                    fileId = urlObj.searchParams.get('id');
-                }
-                if (fileId) {
-                    return `https://drive.google.com/file/d/${fileId}/preview`;
-                }
-            } catch (e) { }
-            return null; 
-        };
-
-        const getVideoPlayer = (videoUrl, posterUrl) => {
-            const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
-            const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
-
-            if (youtubeEmbedUrl || googleDriveEmbedUrl) {
-                const src = youtubeEmbedUrl || googleDriveEmbedUrl;
-                return `
-                    <iframe 
-                        id="video-player-iframe"
-                        class="w-full h-full" 
-                        src="${src}" 
-                        title="Video player" 
-                        frameborder="0" 
-                        allow="autoplay; fullscreen"
-                        allowfullscreen
-                        disablepictureinpicture>
-                    </iframe>
-                `;
-            }
-
-            // Video HTML5
-            return `
-                <video 
-                    id="video-player-element" 
-                    controls 
-                    class="w-full h-full" 
-                    src="${videoUrl}" 
-                    poster="${posterUrl}" 
-                    playsinline
-                    disablepictureinpicture
-                    controlsList="nodownload nofullscreen"> 
-                    Trình duyệt của bạn không hỗ trợ thẻ video.
-                </video>
-            `;
-        };
-
-        const handlePlayVideo = (e) => {
-            e.preventDefault();
-            const overlay = document.getElementById('video-overlay');
-            if (!overlay) return;
-
-            overlay.classList.add('fade-out');
-            
-            const videoElement = document.getElementById('video-player-element');
-            const iframeElement = document.getElementById('video-player-iframe');
-            
-            if (videoElement) {
-                videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
-            } else if (iframeElement) {
-                // Chỉ set autoplay nếu đó là YouTube để tránh reload Drive
-                let src = iframeElement.src;
-                if (src.includes('youtube.com/embed')) {
-                    if (!src.includes('autoplay=1')) {
-                        src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
-                        iframeElement.src = src;
-                    }
-                }
-            }
-
-            setTimeout(() => {
-                // Xóa overlay sau khi fade out
-                overlay.remove(); 
-            }, 500); 
-        };
-        
-        // === HÀM TEMPLATE TRANG THÔNG TIN PHIM ===
         const InfoPageTemplate = (movie, episodes) => {
-            episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
             const firstEpisode = episodes.length > 0 ? episodes[0] : null;
-            
-            // Lấy trạng thái Like từ cache
             const isLiked = !!currentUserLikeDocIds[movie.id];
-            
             const movieSlug = createSlug(movie.title);
             const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html` : '#';
-            
             const imageUrl = movie.bannerUrl || movie.posterUrl; 
+            const isLikeAllowed = isGoogleAuth(); 
 
             return `
                 <section class="text-white">
-                    <!-- Banner và Thông tin chính -->
                     <div class="relative rounded-lg overflow-hidden h-64 md:h-96 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
                         <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
                     </div>
-                    
                     <div class="container mx-auto px-4 relative -mt-32 md:-mt-48 pb-12">
                         <div class="md:flex md:space-x-8">
-                            <!-- Poster -->
                             <div class="flex-shrink-0 w-48 md:w-64 mx-auto md:mx-0 md:mt-4">
                                 <a href="${firstEpUrl}" class="group block relative rounded-lg shadow-2xl overflow-hidden">
                                     <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -384,63 +604,49 @@
                                     <img src="${movie.posterUrl}" alt="${movie.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
                                 </a>
                             </div>
-                            
-                            <!-- Chi tiết -->
                             <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
                                 <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-0">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-
-                                <!-- Lượt xem / Like -->
                                 <div class="flex justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
-                                    <div class="flex items-center space-x-1">
-                                        <ion-icon name="eye-outline" class="text-xl"></ion-icon>
-                                        <span id="view-count">${(movie.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span>
-                                    </div>
-                                    <div class="flex items-center space-x-1">
-                                        <ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon>
-                                        <span id="like-count">${(movie.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span>
-                                    </div>
+                                    <div class="flex items-center space-x-1"><ion-icon name="eye-outline" class="text-xl"></ion-icon><span id="view-count">${(movie.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span></div>
+                                    <div class="flex items-center space-x-1"><ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon><span id="like-count">${(movie.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span></div>
                                 </div>
-                                
                                 <div class="flex justify-center md:justify-start space-x-2 mb-4">
                                     ${movie.genre ? movie.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
                                 </div>
                                 <p class="text-gray-300 text-lg mb-6">${movie.summary || 'Không có tóm tắt.'}</p>
-                                
-                                <!-- Các nút hành động -->
-                                <div class="flex items-center justify-center md:justify-start space-x-4">
-                                    
-                                    <!-- Nút Thích -->
-                                    <button id="like-button" data-movie-id="${movie.id}" class="
-                                        inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors
-                                        ${isLiked 
-                                            ? 'bg-lime-600 text-white font-bold' 
-                                            : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'
-                                        }
-                                    ">
-                                        <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
-                                        <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
-                                    </button>
-                                    
-                                    <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase">${movie.status || 'N/A'}</span>
+                                <div class="flex justify-center md:justify-start space-x-4">
+                                    <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
+                                        <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Xem Phim
+                                    </a>
+                                    ${isLikeAllowed ? `
+                                        <button id="like-button" data-movie-id="${movie.id}" class="
+                                            inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors
+                                            ${isLiked ? 'bg-lime-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
+                                        ">
+                                            <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
+                                            <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
+                                        </button>
+                                    ` : `
+                                        <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors">
+                                            <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để Thích
+                                        </a>
+                                    `}
+                                    <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center">${movie.status || 'N/A'}</span>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Danh sách tập phim -->
                         <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
                             <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
                             ${episodes.length > 0
-                                ? `
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                     ${episodes.map(ep => `
-                                        <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${movie.id}_${ep.episodeNumber}_${episodes.indexOf(ep)}.html" 
+                                        <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
                                             class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors duration-200">
                                             Tập ${ep.episodeNumber}
                                         </a>
                                     `).join('')}
-                                </div>
-                                `
+                                </div>`
                                 : `<p class="text-gray-400">${movie.status === 'sap-chieu' ? 'Phim sắp chiếu, chưa có tập.' : 'Chưa có tập phim nào cho bộ này.'}</p>`
                             }
                         </div>
@@ -448,60 +654,88 @@
                 </section>
             `;
         };
-        
-        // Template Trang Xem Phim (Watch Page)
-        const WatchPageTemplate = (movie, episode, comments) => {
+
+        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpisodeNumber, nextEpisodeLink) => {
             const movieSlug = createSlug(movie.title);
             const bannerUrl = 'https://uploads.onecompiler.io/43u4wb3ft/43u4y39cc/bannerphim.jpeg';
+            const videoPlayer = getVideoPlayer(episode.videoUrl, movie.posterUrl);
+            const isCommentAllowed = isGoogleAuth();
 
             return `
             <section class="text-white">
                 <div class="mb-4">
                     <a href="#phim/${movieSlug}-${movie.id}" class="inline-flex items-center text-lime-400 hover:text-lime-300 transition-colors">
-                        <ion-icon name="arrow-back-outline" class="text-xl mr-2"></ion-icon>
-                        Quay lại trang thông tin
+                        <ion-icon name="arrow-back-outline" class="text-xl mr-2"></ion-icon>Quay lại trang thông tin
                     </a>
                 </div>
                 <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2">${movie.title}</h1>
                 ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
                 <h2 class="text-2xl text-lime-400 mb-6">${episode.title || `Tập ${episode.episodeNumber}`}</h2>
-
-                <div id="video-player-container" class="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl mb-8 relative">
-                    ${getVideoPlayer(episode.videoUrl, movie.posterUrl)}
-                    
+                <div id="video-player-container" class="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl mb-4 relative">
+                    ${videoPlayer.html}
                     <div id="video-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm overlay-style">
                         <img src="${bannerUrl}" alt="Xem Phim Banner" class="w-full h-full object-cover absolute inset-0 opacity-40" onerror="this.onerror=null; this.src='https://placehold.co/1200x675/1a202c/e2e8f0?text=Sẵn+Sàng+Xem'">
                         <div class="absolute inset-0 bg-black/60"></div>
-
                         <div class="relative z-30 text-center p-4">
                             <p class="text-gray-300 mb-4 text-lg">Nhấp vào nút "Xem Phim" để bắt đầu thưởng thức!</p>
-                            <button id="play-video-button" 
-                                class="inline-flex items-center justify-center px-10 py-4 bg-lime-500 text-gray-900 text-xl font-extrabold rounded-xl shadow-2xl hover:bg-lime-600 transition-all transform hover:scale-105 play-button-style">
-                                <ion-icon name="play-circle" class="text-3xl mr-3"></ion-icon>
-                                XEM PHIM
+                            <button id="play-video-button" class="inline-flex items-center justify-center px-10 py-4 bg-lime-500 text-gray-900 text-xl font-extrabold rounded-xl shadow-2xl hover:bg-lime-600 transition-all transform hover:scale-105 play-button-style">
+                                <ion-icon name="play-circle" class="text-3xl mr-3"></ion-icon>XEM PHIM
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <div class="max-w-3xl mx-auto">
+                <div class="flex justify-end mb-8">
+                    ${nextEpisodeLink
+                        ? `<a href="${nextEpisodeLink}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
+                                Tập tiếp theo <ion-icon name="arrow-forward-outline" class="text-2xl ml-2"></ion-icon>
+                           </a>`
+                        : `<span class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 text-lg font-bold rounded-lg cursor-not-allowed">
+                                Đã hết phim
+                           </span>`
+                    }
+                </div>
+                <div class="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
+                    ${allEpisodes.length > 0
+                        ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            ${allEpisodes.map((ep, index) => {
+                                const epSlug = createSlug(movie.title);
+                                const epUrl = `#phim/${epSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
+                                const isCurrent = (ep.episodeNumber === currentEpisodeNumber);
+                                
+                                return `
+                                <a href="${epUrl}" 
+                                    class="block text-center font-medium py-3 px-4 rounded-lg transition-colors duration-200 ${
+                                        isCurrent 
+                                        ? 'bg-lime-500 text-gray-900 font-bold' 
+                                        : 'bg-gray-700 text-white hover:bg-lime-500 hover:text-gray-900'
+                                    }">
+                                    Tập ${ep.episodeNumber}
+                                </a>`
+                            }).join('')}
+                        </div>`
+                        : `<p class="text-gray-400">Chưa có tập phim nào cho bộ này.</p>`
+                    }
+                </div>
+                <div class="max-w-3xl mx-auto mt-12">
                     <h3 class="text-2xl font-bold text-white mb-6">Bình Luận (${comments.length})</h3>
-                    ${auth && auth.currentUser && !auth.currentUser.isAnonymous 
+                    ${isCommentAllowed 
                         ? `
                         <form id="comment-form" class="mb-8">
                             <textarea id="comment-input" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 mb-4" placeholder="Viết bình luận của bạn..." required></textarea>
+                            <p id="comment-error" class="text-red-400 text-sm mb-2 hidden">Nội dung bình luận chứa từ ngữ không phù hợp. Vui lòng chỉnh sửa.</p>
                             <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Bình Luận</button>
                         </form>
                         `
                         : `
                         <div class="mb-8 p-4 bg-gray-800 rounded-lg text-center text-gray-400">
-                            Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập</a> để bình luận.
+                            Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập bằng Google</a> để bình luận.
                         </div>
                         `
                     }
                     <div id="comments-list">
                         ${comments.length > 0
-                            ? comments.map(comment => CommentTemplate(comment)).join('')
+                            ? comments.map(CommentTemplate).join('')
                             : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
                         }
                     </div>
@@ -509,167 +743,79 @@
             </section>
             `;
         };
-        
-        // Template Trang Kết Quả Tìm Kiếm
-        const SearchPageTemplate = (movieList, title) => `
-            <section>
-                <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                    ${movieList.length > 0 ? movieList.map(MovieCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy bộ anime nào phù hợp.</p>'}
-                </div>
-            </section>
-        `;
-        
 
-        // === LOGIC HIỂN THỊ (RENDER) ===
-        const appElement = document.getElementById('app');
-        const showLoading = () => {
-            appElement.innerHTML = `
-                <div class="flex justify-center items-center h-[50vh]">
-                    <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-            `;
+        const renderInfoPage = async (movieId) => { 
+             if (!db) { showLoading(); return; }
+            
+            let movieData = globalMovieCache.find(a => a.id === movieId);
+            const movieDocRef = doc(db, dataCollectionPath, movieId);
+            
+            try {
+                if (!movieData) {
+                    const movieDocSnap = await getDoc(movieDocRef);
+                    if (!movieDocSnap.exists()) { showError("Không tìm thấy bộ phim này."); return; }
+                    movieData = { id: movieDocSnap.id, ...movieDocSnap.data() };
+                }
+                
+                incrementViewCount(movieId);
+                
+                const episodesList = movieData.episodes || [];
+                const episodesWithId = episodesList.map((ep, index) => ({ ...ep, id: `${movieId}_${ep.episodeNumber}_${index}` }));
+
+                getEl('#app').innerHTML = InfoPageTemplate(movieData, episodesWithId);
+                getEl('#like-button')?.addEventListener('click', handleLike);
+                
+            } catch (e) { showError("Lỗi khi tải trang thông tin phim.", e.message); }
         };
-        
-        const showError = (message, details = '') => {
-            console.error(message, details);
-            appElement.innerHTML = `
-                <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
-                    <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
-                    <p class="text-lg mb-2">${message}</p>
-                    ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
-                    <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
-                </div>
-            `;
-        };
-        
-        // [Cập nhật] Hàm tải cache phim lần đầu và subscribe updates
-        const loadInitialMovieCache = () => {
-             if (!db) return;
-             if (isGlobalCacheLoaded) return; // Vẫn giữ để tránh re-subscribe
-             
-             const q = query(collection(db, dataCollectionPath));
-             
-             onSnapshot(q, (snapshot) => {
-                const movieList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sắp xếp theo ngày tạo mới nhất
-                movieList.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
+        const renderWatchPage = async (movieId, episodeUniqueId) => { 
+             if (!db) { showLoading(); return; }
+            
+            if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+            
+            try {
+                let movieData = globalMovieCache.find(a => a.id === movieId);
+                if (!movieData) {
+                    const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
+                    if (movieDocSnap.exists()) { movieData = { id: movieDocSnap.id, ...movieDocSnap.data() }; 
+                    } else { showError("Không tìm thấy bộ phim này."); return; }
+                }
                 
-                globalMovieCache = movieList;
+                const episodesList = movieData.episodes || [];
+                const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
+                const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
                 
-                const wasCacheLoaded = isGlobalCacheLoaded; // Kiểm tra xem đây có phải lần tải đầu tiên không
-                isGlobalCacheLoaded = true;
+                if (isNaN(episodeNumber)) { showError("Lỗi: Không tìm thấy số tập phim."); return; }
+
+                const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
+                if (!episodeData) { showError("Không tìm thấy tập phim này trong mảng."); return; }
                 
-                // [FIX] Nếu đây là LẦN ĐẦU TIÊN cache được tải,
-                // chúng ta PHẢI gọi router() để render nội dung.
-                if (!wasCacheLoaded) {
-                    router(); // Gọi router() để render trang (bất kể hash là gì)
-                } 
-                // Nếu đây là CẬP NHẬT (cache đã tải từ trước),
-                // thì chỉ render lại nếu đang ở trang chủ/lịch chiếu.
-                else if (window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
-                    router(false); // Render lại mà không thay đổi hash
+                const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
+                let commentsList = [];
+                try {
+                    const commentsSnapshot = await getDocs(query(commentsColRef));
+                    commentsSnapshot.forEach(doc => commentsList.push({ id: doc.id, ...doc.data() }));
+                    commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                } catch (e) { console.error("Lỗi khi tải bình luận:", e); }
+
+                const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
+                let nextEpisodeLink = null;
+                if (nextEpisode) {
+                    const nextEpId = `${movieId}_${nextEpisode.episodeNumber}_${episodesList.indexOf(nextEpisode)}`;
+                    nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpId}.html`;
                 }
 
-             }, (error) => {
-                console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
-                isGlobalCacheLoaded = true; // Vẫn set là true để dừng xoay vòng nếu lỗi
-                showError("Lỗi tải dữ liệu phim.", error.message);
-             });
-        };
-        
-        const renderHomePage = () => { 
-             if (setupError) {
-                 showError("Lỗi Cấu hình.", setupError.message);
-                 return;
-             }
-             if (!db || !isGlobalCacheLoaded) {
-                 showLoading();
-                 return;
-             }
-            
-            const moiCapNhatList = globalMovieCache.filter(a => a.status === 'dang-chieu').slice(0, 6);
-            const sapChieuList = globalMovieCache.filter(a => a.status === 'sap-chieu').slice(0, 6);
-            const deCuList = globalMovieCache.filter(a => a.status === 'tron-bo').slice(0, 6);
-            const heroMovie = moiCapNhatList.length > 0 ? moiCapNhatList[0] : (globalMovieCache.length > 0 ? globalMovieCache[0] : null);
-            
-            appElement.innerHTML = HomePageTemplate(heroMovie, moiCapNhatList, sapChieuList, deCuList);
+                const allEpisodesWithId = episodesList.map((ep, index) => ({ ...ep, id: `${movieId}_${ep.episodeNumber}_${index}` }));
+
+                getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
+                getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
+                setupCommentsListener(movieId);
+
+            } catch (e) { showError("Lỗi khi tải trang xem phim.", e.message); }
         };
 
-        const renderLoginPage = () => {
-             if (setupError) { showError("Lỗi Cấu hình.", setupError.message); return; }
-            appElement.innerHTML = AuthPageTemplate();
-            document.getElementById('google-login-btn')?.addEventListener('click', handleGoogleLogin);
-        };
-        
-        const renderSearchPage = (searchTerm) => { 
-             if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-            const lowerCaseTerm = searchTerm.toLowerCase();
-            const results = globalMovieCache.filter(movie => 
-                movie.title.toLowerCase().includes(lowerCaseTerm) ||
-                (movie.titleOriginal && movie.titleOriginal.toLowerCase().includes(lowerCaseTerm))
-            );
-            appElement.innerHTML = SearchPageTemplate(results, `Kết quả tìm kiếm cho: "${searchTerm}"`);
-        };
-        
-        const renderGenrePage = (filterId) => { 
-             if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-             const filterLowerCase = filterId.toLowerCase();
-             let title = `Thể loại: ${filterId.replace(/-/g, ' ')}`;
-
-             const results = globalMovieCache.filter(movie => {
-                 if (filterLowerCase === 'tv-series' || filterLowerCase === 'movie-ova' || filterLowerCase === 'hh-trung-quoc' || filterLowerCase === 'anime-tron-bo') {
-                     title = `Dạng Anime: ${filterId.replace(/-/g, ' ')}`;
-                     return movie.formatType && movie.formatType.toLowerCase() === filterLowerCase;
-                 }
-                 if (filterLowerCase === 'dang-chieu' || filterLowerCase === 'sap-chieu' || filterLowerCase === 'tron-bo') {
-                     title = `Phim: ${filterId.replace(/-/g, ' ')}`;
-                     return movie.status && movie.status.toLowerCase() === filterLowerCase;
-                 }
-                 return movie.genre && movie.genre.toLowerCase().includes(filterLowerCase.replace(/-/g, ' '));
-             });
-             appElement.innerHTML = SearchPageTemplate(results, title);
-        };
-        
-        const renderTopPage = (topType) => { 
-             if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-            const results = [...globalMovieCache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-            let title = "Top Anime";
-            if (topType) title = `Top ${topType.replace(/-/g, ' ')} (Sắp xếp theo Lượt xem)`;
-            appElement.innerHTML = SearchPageTemplate(results, title);
-        };
-        
-        const renderSeasonPage = (seasonId) => { 
-             if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-            const seasonLowerCase = seasonId.toLowerCase();
-            let title = "Anime Mùa";
-            if (seasonId) title = `Anime ${decodeURIComponent(seasonId).replace(/-/g, ' ')}`;
-            else title = "Anime Mùa (Mới nhất)";
-
-            const results = globalMovieCache.filter(movie => 
-                movie.season && movie.season.toLowerCase() === seasonLowerCase
-            );
-
-            appElement.innerHTML = SearchPageTemplate(results, title);
-        };
-        
-        const renderLibraryPage = () => { 
-            if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-            if (!userId) { 
-                appElement.innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập</a> để xem thư viện cá nhân.</p></div>`;
-                return;
-            }
-            const likedMovieIds = Object.keys(currentUserLikeDocIds);
-            const results = globalMovieCache.filter(movie => likedMovieIds.includes(movie.id));
-            appElement.innerHTML = SearchPageTemplate(results, "Thư Viện (Phim đã thích)");
-        };
-        
         const renderScheduleMovieCard = (movie) => {
-            const movieSlug = createSlug(movie.title);
-            const infoUrl = `#phim/${movieSlug}-${movie.id}`;
+            const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
             const episodeCount = movie.episodes ? movie.episodes.length : 0;
             const totalEpisodes = movie.totalEpisodes || '??';
 
@@ -709,288 +855,32 @@
                         <div class="mt-12">
                             <h3 class="text-2xl font-bold text-gray-400 mb-4">PHIM CHƯA GÁN LỊCH HOẶC SẮP CHIẾU</h3>
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                ${(moviesByDay["Không có"]).map(movie => MovieCardTemplate(movie)).join('')}
+                                ${(moviesByDay["Không có"]).map(MovieCardTemplate).join('')}
                             </div>
                         </div>
                     ` : ''}
-
                 </section>
             `;
         };
-        
-        const renderSchedulePage = () => { 
-            if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
-            
-            const moviesByDay = {
-                "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []
-            };
 
+        const renderSchedulePage = () => { 
+            const moviesByDay = { "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": [] };
             const airingMovies = globalMovieCache.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
             
             airingMovies.forEach(movie => {
                 const day = movie.airingDay || "Không có";
-                if (moviesByDay.hasOwnProperty(day)) {
-                    moviesByDay[day].push(movie);
-                } else {
-                    moviesByDay["Không có"].push(movie); 
-                }
+                moviesByDay.hasOwnProperty(day) ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie); 
             });
 
-            appElement.innerHTML = SchedulePageTemplate(moviesByDay);
+            getEl('#app').innerHTML = SchedulePageTemplate(moviesByDay);
         };
         
-        const renderInfoPage = async (movieId) => { 
-             if (!db) { showLoading(); return; }
-            
-            // Tìm phim trong cache, nếu không có thì đọc từ Firestore
-            let movieData = globalMovieCache.find(a => a.id === movieId);
-            const movieDocRef = doc(db, dataCollectionPath, movieId);
-            
-            try {
-                // Nếu chưa có trong cache hoặc cache chưa sẵn sàng, load từ DB
-                if (!movieData) {
-                    const movieDocSnap = await getDoc(movieDocRef);
-                    if (!movieDocSnap.exists()) {
-                        showError("Không tìm thấy bộ phim này.");
-                        return;
-                    }
-                    movieData = { id: movieDocSnap.id, ...movieDocSnap.data() };
-                }
-                
-                // Tăng lượt xem và cập nhật UI
-                incrementViewCount(movieId);
-                
-                const episodesList = movieData.episodes || [];
-                // Gắn ID duy nhất cho từng tập (với index)
-                const episodesWithId = episodesList.map((ep, index) => ({
-                    ...ep,
-                    id: `${movieId}_${ep.episodeNumber}_${index}` 
-                }));
-
-                appElement.innerHTML = InfoPageTemplate(movieData, episodesWithId);
-                const likeButton = document.getElementById('like-button');
-                if (likeButton) {
-                    likeButton.addEventListener('click', handleLike);
-                }
-                
-            } catch (e) {
-                showError("Lỗi khi tải trang thông tin phim.", e.message);
-            }
-        };
-
-        const renderWatchPage = async (movieId, episodeUniqueId) => { 
-             if (!db) { showLoading(); return; }
-            
-            if (unsubscribeCommentsListener) {
-                unsubscribeCommentsListener();
-                unsubscribeCommentsListener = null;
-            }
-            
-            try {
-                let movieData = globalMovieCache.find(a => a.id === movieId);
-                if (!movieData) {
-                    const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
-                    if (movieDocSnap.exists()) {
-                        movieData = { id: movieDocSnap.id, ...movieDocSnap.data() }; 
-                    } else {
-                        showError("Không tìm thấy bộ phim này.");
-                        return;
-                    }
-                }
-                
-                const episodesList = movieData.episodes || [];
-                const episodeData = episodesList.find(ep => 
-                    episodeUniqueId.includes(`_${ep.episodeNumber}_`) 
-                );
-                
-                if (!episodeData) {
-                    showError("Không tìm thấy tập phim này trong mảng.");
-                    return;
-                }
-                
-                const episodeNumberMatch = episodeUniqueId.match(/_(\d+)_/);
-                const episodeNumber = episodeNumberMatch ? parseInt(episodeNumberMatch[1]) : NaN;
-                
-                if (isNaN(episodeNumber)) { showError("Lỗi: Không tìm thấy số tập phim."); return; }
-
-                const commentCollectionId = `comments_ep_${episodeNumber}`; 
-                const commentsColRef = collection(db, dataCollectionPath, movieId, commentCollectionId);
-
-                // Load bình luận ban đầu
-                let commentsList = [];
-                try {
-                    const commentsQuery = query(commentsColRef); 
-                    const commentsSnapshot = await getDocs(commentsQuery);
-                    commentsSnapshot.forEach(doc => {
-                        commentsList.push({ id: doc.id, ...doc.data() });
-                    });
-                    commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-
-                } catch (e) {
-                    console.error("Lỗi khi tải bình luận:", e);
-                    commentsList = [];
-                }
-
-                appElement.innerHTML = WatchPageTemplate(movieData, episodeData, commentsList);
-                
-                document.getElementById('play-video-button')?.addEventListener('click', handlePlayVideo);
-                // [FIX 2] Gắn listener cho form comment sau khi render
-                document.getElementById('comment-form')?.addEventListener('submit', handleCommentSubmit);
-
-
-                // [Tối ưu] Lắng nghe bình luận real-time
-                const commentsQuery = query(commentsColRef); 
-                unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
-                    const updatedComments = [];
-                    snapshot.forEach(doc => {
-                        updatedComments.push({ id: doc.id, ...doc.data() });
-                    });
-                    updatedComments.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-                    
-                    const commentsListElement = document.getElementById('comments-list');
-                    if (commentsListElement) {
-                        commentsListElement.innerHTML = updatedComments.length > 0
-                            ? updatedComments.map(comment => CommentTemplate(comment)).join('')
-                            : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>';
-                    }
-                }, (error) => {
-                    console.error("Lỗi listener bình luận:", error);
-                    const commentsListElement = document.getElementById('comments-list');
-                    if (commentsListElement) {
-                        commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';
-                    }
-                });
-
-            } catch (e) {
-                showError("Lỗi khi tải trang xem phim.", e.message);
-            }
-        };
-
-
-        // === ROUTER & AUTH HANDLERS ===
-        
-        // [Cập nhật] Thêm biến shouldUpdateHash để kiểm soát việc render lại
-        const router = (shouldUpdateHash = true) => {
-            // [FIX] Chỉ chạy router NẾU auth đã sẵn sàng VÀ cache phim đã tải (hoặc có lỗi)
-             if (!isAuthInitialised || !isGlobalCacheLoaded) {
-                 if (!isAuthInitialised) console.log("Router: Chờ Auth...");
-                 if (!isGlobalCacheLoaded) console.log("Router: Chờ Cache Phim...");
-                 return; // Không chạy router nếu chưa sẵn sàng
-             }
-
-            const activeNav = window.location.hash || '#home';
-            let pathSegments = activeNav.substring(1).split('/');
-            let primaryHash = '#' + (pathSegments[0] || 'home'); // Mặc định là #home nếu hash rỗng
-            
-            // [Tối ưu] Xóa tất cả active class chỉ trong một lần query
-            document.querySelectorAll('.nav-active, .mobile-nav-active').forEach(el => {
-                 el.classList.remove('nav-active', 'mobile-nav-active');
-            });
-            
-            // [Tối ưu] Mapping Hash Group
-            const navMap = {
-                '#home': '#home', '#login': '#login', 
-                '#library': '#library', '#schedule': '#schedule'
-            };
-            const groupMap = { '#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season' };
-            const targetHash = navMap[primaryHash] || groupMap[primaryHash];
-            
-            if (targetHash) {
-                const selector = `.nav-link[href="${targetHash}"], .nav-link[data-hash-group="${targetHash}"], .mobile-nav-link[href="${targetHash}"], .mobile-nav-link[data-hash-group="${targetHash}"]`;
-                document.querySelectorAll(selector).forEach(el => {
-                    if (el.classList.contains('nav-link')) {
-                        el.classList.add('nav-active');
-                    } else if (el.classList.contains('mobile-nav-link')) {
-                        el.classList.add('mobile-nav-active');
-                    }
-                });
-            }
-
-            // [Tối ưu] Quản lý Comments Listener
-            if (primaryHash !== '#phim' && unsubscribeCommentsListener) {
-                 unsubscribeCommentsListener();
-                 unsubscribeCommentsListener = null;
-            }
-
-            // Xử lý điều hướng
-            if (primaryHash === '#phim' && pathSegments.length >= 2) {
-                const slugIdParam = pathSegments[1];
-                const movieIdMatch = slugIdParam.match(/-([a-zA-Z0-9]+)$/);
-                const movieId = movieIdMatch ? movieIdMatch[1] : null; 
-                if (!movieId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
-                
-                if (pathSegments.length === 2) {
-                    renderInfoPage(movieId);
-                } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
-                    const episodeParam = pathSegments[2];
-                    const episodeIdMatch = episodeParam.match(/-([a-zA-Z0-9_]+)\.html$/); 
-                    const episodeUniqueId = episodeIdMatch ? episodeIdMatch[1] : null;
-                    if (episodeUniqueId) renderWatchPage(movieId, episodeUniqueId);
-                }
-                return;
-            }
-            
-            switch (primaryHash) { 
-                case '#home': renderHomePage(); break;
-                case '#login': renderLoginPage(); break; 
-                case '#search': renderSearchPage(decodeURIComponent(pathSegments[1] || '')); break;
-                case '#genre': renderGenrePage(pathSegments[1] || 'all'); break;
-                case '#top': renderTopPage(pathSegments[1]); break;
-                case '#season': renderSeasonPage(pathSegments[1]); break;
-                case '#library': renderLibraryPage(); break;
-                case '#schedule': renderSchedulePage(); break;
-                default: if (shouldUpdateHash) window.location.hash = '#home'; // Chỉ redirect nếu không phải do cache phim gọi
-            }
-        };
-
-
-        const updateAuthStateUI = (user) => {
-            const authButtonDesktop = document.getElementById('auth-button-desktop');
-            const authButtonMobile = document.getElementById('auth-button-mobile');
-            if (!authButtonDesktop || !authButtonMobile) return;
-
-            // [FIX LỖI HIỂN THỊ TÀI KHOẢN]
-            // Chỉ hiển thị avatar/logout nếu có user VÀ KHÔNG PHẢI là user ẩn danh (isAnonymous)
-            if (user && !user.isAnonymous) {
-                const emailPrefix = user.email ? user.email.split('@')[0] : 'Người dùng'; 
-                const displayName = user.displayName || emailPrefix;
-                const photoURL = user.photoURL || `https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
-
-                authButtonDesktop.innerHTML = `
-                        <img src="${photoURL}" alt="Avatar" class="w-8 h-8 rounded-full mr-2 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                        <span class="text-sm font-medium text-gray-300 truncate max-w-[150px]">${displayName}</span>
-                        <button id="logout-button-desktop" class="text-gray-400 hover:text-lime-400 ml-2" title="Đăng xuất">
-                            <ion-icon name="log-out-outline" class="text-2xl"></ion-icon>
-                        </button>`;
-                
-                authButtonMobile.innerHTML = `
-                        <div class="flex items-center mb-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-lime-400">${displayName}</span></p>
-                        </div>
-                        <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
-                
-                document.getElementById('logout-button-desktop')?.addEventListener('click', handleLogout);
-                document.getElementById('logout-button-mobile')?.addEventListener('click', (e) => {
-                    handleLogout(e);
-                    document.getElementById('mobile-menu').classList.add('hidden');
-                });
-            } else {
-                // Hiển thị nút Đăng nhập
-                authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
-                authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
-            }
-        };
-
         const handleGoogleLogin = async () => {
             if (!auth) return;
-            const provider = new GoogleAuthProvider(); 
-            const errorElement = document.getElementById('auth-error');
+            const errorElement = getEl('#auth-error');
             try {
-                // [FIX 1] Thiết lập Local Persistence để giữ phiên đăng nhập sau khi reload
                 await setPersistence(auth, browserLocalPersistence);
-
-                await signInWithPopup(auth, provider); 
+                await signInWithPopup(auth, new GoogleAuthProvider()); 
                 window.location.hash = '#home'; 
             } catch (error) {
                 console.error("Lỗi đăng nhập Google:", error);
@@ -1004,70 +894,50 @@
             signOut(auth).catch(error => console.error("Lỗi đăng xuất:", error));
         };
         
-        // [Cập nhật] Hàm tải Like và cập nhật UI Library/Info
         const fetchUserLikes = async (shouldRerender = false) => { 
-            if (!userId || !db || auth.currentUser.isAnonymous) {
-                currentUserLikeDocIds = {};
-                return;
-            }
+            if (!isGoogleAuth() || !db) { currentUserLikeDocIds = {}; return; }
             try {
-                const q = query(collection(db, userLikesCollectionPath));
-                // Dùng onSnapshot để theo dõi changes trong likes collection
+                const q = query(collection(db, userLikesCollectionPath)); 
                 onSnapshot(q, (snapshot) => {
                     const likes = {};
-                    snapshot.forEach(doc => {
-                        likes[doc.data().movieId] = doc.id;
-                    });
+                    snapshot.forEach(doc => { likes[doc.data().movieId] = doc.id; });
                     currentUserLikeDocIds = likes;
                     
-                    // Chỉ gọi router nếu đang ở trang Library hoặc Info (để cập nhật trạng thái nút Like)
                     const hash = window.location.hash;
-                    if (shouldRerender || hash.startsWith('#library') || hash.startsWith('#phim')) {
-                        router(false); 
-                    }
-
-                }, (error) => {
-                     console.error("Lỗi khi theo dõi danh sách likes:", error);
-                });
-            } catch (e) {
-                console.error("Lỗi khi tải danh sách likes:", e);
-            }
+                    if (shouldRerender || hash.startsWith('#library') || hash.startsWith('#phim')) { router(false); }
+                }, (error) => { console.error("Lỗi khi theo dõi danh sách likes:", error); });
+            } catch (e) { console.error("Lỗi khi tải danh sách likes:", e); }
         };
         
         const handleLike = async (e) => { 
-             if (!db) return;
+             if (!db || !isGoogleAuth()) { window.location.hash = '#login'; return; }
              const button = e.currentTarget;
             const movieId = button.dataset.movieId;
-            if (!userId || auth.currentUser.isAnonymous) { 
-                window.location.hash = '#login';
-                return;
-            }
             button.disabled = true;
             const isLiked = !!currentUserLikeDocIds[movieId];
             const movieDocRef = doc(db, dataCollectionPath, movieId);
-            const likeCountElement = document.getElementById('like-count');
+            const likeCountElement = getEl('#like-count');
             
             try {
                 const batch = writeBatch(db);
+                const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/likes`);
+
                 if (isLiked) {
                     const likeDocId = currentUserLikeDocIds[movieId];
                     if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
-                    const likeDocRef = doc(db, userLikesCollectionPath, likeDocId);
-                    batch.delete(likeDocRef);
+                    batch.delete(doc(userLikesColRef, likeDocId));
                     batch.update(movieDocRef, { likeCount: increment(-1) });
-                    await batch.commit();
                 } else {
-                    const likeDocRef = doc(collection(db, userLikesCollectionPath)); 
-                    batch.set(likeDocRef, { movieId: movieId, createdAt: serverTimestamp() });
+                    batch.set(doc(userLikesColRef), { movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp() });
                     batch.update(movieDocRef, { likeCount: increment(1) });
-                    await batch.commit();
                 }
+                await batch.commit();
                 
-                // [Tối ưu] Cập nhật UI ngay lập tức
-                const newCount = (parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0) + (isLiked ? -1 : 1);
+                const currentCount = parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0;
+                const newCount = currentCount + (isLiked ? -1 : 1);
                 likeCountElement.textContent = newCount.toLocaleString('vi-VN') + " Lượt thích";
                 
-                const likeButtonText = document.getElementById('like-button-text');
+                const likeButtonText = getEl('#like-button-text');
                 const likeButtonIcon = button.querySelector('ion-icon');
 
                 button.classList.toggle('bg-lime-600', !isLiked);
@@ -1076,168 +946,123 @@
                 button.classList.toggle('bg-gray-700', isLiked);
                 button.classList.toggle('text-gray-300', isLiked);
                 button.classList.toggle('font-medium', isLiked);
-                likeButtonText.textContent = isLiked ? 'Thích' : 'Đã thích';
-                likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up-outline' : 'thumbs-up');
+                if (likeButtonText) likeButtonText.textContent = isLiked ? 'Thích' : 'Đã thích';
+                if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up-outline' : 'thumbs-up');
                 
             } catch (e) {
                 console.error("Lỗi khi Thích/Bỏ thích:", e);
+                const likeErrorEl = document.querySelector('#like-button + span');
+                 if (likeErrorEl) { likeErrorEl.textContent = "Lỗi quyền truy cập. Vui lòng thử lại."; }
             } finally {
                 button.disabled = false;
             }
         };
-        
+
         const handleCommentSubmit = async (e) => { 
              e.preventDefault();
-             // [FIX 2] Kiểm tra user đã đăng nhập (non-anonymous)
-             if (!db || !auth.currentUser || auth.currentUser.isAnonymous) { 
-                 console.error("Người dùng chưa đăng nhập hợp lệ để bình luận.");
-                 window.location.hash = '#login'; 
-                 return; 
-             }
+             if (!db || !isGoogleAuth()) { console.error("Người dùng chưa đăng nhập hợp lệ để bình luận."); window.location.hash = '#login'; return; }
 
-            const input = document.getElementById('comment-input');
+            const input = getEl('#comment-input');
+            const errorEl = getEl('#comment-error');
             const content = input.value.trim();
             const user = auth.currentUser;
 
+            errorEl.classList.add('hidden');
             if (!content) return;
             
-            const [path, slugIdParam, episodeParam] = window.location.hash.substring(1).split('/');
-            if (path !== 'phim' || !slugIdParam || !episodeParam) return;
-            
-            const movieIdMatch = slugIdParam.match(/-([a-zA-Z0-9]+)$/);
-            const movieId = movieIdMatch ? movieIdMatch[1] : null; 
-            const episodeNumberMatch = episodeParam.match(/tap-(\d+)-/);
-            const episodeNumber = episodeNumberMatch ? parseInt(episodeNumberMatch[1]) : NaN;
+            if (isCommentProfane(content)) {
+                errorEl.textContent = "Nội dung bình luận chứa từ ngữ thô tục/kích war. Vui lòng chỉnh sửa.";
+                errorEl.classList.remove('hidden'); return; 
+            }
 
-            if (!movieId || isNaN(episodeNumber)) return;
+            const [path, slugIdParam] = window.location.hash.substring(1).split('/');
+            const movieIdMatch = slugIdParam?.match(/-([a-zA-Z0-9]+)$/);
+            const movieId = movieIdMatch ? movieIdMatch[1] : null; 
+            if (!movieId) return;
             
-            const commentCollectionId = `comments_ep_${episodeNumber}`; 
+            const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments'); 
 
             try {
-                const commentsColRef = collection(db, dataCollectionPath, movieId, commentCollectionId);
-                
-                const commentDisplayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Người dùng'); 
-
                 await addDoc(commentsColRef, {
                     content: content,
                     userId: user.uid,
                     email: user.email,
-                    displayName: commentDisplayName, 
+                    displayName: user.displayName || user.email.split('@')[0], 
                     photoURL: user.photoURL, 
                     createdAt: serverTimestamp()
                 });
                 input.value = '';
             } catch (e) {
                 console.error("Lỗi khi gửi bình luận:", e);
+                errorEl.textContent = "Lỗi khi gửi bình luận. Vui lòng kiểm tra Rules hoặc đăng nhập lại.";
+                errorEl.classList.remove('hidden');
             }
         };
-
-        // === KHỞI CHẠY ỨNG DỤNG ===
         
-        // [Cập nhật] Thêm logic kiểm tra Admin
-        const isUserAdmin = (user) => {
-            if (!user || !user.email) return false;
-            // GIẢ ĐỊNH: BẤT KỲ EMAIL NÀO CÓ CHỨA 'admin' (HOẶC TÀI KHOẢN KHÔNG PHẢI GOOGLE) SẼ BỊ CHẶN Ở FRONTEND
-            // Nếu bạn có một danh sách Admin UID cụ thể, đây sẽ là nơi để kiểm tra.
-            return user.email.includes('admin') || user.email.includes('foxanime');
-        }
+        const globalCommentSubmitHandler = (e) => {
+            if (e.target && e.target.id === 'comment-form') { handleCommentSubmit(e); }
+        };
 
-        const initialSignIn = async () => {
-            if (!auth) return;
+        const ensureUserProfile = async (user) => {
+            if (!user.uid || !user.email || !isGoogleAuth(user)) return;
             
-            if (auth.currentUser) return; 
-            
+            const userDocRef = doc(db, userRoleCollectionPath, user.uid);
             try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } 
-            } catch (error) {
-                 if (error.code === 'auth/network-request-failed' || error.code === 'auth/internal-error' || error.code === 'auth/too-many-requests') { 
-                     console.warn("Lỗi mạng/hệ thống. Tiếp tục dưới dạng Unauthenticated.");
-                     userId = null;
-                     updatePaths(null);
-                 } else {
-                     console.error("Lỗi xác thực Firebase (token):", error.message);
-                 }
-            }
+                const docSnap = await getDoc(userDocRef);
+                if (!docSnap.exists()) {
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        photoURL: user.photoURL,
+                        role: 'user',
+                        createdAt: serverTimestamp()
+                    }, { merge: true });
+                }
+            } catch (e) { console.error("Lỗi tạo user profile lần đầu:", e); }
         };
 
         const setupFirebase = async () => {
-            if (!finalConfig.projectId) {
-                setupError = new Error("Lỗi Cấu hình: 'projectId' không được cung cấp. Vui lòng kiểm tra biến __firebase_config.");
-                router();
-                return;
-            }
+            if (!finalConfig.projectId) { setupError = new Error("Lỗi Cấu hình: 'projectId' không được cung cấp."); router(); return; }
             
             try {
                 app = initializeApp(finalConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                // LẮNG NGHE TRẠNG THÁI XÁC THỰC
+                await setPersistence(auth, browserLocalPersistence);
                 onAuthStateChanged(auth, async (user) => {
                     let needsRerender = false;
                     
                     if (user) {
-                        // [FIX SSO] Nếu tài khoản đang đăng nhập là tài khoản Admin, buộc đăng xuất
-                        /* // [ĐÃ TẮT] Khối mã này gây ra lỗi tự động đăng xuất Admin khi tải lại trang home
-                        // Nó xung đột với phiên đăng nhập của admin.html
-                        if (isUserAdmin(user)) {
-                            console.warn("Tài khoản Admin phát hiện đăng nhập vào Frontend. Buộc đăng xuất.");
-                            await signOut(auth);
-                            // Sau khi signOut, onAuthStateChanged sẽ được gọi lại với user=null
-                            return; 
-                        }
-                        */
-                        
-                        // Xử lý User thông thường
-                        if (!user.isAnonymous) { 
-                            const oldUserId = userId;
-                            userId = user.uid;
-                            userEmail = user.email;
-                            updatePaths(userId); 
-                            updateAuthStateUI(user);
-                            
-                            if (oldUserId !== userId) {
-                                await fetchUserLikes(true); 
-                                needsRerender = true;
-                            }
-                            
-                        } else { // Xử lý user ẩn danh (nếu có, mặc dù đã tắt)
+                         if (!isGoogleAuth(user)) {
+                             console.warn("Non-Google user detected (likely Admin session). Ignoring session and treating as Guest.");
                              if (userId !== null) {
-                                userId = null;
-                                userEmail = null;
-                                updatePaths(null); 
-                                updateAuthStateUI(null);
-                                currentUserLikeDocIds = {};
-                                needsRerender = true;
-                            } else {
-                                updateAuthStateUI(null);
+                                 userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
+                             }
+                             updateAuthStateUI(null);
+                         } else {
+                            const oldUserId = userId;
+                            userId = user.uid; userEmail = user.email; updatePaths(userId);
+                            await ensureUserProfile(user); 
+                            updateAuthStateUI(user);
+                            if (oldUserId !== userId) {
+                                await fetchUserLikes(true); needsRerender = true;
                             }
-                        }
-                    } else { // User là null (đã đăng xuất)
+                        } 
+                    } else { 
                         if (userId !== null) {
-                            userId = null;
-                            userEmail = null;
-                            updatePaths(null); 
-                            currentUserLikeDocIds = {};
-                            needsRerender = true;
+                            userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
                         }
-                        updateAuthStateUI(null); // Luôn cập nhật UI thành nút Đăng nhập
+                        updateAuthStateUI(null);
                     }
                     
                     if(!isAuthInitialised) {
                          isAuthInitialised = true;
-                         loadInitialMovieCache(); // Bắt đầu tải phim sau khi Auth sẵn sàng
-                         // [FIX] KHÔNG gọi router() ở đây nữa.
-                         // Hãy để loadInitialMovieCache() gọi router() SAU KHI có dữ liệu.
-                         // router(); // <-- DÒNG NÀY ĐÃ BỊ VÔ HIỆU HÓA
+                         loadInitialMovieCache(); 
                     } else if(needsRerender) {
                         router();
                     }
                 });
-
-                await initialSignIn();
 
             } catch (error) {
                 console.error("Lỗi nghiêm trọng khi khởi tạo Firebase SDK:", error);
@@ -1245,51 +1070,92 @@
                 router();
             }
         };
+
+        const loadInitialMovieCache = () => {
+             if (!db || isGlobalCacheLoaded) return;
+             
+             try {
+                const q = query(collection(db, dataCollectionPath));
+                
+                onSnapshot(q, (snapshot) => {
+                    const movieList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    movieList.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                    
+                    globalMovieCache = movieList;
+                    const wasCacheLoaded = isGlobalCacheLoaded;
+                    isGlobalCacheLoaded = true;
+                    
+                    if (!wasCacheLoaded || window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
+                        router(false);
+                    }
+                }, (error) => {
+                    console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
+                    isGlobalCacheLoaded = true;
+                    showError("Lỗi tải dữ liệu phim.", error.message);
+                });
+             } catch (e) {
+                 console.error("Lỗi nghiêm trọng khi gọi collection() (Kiểm tra dataCollectionPath):", e);
+                 setupError = e;
+                 router();
+             }
+        };
+        
+        // <end_of_retained_logic>
+        
+        // === KHỞI CHẠY ỨNG DỤNG ===
         
         window.addEventListener('hashchange', router);
 
         document.addEventListener('DOMContentLoaded', async () => {
             await setupFirebase();
             
-            document.getElementById('mobile-menu-button')?.addEventListener('click', () => {
-                document.getElementById('mobile-menu').classList.toggle('hidden');
-            });
+            // Listeners Modal Xem tiếp
+            getEl('#resume-modal-yes')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(true); });
+            getEl('#resume-modal-no')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(false); });
             
-            document.getElementById('search-form-desktop')?.addEventListener('submit', (e) => {
+            // Listeners Menu Mobile & Search
+            getEl('#mobile-menu-button')?.addEventListener('click', () => getEl('#mobile-menu')?.classList.toggle('hidden'));
+            
+            getEl('#search-form-desktop')?.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const searchTerm = document.getElementById('search-input-desktop').value.trim();
+                const searchTerm = getEl('#search-input-desktop').value.trim();
                 if (searchTerm) window.location.hash = `#search/${encodeURIComponent(searchTerm)}`;
             });
-            document.getElementById('search-form-mobile')?.addEventListener('submit', (e) => {
+            getEl('#search-form-mobile')?.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const searchTerm = document.getElementById('search-input-mobile').value.trim();
+                const searchTerm = getEl('#search-input-mobile').value.trim();
                 if (searchTerm) window.location.hash = `#search/${encodeURIComponent(searchTerm)}`;
-                document.getElementById('mobile-menu').classList.add('hidden');
+                getEl('#mobile-menu')?.classList.add('hidden');
             });
             
-            document.querySelectorAll('.mobile-dropdown-toggle').forEach(button => {
+            getAllEl('.mobile-dropdown-toggle').forEach(button => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.currentTarget.nextElementSibling.classList.toggle('hidden');
-                    e.currentTarget.nextElementSibling.classList.toggle('grid');
-                    e.currentTarget.querySelector('.dropdown-icon').classList.toggle('rotate-180');
+                    const target = e.currentTarget.nextElementSibling;
+                    target.classList.toggle('hidden');
+                    target.classList.toggle('grid');
+                    e.currentTarget.querySelector('.dropdown-icon')?.classList.toggle('rotate-180');
                 });
             });
             
-            document.querySelectorAll('#mobile-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                     if (!link.classList.contains('mobile-dropdown-toggle')) {
-                        document.getElementById('mobile-menu').classList.add('hidden');
+            getAllEl('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                     if (!this.classList.contains('mobile-dropdown-toggle')) {
+                        getEl('#mobile-menu')?.classList.add('hidden');
                      }
                 });
             });
             
-             // [FIX 2] Gắn listener cho form comment ở Watch Page
-             document.body.addEventListener('submit', (e) => {
-                 if (e.target.id === 'comment-form') {
-                     e.preventDefault();
-                     handleCommentSubmit(e);
-                 }
+             // Gắn listener cho form comment ở Watch Page
+             document.body.addEventListener('submit', globalCommentSubmitHandler);
+            
+             // Đóng dropdown profile khi click ra ngoài
+             document.addEventListener('click', function(e) {
+                const userDropdown = getEl('.user-profile-dropdown');
+                const userDropdownMenu = getEl('#user-dropdown-menu');
+                if (userDropdown && userDropdownMenu && !userDropdown.contains(e.target)) {
+                    userDropdownMenu.classList.remove('active');
+                }
              });
             
         });
@@ -1322,7 +1188,7 @@
             transition: opacity 0.3s ease-in-out;
         }
         
-        /* --- CSS CHO MENU --- */
+        /* --- CSS CHO MENU CHÍNH --- */
         .dropdown { position: relative; }
         .dropdown-content {
             display: none;
@@ -1343,6 +1209,15 @@
             max-height: 400px; 
             overflow-y: auto; 
         }
+        /* [RESPONSIVE FIX] Đảm bảo menu đổ xuống không vượt quá chiều rộng màn hình */
+        @media (max-width: 768px) { 
+            .dropdown-content.mega-menu-3-cols-scroll {
+                min-width: unset; 
+                width: 100vw;
+                left: -1rem; /* Bù trừ padding container */
+            }
+        }
+
         .dropdown:hover .dropdown-content { display: grid; }
         .dropdown-content a {
             color: #d1d5db;
@@ -1389,7 +1264,84 @@
             -webkit-line-clamp: 3;
         }
 
-        /* === CSS MỚI CHO LỚP PHỦ VIDEO === */
+        /* --- CSS CHO DROPDOWN PROFILE MỚI --- */
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            align-self: center; 
+        }
+
+        .user-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.75rem; 
+            background-color: #1f2937; 
+            min-width: 250px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            z-index: 100;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            pointer-events: none;
+        }
+
+        .user-dropdown-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        /* === FIX LỖI HEADER (TỐI ƯU VÀ CO GIÃN) === */
+        
+        /* [FIX 1: Thanh Tìm kiếm Linh hoạt] */
+        .header-right-desktop {
+            display: flex;
+            align-items: center; 
+            height: 100%; 
+        }
+        
+        /* [FIX 2: Căn chỉnh tuyệt đối INPUT và AVATAR] */
+        #search-form-desktop {
+             /* Dùng flex-grow/w-full để chiếm dụng không gian còn lại */
+             flex-grow: 1; 
+             /* ĐÃ BỎ max-w-sm để cho nó co giãn tối đa*/
+             max-width: 600px;
+             margin-right: 0.5rem; 
+             display: flex;
+             align-items: center;
+        }
+        
+        /* [QUAN TRỌNG] BỎ height: 2.5rem cố định và dùng padding, để input tự căn chỉnh */
+        #search-input-desktop {
+             width: 100%; /* Chiếm toàn bộ form */
+             padding-top: 0.5rem;
+             padding-bottom: 0.5rem;
+        }
+        
+        /* Đảm bảo Avatar và Search Bar được căn giữa chính xác */
+        .h-20 .container > div {
+             /* HACK: Cần đảm bảo container chính có đủ padding vertical để cân bằng */
+             padding-top: 10px; 
+             padding-bottom: 10px;
+        }
+        
+        /* Fix lỗi co chữ và căn chỉnh: Nav links */
+        .nav-link.header-nav-link {
+            flex-shrink: 0; 
+            padding-top: 0; 
+            padding-bottom: 0; 
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* --- CSS MỚI CHO LỚP PHỦ VIDEO --- */
         .overlay-style {
             transition: opacity 0.5s ease-in-out;
             cursor: pointer;
@@ -1409,155 +1361,94 @@
             height: 100%;
         }
         
-        .header-right-desktop {
-            display: flex;
-            align-items: center;
+        
+        /* [RESPONSIVE FIX] Menu mobile xổ dọc toàn màn hình */
+        #mobile-menu {
+            position: fixed;
+            top: 80px; /* Chiều cao header */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1f2937; /* Màu nền tối */
+            overflow-y: auto;
+            padding: 1rem;
+            z-index: 40;
+        }
+
+        /* [RESPONSIVE FIX] Menu thể loại mobile xổ dọc */
+        .mobile-dropdown-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 cột trên mobile */
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        @media (min-width: 640px) { /* sm */
+            .mobile-dropdown-content {
+                 grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .mobile-dropdown-content a {
+            background-color: #374151;
+            border-radius: 0.375rem;
+            font-weight: 400;
+            padding: 0.5rem 0.75rem;
         }
 
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
 
+    <!-- Modal Xem Tiếp (Giữ nguyên) -->
+    <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
+            <h3 class="text-xl font-bold text-lime-400 mb-4">Xem Tiếp Phim</h3>
+            <p id="resume-modal-text" class="text-gray-300 mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="resume-modal-yes" class="bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors">
+                    Xem tiếp
+                </button>
+                <button id="resume-modal-no" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    Xem từ đầu
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-gray-800 shadow-lg sticky top-0 z-50">
-        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- HÀNG 1: LOGO, SEARCH & AUTH (LUÔN HIỂN THỊ) -->
             <div class="flex justify-between items-center h-20">
                 <!-- Logo và Nav Trái -->
-                <div class="flex items-center space-x-8">
+                <div class="flex items-center h-full space-x-8">
                     <!-- Logo -->
-                    <a href="#home" class="flex-shrink-0 flex items-center space-x-2">
-                        <img src="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png" alt="FOXANIME Logo" class="w-12 h-12 object-contain">
-                        <span class="text-3xl font-extrabold text-white">FOX<span class="text-lime-500">ANIME</span></span>
+                    <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
+                        <img src="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
+                        <span class="text-4xl font-extrabold text-white">FOX<span class="text-lime-500">ANIME</span></span>
                     </a>
-                    
-                    <!-- === Nav Links Desktop === -->
-                    <div class="hidden md:flex space-x-6 h-full items-center">
-                        <a href="#home" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang Chủ</a>
-                        
-                        <!-- Dạng Anime Dropdown -->
-                        <div class="dropdown h-full flex items-center">
-                            <a href="#genre" data-hash-group="#genre" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                Dạng Anime
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </a>
-                            <div class="dropdown-content mega-menu-1-col">
-                                <a href="#genre/tv-series">TV/Series</a>
-                                <a href="#genre/movie-ova">Movie/OVA</a>
-                                <a href="#genre/hh-trung-quoc">HH Trung Quốc</a>
-                                <a href="#genre/anime-tron-bo">Anime Trọn Bộ</a>
-                            </div>
-                        </div>
-
-                        <!-- Top Anime Dropdown -->
-                        <div class="dropdown h-full flex items-center">
-                            <a href="#top" data-hash-group="#top" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                Top Anime
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </a>
-                            <div class="dropdown-content mega-menu-1-col">
-                                <a href="#top/ngay">Top Ngày</a>
-                                <a href="#top/tuan">Top Tuần</a>
-                                <a href="#top/thang">Top Tháng</a>
-                                <a href="#top/nam">Top Năm</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Thể Loại Dropdown (46 THỂ LOẠI) -->
-                        <div class="dropdown h-full flex items-center">
-                            <a href="#genre" data-hash-group="#genre" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                Thể Loại
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </a>
-                            <div class="dropdown-content mega-menu-3-cols-scroll">
-                                <!-- 46 THỂ LOẠI -->
-                                <a href="#genre/action">Action</a>
-                                <a href="#genre/adventure">Adventure</a>
-                                <a href="#genre/boys-love">Boys Love</a>
-                                <a href="#genre/cartoon">Cartoon</a>
-                                <a href="#genre/comedy">Comedy</a>
-                                <a href="#genre/dementia">Dementia</a>
-                                <a href="#genre/demons">Demons</a>
-                                <a href="#genre/drama">Drama</a>
-                                <a href="#genre/ecchi">Ecchi</a>
-                                <a href="#genre/fantasy">Fantasy</a>
-                                <a href="#genre/game">Game</a>
-                                <a href="#genre/harem">Harem</a>
-                                <a href="#genre/historical">Historical</a>
-                                <a href="#genre/horror">Horror</a>
-                                <a href="#genre/josei">Josei</a>
-                                <a href="#genre/kids">Kids</a>
-                                <a href="#genre/live-action">Live Action</a>
-                                <a href="#genre/magic">Magic</a>
-                                <a href="#genre/martial-arts">Martial Arts</a>
-                                <a href="#genre/mecha">Mecha</a>
-                                <a href="#genre/military">Military</a>
-                                <a href="#genre/music">Music</a>
-                                <a href="#genre/mystery">Mystery</a>
-                                <a href="#genre/parody">Parody</a>
-                                <a href="#genre/police">Police</a>
-                                <a href="#genre/psychological">Psychological</a>
-                                <a href="#genre/romance">Romance</a>
-                                <a href="#genre/samurai">Samurai</a>
-                                <a href="#genre/school">School</a>
-                                <a href="#genre/sci-fi">Sci-Fi</a>
-                                <a href="#genre/seinen">Seinen</a>
-                                <a href="#genre/shoujo">Shoujo</a>
-                                <a href="#genre/shoujo-ai">Shoujo Ai</a>
-                                <a href="#genre/shounen">Shounen</a>
-                                <a href="#genre/shounen-ai">Shounen Ai</a>
-                                <a href="#genre/slice-of-life">Slice of Life</a>
-                                <a href="#genre/space">Space</a>
-                                <a href="#genre/sports">Sports</a>
-                                <a href="#genre/super-power">Super Power</a>
-                                <a href="#genre/supernatural">Supernatural</a>
-                                <a href="#genre/suspense">Suspense</a>
-                                <a href="#genre/thriller">Thriller</a>
-                                <a href="#genre/tokusatsu">Tokusatsu</a>
-                                <a href="#genre/vampire">Vampire</a>
-                                <a href="#genre/yaoi">Yaoi</a>
-                                <a href="#genre/yuri">Yuri</a>
-                            </div>
-                        </div>
-
-                        <!-- Season Dropdown -->
-                        <div class="dropdown h-full flex items-center">
-                             <a href="#season" data-hash-group="#season" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                Season
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </a>
-                            <div class="dropdown-content mega-menu-1-col">
-                                <a href="#season/mua-dong-2024">Mùa Đông 2024</a>
-                                <a href="#season/mua-xuan-2024">Mùa Xuân 2024</a>
-                                <a href="#season/mua-he-2024">Mùa Hè 2024</a>
-                                <a href="#season/mua-thu-2024">Mùa Thu 2024</a>
-                            </div>
-                        </div>
-                        
-                        <a href="#library" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
-                        <a href="#schedule" class="nav-link h-full flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
-                    </div>
                 </div>
 
-                <!-- Nav Phải (Tìm kiếm và Auth) - Desktop -->
-                <div class="hidden md:flex items-center space-x-4 header-right-desktop">
-                    <!-- Form Tìm kiếm Desktop -->
-                    <form id="search-form-desktop" class="relative">
-                        <input id="search-input-desktop" type="text" placeholder="Tìm kiếm anime..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 lg:w-64 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
-                        <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-lime-400">
+                <!-- Nav Phải (Tìm kiếm và Auth) - Desktop (SỬ DỤNG lg:flex) -->
+                <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
+                    <!-- Form Tìm kiếm Desktop (CO GIÃN LINH HOẠT) -->
+                    <form id="search-form-desktop" class="relative flex-grow flex items-center">
+                        <input id="search-input-desktop" type="text" placeholder="Tìm kiếm anime..." 
+                            class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
+                        <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-lime-400 flex items-center justify-center">
                             <ion-icon name="search-outline"></ion-icon>
                         </button>
                     </form>
                     
                     <!-- Nút Tài Khoản/User Info (Gộp) -->
-                    <div id="auth-button-desktop" class="flex items-center">
+                    <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
                         <!-- Content updated by JS -->
-                        <!-- [THAY THẾ NỘI DUNG NÀY BẰNG NÚT ĐĂNG NHẬP MẶC ĐỊNH] -->
                         <a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
                     </div>
                 </div>
 
-                <!-- Nút Hamburger (Mobile) -->
-                <div class="md:hidden flex items-center">
+                <!-- Nút Hamburger (Mobile) (SỬ DỤNG lg:hidden) -->
+                <div class="lg:hidden flex items-center">
                     <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-lime-500" aria-controls="mobile-menu" aria-expanded="false">
                         <span class="sr-only">Mở menu</span>
                         <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -1565,10 +1456,120 @@
                     </button>
                 </div>
             </div>
-        </nav>
 
-        <!-- === Menu Mobile === -->
-        <div class="md:hidden hidden" id="mobile-menu">
+            <!-- HÀNG 2: MENU CHÍNH (CHỈ HIỂN THỊ TRÊN DESKTOP LỚN) -->
+            <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
+                <div class="flex space-x-6 items-center">
+                    <a href="#home" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang Chủ</a>
+                    
+                    <!-- Dạng Anime Dropdown -->
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Dạng Anime
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#genre/tv-series">TV/Series</a>
+                            <a href="#genre/movie-ova">Movie/OVA</a>
+                            <a href="#genre/hh-trung-quoc">HH Trung Quốc</a>
+                            <a href="#genre/anime-tron-bo">Anime Trọn Bộ</a>
+                        </div>
+                    </div>
+
+                    <!-- Top Anime Dropdown -->
+                    <div class="dropdown">
+                        <a href="#top" data-hash-group="#top" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Top Anime
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#top/ngay">Top Ngày</a>
+                            <a href="#top/tuan">Top Tuần</a>
+                            <a href="#top/thang">Top Tháng</a>
+                            <a href="#top/nam">Top Năm</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Thể Loại Dropdown (46 THỂ LOẠI) -->
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Thể Loại
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-3-cols-scroll">
+                            <!-- 46 THỂ LOẠI -->
+                            <a href="#genre/action">Action</a>
+                            <a href="#genre/adventure">Adventure</a>
+                            <a href="#genre/boys-love">Boys Love</a>
+                            <a href="#genre/cartoon">Cartoon</a>
+                            <a href="#genre/comedy">Comedy</a>
+                            <a href="#genre/dementia">Dementia</a>
+                            <a href="#genre/demons">Demons</a>
+                            <a href="#genre/drama">Drama</a>
+                            <a href="#genre/ecchi">Ecchi</a>
+                            <a href="#genre/fantasy">Fantasy</a>
+                            <a href="#genre/game">Game</a>
+                            <a href="#genre/harem">Harem</a>
+                            <a href="#genre/historical">Historical</a>
+                            <a href="#genre/horror">Horror</a>
+                            <a href="#genre/josei">Josei</a>
+                            <a href="#genre/kids">Kids</a>
+                            <a href="#genre/live-action">Live Action</a>
+                            <a href="#genre/magic">Magic</a>
+                            <a href="#genre/martial-arts">Martial Arts</a>
+                            <a href="#genre/mecha">Mecha</a>
+                            <a href="#genre/military">Military</a>
+                            <a href="#genre/music">Music</a>
+                            <a href="#genre/mystery">Mystery</a>
+                            <a href="#genre/parody">Parody</a>
+                            <a href="#genre/police">Police</a>
+                            <a href="#genre/psychological">Psychological</a>
+                            <a href="#genre/romance">Romance</a>
+                            <a href="#genre/samurai">Samurai</a>
+                            <a href="#genre/school">School</a>
+                            <a href="#genre/sci-fi">Sci-Fi</a>
+                            <a href="#genre/seinen">Seinen</a>
+                            <a href="#genre/shoujo">Shoujo</a>
+                            <a href="#genre/shoujo-ai">Shoujo Ai</a>
+                            <a href="#genre/shounen">Shounen</a>
+                            <a href="#genre/shounen-ai">Shounen Ai</a>
+                            <a href="#genre/slice-of-life">Slice of Life</a>
+                            <a href="#genre/space" class="text-gray-300 hover:text-lime-400">Space</a>
+                            <a href="#genre/sports">Sports</a>
+                            <a href="#genre/super-power">Super Power</a>
+                            <a href="#genre/supernatural">Supernatural</a>
+                            <a href="#genre/suspense">Suspense</a>
+                            <a href="#genre/thriller">Thriller</a>
+                            <a href="#genre/tokusatsu">Tokusatsu</a>
+                            <a href="#genre/vampire">Vampire</a>
+                            <a href="#genre/yaoi">Yaoi</a>
+                            <a href="#genre/yuri">Yuri</a>
+                        </div>
+                    </div>
+
+                    <!-- Season Dropdown -->
+                    <div class="dropdown">
+                         <a href="#season" data-hash-group="#season" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Season
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#season/mua-dong-2024">Mùa Đông 2024</a>
+                            <a href="#season/mua-xuan-2024">Mùa Xuân 2024</a>
+                            <a href="#season/mua-he-2024">Mùa Hè 2024</a>
+                            <a href="#season/mua-thu-2024">Mùa Thu 2024</a>
+                        </div>
+                    </div>
+                    
+                    <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
+                    <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- === Menu Mobile (SỬ DỤNG lg:hidden ĐỂ CHUYỂN ĐỔI TẠI 1024PX) === -->
+        <!-- [FIX] Cần điều chỉnh lại top cho menu mobile vì header đã dài hơn (80px + padding + menu) -->
+        <div class="lg:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#home" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang Chủ</a>
                 
@@ -1596,13 +1597,49 @@
                         <a href="#genre/action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Action</a>
                         <a href="#genre/adventure" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Adventure</a>
                         <a href="#genre/boys-love" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Boys Love</a>
+                        <a href="#genre/cartoon" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Cartoon</a>
                         <a href="#genre/comedy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Comedy</a>
+                        <a href="#genre/dementia" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Dementia</a>
+                        <a href="#genre/demons" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Demons</a>
+                        <a href="#genre/drama" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Drama</a>
+                        <a href="#genre/ecchi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Ecchi</a>
                         <a href="#genre/fantasy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Fantasy</a>
+                        <a href="#genre/game" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Game</a>
                         <a href="#genre/harem" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Harem</a>
+                        <a href="#genre/historical" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Historical</a>
+                        <a href="#genre/horror" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Horror</a>
+                        <a href="#genre/josei" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Josei</a>
+                        <a href="#genre/kids" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Kids</a>
+                        <a href="#genre/live-action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Live Action</a>
+                        <a href="#genre/magic" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Magic</a>
+                        <a href="#genre/martial-arts" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Martial Arts</a>
+                        <a href="#genre/mecha" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mecha</a>
+                        <a href="#genre/military" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Military</a>
+                        <a href="#genre/music" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Music</a>
+                        <a href="#genre/mystery" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mystery</a>
+                        <a href="#genre/parody" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Parody</a>
+                        <a href="#genre/police" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Police</a>
+                        <a href="#genre/psychological" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Psychological</a>
                         <a href="#genre/romance" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Romance</a>
+                        <a href="#genre/samurai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Samurai</a>
                         <a href="#genre/school" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">School</a>
                         <a href="#genre/sci-fi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sci-Fi</a>
+                        <a href="#genre/seinen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Seinen</a>
+                        <a href="#genre/shoujo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo</a>
+                        <a href="#genre/shoujo-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo Ai</a>
+                        <a href="#genre/shounen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen</a>
+                        <a href="#genre/shounen-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen Ai</a>
+                        <a href="#genre/slice-of-life" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Slice of Life</a>
+                        <a href="#genre/space" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Space</a>
+                        <a href="#genre/sports" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sports</a>
+                        <a href="#genre/super-power" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Super Power</a>
                         <a href="#genre/supernatural" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Supernatural</a>
+                        <a href="#genre/suspense" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Suspense</a>
+                        <a href="#genre/thriller" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Thriller</a>
+                        <a href="#genre/tokusatsu" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Tokusatsu</a>
+                        <a href="#genre/vampire" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Vampire</a>
+                        <a href="#genre/yaoi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yaoi</a>
+                        <a href="#genre/yuri" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yuri</a>
                     </div>
                 </div>
                 
@@ -1619,7 +1656,6 @@
             <!-- Auth Links Mobile -->
             <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
                 <!-- Content updated by JS -->
-                <!-- [THAY THẾ NỘI DUNG NÀY BẰNG NÚT ĐĂNG NHẬP MẶC ĐỊNH] -->
                 <a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
             </div>
         </div>
