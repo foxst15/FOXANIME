@@ -3,13 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png">
+    <!-- Bé Lôi Note: Đã thêm fallback icon nếu link ảnh lỗi -->
+    <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg">
     <title>ADMIN NII-CHAN FOXANIME </title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tải thư viện Icons (ĐÃ CẬP NHẬT) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==\" crossorigin=\"anonymous" referrerpolicy="no-referrer" />
+    <!-- SCRIPT KIỂM TRA LỖI CDN VÀ HIỂN THỊ THÔNG BÁO DỊCH VỤ -->
+    <script>
+        const RELOAD_INTERVAL = 15000; // Tải lại sau 15 giây
+
+        // Hàm này sẽ kiểm tra xem Tailwind CSS đã tải thành công chưa
+        function checkTailwindLoadAndShowFallback() {
+            // === LOGIC KIỂM TRA THỰC TẾ ===
+            let isTailwindLoaded = false;
+            try {
+                const testEl = document.createElement('div');
+                // Gán một class Tailwind với một thuộc tính CSS đặc trưng
+                testEl.className = 'opacity-100'; 
+                testEl.style.display = 'none';
+                document.body.appendChild(testEl);
+                
+                // Lấy giá trị opacity sau khi Tailwind được cho là đã tải
+                const computedStyle = window.getComputedStyle(testEl);
+                isTailwindLoaded = computedStyle.opacity === '1'; 
+                document.body.removeChild(testEl);
+            } catch (e) {
+                 console.error("Lỗi khi kiểm tra Tailwind:", e);
+            }
+            // === KẾT THÚC LOGIC KIỂM TRA THỰC TẾ ===
+
+            if (!isTailwindLoaded) {
+                // Nếu Tailwind không tải, hiển thị overlay
+                const overlay = document.getElementById('cdn-failure-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+                // Ẩn nội dung chính bị lỗi để tránh giao diện không chuyên nghiệp
+                const mainAdminView = document.getElementById('admin-main-view');
+                const authPage = document.getElementById('auth-page');
+                const loadingOverlay = document.getElementById('loading-overlay');
+                
+                if (mainAdminView) {
+                     mainAdminView.style.display = 'none'; 
+                }
+                if (authPage) {
+                     authPage.style.display = 'none';
+                }
+                if (loadingOverlay) {
+                     loadingOverlay.style.display = 'none'; // Đảm bảo lớp loading cũng bị tắt
+                }
+                
+                // === BẬT TỰ ĐỘNG TẢI LẠI TRANG ===
+                console.warn(`[CDN ERROR] Tailwind failed to load. Initiating self-healing reload loop in ${RELOAD_INTERVAL/1000}s.`);
+                setTimeout(() => {
+                    location.reload();
+                }, RELOAD_INTERVAL);
+            }
+        }
+        
+        // Chạy kiểm tra sau một khoảng thời gian ngắn để đảm bảo Tailwind có thời gian tải
+        window.addEventListener('load', () => {
+            setTimeout(checkTailwindLoadAndShowFallback, 300); 
+        });
+    </script>
+    
+    <!-- Tải thư viện Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <style>
         /* Thiết lập font Inter mặc định */
@@ -21,9 +81,9 @@
             min-height: 100vh;
         }
         /* Custom scrollbar for JRPG Theme */
-        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #2f1d56; }
-        ::-webkit-scrollbar-thumb { background: #00ffaa; border-radius: 5px; } /* Xanh Neon */
+        ::-webkit-scrollbar-thumb { background: #00ffaa; border-radius: 4px; } /* Xanh Neon */
         ::-webkit-scrollbar-thumb:hover { background: #00cc88; }
         
         /* Hiệu ứng Glow cho Header và Buttons */
@@ -66,6 +126,15 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             border: 2px solid transparent;
+            /* Bé Lôi: Thêm style cho tag trong dropdown */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background-color: #2f1d56;
+            color: #e0e7ff;
         }
         .genre-tag:hover {
             border-color: #00ffaa;
@@ -81,7 +150,7 @@
             visibility: hidden;
         }
         .custom-file-input::before {
-            content: 'Chọn tệp Base64 (Max 5MB)';
+            content: 'Chọn tệp (Max 700KB)'; /* Bé Lôi sửa label */
             display: inline-block;
             background: #5d3f9e;
             border: 1px solid #00ffaa;
@@ -99,11 +168,9 @@
             color: #1a0f3d;
         }
         
-        /* FIX CHỮ BỊ MỜ TRONG INPUT VÀ SELECT TRIỆT ĐỂ */
         .form-input {
-            /* Các class Tailwind chung */
-            @apply shadow-sm appearance-none border border-[#5d3f9e] rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4];
-            /* Ghi đè màu chữ và nền để tránh xung đột Dark Mode */
+            /* Bé Lôi: Thêm transition cho input */
+            @apply transition duration-150 ease-in-out shadow-sm appearance-none border border-[#5d3f9e] rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4];
             background-color: white; 
             color: #111827 !important; /* ÉP BUỘC MÀU CHỮ ĐEN CHO INPUT, SELECT, VÀ TEXTAREA */
         }
@@ -119,22 +186,313 @@
             color: #111827; 
         }
         
-        /* Tối ưu CSS cho lịch chiếu */
+        /* --- [QUAN TRỌNG] GRID LỊCH CHIẾU FIXED --- */
         .schedule-grid-container {
-             /* Thay đổi: Chia lưới 4 cột trên màn hình lớn để tăng chiều rộng mỗi cột */
              display: grid; 
-             grid-template-columns: repeat(2, 1fr); /* 2 cột trên mobile */
-             gap: 1rem;
+             grid-template-columns: 1fr; /* Mobile: 1 cột */
+             gap: 1.5rem;
+             width: 100%;
         }
-        @media (min-width: 768px) {
-            .schedule-grid-container {
-                 grid-template-columns: repeat(4, 1fr); /* 4 cột trên desktop */
+        @media (min-width: 700px) {
+            .schedule-grid-container { grid-template-columns: repeat(2, 1fr); } /* Tablet: 2 cột */
+        }
+        @media (min-width: 1100px) {
+            .schedule-grid-container { grid-template-columns: repeat(4, 1fr); } /* Desktop: 4 cột */
+        }
+        
+        /* --- THANH CUỘN CHO LIST TẬP --- */
+        .episode-list-scroll {
+            max-height: 130px; /* Hiển thị khoảng 3 tập */
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .episode-list-scroll::-webkit-scrollbar { width: 5px; }
+        .episode-list-scroll::-webkit-scrollbar-thumb { background: #5d3f9e; border-radius: 3px; }
+        
+        /* --- CSS BỘ LỌC VÀ PHÂN TRANG --- */
+        .filter-bar-container {
+            background: #2f1d56;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #5d3f9e;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .pagination-btn {
+            background: #1a0f3d;
+            border: 1px solid #00ffaa;
+            color: #00ffaa;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #00ffaa;
+            color: #1a0f3d;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: gray;
+            color: gray;
+        }
+
+        /* --- CSS MỚI: FALLBACK OVERLAY (Sử dụng CSS thuần để đảm bảo hiển thị) --- */
+        #cdn-failure-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a0f3d; /* Màu nền tím than đậm (Deep Space) */
+            color: #e0e7ff; /* Màu chữ sáng */
+            display: none; /* Mặc định ẩn, JS sẽ bật khi lỗi */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10000;
+            padding: 20px;
+            font-family: 'Inter', sans-serif, Arial; /* Font dự phòng */
+            margin: 0;
+        }
+        
+        .error-container {
+            width: 100%;
+            max-width: 750px; 
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #2f1d56; /* Background cho container chính */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 2px solid #5d3f9e;
+        }
+        
+        .error-content-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mặc định 1 cột cho mobile */
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+        @media (min-width: 600px) { /* Cho màn hình rộng hơn (desktop/tablet) */
+             .error-content-grid {
+                grid-template-columns: 2fr 1fr; /* Chia 2 cột: 2/3 cho chi tiết, 1/3 cho logo */
             }
+        }
+        
+        .error-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #5d3f9e;
+            margin-bottom: 20px;
+            grid-column: 1 / -1; 
+        }
+        .error-header h1 {
+            color: #ff69b4; /* Màu hồng neon cho alert */
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 0 5px #ff69b4, 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+        .error-header p {
+            font-size: 1rem;
+            color: #e0e7ff;
+            margin-top: 5px;
+        }
+
+        .error-card {
+            background: #1a0f3d; /* Lighter dark card background */
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: left; 
+        }
+        .error-card h3 {
+            color: #00ffaa; /* Xanh neon cho tiêu đề */
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #00ffaa;
+            padding-bottom: 5px;
+        }
+        .error-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .error-card ul li {
+            font-size: 0.95rem;
+            color: #e0e7ff;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .error-card ul li::before {
+            content: "•";
+            color: #ff69b4; /* Hồng neon dot cho list */
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .action-link {
+            display: inline-block;
+            background-color: #00ffaa; 
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+        .action-link:hover {
+            background-color: #00cc88;
+        }
+        
+        /* Cột bên phải: Logo và Contact */
+        .right-column {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             justify-content: flex-start;
+             gap: 15px;
+             padding: 10px;
+             background: #1a0f3d;
+             border-radius: 8px;
+             border: 1px dashed #5d3f9e;
+        }
+        @media (max-width: 599px) {
+            .right-column {
+                display: none; 
+            }
+        }
+        
+        .komiko-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto;
+            border: 3px solid #ff69b4;
+        }
+        
+        .apology-text {
+            color: #00ffaa;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            grid-column: 1 / -1; 
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .contact-info a {
+            color: #ff69b4;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .contact-info a:hover {
+            color: #ff0080;
+            text-decoration: underline;
+        }
+        
+        /* === BÉ LÔI: CSS CHO DROPDOWN GENRE MỚI === */
+        .custom-dropdown-menu {
+            max-height: 300px; /* Giới hạn chiều cao */
+            overflow-y: auto;
+            top: 100%; /* Đảm bảo sổ xuống */
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        
+        /* === Bé Lôi: Fix cho Filter Bar Inputs === */
+        #filter-title-input, #filter-creator-input {
+            color: #111827 !important; /* Đảm bảo màu chữ đen */
+            background-color: white !important;
         }
 
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+
+    <!-- OVERLAY HIỂN THỊ LỖI DỊCH VỤ / CDN (SỬ DỤNG CSS THUẦN) -->
+    <div id="cdn-failure-overlay">
+        <div class="error-container">
+            
+            <div class="error-header">
+                <h1>Lỗi Hệ Thống FOXANIME 5xx!</h1>
+                <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
+            </div>
+            
+            <div class="error-content-grid">
+                
+                <!-- CỘT TRÁI: CHI TIẾT LỖI VÀ KHẮC PHỤC -->
+                <div class="left-column">
+                    <div class="error-card">
+                        <h3>Chi tiết Sự cố</h3>
+                        <p style="font-size:0.95rem; color:#e0e7ff; margin-bottom: 10px;">
+                            **CDN/Network Failure**
+                        </p>
+                        <p style="font-size:0.9rem; color:#d1d5db; margin:0;">
+                            Bảng Điều Khiển không thể tải các tài nguyên bên ngoài (như Tailwind CSS hoặc Icons) cần thiết để hiển thị giao diện.
+                        </p>
+                    </div>
+
+                    <div class="error-card" style="margin-bottom: 0;">
+                        <h3>Nguyên nhân có thể</h3>
+                        <ul>
+                            <li>Lỗi mạng của Quý khách</li>
+                            <li>Sự cố nhà cung cấp dịch vụ (ví dụ: Cloudflare CDN)</li>
+                            <li>Lỗi kết nối từ máy chủ FOXANIME</li>
+                            <li>Vấn đề bảo trì không báo trước</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢẢI: LOGO VÀ KHÔI PHỤC -->
+                <div class="right-column">
+                    <!-- LOGO KOMIKO -->
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452bnsfd/KomikoAI.jpg" alt="KomikoAI Logo" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/a3e635?text=KOMIKO'">
+                    
+                    <div class="error-card" style="margin-bottom: 0; width: 100%; text-align: center; background-color: #2f1d56;">
+                        <h3>Khôi phục Tự động</h3>
+                        <p style="font-size:0.95rem; color:#e0e7ff; margin-bottom: 10px;">
+                            Hệ thống sẽ thử lại tự động sau 15 giây.
+                        </p>
+                        <a href="javascript:location.reload()" class="action-link" style="font-size: 0.9rem; padding: 8px 15px;">Tải lại trang ngay</a>
+                    </div>
+                    
+                    <div class="contact-info" style="margin-top: 0;">
+                         <a href="mailto:haistrem6792@gmail.com">
+                            <i class="fas fa-envelope" style="font-size: 1.2rem; margin-right: 5px;"></i>
+                            Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="apology-text">Thành thật xin lỗi vì sự bất tiện này!</p>
+            
+        </div>
+    </div>
+
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-300 hidden opacity-0">
@@ -172,14 +530,14 @@
     <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
         <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <img src="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png" 
+                <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" 
                      alt="FoxAnime Logo" 
                      class="w-16 h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg"
                      onerror="this.onerror=null;this.src='https://placehold.co/64x64/ff69b4/ffffff?text=FX';" 
                 />
                 <div>
                     <h1 class="text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN</h1>
-                    <p class="text-gray-400">Quản lý Phim và Tài khoản Admin.</p>
+                    <p class="text-gray-400">Quản lý Phim và Tài khoản Admin .</p>
                     <div id="auth-status" class="mt-2 text-sm text-[#ff69b4]"></div>
                 </div>
             </div>
@@ -210,7 +568,6 @@
     </div>
 
     <!-- Modals (Add Movie, Edit Movie, Add/Edit Episode, etc.) -->
-    
     <!-- Modal: Thêm Phim Mới -->
     <div id="add-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
         <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
@@ -344,6 +701,7 @@
                     <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-poster-file">HOẶC Tải tệp lên (*)</label>
                     <input class="custom-file-input text-gray-400" id="movie-poster-file" type="file" accept="image/png, image/jpeg, image/webp">
                     <p id="poster-upload-status" class="text-xs text-[#00ffaa] mt-2"></p>
+                    <p class="text-xs text-[#ff69b4] italic">Lưu ý: File phải nhỏ hơn 700KB để tránh lỗi database.</p>
                 </div>
                 
                 <!-- === TRƯỜNG BANNER === -->
@@ -668,8 +1026,9 @@
             ERROR: '#ff69b4',
         };
         
-        const MAX_AVATAR_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
-        const MAX_POSTER_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+        // --- FIX TỪ BÉ LÔI: Giảm dung lượng max file để tránh crash Firestore Document (Limit 1MB) ---
+        const MAX_AVATAR_SIZE_BYTES = 0.5 * 1024 * 1024; // 0.5MB cho Avatar
+        const MAX_POSTER_SIZE_BYTES = 0.8 * 1024 * 1024; // 0.8MB cho Poster (800KB)
         
         // --- CẤU HÌNH FIREBASE ---
         const FIREBASE_DEFAULT_CONFIG = {
@@ -700,6 +1059,19 @@
         let currentUserProfile = {};
         let globalAdminMoviesCache = [];
         let unsubscribeMoviesListener = null;
+        
+        // --- BÉ LÔI UPDATE: GLOBAL VARIABLES FOR PAGINATION & FILTER ---
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filterState = {
+            title: '',
+            genre: '',
+            creator: ''
+        };
+        
+        // Tất cả thể loại để hiển thị trong Dropdown
+        const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
+
 
         // --- MODAL UTILS ---
         let resolveConfirm;
@@ -765,7 +1137,7 @@
             return new Promise((resolve, reject) => {
                 if (file.size > maxSizeInBytes) {
                     const limitMB = (maxSizeInBytes / 1024 / 1024).toFixed(1);
-                    reject(new Error(`Kích thước file quá lớn (tối đa ${limitMB}MB).`));
+                    reject(new Error(`Kích thước file quá lớn (File của bạn: ${(file.size/1024/1024).toFixed(2)}MB). Tối đa cho phép là ${limitMB}MB do giới hạn Firestore.`));
                     return;
                 }
                 const reader = new FileReader();
@@ -1404,7 +1776,8 @@
                     const hash = window.location.hash.substring(1) || 'dashboard';
                     // Chỉ render lại nếu đang ở Dashboard hoặc Schedule
                     if (hash === 'dashboard') {
-                         renderAdminDashboard();
+                         renderAdminDashboard(); // Render lại khung sườn dashboard (để đảm bảo thống kê được cập nhật)
+                         renderDashboardDynamicContent(); // CHỈ CẬP NHẬT NỘI DUNG ĐỘNG (list/pagination)
                     } else if (hash === 'schedule') {
                          renderSchedulePage();
                     }
@@ -1421,18 +1794,124 @@
             }
         };
 
-        const renderAdminDashboard = () => {
-            const movies = globalAdminMoviesCache;
-            const movieListHtml = renderMovieListContent(movies);
-        
-            const totalMovies = movies.length;
-            const totalEpisodes = movies.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
+        // --- BÉ LÔI UPDATE: FILTER & PAGINATION LOGIC ---
+        const getFilteredAndPaginatedMovies = () => {
+            // 1. Filter
+            let result = globalAdminMoviesCache.filter(movie => {
+                const matchTitle = (movie.title || '').toLowerCase().includes(filterState.title.toLowerCase());
+                const matchGenre = filterState.genre === '' || (movie.genre || '').includes(filterState.genre);
+                const matchCreator = (movie.updatedBy || '').includes(filterState.creator);
+                return matchTitle && matchGenre && matchCreator;
+            });
+
+            // 2. Pagination
+            const totalPages = Math.ceil(result.length / itemsPerPage);
+            // Đảm bảo trang hiện tại không vượt quá tổng số trang
+            if (currentPage > totalPages) currentPage = totalPages > 0 ? totalPages : 1; 
             
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = result.slice(start, start + itemsPerPage);
+
+            return { data: paginated, total: result.length, totalPages };
+        };
+        
+        // --- BÉ LÔI UPDATE: EVENT HANDLERS CHO FILTER & PAGINATION ---
+        // Hàm này sẽ chỉ render lại nội dung thay vì toàn bộ Dashboard
+        window.handleFilterChange = (key, value) => {
+            // Cập nhật giá trị filter, value có thể là giá trị input hoặc giá trị data-genre
+            filterState[key] = value;
+            currentPage = 1; // Reset về trang 1
+            renderDashboardDynamicContent(); // Chỉ render nội dung động
+        };
+
+        window.changePage = (delta) => {
+            currentPage += delta;
+            renderDashboardDynamicContent(); // Chỉ render nội dung động
+        };
+
+        window.toggleGenreDropdown = (targetId, event) => {
+             const dropdown = $(targetId);
+             const isHidden = dropdown.classList.contains('hidden');
+             // Ẩn tất cả các dropdown khác trước khi mở cái mới
+             document.querySelectorAll('.custom-dropdown-menu').forEach(d => {
+                 if (d.id !== targetId) d.classList.add('hidden');
+             });
+             
+             if (isHidden) {
+                dropdown.classList.remove('hidden');
+                // Chặn sự kiện lan truyền lên body (không cần thiết vì click outside đã handle)
+                // if (event) event.stopPropagation();
+             } else {
+                 dropdown.classList.add('hidden');
+             }
+        };
+        
+        // --- BÉ LÔI: CẢI TIẾN LỌC VÀ LIST (TÁCH BIỆT KHỎI RENDER ADMIN DASHBOARD) ---
+
+        const renderDashboardDynamicContent = () => {
+            const container = $('dynamic-dashboard-content'); // Container mới, chỉ chứa list và pagination
+            if (!container) return; // Nếu chưa render khung sườn thì thoát
+
+            const { data, total, totalPages } = getFilteredAndPaginatedMovies();
+            const movieListHtml = renderMovieListContent(data);
+            
+            // [FIX FOCUS] Toàn bộ nội dung động được render vào container này
+            container.innerHTML = `
+                
+                <div id="movie-list" class="space-y-4">${movieListHtml}</div>
+                
+                <!-- BÉ LÔI UPDATE: THANH PHÂN TRANG (PAGINATION) -->
+                <div class="mt-6 flex justify-center items-center space-x-4">
+                    <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(-1)">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </button>
+                    <span class="text-[#00ffaa] font-bold">Page ${currentPage} / ${totalPages || 1}</span>
+                    <button class="pagination-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Cập nhật thống kê Total Movies đang hiển thị
+            const totalMoviesDisplay = $('stat-total-movies-display');
+            if (totalMoviesDisplay) totalMoviesDisplay.textContent = total;
+            
+            // Gắn listener cho các nút ADD EP / EDIT MOVIE (cần gắn lại sau mỗi lần render)
+            container.querySelectorAll('.add-episode-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showAddEpisodeModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+            container.querySelectorAll('.edit-movie-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showEditMovieModal(this.getAttribute('data-movie-id'));
+                });
+            });
+            
+        };
+
+        const renderAdminDashboard = () => {
+            // Lấy lại giá trị filter genre để render dropdown button chính xác
+            const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : filterState.genre;
+            
+            // HTML cho các tag thể loại trong dropdown (2 cột)
+            const genreTagListHtml = ALL_GENRES.map(g => `
+                <button type="button" 
+                        onclick="handleFilterChange('genre', '${g}')" 
+                        class="genre-tag ${filterState.genre === g ? 'selected' : ''}">
+                    ${g}
+                </button>
+            `).join('');
+            
+            const totalMoviesCache = globalAdminMoviesCache.length;
+            const totalEpisodes = globalAdminMoviesCache.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
+            
+            // Khung sườn tĩnh của Dashboard (Bao gồm Filter Bar cố định)
             $('main-content').innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-semibold text-[#00ffaa]">DANH SÁCH MOVIE</h2>
+                            <h2 class="text-2xl font-semibold text-[#00ffaa]">DANH SÁCH MOVIE (<span id="stat-total-movies-display">${getFilteredAndPaginatedMovies().total}</span>)</h2>
                             <div class="flex flex-wrap gap-2">
                                 <a href="#schedule" class="anime-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-sm">
                                     <i class="fas fa-calendar-alt mr-2"></i> Lịch Chiếu
@@ -1443,7 +1922,49 @@
                             </div>
                         </div>
                         
-                        <div id="movie-list" class="space-y-4">${movieListHtml}</div>
+                        <!-- BÉ LÔI FIX: THANH LỌC (FILTER BAR) - STATIC HTML -->
+                        <div class="filter-bar-container">
+                            <div class="flex-grow">
+                                <input type="text" id="filter-title-input" placeholder="🔍 Tìm tên phim..." class="form-input h-10 text-sm" 
+                                       value="${filterState.title}" oninput="handleFilterChange('title', this.value)">
+                            </div>
+                            
+                            <!-- BỘ LỌC THỂ LOẠI (DROPDOWN 2 CỘT) -->
+                            <div class="relative w-full sm:w-auto">
+                                <button type="button" id="genre-filter-button"
+                                        onclick="window.toggleGenreDropdown('genre-filter-dropdown', event)" 
+                                        class="anime-button bg-[#1a0f3d] hover:bg-[#2f1d56] border border-[#00ffaa] text-[#00ffaa] text-sm font-semibold py-2 px-3 rounded-lg w-full sm:w-48 flex items-center justify-between">
+                                    ${selectedGenreName}
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </button>
+                                
+                                <div id="genre-filter-dropdown" 
+                                     class="custom-dropdown-menu absolute bg-[#2f1d56] p-2 rounded-lg shadow-xl hidden w-full sm:w-80">
+                                    <!-- Nút để chọn 'Tất cả' -->
+                                    <button type="button" 
+                                            onclick="handleFilterChange('genre', '')" 
+                                            class="genre-tag w-full mb-2 ${filterState.genre === '' ? 'selected' : ''}">
+                                        -- Tất cả thể loại --
+                                    </button>
+                                    <!-- Grid 2 cột cho các thể loại -->
+                                    <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                                        ${genreTagListHtml}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                             <div class="flex-grow sm:flex-grow-0">
+                                <input type="text" id="filter-creator-input" placeholder="👤 User ID..." class="form-input h-10 text-sm" 
+                                       value="${filterState.creator}" oninput="handleFilterChange('creator', this.value)">
+                            </div>
+                        </div>
+                        
+                        <!-- CONTAINER CHỈ CHỨA LIST VÀ PAGINATION (DYNAMIC CONTENT) -->
+                        <div id="dynamic-dashboard-content">
+                            <!-- Nội dung này sẽ được điền bởi renderDashboardDynamicContent() -->
+                            <p class="text-center text-gray-400 py-8">Đang tải danh sách phim...</p>
+                        </div>
+                        
                     </div>
 
                     <div class="lg:col-span-1">
@@ -1451,8 +1972,8 @@
                             <h2 class="text-xl font-semibold text-[#00ffaa] mb-4">THỐNG KÊ (STATS)</h2>
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
-                                    <p class="text-sm text-gray-400">TỔNG SỐ PHIM</p>
-                                    <p id="stat-total-movies" class="text-3xl font-bold text-[#00ffaa]">${totalMovies}</p>
+                                    <p class="text-sm text-gray-400">TỔNG SỐ PHIM (Cache)</p>
+                                    <p class="text-3xl font-bold text-[#00ffaa]">${totalMoviesCache}</p>
                                 </div>
                                 <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
                                     <p class="text-sm text-gray-400">TỔNG SỐ TẬP</p>
@@ -1471,17 +1992,24 @@
                 </div>
             `;
             
-            // Gắn listener cho các nút ADD EP / EDIT MOVIE (cần gắn lại sau mỗi lần render dashboard)
-            $('main-content').querySelectorAll('.add-episode-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    window.showAddEpisodeModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
-                });
+            // Lắng nghe click bên ngoài để đóng dropdown (cần gắn lại sau khi render khung sườn)
+            document.addEventListener('click', function(event) {
+                 const dropdown = $('genre-filter-dropdown');
+                 const dropdownButton = $('genre-filter-button');
+                 
+                 // Nếu dropdown tồn tại và click không phải trên nút mở/dropdown
+                 if (dropdown && !dropdown.classList.contains('hidden')) {
+                     const isClickInsideButton = event.target.closest('#genre-filter-button');
+                     const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
+                     
+                     if (!isClickInsideButton && !isClickInsideDropdown) {
+                         dropdown.classList.add('hidden');
+                     }
+                 }
             });
-            $('main-content').querySelectorAll('.edit-movie-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    window.showEditMovieModal(this.getAttribute('data-movie-id'));
-                });
-            });
+            
+            // Gọi hàm render nội dung động sau khi khung sườn đã được tạo
+            renderDashboardDynamicContent();
         };
         
         const renderProfilePage = () => {
@@ -1506,7 +2034,7 @@
                             </div>
                             
                             <div class="mb-6">
-                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-avatar-file">Ảnh Đại Diện (Max 1MB)</label>
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-avatar-file">Ảnh Đại Diện (Max 0.5MB)</label>
                                 <input class="shadow border border-[#5d3f9e] rounded w-full py-2 px-3 bg-[#1a0f3d] text-white leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff69b4]/20 file:text-[#ff69b4]" 
                                        id="profile-avatar-file" type="file" accept="image/png, image/jpeg">
                                 <p class="text-xs text-gray-500 mt-2">Ảnh được lưu dưới dạng Base64 trong Firestore.</p>
@@ -1574,65 +2102,62 @@
             $('changePasswordForm')?.addEventListener('submit', handleChangePassword);
         };
 
+        // --- BÉ LÔI FIXED: SCHEDULE RENDER (ĐÚNG 100% Ý NII-CHAN) ---
         const renderSchedulePage = () => {
-            const movies = globalAdminMoviesCache;
-            const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-            const moviesByDay = {
-                "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []
-            };
+            // 1. Định nghĩa đủ 8 slots cần hiển thị
+            const slots = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật", "Không có"];
             
-            const airingMovies = movies.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
-            
-            airingMovies.forEach(movie => {
-                const day = movie.airingDay || "Không có";
-                moviesByDay[day] ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie);
+            // 2. Tạo map để chứa phim
+            const scheduleMap = {};
+            slots.forEach(s => scheduleMap[s] = []);
+
+            // 3. Phân loại phim vào map
+            globalAdminMoviesCache.filter(m => m.status !== 'tron-bo').forEach(m => {
+                // Lấy ngày chiếu, nếu không khớp danh sách slots thì cho vào 'Không có'
+                let day = m.airingDay || "Không có";
+                if (!slots.includes(day)) day = "Không có";
+                scheduleMap[day].push(m);
             });
-            
-            const renderScheduleCard = (movie) => `
-                <div class="bg-[#1e1346] p-3 rounded-lg flex items-center space-x-3 transition-all duration-200 hover:bg-[#2f1d56]">
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-12 h-16 object-cover rounded flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/48x64/1f2937/d1d5db?text=...'">
-                    <div class="flex-grow overflow-hidden">
-                        <p class="text-white font-semibold text-sm truncate">${movie.title}</p>
-                        <p class="text-gray-400 text-xs">${movie.episodes ? movie.episodes.length : 0} / ${movie.totalEpisodes || '??'} tập</p>
+
+            // 4. Render Grid
+            // Bé Lôi dùng logic 'slots.map' để đảm bảo thứ tự Thứ 2 -> CN -> Không có
+            const gridHtml = slots.map(day => {
+                const movies = scheduleMap[day];
+                const hasMovies = movies.length > 0;
+                
+                return `
+                    <div class="bg-[#1a0f3d] rounded-xl border border-[#5d3f9e] overflow-hidden flex flex-col h-full min-h-[200px] shadow-lg hover:shadow-[#ff69b4]/20 transition duration-300">
+                        <div class="bg-[#2f1d56] py-3 text-center border-b border-[#5d3f9e]">
+                            <h3 class="text-[#ff69b4] font-bold text-lg uppercase">${day}</h3>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col ${hasMovies ? 'justify-start' : 'justify-center'} custom-scrollbar overflow-y-auto max-h-[350px]">
+                            ${hasMovies ? movies.map(m => `
+                                <div class="flex gap-3 items-center bg-[#1e1346] p-2 rounded mb-2 hover:bg-[#2f1d56] border border-transparent hover:border-[#00ffaa] cursor-pointer group transition" onclick="window.showEditMovieModal('${m.id}')">
+                                    <img src="${m.posterUrl}" class="w-12 h-16 object-cover rounded border border-[#5d3f9e] group-hover:border-[#00ffaa]" onerror="this.src='https://placehold.co/48x64'">
+                                    <div class="min-w-0 overflow-hidden">
+                                        <p class="text-sm font-bold text-gray-200 truncate group-hover:text-[#00ffaa] transition">${m.title}</p>
+                                        <p class="text-xs text-gray-500">Tập ${(m.episodes||[]).length}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500 text-sm italic text-center">Chưa có phim nào.</p>'}
+                        </div>
                     </div>
-                    <button onclick="window.showEditMovieModal('${movie.id}')" class="text-yellow-400 hover:text-yellow-300 ml-auto flex-shrink-0" title="Sửa phim này">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-            `;
+                `;
+            }).join('');
 
             $('main-content').innerHTML = `
-                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
-                    <h2 class="text-2xl font-semibold text-[#00ffaa] mb-6 border-b border-gray-700 pb-3">LỊCH CHIẾU PHIM TRONG TUẦN</h2>
-                    
-                    <div class="schedule-grid-container">
-                        ${daysOfWeek.map(day => `
-                            <div class="bg-[#1a0f3d] p-4 rounded-lg border border-[#5d3f9e]">
-                                <h3 class="text-xl font-bold text-[#ff69b4] mb-4 text-center border-b border-[#5d3f9e] pb-2">${day}</h3>
-                                <div class="space-y-3 max-h-[60vh] overflow-y-auto">
-                                    ${(moviesByDay[day] && moviesByDay[day].length > 0)
-                                        ? moviesByDay[day].map(renderScheduleCard).join('')
-                                        : '<p class="text-gray-500 text-sm italic text-center">Chưa có phim chiếu.</p>'
-                                    }
-                                </div>
-                            </div>
-                        `).join('')}
+                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
+                    <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+                        <h2 class="text-2xl font-bold text-[#00ffaa] neon-glow">LỊCH CHIẾU PHIM TRONG TUẦN</h2>
+                        <button onclick="location.hash='#dashboard'" class="bg-[#4b5563] hover:bg-[#374151] text-white text-sm font-bold py-2 px-6 rounded-lg flex items-center transition shadow-lg">
+                            <i class="fas fa-arrow-left mr-2"></i> Quay lại Dashboard
+                        </button>
                     </div>
                     
-                    ${(moviesByDay["Không có"] && moviesByDay["Không có"].length > 0) ? `
-                        <div class="mt-8 pt-6 border-t border-gray-700">
-                             <h3 class="text-xl font-bold text-[#00ffaa] mb-4">Phim chưa gán lịch</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                ${(moviesByDay["Không có"]).map(movie => `
-                                    <div class="bg-[#1e1346] p-3 rounded-lg flex items-center space-x-3">
-                                        <img src="${movie.posterUrl}" class="w-10 h-14 object-cover rounded" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
-                                        <p class="text-sm font-semibold truncate flex-grow">${movie.title}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
+                    <!-- GRID SYSTEM: 4 CỘT TRÊN DESKTOP (1100px+) -->
+                    <div class="schedule-grid-container">
+                        ${gridHtml}
+                    </div>
                 </div>
             `;
         };
@@ -1644,14 +2169,17 @@
                 return '<p class="text-gray-500 italic text-sm">Chưa có tập phim nào. (No Data)</p>';
             }
             episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
-            return episodes.map(ep => {
-                const safeTitle = (ep.title || '').replace(/'/g, "\\'"); 
+            
+            // BÉ LÔI UPDATE: Thêm thẻ div bao ngoài với class episode-list-scroll để tạo thanh cuộn
+            const listItems = episodes.map(ep => {
+                const title = ep.title || 'Không có tên';
+                const safeTitle = title.replace(/'/g, "\\'"); 
                 const previewUrl = getAdminPreviewUrl(ep.videoUrl); 
                 return `
                 <li class="flex items-center justify-between p-2 border-b border-[#5d3f9e] last:border-b-0 text-sm">
                     <div class="flex-grow truncate">
                         <span class="font-medium text-[#00ffaa]">EP ${ep.episodeNumber || 'N/A'}:</span>
-                        <span class="mx-2 text-white">${ep.title || 'Không có tên'}</span>
+                        <span class="mx-2 text-white">${title}</span>
                     </div>
                     <div class="flex-shrink-0 flex items-center">
                         <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video (Mở Preview)">
@@ -1666,11 +2194,13 @@
                     </div>
                 </li>
             `}).join('');
+
+            return `<ul class="divide-y divide-[#1e1346] episode-list-scroll">${listItems}</ul>`;
         };
         
         const renderMovieListContent = (movies) => {
             if (movies.length === 0) {
-                return '<p class="text-center text-[#ff69b4] font-bold py-8" id="no-movies-message">Chưa có phim nào. Hãy thêm phim đầu tiên! </p>';
+                return '<p class="text-center text-[#ff69b4] font-bold py-8" id="no-movies-message">Chưa có phim nào (hoặc không khớp bộ lọc).</p>';
             }
             
             return movies.map(movie => {
@@ -1705,7 +2235,7 @@
                                             <i class="fas fa-edit mr-1"></i> EDIT
                                         </button>
                                         
-                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
                                             <i class="fas fa-skull-crossbones mr-1"></i> DELETE
                                         </button>
                                 </div>
@@ -1714,9 +2244,8 @@
 
                         <div class="mt-4 pt-4 border-t border-[#5d3f9e]">
                             <h4 class="text-lg font-semibold text-[#00ffaa] mb-2">EPISODE LIST (${episodeText})</h4>
-                            <ul class="divide-y divide-[#1e1346]">
-                                ${renderEpisodeList(movie.episodes, movie.id)} 
-                            </ul>
+                            <!-- Render list with scrollbar -->
+                            ${renderEpisodeList(movie.episodes, movie.id)} 
                         </div>
                     </div>
                 `;
@@ -1760,7 +2289,8 @@
             if (!moviesCollectionRef) return;
             const movie = globalAdminMoviesCache.find(m => m.id === movieId);
             if (!movie) {
-                 alert("Lỗi: Không tìm thấy phim trong cache.");
+                 // SỬ DỤNG MODAL THAY CHO ALERT()
+                 window.showConfirmModal("Lỗi: Không tìm thấy phim trong cache. Vui lòng tải lại trang.");
                  return;
             }
             
@@ -1799,7 +2329,8 @@
             const episodeToEdit = (movie?.episodes || []).find(ep => ep.episodeNumber === episodeNumber);
 
             if (!episodeToEdit) {
-                 alert("Lỗi: Không tìm thấy tập phim để sửa.");
+                 // SỬ DỤNG MODAL THAY CHO ALERT()
+                 window.showConfirmModal("Lỗi: Không tìm thấy tập phim để sửa.");
                  return;
             }
             
