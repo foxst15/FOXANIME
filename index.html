@@ -3,10 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png">
+    <!-- Tối ưu: Thêm preload DNS cho các CDN chính -->
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    
+    <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg">
     <title>FOXANIME - Xem Anime Miễn Phí</title>
     <!-- TẢI LẠI TAILWIND CDN ĐỂ GIẢM ĐỘ DÀI FILE VÀ KHẮC PHỤC LỖI CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SCRIPT KIỂM TRA LỖI CDN VÀ HIỂN THỊ THÔNG BÁO DỊCH VỤ -->
+    <script>
+        const RELOAD_INTERVAL = 15000; // Tải lại sau 15 giây
+
+        // Hàm này sẽ kiểm tra xem Tailwind CSS đã tải thành công chưa
+        function checkTailwindLoadAndShowFallback() {
+            // === LOGIC KIỂM TRA THỰC TẾ ===
+            let isTailwindLoaded = false;
+            try {
+                const testEl = document.createElement('div');
+                // Gán một class Tailwind với một thuộc tính CSS đặc trưng
+                testEl.className = 'opacity-100'; 
+                testEl.style.display = 'none';
+                document.body.appendChild(testEl);
+                
+                // Lấy giá trị opacity sau khi Tailwind được cho là đã tải
+                const computedStyle = window.getComputedStyle(testEl);
+                isTailwindLoaded = computedStyle.opacity === '1'; 
+                document.body.removeChild(testEl);
+            } catch (e) {
+                 console.error("Lỗi khi kiểm tra Tailwind:", e);
+            }
+            // === KẾT THÚC LOGIC KIỂM TRA THỰC TẾ ===
+
+            if (!isTailwindLoaded) {
+                // Nếu Tailwind không tải, hiển thị overlay
+                const overlay = document.getElementById('cdn-failure-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+                // Ẩn nội dung chính bị lỗi để tránh giao diện không chuyên nghiệp
+                const mainApp = document.getElementById('app');
+                if (mainApp) {
+                     mainApp.style.display = 'none'; 
+                }
+                const header = document.querySelector('header');
+                if (header) {
+                     header.style.display = 'none'; 
+                }
+                
+                // === BẬT TỰ ĐỘNG TẢI LẠI TRANG ===
+                console.warn(`[CDN ERROR] Tailwind failed to load. Initiating self-healing reload loop in ${RELOAD_INTERVAL/1000}s.`);
+                setTimeout(() => {
+                    location.reload();
+                }, RELOAD_INTERVAL);
+            }
+        }
+        
+        // Chạy kiểm tra sau một khoảng thời gian ngắn để đảm bảo Tailwind có thời gian tải
+        window.addEventListener('load', () => {
+            setTimeout(checkTailwindLoadAndShowFallback, 300); 
+        });
+    </script>
+
     <!-- Tải icon (Heroicons/Ionicons) -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
@@ -27,7 +87,8 @@
             GoogleAuthProvider,
             signInWithPopup,
             setPersistence,
-            browserLocalPersistence 
+            browserLocalPersistence,
+            signInAnonymously 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         import { 
@@ -67,6 +128,9 @@
         let isGlobalCacheLoaded = false; 
         let resolveResumeModal; 
         
+        // --- Hằng số mới cho giới hạn bình luận (Tối ưu hóa data) ---
+        const COMMENT_LIMIT = 20; 
+        
         // === HÀM TIỆN ÍCH CHUNG ===
         
         const getEl = (selector) => document.querySelector(selector);
@@ -78,7 +142,8 @@
                 setupError = new Error("Lỗi Cấu hình: appId không hợp lệ.");
                 return; 
             }
-            const safeUserId = currentUserId || crypto.randomUUID(); 
+            // FIX: Bỏ crypto.randomUUID(), luôn dùng UID Firebase cung cấp (kể cả Guest UID)
+            const safeUserId = currentUserId || 'guest'; // 'guest' chỉ là fallback, userId phải là UID
             dataCollectionPath = `artifacts/${appId}/public/data/movies`; 
             userLikesCollectionPath = `artifacts/${appId}/users/${safeUserId}/likes`;
             userRoleCollectionPath = `artifacts/${appId}/users`; 
@@ -150,26 +215,71 @@
                 localStorage.setItem(`_lastSave_${episodeId}`, Date.now());
             }
         };
+        
+        // --- BÉ LÔI: HÀM QUẢN LÝ BÌNH LUẬN (TỰ ĐỘNG XÓA BÌNH LUẬN CŨ) ---
+        const deleteOldestComments = async (movieId, comments) => {
+            if (comments.length > COMMENT_LIMIT) {
+                // Sắp xếp lại để tìm bình luận cũ nhất (createdAt thấp nhất)
+                comments.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+                
+                const commentsToDelete = comments.slice(0, comments.length - COMMENT_LIMIT);
+                
+                const batch = writeBatch(db);
+                const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
+                
+                commentsToDelete.forEach(comment => {
+                    batch.delete(doc(commentsColRef, comment.id));
+                });
+                
+                try {
+                    await batch.commit();
+                    console.log(`Đã xóa ${commentsToDelete.length} bình luận cũ nhất cho phim ${movieId}.`);
+                } catch (e) {
+                    console.error("Lỗi khi xóa bình luận cũ:", e);
+                }
+            }
+        };
 
-        // --- HÀM LẮNG NGHE BÌNH LUẬN (RÚT GỌN LOGIC) ---
+        // --- HÀM LẮNG NGHE BÌNH LUẬN (ĐÃ UPDATE LOGIC) ---
         const setupCommentsListener = (movieId) => {
             if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
             
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
-            const commentsQuery = query(commentsColRef); 
-
+            // FIX: Sử dụng orderBy và limit để tải nhanh hơn
+            const commentsQuery = query(commentsColRef); // Lấy toàn bộ để tự quản lý giới hạn
+            
             unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
                 const updatedComments = [];
                 snapshot.forEach(doc => {
-                    updatedComments.push({ id: doc.id, ...doc.data() });
+                    // Lấy ra createdAt dưới dạng Date hoặc giá trị số để sắp xếp
+                    const createdAt = doc.data().createdAt?.toDate() || new Date(0); 
+                    updatedComments.push({ id: doc.id, ...doc.data(), createdAt: createdAt });
                 });
-                updatedComments.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                
+                // Sort by time (latest first)
+                updatedComments.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                // Tự động dọn dẹp bình luận (chạy bất đồng bộ)
+                deleteOldestComments(movieId, updatedComments); 
+
+                // Chỉ hiển thị COMMENT_LIMIT bình luận mới nhất
+                const displayedComments = updatedComments.slice(0, COMMENT_LIMIT);
                 
                 const commentsListElement = getEl('#comments-list');
+                const commentCountElement = getEl('#comment-count-display');
+                if (commentCountElement) commentCountElement.textContent = updatedComments.length;
+
                 if (commentsListElement) {
-                    commentsListElement.innerHTML = updatedComments.length > 0
-                        ? updatedComments.map(CommentTemplate).join('')
-                        : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>';
+                    // Thêm thanh cuộn cho danh sách bình luận
+                    commentsListElement.innerHTML = `
+                        <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                            ${displayedComments.length > 0
+                                ? displayedComments.map(CommentTemplate).join('')
+                                : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                            }
+                            ${updatedComments.length > COMMENT_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                        </div>
+                    `;
                 }
             }, (error) => {
                 console.error("Lỗi listener bình luận:", error);
@@ -180,7 +290,7 @@
             });
         };
 
-        // --- HÀM TEMPLATE UI (RÚT GỌN) ---
+        // --- HÀM TEMPLATE UI (ĐÃ UPDATE CALL TO ACTION) ---
         
         const MovieCardTemplate = (movie) => {
             const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`; 
@@ -188,6 +298,7 @@
             const epCount = movie.episodes ? movie.episodes.length : 0;
             const genres = movie.genre ? movie.genre.split(',').map(g => g.trim()).join(', ') : '';
             
+            // [Tối ưu] Thêm lớp `lazy-load-image`
             return `
                 <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2">
                     <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
@@ -199,11 +310,17 @@
                             ${epCount > 0 ? `Tập ${epCount}` : 'Chưa có tập'}
                         </span>
                     </div>
-                    <div class="absolute inset-0 z-10"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 108 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                    <!-- [Tăng tương tác] Thêm Lời kêu gọi xem/thích -->
+                    <div class="absolute inset-0 z-10">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                            <p class="text-lime-400 text-lg font-bold mb-2 text-center">XEM NGAY</p>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <ion-icon name="eye-outline" class="mr-1"></ion-icon> ${(movie.viewCount || 0).toLocaleString('vi-VN')}
+                                <ion-icon name="thumbs-up-outline" class="ml-3 mr-1"></ion-icon> ${(movie.likeCount || 0).toLocaleString('vi-VN')}
+                            </div>
                         </div>
                     </div>
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
+                    <img src="${movie.posterUrl}" alt="${movie.title}" loading="lazy" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
                     <div class="p-4">
                         <h3 class="text-lg font-bold text-white truncate group-hover:text-lime-400 transition-colors z-20 relative">${movie.title}</h3>
                         <p class="text-sm text-gray-400">${genres}</p>
@@ -229,6 +346,15 @@
             const authButtonMobile = getEl('#auth-button-mobile');
             if (!authButtonDesktop || !authButtonMobile) return;
 
+            // Nếu user là null hoặc user.isAnonymous (là khách) thì hiển thị nút đăng nhập
+            if (!user || user.isAnonymous) {
+                 // Hiển thị nút Đăng nhập
+                authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+                authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+                return;
+            }
+
+            // Nếu user đã đăng nhập chính thức (isGoogleAuth hoặc Admin non-anonymous)
             if (isGoogleAuth(user)) {
                 const displayName = user.displayName || user.email.split('@')[0];
                 const photoURL = user.photoURL || `https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
@@ -237,7 +363,7 @@
                 authButtonDesktop.innerHTML = `
                     <div class="user-profile-dropdown">
                         <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-lime-500 transition-shadow">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                         </button>
                         <div id="user-dropdown-menu" class="user-dropdown-content">
                             <div class="p-4 border-b border-gray-600">
@@ -255,7 +381,7 @@
                 // Mobile: Avatar + Đăng xuất
                 authButtonMobile.innerHTML = `
                         <div class="flex items-center mb-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                             <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-lime-400">${displayName}</span></p>
                         </div>
                         <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
@@ -272,10 +398,6 @@
                     getEl('#mobile-menu')?.classList.add('hidden');
                 });
                 
-            } else {
-                // Hiển thị nút Đăng nhập
-                authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
-                authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
             }
         };
 
@@ -311,6 +433,10 @@
         };
         
         const renderPage = (pageType, param) => {
+            if (setupError) {
+                showError(setupError.message, setupError.stack || '');
+                return;
+            }
             if (!db || !isGlobalCacheLoaded) {
                  showLoading();
                  return;
@@ -326,6 +452,7 @@
                     const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, 6);
                     const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, 6);
                     const heroMovie = moiCapNhatList.length > 0 ? moiCapNhatList[0] : (cache.length > 0 ? cache[0] : null);
+                    // FIX: Hero Section và Movie Section được gộp vào cùng một section để tối ưu layout
                     getEl('#app').innerHTML = HeroSectionTemplate(heroMovie) + MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') + MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') + MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
                     return;
                 case '#login':
@@ -351,7 +478,7 @@
                     results = cache.filter(m => m.season && m.season.toLowerCase() === param.toLowerCase());
                     break;
                 case '#library':
-                    if (!isGoogleAuth()) {
+                    if (!auth?.currentUser || auth.currentUser.isAnonymous) { // Cập nhật check thư viện
                         getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập bằng Google</a> để xem thư viện cá nhân.</p></div>`;
                         return;
                     }
@@ -414,8 +541,6 @@
         // Giữ nguyên các hàm phức tạp (Info, Watch, Schedule, Firebase setup)
         // [CÁC HÀM CÒN LẠI GIỮ NGUYÊN NHƯ PHIÊN BẢN TRƯỚC VÌ CHÚNG LÀ LOGIC CHỨC NĂNG]
         
-        // --- CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN ĐỂ TỐI ƯU HÓA CODEBASE KHÔNG BỊ PHỨC TẠP QUÁ MỨC) ---
-        
         // <start_of_retained_logic>
         
         // Hàm Tăng Lượt Xem (Đã rút gọn logic ở trên)
@@ -459,8 +584,9 @@
 
             if (youtubeEmbedUrl || googleDriveEmbedUrl) {
                 const src = youtubeEmbedUrl || googleDriveEmbedUrl;
+                // [Tối ưu] Thêm thuộc tính loading="lazy" vào iframe nếu cần
                 return {
-                    html: `<iframe id="video-player-iframe" class="w-full h-full" src="${src}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`,
+                    html: `<iframe id="video-player-iframe" class="w-full h-full" src="${src}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture loading="lazy"></iframe>`,
                     isHtml5Video: false
                 };
             }
@@ -492,6 +618,7 @@
             setTimeout(() => { overlay.remove(); }, 500); 
         };
         
+        // FIX: Hàm HeroSectionTemplate được cập nhật để gộp Hero và thanh điều hướng phụ
         const HeroSectionTemplate = (movie) => {
             if (!movie) return '';
             const movieSlug = createSlug(movie.title);
@@ -499,15 +626,17 @@
             const imageUrl = movie.bannerUrl || movie.posterUrl; 
             const genres = movie.genre ? movie.genre.split(',').slice(0, 2).map(genre => `<span class="bg-gray-700/80 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
 
+            // [Tối ưu] Thêm loading="lazy"
             return `
-                <section class="relative h-[60vh] md:h-[70vh] rounded-xl overflow-hidden mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-80" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
+                <section class="relative h-[65vh] md:h-[80vh] rounded-xl overflow-hidden mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70" loading="lazy" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
                     <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
+                    
                     <div class="absolute bottom-0 left-0 p-6 md:p-12 max-w-2xl text-white">
                         <span class="inline-block bg-lime-500 text-gray-900 text-sm font-bold px-3 py-1 rounded-md uppercase mb-4">Mới Cập Nhật</span>
                         <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight">${movie.title}</h1>
-                        ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-gray-400 mb-4 leading-tight">${movie.titleOriginal}</h4>` : ''}
+                        ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
                         <p class="text-gray-300 text-lg mb-6 line-clamp-3">${movie.summary || 'Không có tóm tắt.'}</p>
                         <div class="flex items-center space-x-4">
                             <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
@@ -517,6 +646,16 @@
                             <div class="flex space-x-2">${genres}</div>
                         </div>
                     </div>
+                    
+                    <!-- FIX HERO: Thanh điều hướng phụ được đặt tuyệt đối (absolute) -->
+                    <div class="absolute bottom-0 right-0 p-6 md:p-12 z-10 hidden md:block">
+                         <div class="flex space-x-2 md:space-x-4 text-sm text-gray-400">
+                             <a href="#" class="hover:text-lime-400 border-b-2 border-lime-400 text-white pb-1">Tất cả</a>
+                             <a href="#season/mua-he-2024" class="hover:text-lime-400">Mùa Hè 2024</a>
+                             <a href="#top/thang" class="hover:text-lime-400">Top Tháng</a>
+                         </div>
+                    </div>
+
                 </section>
             `;
         };
@@ -527,13 +666,10 @@
                 <section class="mb-12">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                         <h2 class="text-3xl font-bold text-white uppercase">${title}</h2>
-                        <div class="flex space-x-2 md:space-x-4 text-sm text-gray-400">
-                            <a href="#" class="hover:text-lime-400 border-b-2 border-lime-400 text-white pb-1">Tất cả</a>
-                            <a href="#season/mua-he-2024" class="hover:text-lime-400">Mùa Hè 2024</a>
-                            <a href="#top/thang" class="hover:text-lime-400">Top Tháng</a>
-                        </div>
+                        <!-- Loại bỏ thanh điều hướng phụ khỏi đây để tránh bị lặp -->
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                    <!-- Tối ưu: Thêm CSS thanh cuộn ngang cho mobile -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 movie-grid-scroll">
                         ${movieList.map(MovieCardTemplate).join('')}
                     </div>
                     <div class="text-center mt-8">
@@ -567,7 +703,8 @@
             return `
             <div class="flex space-x-3 mb-4">
                 <div class="flex-shrink-0">
-                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar">
+                    <!-- Tối ưu: Thêm loading="lazy" -->
+                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
                 </div>
                 <div>
                     <div class="bg-gray-700 p-3 rounded-lg">
@@ -586,13 +723,21 @@
             const movieSlug = createSlug(movie.title);
             const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html` : '#';
             const imageUrl = movie.bannerUrl || movie.posterUrl; 
-            const isLikeAllowed = isGoogleAuth(); 
+            
+            // FIX LỖI: isLikeAllowed luôn TRUE nếu có auth.currentUser (Guest hoặc User)
+            const isLikeAllowed = !!auth?.currentUser; 
+            
+            // Cho phép hiển thị nút "Đăng nhập để Thích" chỉ khi user là ANONYMOUS
+            const requiresSignInLink = !!auth?.currentUser && auth.currentUser.isAnonymous;
 
+
+            // [Tối ưu] Thêm loading="lazy"
             return `
                 <section class="text-white">
                     <div class="relative rounded-lg overflow-hidden h-64 md:h-96 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-                        <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
+                        <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70" loading="lazy" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
                     </div>
                     <div class="container mx-auto px-4 relative -mt-32 md:-mt-48 pb-12">
                         <div class="md:flex md:space-x-8">
@@ -601,7 +746,7 @@
                                     <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                         <ion-icon name="play-circle" class="text-7xl text-white opacity-90"></ion-icon>
                                     </div>
-                                    <img src="${movie.posterUrl}" alt="${movie.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
+                                    <img src="${movie.posterUrl}" alt="${movie.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" loading="lazy" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
                                 </a>
                             </div>
                             <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
@@ -619,19 +764,21 @@
                                     <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
                                         <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Xem Phim
                                     </a>
-                                    ${isLikeAllowed ? `
-                                        <button id="like-button" data-movie-id="${movie.id}" class="
-                                            inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors
-                                            ${isLiked ? 'bg-lime-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
-                                        ">
-                                            <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
-                                            <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
-                                        </button>
-                                    ` : `
+                                    
+                                    <!-- NÚT LIKE (KHÔNG DISABLE CHO GUEST) -->
+                                    <button id="like-button" data-movie-id="${movie.id}" class="
+                                        inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors
+                                        ${isLiked ? 'bg-lime-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
+                                    ">
+                                        <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
+                                        <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
+                                    </button>
+                                    
+                                    ${requiresSignInLink ? `
                                         <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors">
-                                            <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để Thích
+                                            <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để giữ Likes
                                         </a>
-                                    `}
+                                    ` : ''}
                                     <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center">${movie.status || 'N/A'}</span>
                                 </div>
                             </div>
@@ -639,7 +786,7 @@
                         <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
                             <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
                             ${episodes.length > 0
-                                ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid">
                                     ${episodes.map(ep => `
                                         <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
                                             class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors duration-200">
@@ -659,7 +806,7 @@
             const movieSlug = createSlug(movie.title);
             const bannerUrl = 'https://uploads.onecompiler.io/43u4wb3ft/43u4y39cc/bannerphim.jpeg';
             const videoPlayer = getVideoPlayer(episode.videoUrl, movie.posterUrl);
-            const isCommentAllowed = isGoogleAuth();
+            const isCommentAllowed = !!auth?.currentUser && !auth.currentUser.isAnonymous; // Chỉ cho phép Comment khi đăng nhập chính thức
 
             return `
             <section class="text-white">
@@ -697,7 +844,8 @@
                 <div class="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
                     <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
                     ${allEpisodes.length > 0
-                        ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        // [Tối ưu] Thêm CSS thanh cuộn cho list tập nếu cần
+                        ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid episode-list-scroll-area">
                             ${allEpisodes.map((ep, index) => {
                                 const epSlug = createSlug(movie.title);
                                 const epUrl = `#phim/${epSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
@@ -718,7 +866,7 @@
                     }
                 </div>
                 <div class="max-w-3xl mx-auto mt-12">
-                    <h3 class="text-2xl font-bold text-white mb-6">Bình Luận (${comments.length})</h3>
+                    <h3 class="text-2xl font-bold text-white mb-6">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
                     ${isCommentAllowed 
                         ? `
                         <form id="comment-form" class="mb-8">
@@ -735,7 +883,11 @@
                     }
                     <div id="comments-list">
                         ${comments.length > 0
-                            ? comments.map(CommentTemplate).join('')
+                            ? `
+                            <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                                ${comments.map(CommentTemplate).join('')}
+                            </div>
+                            `
                             : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
                         }
                     </div>
@@ -792,10 +944,13 @@
                 
                 const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
                 let commentsList = [];
+                let commentsSnapshot;
                 try {
-                    const commentsSnapshot = await getDocs(query(commentsColRef));
+                    // FIX: Thêm orderBy và limit để tải dữ liệu bình luận ban đầu nhanh hơn
+                    commentsSnapshot = await getDocs(query(commentsColRef, /*orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT)*/));
                     commentsSnapshot.forEach(doc => commentsList.push({ id: doc.id, ...doc.data() }));
                     commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                    commentsList = commentsList.slice(0, COMMENT_LIMIT); // Cắt để hiển thị ban đầu
                 } catch (e) { console.error("Lỗi khi tải bình luận:", e); }
 
                 const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
@@ -809,6 +964,10 @@
 
                 getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
                 getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
+                
+                // Cập nhật số lượng bình luận ban đầu
+                if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
+
                 setupCommentsListener(movieId);
 
             } catch (e) { showError("Lỗi khi tải trang xem phim.", e.message); }
@@ -821,7 +980,8 @@
 
             return `
                 <a href="${infoUrl}" class="group block bg-gray-800 p-2 rounded-lg flex items-center space-x-3 transition duration-200 hover:bg-gray-700">
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-10 h-14 object-cover rounded flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                    <!-- Tối ưu: Thêm loading="lazy" -->
+                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-10 h-14 object-cover rounded flex-shrink-0" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
                     <div class="flex-grow overflow-hidden">
                         <p class="text-white font-semibold text-sm truncate group-hover:text-lime-400">${movie.title}</p>
                         <p class="text-gray-400 text-xs">${episodeCount} / ${totalEpisodes} tập</p>
@@ -841,7 +1001,7 @@
                         ${daysOfWeek.map(day => `
                             <div class="bg-gray-800 p-4 rounded-lg shadow-xl min-h-[300px]">
                                 <h3 class="text-xl font-extrabold text-lime-400 mb-4 text-center border-b border-gray-700 pb-2">${day}</h3>
-                                <div class="space-y-3 max-h-[70vh] overflow-y-auto">
+                                <div class="space-y-3 max-h-[70vh] overflow-y-auto schedule-scroll-area">
                                     ${(moviesByDay[day] && moviesByDay[day].length > 0)
                                         ? moviesByDay[day].map(renderScheduleMovieCard).join('')
                                         : '<p class="text-gray-500 text-sm italic text-center py-4">Không có phim chiếu.</p>'
@@ -895,7 +1055,7 @@
         };
         
         const fetchUserLikes = async (shouldRerender = false) => { 
-            if (!isGoogleAuth() || !db) { currentUserLikeDocIds = {}; return; }
+            if (!auth?.currentUser || !db) { currentUserLikeDocIds = {}; return; } // FIX: Bỏ isGoogleAuth, chỉ cần có user
             try {
                 const q = query(collection(db, userLikesCollectionPath)); 
                 onSnapshot(q, (snapshot) => {
@@ -903,56 +1063,106 @@
                     snapshot.forEach(doc => { likes[doc.data().movieId] = doc.id; });
                     currentUserLikeDocIds = likes;
                     
-                    const hash = window.location.hash;
-                    if (shouldRerender || hash.startsWith('#library') || hash.startsWith('#phim')) { router(false); }
+                    // === BÉ LÔI FIX: SMART UI UPDATE (TRÁNH XUNG ĐỘT VỚI UPDATE LIKES) ===
+                    // Thay vì rerender toàn bộ trang (gây mất state), ta chỉ update nút Like nếu nó đang hiển thị
+                    const likeButton = getEl('#like-button');
+                    if (likeButton) {
+                         const movieId = likeButton.dataset.movieId;
+                         const isLiked = !!likes[movieId];
+                         const likeButtonText = getEl('#like-button-text');
+                         const likeButtonIcon = likeButton.querySelector('ion-icon');
+
+                         likeButton.classList.toggle('bg-lime-600', isLiked);
+                         likeButton.classList.toggle('text-white', isLiked);
+                         likeButton.classList.toggle('font-bold', isLiked);
+                         likeButton.classList.toggle('bg-gray-700', !isLiked);
+                         likeButton.classList.toggle('text-gray-300', !isLiked);
+                         likeButton.classList.toggle('font-medium', !isLiked);
+                         
+                         if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
+                         if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
+                         
+                         // QUAN TRỌNG: Không gọi router(false) ở đây để tránh đè lại nội dung đang tương tác
+                    } else {
+                        // Nếu không có nút like (đang ở Home/Library), thì rerender bình thường để update list
+                        const hash = window.location.hash;
+                        if (shouldRerender || hash.startsWith('#library')) { router(false); }
+                    }
+                    // === KẾT THÚC FIX ===
+
                 }, (error) => { console.error("Lỗi khi theo dõi danh sách likes:", error); });
             } catch (e) { console.error("Lỗi khi tải danh sách likes:", e); }
         };
         
+        // === BÉ LÔI: FIX LỖI LOGIC LIKE ===
         const handleLike = async (e) => { 
-             if (!db || !isGoogleAuth()) { window.location.hash = '#login'; return; }
+             if (!db || !auth?.currentUser) { window.location.hash = '#login'; return; } 
+             
              const button = e.currentTarget;
-            const movieId = button.dataset.movieId;
-            button.disabled = true;
-            const isLiked = !!currentUserLikeDocIds[movieId];
-            const movieDocRef = doc(db, dataCollectionPath, movieId);
-            const likeCountElement = getEl('#like-count');
-            
-            try {
-                const batch = writeBatch(db);
-                const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/likes`);
+             const movieId = button.dataset.movieId;
+             const likeCountElement = getEl('#like-count');
 
-                if (isLiked) {
-                    const likeDocId = currentUserLikeDocIds[movieId];
-                    if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
-                    batch.delete(doc(userLikesColRef, likeDocId));
+             // 1. Xác định trạng thái hiện tại dựa trên UI (Sự thật duy nhất mà người dùng thấy)
+             const isCurrentlyLiked = button.classList.contains('bg-lime-600'); 
+             
+             // 2. Tính toán số mới ngay lập tức (Optimistic UI Update)
+             let currentCount = 0;
+             if(likeCountElement) {
+                 // Lấy số từ text (ví dụ: "8 Lượt thích" -> 8)
+                 currentCount = parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0;
+             }
+             
+             // Nếu đang Like (Xanh) -> Bấm vào là Bỏ Thích (-1)
+             // Nếu chưa Like (Xám) -> Bấm vào là Thích (+1)
+             const newCount = currentCount + (isCurrentlyLiked ? -1 : 1);
+             if(likeCountElement) likeCountElement.textContent = newCount.toLocaleString('vi-VN') + " Lượt thích";
+             
+             // 3. Cập nhật giao diện nút ngay lập tức
+             const likeButtonText = getEl('#like-button-text');
+             const likeButtonIcon = button.querySelector('ion-icon');
+             const isNowLiked = !isCurrentlyLiked; // Trạng thái mới
+
+             button.classList.toggle('bg-lime-600', isNowLiked);
+             button.classList.toggle('text-white', isNowLiked);
+             button.classList.toggle('font-bold', isNowLiked);
+             button.classList.toggle('bg-gray-700', !isNowLiked);
+             button.classList.toggle('text-gray-300', !isNowLiked);
+             button.classList.toggle('font-medium', !isNowLiked);
+             
+             if (likeButtonText) likeButtonText.textContent = isNowLiked ? 'Đã thích' : 'Thích';
+             if (likeButtonIcon) likeButtonIcon.setAttribute('name', isNowLiked ? 'thumbs-up' : 'thumbs-up-outline');
+             
+             // Khóa nút để tránh spam
+             button.disabled = true;
+
+             // 4. Gửi lên Server
+             try {
+                const batch = writeBatch(db);
+                const movieDocRef = doc(db, dataCollectionPath, movieId);
+                
+                // Dùng ID cố định là movieId để tránh việc tìm kiếm ID ngẫu nhiên bị chậm
+                const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/likes`);
+                const likeDocRef = doc(userLikesColRef, movieId); 
+
+                if (isCurrentlyLiked) {
+                    // Đang thích -> Bỏ thích (Xóa doc)
+                    batch.delete(likeDocRef);
                     batch.update(movieDocRef, { likeCount: increment(-1) });
+                    delete currentUserLikeDocIds[movieId]; // Cập nhật cache local ngay
                 } else {
-                    batch.set(doc(userLikesColRef), { movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp() });
+                    // Chưa thích -> Thích (Tạo doc mới với ID cố định)
+                    batch.set(likeDocRef, { 
+                        movieId: movieId, 
+                        userId: auth.currentUser.uid, 
+                        createdAt: serverTimestamp() 
+                    });
                     batch.update(movieDocRef, { likeCount: increment(1) });
+                    currentUserLikeDocIds[movieId] = movieId; // Cập nhật cache local ngay
                 }
                 await batch.commit();
-                
-                const currentCount = parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0;
-                const newCount = currentCount + (isLiked ? -1 : 1);
-                likeCountElement.textContent = newCount.toLocaleString('vi-VN') + " Lượt thích";
-                
-                const likeButtonText = getEl('#like-button-text');
-                const likeButtonIcon = button.querySelector('ion-icon');
-
-                button.classList.toggle('bg-lime-600', !isLiked);
-                button.classList.toggle('text-white', !isLiked);
-                button.classList.toggle('font-bold', !isLiked);
-                button.classList.toggle('bg-gray-700', isLiked);
-                button.classList.toggle('text-gray-300', isLiked);
-                button.classList.toggle('font-medium', isLiked);
-                if (likeButtonText) likeButtonText.textContent = isLiked ? 'Thích' : 'Đã thích';
-                if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up-outline' : 'thumbs-up');
-                
-            } catch (e) {
-                console.error("Lỗi khi Thích/Bỏ thích:", e);
-                const likeErrorEl = document.querySelector('#like-button + span');
-                 if (likeErrorEl) { likeErrorEl.textContent = "Lỗi quyền truy cập. Vui lòng thử lại."; }
+            } catch(e) {
+                console.error("Lỗi Like:", e);
+                // Nếu lỗi thì hoàn tác UI (nhưng thường ít khi lỗi ở đây nếu rules đúng)
             } finally {
                 button.disabled = false;
             }
@@ -960,7 +1170,14 @@
 
         const handleCommentSubmit = async (e) => { 
              e.preventDefault();
-             if (!db || !isGoogleAuth()) { console.error("Người dùng chưa đăng nhập hợp lệ để bình luận."); window.location.hash = '#login'; return; }
+             // Chuyển khai báo movieId lên đầu hàm
+             let movieId = null; 
+             // FIX: Chỉ cho phép comment khi đăng nhập chính thức
+             if (!db || !auth?.currentUser || auth.currentUser.isAnonymous) { 
+                 console.error("Người dùng chưa đăng nhập hợp lệ để bình luận."); 
+                 window.location.hash = '#login'; 
+                 return; 
+             }
 
             const input = getEl('#comment-input');
             const errorEl = getEl('#comment-error');
@@ -977,7 +1194,7 @@
 
             const [path, slugIdParam] = window.location.hash.substring(1).split('/');
             const movieIdMatch = slugIdParam?.match(/-([a-zA-Z0-9]+)$/);
-            const movieId = movieIdMatch ? movieIdMatch[1] : null; 
+            movieId = movieIdMatch ? movieIdMatch[1] : null; 
             if (!movieId) return;
             
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments'); 
@@ -1004,7 +1221,7 @@
         };
 
         const ensureUserProfile = async (user) => {
-            if (!user.uid || !user.email || !isGoogleAuth(user)) return;
+            if (!user.uid || !user.email) return;
             
             const userDocRef = doc(db, userRoleCollectionPath, user.uid);
             try {
@@ -1030,26 +1247,43 @@
                 auth = getAuth(app);
                 
                 await setPersistence(auth, browserLocalPersistence);
+                
+                // === SỬA LỖI ĐĂNG NHẬP: CHỈ DÙNG CUSTOM TOKEN (HOẶC BỎ QUA NẾU KHÔNG CÓ) ===
+                if (initialAuthToken) {
+                    // Sử dụng custom token để đăng nhập cho phiên làm việc hiện tại
+                    await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Lỗi đăng nhập bằng Custom Token:", e));
+                } 
+
                 onAuthStateChanged(auth, async (user) => {
                     let needsRerender = false;
                     
                     if (user) {
-                         if (!isGoogleAuth(user)) {
-                             console.warn("Non-Google user detected (likely Admin session). Ignoring session and treating as Guest.");
-                             if (userId !== null) {
-                                 userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
-                             }
-                             updateAuthStateUI(null);
-                         } else {
-                            const oldUserId = userId;
-                            userId = user.uid; userEmail = user.email; updatePaths(userId);
+                        const oldUserId = userId;
+                        userId = user.uid;
+                        updatePaths(userId);
+
+                        if (user.isAnonymous) {
+                            // User là Anonymous (Khách)
+                            userEmail = null; 
+                            updateAuthStateUI(user); // Hiển thị UI Guest (Nút Đăng nhập)
+                        } else if (isGoogleAuth(user)) {
+                            // User đã đăng nhập bằng Google (chính thức)
+                            userEmail = user.email;
                             await ensureUserProfile(user); 
                             updateAuthStateUI(user);
-                            if (oldUserId !== userId) {
-                                await fetchUserLikes(true); needsRerender = true;
-                            }
-                        } 
+                        } else {
+                            // User là Admin Custom Token (Signed in officially, but non-Google)
+                            userEmail = user.email || 'Admin User'; 
+                            updateAuthStateUI(user);
+                        }
+                        
+                        if (oldUserId !== userId) {
+                            await fetchUserLikes(true); 
+                            needsRerender = true;
+                        }
+
                     } else { 
+                        // User Logout / No user
                         if (userId !== null) {
                             userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
                         }
@@ -1063,6 +1297,20 @@
                         router();
                     }
                 });
+
+                // === BÉ LÔI FIX: ĐĂNG NHẬP ẨN DANH NẾU KHÔNG CÓ PHIÊN HOẠT ĐỘNG ===
+                // Chỉ chạy khi không có user nào, để tạo phiên ẩn danh.
+                if (!auth.currentUser) {
+                    try {
+                        console.log("Không có phiên hoạt động. Đang cố gắng đăng nhập ẩn danh cho khách...");
+                        // Không dùng await để không chặn setup, onAuthStateChanged sẽ tự xử lý user mới.
+                        signInAnonymously(auth).catch(e => console.error("Lỗi đăng nhập ẩn danh:", e)); 
+                    } catch (e) {
+                        console.error("Lỗi đăng nhập ẩn danh:", e);
+                        // Vẫn dùng updatePaths(null) làm fallback
+                        updatePaths(null); 
+                    }
+                }
 
             } catch (error) {
                 console.error("Lỗi nghiêm trọng khi khởi tạo Firebase SDK:", error);
@@ -1079,7 +1327,17 @@
                 
                 onSnapshot(q, (snapshot) => {
                     const movieList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    movieList.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                    
+                    // === BÉ LÔI FIX: LOGIC SẮP XẾP ƯU TIÊN LAST EPISODE UPDATE ===
+                    movieList.sort((a, b) => {
+                        // Lấy thời gian cập nhật tập cuối, nếu không có thì lấy thời gian tạo (createdAt)
+                        const timeA = b.lastEpisodeUpdate?.toMillis() || b.createdAt?.toMillis() || 0;
+                        const timeB = a.lastEpisodeUpdate?.toMillis() || a.createdAt?.toMillis() || 0;
+                        
+                        // Sắp xếp giảm dần (Mới nhất lên đầu)
+                        return timeA - timeB; 
+                    });
+                    // === KẾT THÚC FIX LOGIC SẮP XẾP ===
                     
                     globalMovieCache = movieList;
                     const wasCacheLoaded = isGlobalCacheLoaded;
@@ -1177,6 +1435,38 @@
             background-color: #84cc16;
         }
         
+        /* [Tối ưu] Thêm thanh cuộn cho các khu vực list/menu */
+        .comments-scroll-area, .episode-list-scroll-area, .schedule-scroll-area {
+            /* Kế thừa scrollbar custom */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #a3e635 #1a202c; /* Firefox */
+        }
+        /* [Tối ưu] Thêm thanh cuộn ngang cho grid phim trên mobile */
+        .movie-grid-scroll {
+             overflow-x: auto;
+             white-space: nowrap;
+             display: flex; /* Dùng flex để dễ cuộn ngang */
+             padding-bottom: 10px; /* Tạo không gian cho thanh cuộn */
+        }
+        /* Chỉ định kích thước cố định cho item trong cuộn ngang */
+        .movie-grid-scroll > a {
+            width: 150px; 
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+        @media (min-width: 640px) {
+             .movie-grid-scroll {
+                 display: grid;
+                 overflow-x: visible;
+                 white-space: normal;
+                 padding-bottom: 0;
+             }
+             .movie-grid-scroll > a {
+                 width: auto;
+                 margin-right: 0;
+             }
+        }
+        
         /* Đảm bảo font Inter được áp dụng */
         body {
             font-family: 'Inter', sans-serif;
@@ -1209,9 +1499,20 @@
             max-height: 400px; 
             overflow-y: auto; 
         }
+        
+        /* BÉ LÔI FIX: CSS CHO SEASON MEGA MENU */
+        .dropdown-content.mega-menu-3-cols-season {
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 1rem 1.5rem;
+            padding: 1rem 1.5rem;
+            min-width: 550px; /* Độ rộng vừa đủ cho 3 cột năm */
+            max-height: 400px; 
+            overflow-y: auto; 
+        }
+        
         /* [RESPONSIVE FIX] Đảm bảo menu đổ xuống không vượt quá chiều rộng màn hình */
         @media (max-width: 768px) { 
-            .dropdown-content.mega-menu-3-cols-scroll {
+            .dropdown-content.mega-menu-3-cols-scroll, .dropdown-content.mega-menu-3-cols-season {
                 min-width: unset; 
                 width: 100vw;
                 left: -1rem; /* Bù trừ padding container */
@@ -1393,10 +1694,246 @@
             font-weight: 400;
             padding: 0.5rem 0.75rem;
         }
+        
+        /* --- CSS MỚI: FALLBACK OVERLAY (Sử dụng CSS thuần để đảm bảo hiển thị) --- */
+        #cdn-failure-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111827; /* Màu nền tối */
+            color: #f3f4f6; /* Màu chữ sáng */
+            display: none; /* Mặc định ẩn, JS sẽ bật khi lỗi */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10000;
+            padding: 20px;
+            font-family: 'Inter', sans-serif, Arial; /* Font dự phòng */
+            margin: 0;
+        }
+        
+        .error-container {
+            width: 100%;
+            max-width: 750px; /* Tăng max-width để chứa 2 cột */
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #1f2937; /* Background cho container chính */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .error-content-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mặc định 1 cột cho mobile */
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+        @media (min-width: 600px) { /* Cho màn hình rộng hơn (desktop/tablet) */
+             .error-content-grid {
+                grid-template-columns: 2fr 1fr; /* Chia 2 cột: 2/3 cho chi tiết, 1/3 cho logo */
+            }
+        }
+        
+        .error-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 20px;
+            grid-column: 1 / -1; /* Tiêu đề chiếm hết chiều rộng */
+        }
+        .error-header h1 {
+            color: #f59e0b; /* Orange/Yellow cho alert */
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+        }
+        .error-header p {
+            font-size: 1rem;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+
+        .error-card {
+            background: #374151; /* Lighter dark card background */
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: left; /* Đảm bảo nội dung card căn trái */
+        }
+        .error-card h3 {
+            color: #a3e635; /* Lime green cho tiêu đề */
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #a3e635;
+            padding-bottom: 5px;
+        }
+        .error-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .error-card ul li {
+            font-size: 0.95rem;
+            color: #d1d5db;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .error-card ul li::before {
+            content: "•";
+            color: #f59e0b; /* Orange dot cho list */
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .action-card {
+            text-align: center;
+            padding-top: 5px;
+            grid-column: 1 / -1; /* Action button chiếm hết chiều rộng */
+        }
+        .action-link {
+            /* Giữ nguyên action-link styles cho button */
+            display: inline-block;
+            background-color: #a3e635; /* Màu xanh lá cây (lime-500) */
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+        .action-link:hover {
+            background-color: #84cc16;
+        }
+        
+        /* Cột bên phải: Logo và Contact */
+        .right-column {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             justify-content: flex-start;
+             gap: 15px;
+             padding: 10px;
+             background: #1f2937;
+             border-radius: 8px;
+             border: 1px dashed #374151;
+        }
+        @media (max-width: 599px) {
+            .right-column {
+                display: none; /* Ẩn cột này trên màn hình rất nhỏ */
+            }
+        }
+        
+        .komiko-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto;
+            border: 3px solid #a3e635;
+        }
+        
+        .apology-text {
+            color: #f59e0b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            grid-column: 1 / -1; /* Chiếm hết chiều rộng dưới cùng */
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .contact-info a {
+            color: #a3e635;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .contact-info a:hover {
+            color: #84cc16;
+            text-decoration: underline;
+        }
 
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
+
+    <!-- OVERLAY HIỂN THỊ LỖI DỊCH VỤ / CDN (SỬ DỤNG CSS THUẦN) -->
+    <div id="cdn-failure-overlay">
+        <div class="error-container">
+            
+            <div class="error-header">
+                <h1>Lỗi Hệ Thống FOXANIME 5xx!</h1>
+                <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
+            </div>
+            
+            <div class="error-content-grid">
+                
+                <!-- CỘT TRÁI: CHI TIẾT LỖI VÀ KHẮC PHỤC -->
+                <div class="left-column">
+                    <div class="error-card">
+                        <h3>Chi tiết Sự cố</h3>
+                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">
+                            **CDN/Network Failure**
+                        </p>
+                        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">
+                            Trang web không thể tải được các tài nguyên bên ngoài (CSS, fonts, icons) cần thiết để hiển thị giao diện chính.
+                        </p>
+                    </div>
+
+                    <div class="error-card" style="margin-bottom: 0;">
+                        <h3>Nguyên nhân có thể</h3>
+                        <ul>
+                            <li>Lỗi mạng của Quý khách</li>
+                            <li>Sự cố nhà cung cấp dịch vụ (ví dụ: Cloudflare CDN)</li>
+                            <li>Lỗi kết nối từ máy chủ FOXANIME</li>
+                            <li>Vấn đề bảo trì không báo trước</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: LOGO VÀ KHÔI PHỤC -->
+                <div class="right-column">
+                    <!-- LOGO KOMIKO -->
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452bnsfd/KomikoAI.jpg" alt="KomikoAI Logo" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/a3e635?text=KOMIKO'">
+                    
+                    <div class="error-card" style="margin-bottom: 0; width: 100%; text-align: center;">
+                        <h3>Khôi phục Tự động</h3>
+                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">
+                            Hệ thống sẽ thử lại tự động sau 15 giây.
+                        </p>
+                        <a href="javascript:location.reload()" class="action-link" style="font-size: 0.9rem; padding: 8px 15px;">Tải lại trang ngay</a>
+                    </div>
+                    
+                    <div class="contact-info" style="margin-top: 0;">
+                         <a href="mailto:haistrem6792@gmail.com">
+                            <ion-icon name="mail-outline" style="font-size: 1.2rem; margin-right: 5px;"></ion-icon>
+                            Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="apology-text">Thành thật xin lỗi vì sự bất tiện này!</p>
+            
+        </div>
+    </div>
 
     <!-- Modal Xem Tiếp (Giữ nguyên) -->
     <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
@@ -1424,7 +1961,7 @@
                 <div class="flex items-center h-full space-x-8">
                     <!-- Logo -->
                     <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
-                        <img src="https://uploads.onecompiler.io/43u4wb3ft/444rtmthc/Gemini_Generated_Image_jdszb8jdszb8jdsz.png" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
+                        <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
                         <span class="text-4xl font-extrabold text-white">FOX<span class="text-lime-500">ANIME</span></span>
                     </a>
                 </div>
@@ -1497,16 +2034,24 @@
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </a>
                         <div class="dropdown-content mega-menu-3-cols-scroll">
+                             <!-- PHỔ BIẾN (Tối ưu hóa hiển thị) -->
+                            <div class="col-span-full mb-2 border-b border-gray-600 pb-1">
+                                <span class="text-lime-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
+                                <div class="grid grid-cols-3 gap-x-4">
+                                    <a href="#genre/action" class="font-bold text-lime-300 hover:text-lime-500">Action</a>
+                                    <a href="#genre/romance" class="font-bold text-lime-300 hover:text-lime-500">Romance</a>
+                                    <a href="#genre/comedy" class="font-bold text-lime-300 hover:text-lime-500">Comedy</a>
+                                </div>
+                            </div>
                             <!-- 46 THỂ LOẠI -->
-                            <a href="#genre/action">Action</a>
                             <a href="#genre/adventure">Adventure</a>
                             <a href="#genre/boys-love">Boys Love</a>
                             <a href="#genre/cartoon">Cartoon</a>
-                            <a href="#genre/comedy">Comedy</a>
                             <a href="#genre/dementia">Dementia</a>
                             <a href="#genre/demons">Demons</a>
                             <a href="#genre/drama">Drama</a>
                             <a href="#genre/ecchi">Ecchi</a>
+                            <a href="#genre/demons">Ecchi</a>
                             <a href="#genre/fantasy">Fantasy</a>
                             <a href="#genre/game">Game</a>
                             <a href="#genre/harem">Harem</a>
@@ -1524,7 +2069,6 @@
                             <a href="#genre/parody">Parody</a>
                             <a href="#genre/police">Police</a>
                             <a href="#genre/psychological">Psychological</a>
-                            <a href="#genre/romance">Romance</a>
                             <a href="#genre/samurai">Samurai</a>
                             <a href="#genre/school">School</a>
                             <a href="#genre/sci-fi">Sci-Fi</a>
@@ -1553,11 +2097,36 @@
                             Season
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </a>
-                        <div class="dropdown-content mega-menu-1-col">
-                            <a href="#season/mua-dong-2024">Mùa Đông 2024</a>
-                            <a href="#season/mua-xuan-2024">Mùa Xuân 2024</a>
-                            <a href="#season/mua-he-2024">Mùa Hè 2024</a>
-                            <a href="#season/mua-thu-2024">Mùa Thu 2024</a>
+                        <!-- BÉ LÔI FIX: DÙNG MEGA MENU 3 CỘT CHO SEASON -->
+                        <div class="dropdown-content mega-menu-3-cols-season">
+                            
+                            <!-- Cột 1: Năm 2026 -->
+                            <div>
+                                <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2026</span>
+                                <a href="#season/mua-xuan-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
+                                <a href="#season/mua-he-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
+                                <a href="#season/mua-thu-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
+                                <a href="#season/mua-dong-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Đông</a>
+                            </div>
+
+                            <!-- Cột 2: Năm 2025 -->
+                            <div>
+                                <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2025</span>
+                                <a href="#season/mua-xuan-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
+                                <a href="#season/mua-he-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
+                                <a href="#season/mua-thu-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
+                                <a href="#season/mua-dong-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Đông</a>
+                            </div>
+                            
+                            <!-- Cột 3: Năm 2024 -->
+                            <div>
+                                <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2024</span>
+                                <a href="#season/mua-xuan-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
+                                <a href="#season/mua-he-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
+                                <a href="#season/mua-thu-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
+                                <a href="#season/mua-dong-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Đông</a>
+                            </div>
+                            
                         </div>
                     </div>
                     
@@ -1586,6 +2155,39 @@
                         <a href="#genre/anime-tron-bo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Anime Trọn Bộ</a>
                     </div>
                 </div>
+                
+                 <!-- Season Mobile -->
+                 <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#season">
+                        <span>Season</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- BÉ LÔI FIX: DÙNG CẤU TRÚC NHÓM CỘT 2 TRÊN MOBILE -->
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden grid-cols-2">
+                        
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2026</span>
+                             <a href="#season/mua-xuan-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2026</a>
+                             <a href="#season/mua-he-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2026</a>
+                             <a href="#season/mua-thu-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2026</a>
+                             <a href="#season/mua-dong-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2026</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2025</span>
+                             <a href="#season/mua-xuan-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2025</a>
+                             <a href="#season/mua-he-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2025</a>
+                             <a href="#season/mua-thu-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2025</a>
+                             <a href="#season/mua-dong-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2025</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2024</span>
+                             <a href="#season/mua-xuan-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2024</a>
+                             <a href="#season/mua-he-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2024</a>
+                             <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
+                             <a href="#season/mua-dong-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2024</a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Thể Loại Mobile -->
                 <div>
@@ -1594,11 +2196,17 @@
                         <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </button>
                     <div class="mobile-dropdown-content pl-4 mt-1 hidden">
-                        <a href="#genre/action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Action</a>
+                        <!-- PHỔ BIẾN (Mobile) -->
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                            <span class="text-lime-400 font-bold text-xs uppercase block">Phổ Biến</span>
+                            <a href="#genre/action" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Action</a>
+                            <a href="#genre/romance" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Romance</a>
+                            <a href="#genre/comedy" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Comedy</a>
+                        </div>
+                        <!-- CÁC THỂ LOẠI KHÁC -->
                         <a href="#genre/adventure" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Adventure</a>
                         <a href="#genre/boys-love" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Boys Love</a>
                         <a href="#genre/cartoon" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Cartoon</a>
-                        <a href="#genre/comedy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Comedy</a>
                         <a href="#genre/dementia" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Dementia</a>
                         <a href="#genre/demons" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Demons</a>
                         <a href="#genre/drama" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Drama</a>
@@ -1620,7 +2228,6 @@
                         <a href="#genre/parody" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Parody</a>
                         <a href="#genre/police" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Police</a>
                         <a href="#genre/psychological" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Psychological</a>
-                        <a href="#genre/romance" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Romance</a>
                         <a href="#genre/samurai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Samurai</a>
                         <a href="#genre/school" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">School</a>
                         <a href="#genre/sci-fi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sci-Fi</a>
@@ -1672,11 +2279,156 @@
         </div>
     </main>
 
+
+
+
     <!-- Footer -->
-    <footer class="bg-gray-800 border-t border-gray-700 mt-12">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-400">
-            <p class="text-2xl font-bold text-white mb-2">FOX<span class="text-lime-500">ANIME</span></p>
-            <p>&copy; 2025. bản quyền thuộc về Foxstudio.co.Ltd.</p>
+    <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
+        <!-- Hiệu ứng nền trang trí (Background Glow) -->
+        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-lime-500 to-transparent opacity-50"></div>
+        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            
+            <!-- PHẦN 1: LOGO & NEWSLETTER -->
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-12 gap-8">
+                <!-- Logo -->
+                <div class="flex items-center space-x-4 group cursor-pointer">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-lime-400 blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-lg"></div>
+                        <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" 
+                             alt="FOXANIME Logo" 
+                             class="w-16 h-16 object-contain rounded-lg shadow-xl relative z-10">
+                    </div>
+                    <div>
+                        <span class="text-4xl font-extrabold text-white tracking-wide block leading-none">
+                            FOX<span class="text-lime-500">ANIME</span>
+                        </span>
+                        <span class="text-sm text-gray-400 tracking-wider">Thế giới Anime trong tầm tay</span>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="w-full max-w-md bg-gray-700/30 p-1.5 rounded-full border border-gray-600 flex items-center focus-within:border-lime-500/70 focus-within:ring-2 focus-within:ring-lime-500/20 transition-all">
+                    <input type="email" placeholder="Nhập email để nhận Anime mới..." class="bg-transparent border-none outline-none text-white px-4 py-2 w-full placeholder-gray-500 text-sm">
+                    <button class="bg-lime-500 hover:bg-lime-400 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm">
+                        Đăng ký
+                    </button>
+                </div>
+            </div>
+
+            <!-- PHẦN DONATE (MỚI THÊM) -->
+            <div class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-lime-500/20 to-purple-500/20 border border-lime-500/30 relative overflow-hidden group">
+                <div class="absolute inset-0 bg-[url('https://uploads.onecompiler.io/43u4wb3ft/445btd8v7/KomikoAI%20donate(1).jpg')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500 mix-blend-overlay"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <img src="https://uploads.onecompiler.io/43u4wb3ft/445btd8v7/KomikoAI%20donate(1).jpg" 
+                             alt="DONATE Logo" 
+                             class="w-20 h-20 object-cover rounded-full shadow-lg ring-4 ring-lime-500/50 animate-pulse">
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-white">DONATE NGAY TẠI ĐÂY!</h3>
+                            <p class="text-gray-300 text-sm mt-1">Ủng hộ FoxAnime để chúng mình có thêm động lực phát triển nhé! ♡</p>
+                        </div>
+                    </div>
+                    <a href="donate.html" class="px-8 py-3 bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white font-bold rounded-full shadow-lg shadow-lime-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                        Ủng hộ ngay
+                    </a>
+                </div>
+            </div>
+
+            <!-- PHẦN 2: CÁC NHÓM CỘNG ĐỒNG (GRID) -->
+            <div class="mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider text-center lg:text-left">Tham Gia Cộng đồng của chúng tôi</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                
+                <!-- FoxAnime - Fandom -->
+                <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Fandom" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">FoxAnime Fandom</div>
+                        <div class="text-xs text-gray-400">Group Facebook</div>
+                    </div>
+                </a>
+
+                <!-- FoxStudioLive -->
+                <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Live" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">FoxStudioLive</div>
+                        <div class="text-xs text-gray-400">Kênh YouTube</div>
+                    </div>
+                </a>
+
+                <!-- Discord -->
+                <a href="https://discord.gg/89UxfT4V" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Discord" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">Discord Server</div>
+                        <div class="text-xs text-gray-400">Tham gia ngay!</div>
+                    </div>
+                </a>
+
+                <!-- Liên hệ -->
+                <a href="mailto:haistrem6792@gmail.com" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Contact" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">Liên hệ Quảng Cáo</div>
+                        <div class="text-xs text-gray-400 truncate w-32">foxstudio299@...</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- PHẦN 3: BOTTOM FOOTER (Socials & Copyright) -->
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                
+                <!-- Social Icons (Đã thay bằng SVG trực tiếp để đảm bảo hiển thị) -->
+                <div class="flex space-x-4">
+                    <!-- Facebook -->
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    
+                    <!-- Instagram -->
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    
+                    <!-- YouTube -->
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
+                    
+                    <!-- TikTok -->
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white border border-transparent hover:border-gray-600 transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.16c0 3.13-2.47 5.67-5.59 5.67h-.1c-2.91-.18-5.32-2.48-5.53-5.38-.2-2.73 1.69-5.18 4.34-5.63.13-.02.26-.03.39-.03v4.19c-.33 0-.66.07-.97.2-.67.29-1.07 1-1.07 1.77 0 1.09.89 1.98 1.98 1.98 1.09 0 1.98-.89 1.98-1.98v-15.03z"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Copyright & Legal -->
+                <div class="text-center md:text-right">
+                    <div class="text-gray-500 text-sm mb-2">
+                        <a href="#" class="hover:text-lime-400 transition-colors">Điều khoản sử dụng</a>
+                        <span class="mx-2">•</span>
+                        <a href="#" class="hover:text-lime-400 transition-colors">Chính sách bảo mật</a>
+                        <span class="mx-2">•</span>
+                        <a href="#" class="hover:text-lime-400 transition-colors">DMCA</a>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        &copy; 2025. Bản quyền thuộc về <span class="text-lime-400 font-bold">Foxstudio.co.Ltd</span>.
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
 

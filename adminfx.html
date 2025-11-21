@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bé Lôi Note: Đã thêm fallback icon nếu link ảnh lỗi -->
     <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg">
-    <title>ADMIN NII-CHAN FOXANIME </title>
+    <title>ADMIN NII-CHAN FOXANIME</title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -269,7 +269,7 @@
             box-sizing: border-box;
             background: #2f1d56; /* Background cho container chính */
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(93, 63, 158, 0.5), 0 0 20px rgba(0, 255, 170, 0.1);
             border: 2px solid #5d3f9e;
         }
         
@@ -599,15 +599,25 @@
                     <div>
                         <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="movie-season">Season (*)</label>
                         <select id="movie-season" class="form-input">
-                            <option value="mua-he-2025">Mùa Hè 2025</option>
-                            <option value="mua-thu-2025">Mùa Thu 2025</option>
-                            <option value="mua-dong-2026">Mùa Đông 2026</option>
-                            <option value="mua-xuan-2026">Mùa Xuân 2026</option>
-                            <option value="mua-he-2024">Mùa Hè 2024</option>
-                            <option value="mua-thu-2024">Mùa Thu 2024</option>
-                            <option value="mua-dong-2024">Mùa Đông 2024</option>
-                            <option value="mua-xuan-2024">Mùa Xuân 2024</option>
-                            <option value="khac">Khác</option>
+                            <option value="khac">--- KHÁC ---</option>
+                            <optgroup label="Năm 2026">
+                                <option value="mua-xuan-2026">Mùa Xuân 2026</option>
+                                <option value="mua-he-2026">Mùa Hè 2026</option>
+                                <option value="mua-thu-2026">Mùa Thu 2026</option>
+                                <option value="mua-dong-2026">Mùa Đông 2026</option>
+                            </optgroup>
+                            <optgroup label="Năm 2025">
+                                <option value="mua-xuan-2025">Mùa Xuân 2025</option>
+                                <option value="mua-he-2025">Mùa Hè 2025</option>
+                                <option value="mua-thu-2025">Mùa Thu 2025</option>
+                                <option value="mua-dong-2025">Mùa Đông 2025</option>
+                            </optgroup>
+                            <optgroup label="Năm 2024">
+                                <option value="mua-xuan-2024">Mùa Xuân 2024</option>
+                                <option value="mua-he-2024">Mùa Hè 2024</option>
+                                <option value="mua-thu-2024">Mùa Thu 2024</option>
+                                <option value="mua-dong-2024">Mùa Đông 2024</option>
+                            </optgroup>
                         </select>
                     </div>
                      <div>
@@ -767,15 +777,25 @@
                     <div>
                         <label class="block text-[#00ffaa] text-sm font-bold mb-2" for="edit-movie-season">Season (*)</label>
                         <select id="edit-movie-season" class="form-input">
-                            <option value="mua-he-2025">Mùa Hè 2025</option>
-                            <option value="mua-thu-2025">Mùa Thu 2025</option>
-                            <option value="mua-dong-2026">Mùa Đông 2026</option>
-                            <option value="mua-xuan-2026">Mùa Xuân 2026</option>
-                            <option value="mua-he-2024">Mùa Hè 2024</option>
-                            <option value="mua-thu-2024">Mùa Thu 2024</option>
-                            <option value="mua-dong-2024">Mùa Đông 2024</option>
-                            <option value="mua-xuan-2024">Mùa Xuân 2024</option>
-                            <option value="khac">Khác</option>
+                            <option value="khac">--- KHÁC ---</option>
+                            <optgroup label="Năm 2026">
+                                <option value="mua-xuan-2026">Mùa Xuân 2026</option>
+                                <option value="mua-he-2026">Mùa Hè 2026</option>
+                                <option value="mua-thu-2026">Mùa Thu 2026</option>
+                                <option value="mua-dong-2026">Mùa Đông 2026</option>
+                            </optgroup>
+                            <optgroup label="Năm 2025">
+                                <option value="mua-xuan-2025">Mùa Xuân 2025</option>
+                                <option value="mua-he-2025">Mùa Hè 2025</option>
+                                <option value="mua-thu-2025">Mùa Thu 2025</option>
+                                <option value="mua-dong-2025">Mùa Đông 2025</option>
+                            </optgroup>
+                            <optgroup label="Năm 2024">
+                                <option value="mua-xuan-2024">Mùa Xuân 2024</option>
+                                <option value="mua-he-2024">Mùa Hè 2024</option>
+                                <option value="mua-thu-2024">Mùa Thu 2024</option>
+                                <option value="mua-dong-2024">Mùa Đông 2024</option>
+                            </optgroup>
                         </select>
                     </div>
                      <div>
@@ -1418,7 +1438,8 @@
                     season: data.season,
                     totalEpisodes: data.totalEpisodes,
                     status: data.status,
-                    airingDay: data.airingDay
+                    airingDay: data.airingDay,
+                    lastEpisodeUpdate: serverTimestamp() // Add this
                 });
 
                 $('add-movie-form').reset();
@@ -1540,7 +1561,10 @@
                 existingEpisodes.push(newEpisode);
                 existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
 
-                await updateDoc(movieDocRef, { episodes: existingEpisodes });
+                await updateDoc(movieDocRef, { 
+                    episodes: existingEpisodes,
+                    lastEpisodeUpdate: serverTimestamp() // Add this
+                });
                 
                 $('add-episode-form').reset();
                 hideModal('add-episode-modal');
@@ -1593,7 +1617,10 @@
                 
                 episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
 
-                await updateDoc(movieDocRef, { episodes });
+                await updateDoc(movieDocRef, { 
+                    episodes: episodes,
+                    lastEpisodeUpdate: serverTimestamp() // Add this
+                });
                 
                 $('edit-episode-form').reset();
                 hideModal('edit-episode-modal');
