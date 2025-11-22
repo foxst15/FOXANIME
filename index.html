@@ -824,7 +824,8 @@
                     <div id="video-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm overlay-style">
                         <img src="${bannerUrl}" alt="Xem Phim Banner" class="w-full h-full object-cover absolute inset-0 opacity-40" onerror="this.onerror=null; this.src='https://placehold.co/1200x675/1a202c/e2e8f0?text=Sẵn+Sàng+Xem'">
                         <div class="absolute inset-0 bg-black/60"></div>
-                        <div class="relative z-30 text-center p-4">
+                        <!-- BÉ LÔI FIX: Thêm transform -translate-y-6 để đẩy nút lên cao hơn, tránh che banner trên mobile -->
+                        <div class="relative z-30 text-center p-4 transform -translate-y-6 md:-translate-y-12">
                             <p class="text-gray-300 mb-4 text-lg">Nhấp vào nút "Xem Phim" để bắt đầu thưởng thức!</p>
                             <button id="play-video-button" class="inline-flex items-center justify-center px-10 py-4 bg-lime-500 text-gray-900 text-xl font-extrabold rounded-xl shadow-2xl hover:bg-lime-600 transition-all transform hover:scale-105 play-button-style">
                                 <ion-icon name="play-circle" class="text-3xl mr-3"></ion-icon>XEM PHIM
@@ -896,7 +897,7 @@
             </section>
             `;
         };
-        
+
         const renderInfoPage = async (movieId) => { 
              if (!db) { showLoading(); return; }
             
@@ -930,7 +931,7 @@
                 let movieData = globalMovieCache.find(a => a.id === movieId);
                 if (!movieData) {
                     const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
-                    if (movieDocSnap.exists()) { movieData = { id: movieDocSnap.id, ...movieDocSnap.data() }; 
+                    if (movieDocSnap.exists()) { movieData = { id: movieDocSnap.id, ...doc.data() }; 
                     } else { showError("Không tìm thấy bộ phim này."); return; }
                 }
                 
