@@ -187,6 +187,34 @@
                 .replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-z0-9\s-]/g, "") 
                 .trim().replace(/\s+/g, '-').replace(/-+/g, '-'); 
         };
+
+        // --- HÀM XỬ LÝ NGÀY THÁNG AN TOÀN ---
+        const formatCommentDate = (dateObj) => {
+            if (!dateObj) return 'Vừa xong';
+            
+            let date;
+            // Trường hợp 1: Firebase Timestamp (có hàm toDate)
+            if (typeof dateObj.toDate === 'function') {
+                date = dateObj.toDate();
+            } 
+            // Trường hợp 2: Đã là đối tượng Date
+            else if (dateObj instanceof Date) {
+                date = dateObj;
+            }
+            // Trường hợp 3: Số (Timestamp millis/seconds)
+            else if (typeof dateObj === 'number') {
+                date = new Date(dateObj);
+            }
+            // Trường hợp 4: Chuỗi ISO
+            else if (typeof dateObj === 'string') {
+                date = new Date(dateObj);
+            } else {
+                return 'Không xác định';
+            }
+
+            if (isNaN(date.getTime())) return 'Lỗi ngày tháng';
+            return date.toLocaleString('vi-VN');
+        };
         
         // --- MODAL UTILS ---
         window.showResumeModal = (movieTitle, time) => {
@@ -220,7 +248,11 @@
         const deleteOldestComments = async (movieId, comments) => {
             if (comments.length > COMMENT_LIMIT) {
                 // Sắp xếp lại để tìm bình luận cũ nhất (createdAt thấp nhất)
-                comments.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+                comments.sort((a, b) => {
+                     const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+                     const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+                     return timeA - timeB;
+                });
                 
                 const commentsToDelete = comments.slice(0, comments.length - COMMENT_LIMIT);
                 
@@ -251,13 +283,16 @@
             unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
                 const updatedComments = [];
                 snapshot.forEach(doc => {
-                    // Lấy ra createdAt dưới dạng Date hoặc giá trị số để sắp xếp
-                    const createdAt = doc.data().createdAt?.toDate() || new Date(0); 
-                    updatedComments.push({ id: doc.id, ...doc.data(), createdAt: createdAt });
+                    // Lấy dữ liệu gốc, không ép kiểu ngay để xử lý sau
+                    updatedComments.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Sort by time (latest first)
-                updatedComments.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                // Sort by time (latest first) - Xử lý an toàn
+                updatedComments.sort((a, b) => {
+                    const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+                    const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+                    return timeB - timeA; // Mới nhất lên đầu
+                });
                 
                 // Tự động dọn dẹp bình luận (chạy bất đồng bộ)
                 deleteOldestComments(movieId, updatedComments); 
@@ -333,7 +368,7 @@
         const SearchPageTemplate = (movieList, title) => `
             <section>
                 <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                     ${movieList.length > 0 ? movieList.map(MovieCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy bộ anime nào phù hợp.</p>'}
                 </div>
             </section>
@@ -669,7 +704,7 @@
                         <!-- Loại bỏ thanh điều hướng phụ khỏi đây để tránh bị lặp -->
                     </div>
                     <!-- Tối ưu: Thêm CSS thanh cuộn ngang cho mobile -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 movie-grid-scroll">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 movie-grid-scroll">
                         ${movieList.map(MovieCardTemplate).join('')}
                     </div>
                     <div class="text-center mt-8">
@@ -711,7 +746,7 @@
                         <p class="font-semibold text-white text-sm">${displayName}</p>
                         <p class="text-gray-300 text-sm">${comment.content}</p>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">${new Date(comment.createdAt?.toDate() || Date.now()).toLocaleString('vi-VN')}</p>
+                    <p class="text-xs text-gray-500 mt-1">${formatCommentDate(comment.createdAt)}</p>
                 </div>
             </div>
             `;
@@ -760,14 +795,14 @@
                                     ${movie.genre ? movie.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
                                 </div>
                                 <p class="text-gray-300 text-lg mb-6">${movie.summary || 'Không có tóm tắt.'}</p>
-                                <div class="flex justify-center md:justify-start space-x-4">
-                                    <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
+                                <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+                                    <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors w-full md:w-auto">
                                         <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Xem Phim
                                     </a>
                                     
                                     <!-- NÚT LIKE (KHÔNG DISABLE CHO GUEST) -->
                                     <button id="like-button" data-movie-id="${movie.id}" class="
-                                        inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors
+                                        inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors w-full md:w-auto
                                         ${isLiked ? 'bg-lime-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
                                     ">
                                         <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
@@ -775,11 +810,11 @@
                                     </button>
                                     
                                     ${requiresSignInLink ? `
-                                        <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors">
+                                        <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors w-full md:w-auto">
                                             <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để giữ Likes
                                         </a>
                                     ` : ''}
-                                    <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center">${movie.status || 'N/A'}</span>
+                                    <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center w-full md:w-auto text-center md:text-left">${movie.status || 'N/A'}</span>
                                 </div>
                             </div>
                         </div>
@@ -1063,106 +1098,84 @@
                     snapshot.forEach(doc => { likes[doc.data().movieId] = doc.id; });
                     currentUserLikeDocIds = likes;
                     
-                    // === BÉ LÔI FIX: SMART UI UPDATE (TRÁNH XUNG ĐỘT VỚI UPDATE LIKES) ===
-                    // Thay vì rerender toàn bộ trang (gây mất state), ta chỉ update nút Like nếu nó đang hiển thị
-                    const likeButton = getEl('#like-button');
-                    if (likeButton) {
-                         const movieId = likeButton.dataset.movieId;
-                         const isLiked = !!likes[movieId];
-                         const likeButtonText = getEl('#like-button-text');
-                         const likeButtonIcon = likeButton.querySelector('ion-icon');
-
-                         likeButton.classList.toggle('bg-lime-600', isLiked);
-                         likeButton.classList.toggle('text-white', isLiked);
-                         likeButton.classList.toggle('font-bold', isLiked);
-                         likeButton.classList.toggle('bg-gray-700', !isLiked);
-                         likeButton.classList.toggle('text-gray-300', !isLiked);
-                         likeButton.classList.toggle('font-medium', !isLiked);
-                         
-                         if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
-                         if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
-                         
-                         // QUAN TRỌNG: Không gọi router(false) ở đây để tránh đè lại nội dung đang tương tác
-                    } else {
-                        // Nếu không có nút like (đang ở Home/Library), thì rerender bình thường để update list
-                        const hash = window.location.hash;
-                        if (shouldRerender || hash.startsWith('#library')) { router(false); }
-                    }
-                    // === KẾT THÚC FIX ===
-
+                    const hash = window.location.hash;
+                    if (shouldRerender || hash.startsWith('#library') || hash.startsWith('#phim')) { router(false); }
                 }, (error) => { console.error("Lỗi khi theo dõi danh sách likes:", error); });
             } catch (e) { console.error("Lỗi khi tải danh sách likes:", e); }
         };
         
-        // === BÉ LÔI: FIX LỖI LOGIC LIKE ===
         const handleLike = async (e) => { 
+             // FIX: Thay đổi check. Chỉ cần có user (Guest/Google) là được phép tương tác
              if (!db || !auth?.currentUser) { window.location.hash = '#login'; return; } 
              
+             // Nếu user là Guest, vẫn cho phép tương tác (nhưng không thể bình luận)
+             if (auth.currentUser.isAnonymous) {
+                 // Nếu là Guest, ta vẫn cho phép tương tác Lượt Thích.
+             }
+
              const button = e.currentTarget;
              const movieId = button.dataset.movieId;
-             const likeCountElement = getEl('#like-count');
-
-             // 1. Xác định trạng thái hiện tại dựa trên UI (Sự thật duy nhất mà người dùng thấy)
-             const isCurrentlyLiked = button.classList.contains('bg-lime-600'); 
+             const isLikeAllowed = true; // Rules đã cho phép Guest/User tương tác
              
-             // 2. Tính toán số mới ngay lập tức (Optimistic UI Update)
-             let currentCount = 0;
-             if(likeCountElement) {
-                 // Lấy số từ text (ví dụ: "8 Lượt thích" -> 8)
-                 currentCount = parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0;
+             // Kiểm tra Rule: Nếu là Guest, cần thông báo rằng Like chỉ lưu tạm thời.
+             if (auth.currentUser.isAnonymous) {
+                 // Không cần disabled, nhưng cảnh báo trước
+                 // window.showConfirmModal("Bạn đang là khách. Lượt thích này sẽ chỉ được lưu tạm thời trên thiết bị này. Vui lòng đăng nhập chính thức để lưu vĩnh viễn.");
              }
-             
-             // Nếu đang Like (Xanh) -> Bấm vào là Bỏ Thích (-1)
-             // Nếu chưa Like (Xám) -> Bấm vào là Thích (+1)
-             const newCount = currentCount + (isCurrentlyLiked ? -1 : 1);
-             if(likeCountElement) likeCountElement.textContent = newCount.toLocaleString('vi-VN') + " Lượt thích";
-             
-             // 3. Cập nhật giao diện nút ngay lập tức
-             const likeButtonText = getEl('#like-button-text');
-             const likeButtonIcon = button.querySelector('ion-icon');
-             const isNowLiked = !isCurrentlyLiked; // Trạng thái mới
 
-             button.classList.toggle('bg-lime-600', isNowLiked);
-             button.classList.toggle('text-white', isNowLiked);
-             button.classList.toggle('font-bold', isNowLiked);
-             button.classList.toggle('bg-gray-700', !isNowLiked);
-             button.classList.toggle('text-gray-300', !isNowLiked);
-             button.classList.toggle('font-medium', !isNowLiked);
-             
-             if (likeButtonText) likeButtonText.textContent = isNowLiked ? 'Đã thích' : 'Thích';
-             if (likeButtonIcon) likeButtonIcon.setAttribute('name', isNowLiked ? 'thumbs-up' : 'thumbs-up-outline');
-             
-             // Khóa nút để tránh spam
-             button.disabled = true;
 
-             // 4. Gửi lên Server
-             try {
+            button.disabled = true;
+            const isLiked = !!currentUserLikeDocIds[movieId];
+            const movieDocRef = doc(db, dataCollectionPath, movieId);
+            const likeCountElement = getEl('#like-count');
+            
+            try {
                 const batch = writeBatch(db);
-                const movieDocRef = doc(db, dataCollectionPath, movieId);
-                
-                // Dùng ID cố định là movieId để tránh việc tìm kiếm ID ngẫu nhiên bị chậm
+                // FIX: Dùng userId ổn định từ session
                 const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/likes`);
-                const likeDocRef = doc(userLikesColRef, movieId); 
 
-                if (isCurrentlyLiked) {
-                    // Đang thích -> Bỏ thích (Xóa doc)
-                    batch.delete(likeDocRef);
+                if (isLiked) {
+                    const likeDocId = currentUserLikeDocIds[movieId];
+                    if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
+                    batch.delete(doc(userLikesColRef, likeDocId));
                     batch.update(movieDocRef, { likeCount: increment(-1) });
-                    delete currentUserLikeDocIds[movieId]; // Cập nhật cache local ngay
                 } else {
-                    // Chưa thích -> Thích (Tạo doc mới với ID cố định)
-                    batch.set(likeDocRef, { 
-                        movieId: movieId, 
-                        userId: auth.currentUser.uid, 
-                        createdAt: serverTimestamp() 
-                    });
+                    batch.set(doc(userLikesColRef), { movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp() });
                     batch.update(movieDocRef, { likeCount: increment(1) });
-                    currentUserLikeDocIds[movieId] = movieId; // Cập nhật cache local ngay
                 }
                 await batch.commit();
-            } catch(e) {
-                console.error("Lỗi Like:", e);
-                // Nếu lỗi thì hoàn tác UI (nhưng thường ít khi lỗi ở đây nếu rules đúng)
+                
+                const currentCount = parseInt(likeCountElement.textContent.replace(/\D/g,'')) || 0;
+                const newCount = currentCount + (isLiked ? -1 : 1);
+                likeCountElement.textContent = newCount.toLocaleString('vi-VN') + " Lượt thích";
+                
+                const likeButtonText = getEl('#like-button-text');
+                const likeButtonIcon = button.querySelector('ion-icon');
+
+                // Dù là Guest hay User, nếu thao tác thành công thì cập nhật UI
+                const isFinalLiked = !isLiked;
+                button.classList.toggle('bg-lime-600', isFinalLiked);
+                button.classList.toggle('text-white', isFinalLiked);
+                button.classList.toggle('font-bold', isFinalLiked);
+                button.classList.toggle('bg-gray-700', !isFinalLiked);
+                button.classList.toggle('text-gray-300', !isFinalLiked);
+                button.classList.toggle('font-medium', !isFinalLiked);
+                if (likeButtonText) likeButtonText.textContent = isFinalLiked ? 'Đã thích' : 'Thích';
+                if (likeButtonIcon) likeButtonIcon.setAttribute('name', isFinalLiked ? 'thumbs-up' : 'thumbs-up-outline');
+                
+            } catch (e) {
+                console.error("Lỗi khi Thích/Bỏ thích:", e);
+                // Nếu lỗi là do Rules, ta cần thông báo Guest không được phép
+                let errorMsg = "Lỗi quyền truy cập. Vui lòng đăng nhập chính thức.";
+                if (e.message.includes("Permission denied")) {
+                     errorMsg = "Lỗi quyền truy cập. Vui lòng đăng nhập chính thức.";
+                }
+                
+                // [FIX UI] Nếu lỗi xảy ra, cập nhật lại trạng thái nút
+                const likeButtonText = getEl('#like-button-text');
+                if(likeButtonText) likeButtonText.textContent = 'Thích thất bại';
+                
+                window.showConfirmModal(errorMsg); // Sử dụng modal thay vì alert/console
             } finally {
                 button.disabled = false;
             }
@@ -2279,9 +2292,6 @@
         </div>
     </main>
 
-
-
-
     <!-- Footer -->
     <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
         <!-- Hiệu ứng nền trang trí (Background Glow) -->
@@ -2431,6 +2441,7 @@
             </div>
         </div>
     </footer>
+
 
 </body>
 </html>
