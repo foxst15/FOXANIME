@@ -127,7 +127,11 @@
         let setupError = null; 
         let isGlobalCacheLoaded = false; 
         let resolveResumeModal; 
-        let unsubscribeMovieListener = null; // <-- NEW: Biến toàn cục để quản lý Listener Phim đơn lẻ
+        let unsubscribeMovieListener = null; 
+        // NEW: Biến toàn cục để lưu trữ Review hiện tại của người dùng cho phim đang xem
+        let currentUserReviewCache = null; 
+        // NEW: Biến toàn cục để quản lý Listener Review của người dùng
+        let unsubscribeReviewListener = null; 
         
         // --- Hằng số mới cho giới hạn bình luận (Tối ưu hóa data) ---
         const COMMENT_LIMIT = 20; 
@@ -574,7 +578,114 @@
                 }
             } catch (e) { console.error("Lỗi tạo user profile lần đầu:", e); }
         };
+        
+        // --- NEW: XỬ LÝ SUBMIT REVIEW ---
+        const handleReviewSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const movieId = form.dataset.movieId;
+            const user = auth.currentUser;
+            const rating = parseInt(getEl('input[name="rating"]:checked')?.value);
+            const content = getEl('#review-content')?.value.trim() || '';
+            const reviewErrorEl = getEl('#review-error');
 
+            reviewErrorEl.classList.add('hidden');
+            
+            if (!rating) {
+                reviewErrorEl.textContent = "Vui lòng chọn số sao đánh giá.";
+                reviewErrorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Kiểm tra quyền
+            if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) {
+                 reviewErrorEl.textContent = "Bạn cần Đăng nhập bằng Google để đánh giá.";
+                 reviewErrorEl.classList.remove('hidden');
+                 return;
+            }
+            
+            const movieDocRef = doc(db, dataCollectionPath, movieId);
+            const reviewDocRef = doc(db, dataCollectionPath, movieId, 'reviews', user.uid);
+            
+            try {
+                const batch = writeBatch(db);
+                
+                let oldRating = 0;
+                let isUpdate = !!currentUserReviewCache;
+                
+                if (isUpdate) {
+                    oldRating = currentUserReviewCache.rating || 0;
+                }
+                
+                const ratingDifference = rating - oldRating;
+
+                // 1. Cập nhật document review của người dùng
+                batch.set(reviewDocRef, {
+                    userId: user.uid,
+                    rating: rating,
+                    content: content,
+                    displayName: user.displayName || user.email.split('@')[0], 
+                    photoURL: user.photoURL, 
+                    createdAt: isUpdate ? currentUserReviewCache.createdAt : serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+
+                // 2. Cập nhật tổng điểm và số lượng review trên document movie chính
+                if (isUpdate) {
+                    // Cập nhật: Trừ điểm cũ, cộng điểm mới (tổng thay đổi = ratingDifference)
+                    batch.update(movieDocRef, {
+                        reviewTotal: increment(ratingDifference)
+                    });
+                } else {
+                    // Tạo mới: Cộng điểm mới, tăng số lượng review
+                    batch.update(movieDocRef, {
+                        reviewTotal: increment(rating),
+                        reviewCount: increment(1)
+                    });
+                }
+                
+                await batch.commit();
+                
+                // Giao diện sẽ được cập nhật tự động bởi onSnapshot của reviewDocRef và movieDocRef
+                console.log(`[REVIEW DEBUG] Đánh giá thành công! Update: ${isUpdate}, Rating: ${rating}, Diff: ${ratingDifference}`);
+                
+            } catch (e) {
+                console.error("[REVIEW ERROR] Lỗi khi gửi đánh giá:", e);
+                reviewErrorEl.textContent = "Lỗi hệ thống khi gửi đánh giá. Vui lòng thử lại.";
+                reviewErrorEl.classList.remove('hidden');
+            }
+        };
+
+        // --- NEW: Lắng nghe Review của Người dùng để cập nhật Form ---
+        const setupUserReviewListener = (movieId) => {
+            if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
+            if (!auth?.currentUser || auth.currentUser.isAnonymous) return;
+            
+            const user = auth.currentUser;
+            const reviewDocRef = doc(db, dataCollectionPath, movieId, 'reviews', user.uid);
+            
+            unsubscribeReviewListener = onSnapshot(reviewDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserReviewCache = { id: docSnap.id, ...docSnap.data() };
+                    console.log("[REVIEW DEBUG] Cập nhật Review cache người dùng:", currentUserReviewCache);
+                } else {
+                    currentUserReviewCache = null;
+                    console.log("[REVIEW DEBUG] Review cache người dùng: Không tồn tại.");
+                }
+                // Dù có hay không, cần render lại Form để hiển thị trạng thái mới nhất
+                const movie = globalMovieCache.find(m => m.id === movieId);
+                if (movie) {
+                    setupReviewSection(movie, currentUserReviewCache);
+                }
+            }, (error) => {
+                console.error("Lỗi listener review người dùng:", error);
+                currentUserReviewCache = null; // Clear cache on error
+                // Cần render lại để xóa form nếu có lỗi
+                const movie = globalMovieCache.find(m => m.id === movieId);
+                if (movie) setupReviewSection(movie, null); 
+            });
+        };
+        
         // === TEMPLATE UI FUNCTIONS ===
 
         const MovieCardTemplate = (movie) => {
@@ -723,11 +834,126 @@
             `;
         };
         
+        // --- NEW: HÀM RENDER SAO ĐÁNH GIÁ ---
+        const renderStars = (rating) => {
+            const score = parseFloat(rating) || 0;
+            const fullStars = Math.floor(score);
+            const halfStar = score % 1 >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+            
+            let starsHtml = '';
+            // Full Stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += `<ion-icon name="star" class="text-yellow-400"></ion-icon>`;
+            }
+            // Half Star
+            if (halfStar === 1) {
+                starsHtml += `<ion-icon name="star-half" class="text-yellow-400"></ion-icon>`;
+            }
+            // Empty Stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += `<ion-icon name="star-outline" class="text-gray-500"></ion-icon>`;
+            }
+            
+            return starsHtml;
+        };
+        
+        // --- NEW: HÀM TẠO TEMPLATE STAR CHO FORM ---
+        const renderFormStars = (currentRating) => {
+            let html = '';
+            for (let i = 5; i >= 1; i--) {
+                html += `
+                    <input type="radio" id="rating-${i}" name="rating" value="${i}" class="hidden peer" ${currentRating === i ? 'checked' : ''}>
+                    <label for="rating-${i}" class="cursor-pointer text-4xl text-gray-600 peer-hover:text-yellow-400 hover:text-yellow-400 transition-colors duration-200">
+                        <ion-icon name="${currentRating >= i ? 'star' : 'star-outline'}" class="rating-star-icon" data-rating="${i}"></ion-icon>
+                    </label>
+                `;
+            }
+            return `<div id="rating-input-area" class="flex flex-row-reverse justify-end space-x-1 space-x-reverse">${html}</div>`;
+        };
+        
+        // --- NEW: HÀM HIỂN THỊ NỘI DUNG FORM/REVIEW ---
+        const setupReviewSection = (movie, userReview) => {
+            const reviewContainer = getEl('#review-section-container');
+            if (!reviewContainer) return;
+            
+            const isCommentAllowed = !!auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser);
+            const user = auth?.currentUser;
+
+            if (userReview) {
+                // Đã đánh giá: Hiển thị form chỉnh sửa
+                reviewContainer.innerHTML = `
+                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-lime-500/50">
+                        <h3 class="text-xl font-bold text-lime-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
+                        <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
+                        <form id="review-form" data-movie-id="${movie.id}">
+                            ${renderFormStars(userReview.rating)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Cập nhật Đánh giá</button>
+                        </form>
+                    </div>
+                `;
+            } else if (isCommentAllowed) {
+                // Chưa đánh giá: Hiển thị form tạo mới
+                reviewContainer.innerHTML = `
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá Của Bạn</h3>
+                        <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ phim này:</p>
+                        <form id="review-form" data-movie-id="${movie.id}">
+                            ${renderFormStars(0)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Đánh giá</button>
+                        </form>
+                    </div>
+                `;
+            } else {
+                // Không được đánh giá (Khách/Admin Custom Token)
+                reviewContainer.innerHTML = `
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl text-center">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá</h3>
+                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-lime-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá phim.</p>
+                    </div>
+                `;
+            }
+            
+            // Re-attach submit listener
+            getEl('#review-form')?.addEventListener('submit', handleReviewSubmit);
+            
+            // Re-attach star hover/click listener
+            // (Thêm event listener để xử lý việc chọn sao, đảm bảo sao được tô màu đúng)
+            const ratingArea = getEl('#rating-input-area');
+            if (ratingArea) {
+                ratingArea.addEventListener('click', (e) => {
+                    const target = e.target.closest('label');
+                    if (target) {
+                         // Đảm bảo sao được cập nhật ngay lập tức trên giao diện
+                        const rating = parseInt(target.getAttribute('for').replace('rating-', ''));
+                        const allLabels = ratingArea.querySelectorAll('label');
+                        allLabels.forEach(label => {
+                            const labelRating = parseInt(label.getAttribute('for').replace('rating-', ''));
+                            const icon = label.querySelector('ion-icon');
+                            if (icon) {
+                                icon.setAttribute('name', labelRating <= rating ? 'star' : 'star-outline');
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+
         const InfoPageTemplate = (movie, episodes, isLiked) => {
             const firstEpisode = episodes.length > 0 ? episodes[0] : null;
             const movieSlug = createSlug(movie.title);
             const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html` : '#';
             const imageUrl = movie.bannerUrl || movie.posterUrl; 
+            
+            // Lấy thông tin Rating
+            const reviewCount = movie.reviewCount || 0;
+            const reviewTotal = movie.reviewTotal || 0;
+            const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
             
             // Cho phép hiển thị nút "Đăng nhập để Thích" chỉ khi user là ANONYMOUS
             const requiresSignInLink = !!auth?.currentUser && auth.currentUser.isAnonymous;
@@ -754,10 +980,20 @@
                             <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
                                 <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-0">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                                <div class="flex justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
+                                
+                                <!-- NEW: HIỂN THỊ ĐÁNH GIÁ VÀ LƯỢT THÍCH/XEM -->
+                                <div class="flex flex-wrap justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
                                     <div class="flex items-center space-x-1"><ion-icon name="eye-outline" class="text-xl"></ion-icon><span id="view-count">${(movie.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span></div>
                                     <div class="flex items-center space-x-1"><ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon><span id="like-count">${(movie.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span></div>
                                 </div>
+                                
+                                <!-- NEW: AVERAGE RATING DISPLAY -->
+                                <div class="flex justify-center md:justify-start items-center space-x-2 text-yellow-400 mb-4">
+                                    <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                                    <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                                    <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                                </div>
+                                
                                 <div class="flex justify-center md:justify-start space-x-2 mb-4">
                                     ${movie.genre ? movie.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
                                 </div>
@@ -785,6 +1021,13 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- NEW: KHU VỰC ĐÁNH GIÁ CỦA NGƯỜI DÙNG -->
+                        <div id="review-section-container" class="mt-12">
+                            <!-- Nội dung form đánh giá/review sẽ được JS chèn vào đây -->
+                            ${setupReviewSection(movie, currentUserReviewCache)}
+                        </div>
+                        
                         <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
                             <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
                             ${episodes.length > 0
@@ -906,8 +1149,9 @@
         const renderInfoPage = async (movieId) => { 
              if (!db) { showLoading(); return; }
             
-             // 1. Clear previous listener if any
+             // 1. Clear previous listeners
              if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
+             if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
             
             const movieDocRef = doc(db, dataCollectionPath, movieId);
             
@@ -931,20 +1175,36 @@
                 }));
 
                 // 2. Tái tạo/Cập nhật UI
-                // Kiểm tra nếu đây là lần đầu tiên render trang, hoặc count đã thay đổi.
                 const isFirstRender = !getEl('#app').innerHTML.includes('InfoPageTemplate');
                 
                 if (isFirstRender) {
                     // Lần đầu render toàn bộ UI
                     getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked);
                     getEl('#like-button')?.addEventListener('click', handleLike);
+                    
+                    // NEW: Setup Review Listener lần đầu (sẽ tự trigger setupReviewSection)
+                    setupUserReviewListener(movieId);
                 } else {
-                    // Cập nhật các phần tử động (Số lượt xem, Số lượt thích, Nút Like)
+                    // Cập nhật các phần tử động (Số lượt xem, Số lượt thích, Nút Like, Rating)
                     const likeCountEl = getEl('#like-count');
                     const viewCountEl = getEl('#view-count');
+                    const avgRatingContainer = getEl('.text-yellow-400.mb-4');
                     
                     if (viewCountEl) viewCountEl.textContent = (updatedMovieData.viewCount || 0).toLocaleString('vi-VN') + " Lượt xem";
                     if (likeCountEl) likeCountEl.textContent = (updatedMovieData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
+                    
+                    // Cập nhật Rating Display
+                    if (avgRatingContainer) {
+                        const reviewCount = updatedMovieData.reviewCount || 0;
+                        const reviewTotal = updatedMovieData.reviewTotal || 0;
+                        const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+                        
+                        avgRatingContainer.innerHTML = `
+                            <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                            <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                            <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                        `;
+                    }
                     
                     // Cập nhật trạng thái nút LIKE
                     const button = getEl('#like-button');
@@ -973,8 +1233,9 @@
              if (!db) { showLoading(); return; }
             
             if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
-            // NEW: Clear movie listener khi chuyển sang trang Watch
+            // NEW: Clear movie listener và review listener khi chuyển sang trang Watch
             if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
+            if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
             
             try {
                 let movieData = globalMovieCache.find(a => a.id === movieId);
@@ -1205,9 +1466,10 @@
                 getAllEl(selector).forEach(el => el.classList.add(el.classList.contains('nav-link') ? 'nav-active' : 'mobile-nav-active'));
             }
 
-            // NEW: Dọn dẹp listener của Movie khi chuyển trang
+            // NEW: Dọn dẹp listener của Movie và Review khi chuyển trang
             if (primaryHash !== '#phim') {
                 if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
+                if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
             }
             
             if (primaryHash !== '#phim' && unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
@@ -1456,7 +1718,7 @@
                 });
             });
             
-             // Gắn listener cho form comment ở Watch Page
+             // Gắn listener cho form comment và review ở Watch Page
              document.body.addEventListener('submit', globalCommentSubmitHandler);
             
              // Đóng dropdown profile khi click ra ngoài
@@ -1896,6 +2158,11 @@
             color: #84cc16;
             text-decoration: underline;
         }
+        /* CSS cho hệ thống Rating */
+        #rating-input-area .rating-star-icon {
+            transition: color 0.2s;
+            cursor: pointer;
+        }
 
     </style>
 </head>
@@ -1962,7 +2229,9 @@
         </div>
     </div>
 
-<div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
+
+
+    <div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
         <div class="relative p-8 rounded-xl w-full max-w-lg mx-4 text-center bg-gray-800 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]">
             
             <!-- Logo Chính (Hiệu ứng khung vàng) -->
@@ -2027,7 +2296,6 @@
             sessionStorage.setItem('hideEdgeWarning', 'true');
         }
     </script>
-
 
     <!-- Modal Xem Tiếp (Giữ nguyên) -->
     <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
@@ -2344,9 +2612,248 @@
                     </div>
                 </div>
                 
+                <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
+                <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- === Menu Mobile (SỬ DỤNG lg:hidden ĐỂ CHUYỂN ĐỔI TẠI 1024PX) === -->
+        <!-- [FIX] Cần điều chỉnh lại top cho menu mobile vì header đã dài hơn (80px + padding + menu) -->
+        <div class="lg:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang Chủ</a>
+                
+                <!-- Dạng Anime Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Dạng Anime</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
+                        <a href="#genre/tv-series" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">TV/Series</a>
+                        <a href="#genre/movie-ova" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Movie/OVA</a>
+                        <a href="#genre/hh-trung-quoc" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">HH Trung Quốc</a>
+                        <a href="#genre/anime-tron-bo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Anime Trọn Bộ</a>
+                    </div>
+                </div>
+                
+                 <!-- Season Mobile -->
+                 <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#season">
+                        <span>Season</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- BÉ LÔI FIX: DÙNG CẤU TRÚC NHÓM CỘT 2 TRÊN MOBILE -->
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden grid-cols-2">
+                        
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2026</span>
+                             <a href="#season/mua-xuan-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2026</a>
+                             <a href="#season/mua-he-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2026</a>
+                             <a href="#season/mua-thu-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2026</a>
+                             <a href="#season/mua-dong-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2026</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2025</span>
+                             <a href="#season/mua-xuan-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2025</a>
+                             <a href="#season/mua-he-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2025</a>
+                             <a href="#season/mua-thu-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2025</a>
+                             <a href="#season/mua-dong-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2025</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2024</span>
+                             <a href="#season/mua-xuan-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2024</a>
+                             <a href="#season/mua-he-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2024</a>
+                             <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
+                             <a href="#season/mua-dong-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2024</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thể Loại Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Thể Loại</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden">
+                        <!-- PHỔ BIẾN (Mobile) -->
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                            <span class="text-lime-400 font-bold text-xs uppercase block">Phổ Biến</span>
+                            <a href="#genre/action" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Action</a>
+                            <a href="#genre/romance" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Romance</a>
+                            <a href="#genre/comedy" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Comedy</a>
+                        </div>
+                        <!-- CÁC THỂ LOẠI KHÁC -->
+                        <a href="#genre/adventure" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Adventure</a>
+                        <a href="#genre/boys-love" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Boys Love</a>
+                        <a href="#genre/cartoon" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Cartoon</a>
+                        <a href="#genre/dementia" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Dementia</a>
+                        <a href="#genre/demons" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Demons</a>
+                        <a href="#genre/drama" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Drama</a>
+                        <a href="#genre/ecchi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Ecchi</a>
+                        <a href="#genre/fantasy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Fantasy</a>
+                        <a href="#genre/game" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Game</a>
+                        <a href="#genre/harem" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Harem</a>
+                        <a href="#genre/historical" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Historical</a>
+                        <a href="#genre/horror" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Horror</a>
+                        <a href="#genre/josei" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Josei</a>
+                        <a href="#genre/kids" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Kids</a>
+                        <a href="#genre/live-action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Live Action</a>
+                        <a href="#genre/magic" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Magic</a>
+                        <a href="#genre/martial-arts" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Martial Arts</a>
+                        <a href="#genre/mecha" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mecha</a>
+                        <a href="#genre/military" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Military</a>
+                        <a href="#genre/music" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Music</a>
+                        <a href="#genre/mystery" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mystery</a>
+                        <a href="#genre/parody" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Parody</a>
+                        <a href="#genre/police" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Police</a>
+                        <a href="#genre/psychological" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Psychological</a>
+                        <a href="#genre/samurai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Samurai</a>
+                        <a href="#genre/school" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">School</a>
+                        <a href="#genre/sci-fi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sci-Fi</a>
+                        <a href="#genre/seinen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Seinen</a>
+                        <a href="#genre/shoujo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo</a>
+                        <a href="#genre/shoujo-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo Ai</a>
+                        <a href="#genre/shounen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen</a>
+                        <a href="#genre/shounen-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen Ai</a>
+                        <a href="#genre/slice-of-life" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Slice of Life</a>
+                        <a href="#genre/space" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Space</a>
+                        <a href="#genre/sports" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sports</a>
+                        <a href="#genre/super-power" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Super Power</a>
+                        <a href="#genre/supernatural" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Supernatural</a>
+                        <a href="#genre/suspense" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Suspense</a>
+                        <a href="#genre/thriller" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Thriller</a>
+                        <a href="#genre/tokusatsu" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Tokusatsu</a>
+                        <a href="#genre/vampire" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Vampire</a>
+                        <a href="#genre/yaoi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yaoi</a>
+                        <a href="#genre/yuri" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yuri</a>
+                    </div>
+                </div>
+                
+                <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
+                <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- === Menu Mobile (SỬ DỤNG lg:hidden ĐỂ CHUYỂN ĐỔI TẠI 1024PX) === -->
+        <!-- [FIX] Cần điều chỉnh lại top cho menu mobile vì header đã dài hơn (80px + padding + menu) -->
+        <div class="lg:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang Chủ</a>
+                
+                <!-- Dạng Anime Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Dạng Anime</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
+                        <a href="#genre/tv-series" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">TV/Series</a>
+                        <a href="#genre/movie-ova" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Movie/OVA</a>
+                        <a href="#genre/hh-trung-quoc" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">HH Trung Quốc</a>
+                        <a href="#genre/anime-tron-bo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Anime Trọn Bộ</a>
+                    </div>
+                </div>
+                
+                 <!-- Season Mobile -->
+                 <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#season">
+                        <span>Season</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- BÉ LÔI FIX: DÙNG CẤU TRÚC NHÓM CỘT 2 TRÊN MOBILE -->
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden grid-cols-2">
+                        
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2026</span>
+                             <a href="#season/mua-xuan-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2026</a>
+                             <a href="#season/mua-he-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2026</a>
+                             <a href="#season/mua-thu-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2026</a>
+                             <a href="#season/mua-dong-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2026</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2025</span>
+                             <a href="#season/mua-xuan-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2025</a>
+                             <a href="#season/mua-he-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2025</a>
+                             <a href="#season/mua-thu-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2025</a>
+                             <a href="#season/mua-dong-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2025</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2024</span>
+                             <a href="#season/mua-xuan-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2024</a>
+                             <a href="#season/mua-he-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2024</a>
+                             <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
+                             <a href="#season/mua-dong-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2024</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thể Loại Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Thể Loại</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden">
+                        <!-- PHỔ BIẾN (Mobile) -->
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                            <span class="text-lime-400 font-bold text-xs uppercase block">Phổ Biến</span>
+                            <a href="#genre/action" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Action</a>
+                            <a href="#genre/romance" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Romance</a>
+                            <a href="#genre/comedy" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Comedy</a>
+                        </div>
+                        <!-- CÁC THỂ LOẠI KHÁC -->
+                        <a href="#genre/adventure" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Adventure</a>
+                        <a href="#genre/boys-love" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Boys Love</a>
+                        <a href="#genre/cartoon" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Cartoon</a>
+                        <a href="#genre/dementia" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Dementia</a>
+                        <a href="#genre/demons" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Demons</a>
+                        <a href="#genre/drama" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Drama</a>
+                        <a href="#genre/ecchi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Ecchi</a>
+                        <a href="#genre/fantasy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Fantasy</a>
+                        <a href="#genre/game" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Game</a>
+                        <a href="#genre/harem" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Harem</a>
+                        <a href="#genre/historical" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Historical</a>
+                        <a href="#genre/horror" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Horror</a>
+                        <a href="#genre/josei" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Josei</a>
+                        <a href="#genre/kids" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Kids</a>
+                        <a href="#genre/live-action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Live Action</a>
+                        <a href="#genre/magic" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Magic</a>
+                        <a href="#genre/martial-arts" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Martial Arts</a>
+                        <a href="#genre/mecha" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mecha</a>
+                        <a href="#genre/military" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Military</a>
+                        <a href="#genre/music" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Music</a>
+                        <a href="#genre/mystery" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mystery</a>
+                        <a href="#genre/parody" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Parody</a>
+                        <a href="#genre/police" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Police</a>
+                        <a href="#genre/psychological" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Psychological</a>
+                        <a href="#genre/samurai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Samurai</a>
+                        <a href="#genre/school" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">School</a>
+                        <a href="#genre/sci-fi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sci-Fi</a>
+                        <a href="#genre/seinen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Seinen</a>
+                        <a href="#genre/shoujo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo</a>
+                        <a href="#genre/shoujo-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo Ai</a>
+                        <a href="#genre/shounen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen</a>
+                        <a href="#genre/shounen-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen Ai</a>
+                        <a href="#genre/slice-of-life" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Slice of Life</a>
+                        <a href="#genre/space" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Space</a>
+                        <a href="#genre/sports" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sports</a>
+                        <a href="#genre/super-power" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Super Power</a>
+                        <a href="#genre/supernatural" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Supernatural</a>
+                        <a href="#genre/suspense" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Suspense</a>
+                        <a href="#genre/thriller" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Thriller</a>
+                        <a href="#genre/tokusatsu" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Tokusatsu</a>
+                        <a href="#genre/vampire" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Vampire</a>
+                        <a href="#genre/yaoi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yaoi</a>
+                        <a href="#genre/yuri" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yuri</a>
+                    </div>
+                </div>
+                
                 <a href="#library" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư Viện</a>
                 <a href="#schedule" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch Chiếu</a>
-
             </div>
             <!-- Form Tìm kiếm Mobile -->
             <div class="px-5 pb-3">
