@@ -1431,6 +1431,10 @@
                     summary: data.summary,
                     viewCount: 0,
                     likeCount: 0,
+                    // --- BÉ LÔI FIX: KHỞI TẠO REVIEW DATA MỚI ---
+                    reviewCount: 0, 
+                    reviewTotal: 0, 
+                    // ---------------------------------------------
                     episodes: [], 
                     createdAt: serverTimestamp(),
                     updatedBy: userId,
@@ -1498,6 +1502,10 @@
                 
                 const movieDocRef = doc(moviesCollectionRef, movieId);
                 
+                // Lấy dữ liệu cũ để kiểm tra xem có cần thêm reviewCount/Total không
+                const oldDoc = await getDoc(movieDocRef);
+                const oldData = oldDoc.data();
+
                 const updateData = {
                     title: data.title,
                     titleOriginal: data.titleOriginal || '',
@@ -1510,6 +1518,13 @@
                     status: data.status,
                     airingDay: data.airingDay
                 };
+                
+                // --- BÉ LÔI FIX: TỰ ĐỘNG THÊM TRƯỜNG REVIEW NẾU THIẾU KHI EDIT ---
+                if (oldData && oldData.reviewCount === undefined) {
+                    updateData.reviewCount = 0;
+                    updateData.reviewTotal = 0;
+                }
+                // ------------------------------------------------------------------
                 
                 if (isPosterUpdated) { updateData.posterUrl = finalPosterUrl; }
                 if (isBannerUpdated) { updateData.bannerUrl = finalBannerUrl; }
@@ -1527,6 +1542,46 @@
                 messageEl.textContent = 'FATAL ERROR: ' + error.message;
                 posterStatusEl.textContent = 'Lỗi xử lý ảnh.';
                 posterStatusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        // --- BÉ LÔI: FIX DỮ LIỆU CŨ CHO TOÀN BỘ PHIM (NÚT BÍ MẬT TRÊN DASHBOARD) ---
+        window.handleFixLegacyData = async () => {
+            const confirmed = await window.showConfirmModal("Bạn có chắc muốn quét và sửa dữ liệu Review cho TẤT CẢ phim không? (Chỉ cần chạy 1 lần)");
+            if (!confirmed) return;
+            
+            const msgEl = $('fix-legacy-status');
+            if (msgEl) msgEl.textContent = "Đang quét dữ liệu... Vui lòng đợi...";
+            
+            try {
+                const q = query(moviesCollectionRef);
+                const querySnapshot = await getDocs(q);
+                const batch = writeBatch(db);
+                let updateCount = 0;
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.reviewCount === undefined || data.reviewTotal === undefined) {
+                        const docRef = doc(moviesCollectionRef, docSnap.id);
+                        batch.update(docRef, {
+                            reviewCount: data.reviewCount || 0,
+                            reviewTotal: data.reviewTotal || 0
+                        });
+                        updateCount++;
+                    }
+                });
+                
+                if (updateCount > 0) {
+                    await batch.commit();
+                    alert(`Đã sửa dữ liệu cho ${updateCount} phim cũ thành công!`);
+                } else {
+                    alert("Dữ liệu tất cả phim đều đã chuẩn. Không cần sửa gì thêm.");
+                }
+                if (msgEl) msgEl.textContent = "";
+                
+            } catch (error) {
+                console.error("Lỗi khi sửa dữ liệu cũ:", error);
+                alert("Lỗi: " + error.message);
             }
         };
 
@@ -1946,8 +2001,15 @@
                                 <button onclick="showModal('add-movie-modal')" class="anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
                                     <i class="fas fa-plus mr-2"></i> Thêm Phim Mới
                                 </button>
+                                
+                                <!-- NÚT FIX DATA LỖI -->
+                                <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-xs">
+                                    <i class="fas fa-wrench mr-2"></i> FIX DATA LỖI
+                                </button>
                             </div>
                         </div>
+                        
+                        <div id="fix-legacy-status" class="text-[#00ffaa] font-bold mb-2"></div>
                         
                         <!-- BÉ LÔI FIX: THANH LỌC (FILTER BAR) - STATIC HTML -->
                         <div class="filter-bar-container">
