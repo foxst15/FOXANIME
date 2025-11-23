@@ -134,6 +134,10 @@
         
         // --- Hằng số mới cho giới hạn bình luận (Tối ưu hóa data) ---
         const COMMENT_LIMIT = 20; 
+        // --- Hằng số mới cho giới hạn HIỂN THỊ bình luận (Giúp kích hoạt cuộn sớm) ---
+        const COMMENT_DISPLAY_LIMIT = 10;
+        // --- Hằng số mới cho giới hạn HIỂN THỊ đánh giá (Giúp kích hoạt cuộn sớm) ---
+        const REVIEW_DISPLAY_LIMIT = 10;
         
         // === HÀM TIỆN ÍCH CHUNG ===
         
@@ -250,6 +254,7 @@
         
         // --- BÉ LÔI: HÀM QUẢN LÝ BÌNH LUẬN (TỰ ĐỘNG XÓA BÌNH LUẬN CŨ) ---
         const deleteOldestComments = async (movieId, comments) => {
+            // FIX: Giới hạn tối đa 20 tin nhắn
             if (comments.length > COMMENT_LIMIT) {
                 // Sắp xếp lại để tìm bình luận cũ nhất (createdAt thấp nhất)
                 comments.sort((a, b) => {
@@ -301,22 +306,23 @@
                 // Tự động dọn dẹp bình luận (chạy bất đồng bộ)
                 deleteOldestComments(movieId, updatedComments); 
 
-                // Chỉ hiển thị COMMENT_LIMIT bình luận mới nhất
-                const displayedComments = updatedComments.slice(0, COMMENT_LIMIT);
+                // Chỉ hiển thị COMMENT_DISPLAY_LIMIT bình luận mới nhất
+                const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
                 
                 const commentsListElement = getEl('#comments-list');
                 const commentCountElement = getEl('#comment-count-display');
                 if (commentCountElement) commentCountElement.textContent = updatedComments.length;
 
                 if (commentsListElement) {
-                    // Thêm thanh cuộn cho danh sách bình luận
+                    // Cập nhật khu vực bình luận
                     commentsListElement.innerHTML = `
+                        <!-- FIX: Đặt giới hạn max-h-96 (24rem) và overflow-y-auto để có cuộn khi vượt quá 10 tin nhắn -->
                         <div class="max-h-96 overflow-y-auto comments-scroll-area">
                             ${displayedComments.length > 0
                                 ? displayedComments.map(CommentTemplate).join('')
                                 : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
                             }
-                            ${updatedComments.length > COMMENT_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                            ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
                         </div>
                     `;
                 }
@@ -398,9 +404,11 @@
                 videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
             } else if (iframeElement) {
                 let src = iframeElement.src;
-                if (src.includes('youtube.com/embed') && !src.includes('autoplay=1')) {
+                // FIX: Thêm logic tự động phát cho iframe/embed (chủ yếu là YouTube)
+                if ((src.includes('youtube.com/embed') || src.includes('drive.google.com/file/d/')) && !src.includes('autoplay=1')) {
+                    // Kiểm tra và thêm autoplay=1 nếu chưa có
                     src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
-                    iframeElement.src = src;
+                    iframeElement.src = src; 
                 }
             }
             setTimeout(() => { overlay.remove(); }, 500); 
@@ -697,8 +705,8 @@
             if (unsubscribePublicReviewsListener) { unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null; }
             
             const reviewsColRef = collection(db, dataCollectionPath, movieId, 'reviews');
-            // Lấy 10 review mới nhất
-            const q = query(reviewsColRef, orderBy('updatedAt', 'desc'), limit(10));
+            // FIX: Lấy giới hạn lớn hơn (20) để có thể lọc và đảm bảo dữ liệu là mới nhất
+            const q = query(reviewsColRef, orderBy('updatedAt', 'desc'), limit(COMMENT_LIMIT)); 
             
             unsubscribePublicReviewsListener = onSnapshot(q, (snapshot) => {
                 const publicReviewsContainer = getEl('#public-reviews-list');
@@ -709,11 +717,16 @@
                     reviews.push({ id: doc.id, ...doc.data() });
                 });
                 
+                // Giới hạn hiển thị chỉ 10 đánh giá (REVIEW_DISPLAY_LIMIT = 10)
+                const displayedReviews = reviews.slice(0, REVIEW_DISPLAY_LIMIT); 
+
+                // FIX: Cập nhật cấu trúc HTML để thêm thanh cuộn và thông báo giới hạn
                 if (reviews.length > 0) {
                     publicReviewsContainer.innerHTML = `
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây</h4>
-                        <div class="space-y-3">
-                            ${reviews.map(renderPublicReviewItem).join('')}
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây (${reviews.length})</h4>
+                        <div class="max-h-96 overflow-y-auto review-scroll-area space-y-3">
+                            ${displayedReviews.map(renderPublicReviewItem).join('')}
+                             ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn.</p>` : ''}
                         </div>
                     `;
                 } else {
@@ -1048,7 +1061,7 @@
                             <div class="flex-shrink-0 w-48 md:w-64 mx-auto md:mx-0 md:mt-4">
                                 <a href="${firstEpUrl}" class="group block relative rounded-lg shadow-2xl overflow-hidden">
                                     <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                        <ion-icon name="play-circle" class="text-7xl text-white opacity-90"></ion-icon>
+                                        <ion-icon name="play-circle-outline" class="text-7xl text-white opacity-90"></ion-icon>
                                     </div>
                                     <img src="${movie.posterUrl}" alt="${movie.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" loading="lazy" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
                                 </a>
@@ -1125,6 +1138,170 @@
                 </section>
             `;
         };
+        
+        // ==============================================================================
+        // BÉ LÔI FIX: HÀM TEMPLATE TRANG XEM PHIM (ĐÃ CẬP NHẬT THEO YÊU CẦU MỚI)
+        // - BỔ SUNG NÚT TẬP TRƯỚC
+        // ==============================================================================
+        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+            
+            const { html: videoPlayerHtml, isHtml5Video } = getVideoPlayer(episode.videoUrl, movie.posterUrl);
+            const movieSlug = createSlug(movie.title);
+            const user = auth?.currentUser;
+            const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
+            
+            const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT); // Lấy 10 tin nhắn mới nhất
+            
+            // --- LOGIC TÌM TẬP TRƯỚC ---
+            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            let previousEpisodeLink = null;
+            if (previousEpisode) {
+                const prevEpId = previousEpisode.id;
+                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
+            }
+            
+            // --- NÚT TẬP TRƯỚC (ĐIỀU KIỆN) ---
+            const previousButton = previousEpisodeLink ? `
+                <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
+                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
+                </a>
+            ` : `
+                <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
+                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
+                </button>
+            `;
+            
+            // --- NÚT TẬP KẾ TIẾP (ĐIỀU KIỆN) ---
+            const nextButton = nextEpisodeLink ? `
+                <a href="${nextEpisodeLink}" class="bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-600 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
+                    Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
+                </a>
+            ` : `
+                 <button disabled class="bg-red-800 text-red-200 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 opacity-50">
+                    Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
+                </button>
+            `;
+
+
+            return `
+                <section class="text-white">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- CỘT 1 & 2: VIDEO PLAYER VÀ THÔNG TIN PHIM -->
+                        <div class="lg:col-span-2">
+                            <!-- VIDEO PLAYER -->
+                            <div id="video-player-container" class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
+                                
+                                ${videoPlayerHtml}
+                                
+                                <!-- NEW: LỚP PHỦ THÔNG BÁO XEM PHIM (UNIVERSAL OVERLAY) -->
+                                <div id="video-overlay" 
+                                    class="overlay-style absolute inset-0 flex items-center justify-center p-4 z-10" 
+                                    style="
+                                        background-image: url('https://uploads.onecompiler.io/43u4wb3ft/43u4y39cc/bannerphim.jpeg'); 
+                                        background-size: cover; 
+                                        background-position: center;
+                                        background-color: rgba(0, 0, 0, 0.4); 
+                                        background-blend-mode: darken;
+                                    ">
+                                    
+                                    <!-- Hộp chứa nút (giúp tập trung vào khu vực nút và đảm bảo không che chữ quá nhiều) -->
+                                    <div class="text-center p-4 sm:p-8 rounded-xl max-w-xs sm:max-w-md mx-auto">
+                                        <!-- Nút Xem Phim đã được chỉnh sửa CSS -->
+                                        <button id="play-video-button" 
+                                            class="play-button-overlay text-gray-900 font-extrabold text-xl sm:text-2xl px-10 py-5 sm:py-6 rounded-full flex items-center justify-center space-x-3 transform transition-all duration-300 shadow-xl hover:scale-105">
+                                            <ion-icon name="play-circle" class="text-3xl sm:text-4xl"></ion-icon>
+                                            <span>XEM PHIM</span>
+                                        </button>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <!-- THÔNG TIN TẬP VÀ NÚT TIẾP THEO -->
+                            <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-lime-500">
+                                <h1 class="text-3xl font-extrabold text-white mb-1">${movie.title}</h1>
+                                <!-- FIX: THÊM TÊN GỐC -->
+                                ${movie.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
+                                
+                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <p class="text-gray-400 text-sm mt-2">${movie.genre}</p>
+                                
+                                <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
+                                    
+                                    <!-- CONTAINER CHỨA NÚT CHUYỂN TẬP (MỚI) -->
+                                    <div class="flex flex-wrap items-center justify-start space-x-3">
+                                        ${previousButton}
+                                        ${nextButton}
+                                    </div>
+                                    
+                                    <a href="#phim/${movieSlug}-${movie.id}" class="bg-gray-700 text-gray-300 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center md:w-1/2 lg:w-1/3">
+                                        <ion-icon name="information-circle-outline" class="mr-1"></ion-icon> Thông tin Phim
+                                    </a>
+
+                                </div>
+                            </div>
+                            
+                            <!-- KHU VỰC BÌNH LUẬN -->
+                            <div class="mt-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+                                <h3 class="text-2xl font-bold text-white mb-4">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
+                                
+                                <!-- FORM BÌNH LUẬN -->
+                                ${canComment ? `
+                                    <form id="comment-form" class="mb-6">
+                                        <textarea id="comment-input" class="w-full h-20 p-3 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                                        <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                                        <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Bình Luận</button>
+                                    </form>
+                                ` : `
+                                    <div class="p-4 bg-gray-700 rounded-lg text-center mb-6">
+                                        <p class="text-gray-300">Bạn cần <a href="#login" class="text-lime-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+                                    </div>
+                                `}
+                                
+                                <!-- DANH SÁCH BÌNH LUẬN (Đã cập nhật hiển thị cuộn) -->
+                                <div id="comments-list">
+                                    <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                                        ${displayedComments.length > 0 
+                                            ? displayedComments.map(CommentTemplate).join('') 
+                                            : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                                        }
+                                        ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CỘT 3: DANH SÁCH TẬP PHIM -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${movie.episodes.length} Tập)</h3>
+                                
+                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
+                                    ${allEpisodes.map(ep => {
+                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
+                                        const isActive = ep.episodeNumber === currentEpNumber;
+                                        return `
+                                            <a href="${epLink}" 
+                                                class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
+                                                ${isActive 
+                                                    ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' 
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                                                }">
+                                                Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
+                                            </a>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        };
+        // ==============================================================================
+        // KẾT THÚC CẬP NHẬT: HÀM TEMPLATE TRANG XEM PHIM
+        // ==============================================================================
 
         const renderInfoPage = async (movieId) => { 
              if (!db) { showLoading(); return; }
@@ -1267,7 +1444,10 @@
 
                 const allEpisodesWithId = episodesList.map((ep, index) => ({ ...ep, id: `${movieId}_${ep.episodeNumber}_${index}` }));
 
+                // === Dòng 1346 đã được gọi đúng tên hàm mới được thêm vào ===
                 getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
+                // ==========================================================
+                
                 getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
                 
                 // Cập nhật số lượng bình luận ban đầu
@@ -1742,7 +1922,7 @@
         }
         
         /* [Tối ưu] Thêm thanh cuộn cho các khu vực list/menu */
-        .comments-scroll-area, .schedule-scroll-area {
+        .comments-scroll-area, .schedule-scroll-area, .review-scroll-area {
             /* Kế thừa scrollbar custom */
             scrollbar-width: thin; /* Firefox */
             scrollbar-color: #a3e635 #1a202c; /* Firefox */
@@ -1943,6 +2123,32 @@
             height: 100%;
         }
         
+        /* NEW: CSS cho nút Play trên overlay theo yêu cầu mới */
+        .play-button-overlay {
+            /* Màu nền mờ: lime-500 (#a3e635) với độ mờ 50% */
+            background-color: rgba(163, 230, 53, 0.5); 
+            border: none; /* Bỏ viền đen */
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+            /* Thêm hiệu ứng pulse nhẹ (có thể tùy chọn) */
+            animation: pulse-button-new 3s infinite;
+        }
+        
+        .play-button-overlay:hover {
+            /* Màu nền rõ 100% khi hover */
+            background-color: rgba(163, 230, 53, 1); 
+            /* Dừng pulse khi hover */
+            animation: none;
+            /* Tăng nhẹ kích thước khi hover */
+            transform: scale(1.05); 
+        }
+
+        @keyframes pulse-button-new {
+             0% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }
+            50% { box-shadow: 0 0 0 10px rgba(163, 230, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }
+        }
+
+
         
         /* [RESPONSIVE FIX] Menu mobile xổ dọc toàn màn hình */
         #mobile-menu {
@@ -2221,6 +2427,8 @@
         </div>
     </div>
 
+
+
 <div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
         <div class="relative p-8 rounded-xl w-full max-w-lg mx-4 text-center bg-gray-800 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]">
             
@@ -2286,6 +2494,7 @@
             sessionStorage.setItem('hideEdgeWarning', 'true');
         }
     </script>
+
 
 
     <!-- Modal Xem Tiếp (Giữ nguyên) -->
@@ -2780,7 +2989,6 @@
             </div>
         </div>
     </footer>
-
 
 
 </body>
