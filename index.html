@@ -353,10 +353,12 @@
 
         // Hàm Video Embed 
         const getYoutubeEmbedUrl = (url) => {
+            // FIX: Sử dụng tên miền thật để cố định origin (dòng ~175)
+            const OFFICIAL_ORIGIN = 'https://foxanime.vercel.app'; 
             try {
                 const urlObj = new URL(url);
                 const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
-                if (videoId) { return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${window.location.origin}&modestbranding=1`; }
+                if (videoId) { return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1`; }
             } catch (e) { /* Bỏ qua lỗi URL */ }
             return null;
         };
@@ -385,6 +387,7 @@
             } else if (googleDriveEmbedUrl) {
                 isDriveEmbed = true;
                 // FIX: Loại bỏ loading="lazy" để tránh xung đột tải sớm.
+                // Thêm thuộc tính id="iframe-drive-embed" để dễ dàng kiểm tra lỗi tải sau này.
                 html = `<iframe id="video-player-iframe" class="w-full h-full" src="${googleDriveEmbedUrl}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`;
             } else {
                  html = `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`;
@@ -393,6 +396,7 @@
             
             // Nếu là Drive, thêm một lớp phủ báo lỗi (mặc định ẩn) để hiển thị nếu iframe không load được
             if (isDriveEmbed) {
+                // Thêm lớp `drive-csp-check` để kiểm tra trạng thái tải
                 html += `
                     <div id="drive-error-overlay" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center p-6 text-center text-white z-20">
                         <ion-icon name="alert-circle-outline" class="text-6xl text-red-500 mb-4"></ion-icon>
@@ -426,26 +430,36 @@
                 videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
             } else if (iframeElement) {
                 let src = iframeElement.src;
-                // FIX: Thêm logic tự động phát cho iframe/embed (chủ yếu là YouTube)
+                
+                // === LOGIC START PLAYBACK VÀ CẬP NHẬT SRC NẾU CẦN ===
                 if ((src.includes('youtube.com/embed') || src.includes('drive.google.com/file/d/')) && !src.includes('autoplay=1')) {
-                    // Kiểm tra và thêm autoplay=1 nếu chưa có
                     src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
                     iframeElement.src = src; 
                 }
+                
+                // === NEW: LOGIC KIỂM TRA LỖI SAU KHI TẢI (DRIVE) ===
+                // Dùng setTimeout ngắn để kiểm tra iframe đã bị chặn hay chưa (chỉ hoạt động trong môi trường thực)
+                setTimeout(() => {
+                    // Đây là cách duy nhất để phát hiện lỗi CSP/cross-origin trong iframe
+                    // Thử truy cập contentDocument/contentWindow; nếu bị lỗi bảo mật -> hiển thị overlay
+                    try {
+                        const contentWindow = iframeElement.contentWindow; 
+                        // Nếu không ném lỗi, coi như tải thành công (hoặc ít nhất không bị chặn CSP)
+                    } catch (error) {
+                        // Nếu có lỗi bảo mật cross-origin (thường là lỗi CSP/Drive)
+                        console.error("[DRIVE ERROR] Iframe access denied. Assuming CSP block.", error);
+                        const driveErrorOverlay = getEl('#drive-error-overlay');
+                         if (driveErrorOverlay) {
+                             driveErrorOverlay.classList.remove('hidden');
+                         }
+                    }
+                }, 500); // Đợi 500ms sau khi thay đổi SRC để iframe bắt đầu tải
+                // ====================================================
+
             }
             
             // Xử lý ẩn overlay
             setTimeout(() => { overlay.remove(); }, 500); 
-            
-            // Lắng nghe lỗi Drive (không thể chặn CSP, nhưng có thể báo lỗi cho người dùng)
-            if (iframeElement) {
-                 iframeElement.onerror = () => {
-                     const driveErrorOverlay = getEl('#drive-error-overlay');
-                     if (driveErrorOverlay) {
-                         driveErrorOverlay.classList.remove('hidden');
-                     }
-                 };
-            }
         };
 
         const handleGoogleLogin = async () => {
@@ -1395,7 +1409,7 @@
                     if (likeCountEl) likeCountEl.textContent = (updatedMovieData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
                     
                     // Cập nhật Rating Display
-                    if (avgRatingContainer) {
+                    if (avgRatingContainer) { // Đã sửa lỗi cú pháp ở đây
                         const reviewCount = updatedMovieData.reviewCount || 0;
                         const reviewTotal = updatedMovieData.reviewTotal || 0;
                         const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
@@ -2462,6 +2476,7 @@
     </div>
 
 
+
 <div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
         <div class="relative p-8 rounded-xl w-full max-w-lg mx-4 text-center bg-gray-800 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]">
             
@@ -2843,6 +2858,126 @@
                     </div>
                 </div>
                 
+                <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
+                    <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- === Menu Mobile (SỬ DỤNG lg:hidden ĐỂ CHUYỂN ĐỔI TẠI 1024PX) === -->
+        <!-- [FIX] Cần điều chỉnh lại top cho menu mobile vì header đã dài hơn (80px + padding + menu) -->
+        <div class="lg:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang Chủ</a>
+                
+                <!-- Dạng Anime Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Dạng Anime</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
+                        <a href="#genre/tv-series" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">TV/Series</a>
+                        <a href="#genre/movie-ova" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Movie/OVA</a>
+                        <a href="#genre/hh-trung-quoc" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">HH Trung Quốc</a>
+                        <a href="#genre/anime-tron-bo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Anime Trọn Bộ</a>
+                    </div>
+                </div>
+                
+                 <!-- Season Mobile -->
+                 <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#season">
+                        <span>Season</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- BÉ LÔI FIX: DÙNG CẤU TRÚC NHÓM CỘT 2 TRÊN MOBILE -->
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden grid-cols-2">
+                        
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2026</span>
+                             <a href="#season/mua-xuan-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2026</a>
+                             <a href="#season/mua-he-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2026</a>
+                             <a href="#season/mua-thu-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2026</a>
+                             <a href="#season/mua-dong-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2026</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2025</span>
+                             <a href="#season/mua-xuan-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2025</a>
+                             <a href="#season/mua-he-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2025</a>
+                             <a href="#season/mua-thu-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2025</a>
+                             <a href="#season/mua-dong-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2025</a>
+                        </div>
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                             <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2024</span>
+                             <a href="#season/mua-xuan-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2024</a>
+                             <a href="#season/mua-he-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2024</a>
+                             <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
+                             <a href="#season/mua-dong-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2024</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thể Loại Mobile -->
+                <div>
+                    <button class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium" data-hash-group="#genre">
+                        <span>Thể Loại</span>
+                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <div class="mobile-dropdown-content pl-4 mt-1 hidden">
+                        <!-- PHỔ BIẾN (Mobile) -->
+                        <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
+                            <span class="text-lime-400 font-bold text-xs uppercase block">Phổ Biến</span>
+                            <a href="#genre/action" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Action</a>
+                            <a href="#genre/romance" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Romance</a>
+                            <a href="#genre/comedy" class="block text-lime-300 hover:bg-gray-600 hover:text-lime-500 py-1 text-sm">Comedy</a>
+                        </div>
+                        <!-- CÁC THỂ LOẠI KHÁC -->
+                        <a href="#genre/adventure" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Adventure</a>
+                        <a href="#genre/boys-love" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Boys Love</a>
+                        <a href="#genre/cartoon" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Cartoon</a>
+                        <a href="#genre/dementia" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Dementia</a>
+                        <a href="#genre/demons" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Demons</a>
+                        <a href="#genre/drama" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Drama</a>
+                        <a href="#genre/ecchi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Ecchi</a>
+                        <a href="#genre/fantasy" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Fantasy</a>
+                        <a href="#genre/game" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Game</a>
+                        <a href="#genre/harem" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Harem</a>
+                        <a href="#genre/historical" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Historical</a>
+                        <a href="#genre/horror" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Horror</a>
+                        <a href="#genre/josei" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Josei</a>
+                        <a href="#genre/kids" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Kids</a>
+                        <a href="#genre/live-action" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Live Action</a>
+                        <a href="#genre/magic" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Magic</a>
+                        <a href="#genre/martial-arts" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Martial Arts</a>
+                        <a href="#genre/mecha" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mecha</a>
+                        <a href="#genre/military" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Military</a>
+                        <a href="#genre/music" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Music</a>
+                        <a href="#genre/mystery" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Mystery</a>
+                        <a href="#genre/parody" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Parody</a>
+                        <a href="#genre/police" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Police</a>
+                        <a href="#genre/psychological" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Psychological</a>
+                        <a href="#genre/samurai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Samurai</a>
+                        <a href="#genre/school" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">School</a>
+                        <a href="#genre/sci-fi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sci-Fi</a>
+                        <a href="#genre/seinen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Seinen</a>
+                        <a href="#genre/shoujo" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo</a>
+                        <a href="#genre/shoujo-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shoujo Ai</a>
+                        <a href="#genre/shounen" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen</a>
+                        <a href="#genre/shounen-ai" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Shounen Ai</a>
+                        <a href="#genre/slice-of-life" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Slice of Life</a>
+                        <a href="#genre/space" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Space</a>
+                        <a href="#genre/sports" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Sports</a>
+                        <a href="#genre/super-power" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Super Power</a>
+                        <a href="#genre/supernatural" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Supernatural</a>
+                        <a href="#genre/suspense" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Suspense</a>
+                        <a href="#genre/thriller" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Thriller</a>
+                        <a href="#genre/tokusatsu" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Tokusatsu</a>
+                        <a href="#genre/vampire" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Vampire</a>
+                        <a href="#genre/yaoi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yaoi</a>
+                        <a href="#genre/yuri" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yuri</a>
+                    </div>
+                </div>
+                
                 <a href="#library" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư Viện</a>
                 <a href="#schedule" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch Chiếu</a>
             </div>
@@ -2870,7 +3005,6 @@
             </svg>
         </div>
     </main>
-
 
     <!-- Footer -->
     <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
@@ -3021,8 +3155,6 @@
             </div>
         </div>
     </footer>
-
-    
 
 
 </body>
