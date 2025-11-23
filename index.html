@@ -375,18 +375,40 @@
         const getVideoPlayer = (videoUrl, posterUrl) => {
             const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
             const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
+            
+            let html = '';
+            let isHtml5Video = false;
+            let isDriveEmbed = false;
 
-            if (youtubeEmbedUrl || googleDriveEmbedUrl) {
-                const src = youtubeEmbedUrl || googleDriveEmbedUrl;
-                // [Tối ưu] Thêm thuộc tính loading="lazy" vào iframe nếu cần
-                return {
-                    html: `<iframe id="video-player-iframe" class="w-full h-full" src="${src}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture loading="lazy"></iframe>`,
-                    isHtml5Video: false
-                };
+            if (youtubeEmbedUrl) {
+                 html = `<iframe id="video-player-iframe" class="w-full h-full" src="${youtubeEmbedUrl}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`;
+            } else if (googleDriveEmbedUrl) {
+                isDriveEmbed = true;
+                // FIX: Loại bỏ loading="lazy" để tránh xung đột tải sớm.
+                html = `<iframe id="video-player-iframe" class="w-full h-full" src="${googleDriveEmbedUrl}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`;
+            } else {
+                 html = `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`;
+                 isHtml5Video = true;
             }
+            
+            // Nếu là Drive, thêm một lớp phủ báo lỗi (mặc định ẩn) để hiển thị nếu iframe không load được
+            if (isDriveEmbed) {
+                html += `
+                    <div id="drive-error-overlay" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center p-6 text-center text-white z-20">
+                        <ion-icon name="alert-circle-outline" class="text-6xl text-red-500 mb-4"></ion-icon>
+                        <h3 class="text-xl font-bold mb-2 text-red-400">Lỗi Tải Video Google Drive (CSP)</h3>
+                        <p class="text-gray-300 text-sm">Máy chủ bên ngoài (Drive) đang bị chặn bởi chính sách bảo mật của trình duyệt/môi trường lưu trữ.</p>
+                        <ul class="text-left text-xs list-disc list-inside mt-3 text-gray-400">
+                             <li>**Khắc phục:** Vui lòng đảm bảo link Drive đã được **chia sẻ công khai** (anyone with the link can view).</li>
+                             <li>**Giải pháp:** Thay thế bằng link **YouTube** hoặc link trực tiếp (HTML5) để có độ ổn định cao hơn.</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
             return {
-                html: `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`,
-                isHtml5Video: true
+                html: html,
+                isHtml5Video: isHtml5Video
             };
         };
 
@@ -411,7 +433,19 @@
                     iframeElement.src = src; 
                 }
             }
+            
+            // Xử lý ẩn overlay
             setTimeout(() => { overlay.remove(); }, 500); 
+            
+            // Lắng nghe lỗi Drive (không thể chặn CSP, nhưng có thể báo lỗi cho người dùng)
+            if (iframeElement) {
+                 iframeElement.onerror = () => {
+                     const driveErrorOverlay = getEl('#drive-error-overlay');
+                     if (driveErrorOverlay) {
+                         driveErrorOverlay.classList.remove('hidden');
+                     }
+                 };
+            }
         };
 
         const handleGoogleLogin = async () => {
@@ -2428,7 +2462,6 @@
     </div>
 
 
-
 <div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
         <div class="relative p-8 rounded-xl w-full max-w-lg mx-4 text-center bg-gray-800 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]">
             
@@ -2494,9 +2527,7 @@
             sessionStorage.setItem('hideEdgeWarning', 'true');
         }
     </script>
-
-
-
+    
     <!-- Modal Xem Tiếp (Giữ nguyên) -->
     <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
         <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
@@ -2645,11 +2676,11 @@
                             <a href="#genre/super-power">Super Power</a>
                             <a href="#genre/supernatural">Supernatural</a>
                             <a href="#genre/suspense">Suspense</a>
-                            <a href="#genre/thriller">Thriller</a>
-                            <a href="#genre/tokusatsu">Tokusatsu</a>
-                            <a href="#genre/vampire">Vampire</a>
-                            <a href="#genre/yaoi">Yaoi</a>
-                            <a href="#genre/yuri">Yuri</a>
+                            <a href="#genre/thriller" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Thriller</a>
+                            <a href="#genre/tokusatsu" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Tokusatsu</a>
+                            <a href="#genre/vampire" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Vampire</a>
+                            <a href="#genre/yaoi" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yaoi</a>
+                            <a href="#genre/yuri" class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Yuri</a>
                         </div>
                     </div>
 
@@ -2840,6 +2871,7 @@
         </div>
     </main>
 
+
     <!-- Footer -->
     <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
         <!-- Hiệu ứng nền trang trí (Background Glow) -->
@@ -2989,6 +3021,8 @@
             </div>
         </div>
     </footer>
+
+    
 
 
 </body>
