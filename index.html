@@ -358,6 +358,7 @@
             try {
                 const urlObj = new URL(url);
                 const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
+                // [FIX] BỎ autoplay=1 để chỉ gỡ overlay khi user bấm nút.
                 if (videoId) { return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1`; }
             } catch (e) { /* Bỏ qua lỗi URL */ }
             return null;
@@ -369,6 +370,7 @@
                 let fileId = '';
                 if (urlObj.pathname.startsWith('/file/d/')) { fileId = urlObj.pathname.split('/')[3]; } 
                 else if (urlObj.pathname.startsWith('/uc')) { fileId = urlObj.searchParams.get('id'); }
+                // [FIX] BỎ autoplay=1
                 if (fileId) { return `https://drive.google.com/file/d/${fileId}/preview`; }
             } catch (e) { /* Bỏ qua lỗi URL */ }
             return null; 
@@ -386,9 +388,7 @@
                  html = `<iframe id="video-player-iframe" class="w-full h-full" src="${youtubeEmbedUrl}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`;
             } else if (googleDriveEmbedUrl) {
                 isDriveEmbed = true;
-                // FIX: Loại bỏ loading="lazy" để tránh xung đột tải sớm.
-                // Thêm thuộc tính id="iframe-drive-embed" để dễ dàng kiểm tra lỗi tải sau này.
-                // [FIX]: BỎ autoplay=1 lúc ban đầu để chỉ kích hoạt sau khi người dùng bấm nút play.
+                // [FIX]: Dùng SRC đã BỎ autoplay=1
                 html = `<iframe id="video-player-iframe" class="w-full h-full" src="${googleDriveEmbedUrl}" title="Video player" frameborder="0" allow="autoplay; fullscreen" allowfullscreen disablepictureinpicture></iframe>`;
             } else {
                  html = `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`;
@@ -427,23 +427,12 @@
             const iframeElement = getEl('#video-player-iframe');
             
             if (videoElement) {
+                // Video HTML5: Kích hoạt play
                 videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
             } else if (iframeElement) {
-                let src = iframeElement.src;
-                
-                // === BÉ LÔI FIX: LOGIC KÍCH HOẠT AUTOPLAY TỪ NÚT BẤM (ĐƠN GIẢN HÓA) ===
-                // Chỉ thêm autoplay=1 nếu nó chưa có (Drive cần cái này để bắt đầu phát)
-                if ((src.includes('youtube.com/embed') || src.includes('drive.google.com/file/d/')) && !src.includes('autoplay=1')) {
-                    src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
-                    iframeElement.src = src; 
-                }
-                
-                // === BÉ LÔI FIX: BỎ LOGIC KIỂM TRA LỖI CROSS-ORIGIN/CSP XÂM PHẠM ===
-                // Chúng ta sẽ không cố gắng truy cập contentWindow nữa để tránh lỗi bảo mật.
-                // Nếu Drive bị chặn, người dùng sẽ thấy lỗi iframe và cần tự khắc phục bằng link khác.
-                // Lớp phủ Drive Error (mặc định ẩn) sẽ KHÔNG tự động hiện ra nữa.
-                // ====================================================
-
+                // Iframe (Drive/YouTube): KHÔNG CAN THIỆP SRC.
+                // Chỉ cần gỡ lớp phủ. Video sẽ chờ click bên trong iframe nếu trình duyệt không cho phép autoplay.
+                // Điều này giữ nguyên hành vi của code cũ (vẫn có nút Play) nhưng không gây lỗi bảo mật.
             }
             
             // Xử lý ẩn overlay
@@ -762,7 +751,7 @@
                         <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây (${reviews.length})</h4>
                         <div class="max-h-96 overflow-y-auto review-scroll-area space-y-3">
                             ${displayedReviews.map(renderPublicReviewItem).join('')}
-                             ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn.</p>` : ''}
+                             ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn để tối ưu hiệu suất.</p>` : ''}
                         </div>
                     `;
                 } else {
@@ -1177,7 +1166,7 @@
         
         // ==============================================================================
         // BÉ LÔI FIX: HÀM TEMPLATE TRANG XEM PHIM (ĐÃ CẬP NHẬT THEO YÊU CẦU MỚI)
-        // - BỔ SUNG NÚT TẬP TRƯỚC
+        // - BỎ AUTOPLAY TRONG SRC VÀ BỎ LOGIC CAN THIỆP SRC TRONG HANDLEPLAYVIDEO
         // ==============================================================================
         const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
             
@@ -2529,7 +2518,6 @@
         }
     </script>
 
-
     <!-- Modal Xem Tiếp (Giữ nguyên) -->
     <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
         <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
@@ -2873,7 +2861,7 @@
         </div>
     </main>
 
-   <!-- Footer -->
+    <!-- Footer -->
     <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
         <!-- Hiệu ứng nền trang trí (Background Glow) -->
         <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-lime-500 to-transparent opacity-50"></div>
@@ -3022,7 +3010,6 @@
             </div>
         </div>
     </footer>
-
 
 
 </body>
