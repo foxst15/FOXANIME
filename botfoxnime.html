@@ -28,6 +28,144 @@
         let botInterval = null; 
         let isBotRunning = false;
         
+        // --- CẤU HÌNH TỐC ĐỘ (Theo yêu cầu của User) ---
+        const BOT_INTERVAL_ANON = 1000; // 1 giây cho Khách/Ẩn danh (View + Like)
+        const BOT_INTERVAL_AUTH = 5000; // 5 giây cho Google Auth (Full tương tác)
+        let currentBotInterval = BOT_INTERVAL_AUTH;
+        
+        // === DANH SÁCH URL ẢNH MỚI BỔ SUNG TỪ NGƯỜI DÙNG ===
+        // BÉ LÔI đã thêm các URL ảnh chủ nhân cung cấp vào đây!
+        const HARDCODED_AVATAR_URLS = [
+            "https://sf-static.upanhlaylink.com/img/image_202511268263c3032c13307cb4b7010e72173901.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112609d48a2bd056211f996ba11b851e48cd.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511265fc3f7d92280e6c36e300e5aab9e5a8f.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511260570774cff31676089a23585a910a867.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126f31a0cd5089ea4ae58ed8f0276a701dd.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511262c9d103f46c61153315d749bc07045c8.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511265e90710536bdce6803faa5b8be450678.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511261a8c2760ac23c19804ce51c1e8aac6b1.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126334ba75477da6519efdd09255a3b7831.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126dd1d7051d38602df29f4679f6d946d94.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112675df3643864c4c362817c6f752172159.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126ed38c6e7093e3c7ca4920fa03973df71.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126ff139db3b14e86a7432a5b9b793027da.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112637819c4c735802060083a867524661eb.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112694fef41cf94752736303cea244af34d3.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126e3649e2b2739ea70fac57bce63f6c1eb.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511268f6d1ca651128949f038e9c0e90b03fa.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126d5dc29a581439de4952b2272f8c2f351.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126c075f4ee293b6856462af307ba4640a7.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126f8426c69685d36141cba20cca7ea71e5.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112610e8162e63024f927fd27129bdc83687.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126ea45718224ff171e27db1acf45b0b18c.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126cba59768f7764ec3a8f565387e3cbd03.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126f63017b3b86b98c0255b46174955e9d1.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126ec804aaba0ffb32e94b146d47cfd5262.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126797c8b05ed70c81223489471ef046f58.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126a58a866251aa307e31e28f2c7150897f.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_202511268bf2230e588d2f35d6465288a055da69.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126fa3d2929f94b2fe5d0191d84d55c868d.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_20251126a008e3c1d75d545edfcbd955d9d24335.jpg",
+            "https://sf-static.upanhlaylink.com/img/image_2025112666d27190308b22ec0e1a4f0432ab9d3a.jpg"
+        ];
+        // Loai bo cac URL trung lap de tranh lap lai anh qua nhieu
+        const UNIQUE_AVATAR_URLS = [...new Set(HARDCODED_AVATAR_URLS)];
+
+        // --- DANH SÁCH TEENCODE GEN Z (Hơn 50 từ, format mới) ---
+        // SỬ DỤNG FORMAT MỚI THEO YÊU CẦU CỦA NGƯỜI DÙNG
+        const GENZ_TEENCODES = [
+            // Thay thế chính
+            { src: /không/gi, dest: ["ko", "hong", "k", "khong", "kg", "hông"] },
+            { src: /được/gi, dest: ["dc", "đc", "duoc"] },
+            { src: /gì/gi, dest: ["j", "gi", "gì z", "j z", "zì"] }, 
+            { src: /biết/gi, dest: ["bít", "bik", "biet", "bt"] }, 
+            { src: /yêu/gi, dest: ["iu", "yeu"] },
+            { src: /quá/gi, dest: ["qa", "qá", "vãi", "vcl", "qua", "quá trời"] }, 
+            { src: /luôn/gi, dest: ["lun", "luon"] },
+            { src: /rồi/gi, dest: ["r", "roi", "rùi", "òy"] }, 
+            { src: /nhiều/gi, dest: ["nhìu", "nhieu", "nhiu"] },
+            { src: /vậy/gi, dest: ["z", "vay", "zay", "dạy", "v"] }, 
+            { src: /bây giờ/gi, dest: ["h", "bi h", "bay h", "jo", "bh"] },
+            { src: /của/gi, dest: ["cua"] },
+            { src: /mình/gi, dest: ["mik", "minh", "tui", "t"] },
+            { src: /bạn/gi, dest: ["bn", "ban", "b"] },
+            { src: /thực sự/gi, dest: ["that su", "thuc su", "real", "tht sự"] }, 
+            { src: /xem/gi, dest: ["coi", "xem", "x"] }, 
+            { src: /tập/gi, dest: ["ep", "tap"] },
+            { src: /anh/gi, dest: ["a"] }, { src: /em/gi, dest: ["e"] }, { src: /chị/gi, dest: ["c", "cj"] },
+            { src: /người yêu/gi, dest: ["ny", "gau"] }, { src: /vợ/gi, dest: ["vk"] }, { src: /chồng/gi, dest: ["ck"] },
+            { src: /nhưng/gi, dest: ["nma", "nhung", "nhg"] }, { src: /thôi/gi, dest: ["thui", "thoi", "thoy"] },
+            { src: /mới/gi, dest: ["ms", "moi"] }, { src: /trước/gi, dest: ["trc", "trươc"] }, { src: /với/gi, dest: ["vs", "voi"] },
+            { src: /thế nào/gi, dest: ["ntn", "the nao"] }, { src: /cũng/gi, dest: ["cx", "cug"] },
+            
+            // Các từ bổ sung theo yêu cầu (đã được làm giàu)
+            { src: /oke/gi, dest: ["ok", "k", "oke", "oki"] }, { src: /tại sao/gi, dest: ["tsao", "tai sao"] },
+            { src: /vì/gi, dest: ["vi"] }, { src: /là/gi, dest: ["la"] }, { src: /người/gi, dest: ["ng", "nguoi"] },
+            { src: /này/gi, dest: ["nì", "ne", "nay"] }, { src: /đi/gi, dest: ["di", "đii"] }, { src: /làm/gi, dest: ["lm", "lam"] },
+            { src: /nói/gi, dest: ["noi"] }, { src: /buồn/gi, dest: ["bùn", "buon", "buồnn"] }, { src: /thích/gi, dest: ["thik", "thich"] },
+            { src: /ghê/gi, dest: ["ghe"] }, { src: /trời ơi/gi, dest: ["tr oi", "troi oi", "omg"] },
+            { src: /xin lỗi/gi, dest: ["xl", "xin loi"] }, { src: /cảm ơn/gi, dest: ["tks", "cam on", "thanks", "cmon"] },
+            { src: /bình luận/gi, dest: ["cmt", "comment"] }, { src: /nhắn tin/gi, dest: ["ib", "inbox"] },
+            { src: /facebook/gi, dest: ["fb"] }, { src: /đẹp/gi, dest: ["dep", "đẹpp"] }, { src: /hôm nay/gi, dest: ["hnay", "hom nay"] },
+            { src: /thế/gi, dest: ["the", "thế"] }, { src: /đâu/gi, dest: ["dau"] }, { src: /muốn/gi, dest: ["mun"] },
+            { src: /ngủ/gi, dest: ["ngu"] }, { src: /chúc/gi, dest: ["chuc", "chúc"] }, { src: /phải/gi, dest: ["fai", "phai"] }, 
+            { src: /đúng/gi, dest: ["dung"] }, { src: /rất/gi, dest: ["rat", "rt"] },
+            
+            // Các từ ngữ ít dùng teencode nhưng giữ lại để thay đổi kiểu gõ
+            { src: /như vậy/gi, dest: ["nv"] }, { src: /bình thường/gi, dest: ["bth"] }, { src: /chứ/gi, dest: ["chớ", "chư"] }, 
+            { src: /thật/gi, dest: ["tht"] }, { src: /còn/gi, dest: ["cn"] }, { src: /tốt/gi, dest: ["tot"] }, 
+            { src: /tuyệt/gi, dest: ["tuyệt"] }, { src: /xinh/gi, dest: ["xink"] }, { src: /hạnh phúc/gi, dest: ["hp"] },
+            { src: /lại/gi, dest: ["lai"] }, { src: /người ta/gi, dest: ["nt"] }, { src: /yêu rồi/gi, dest: ["iu òy"] },
+        ];
+        const TEENCODE_RATE = 0.7; // Tăng tỉ lệ áp dụng teencode lên 70%
+
+        const applyTeencode = (text) => {
+            let result = text;
+            if (Math.random() < TEENCODE_RATE) {
+                // Áp dụng ngẫu nhiên 1 đến 5 teencode để lời nói được "real" hơn
+                const numToApply = Math.floor(Math.random() * 5) + 1; 
+                // Xáo trộn danh sách Teencode để chọn ngẫu nhiên các quy tắc để áp dụng
+                const shuffledTeencodes = [...GENZ_TEENCODES].sort(() => 0.5 - Math.random());
+
+                for (let i = 0; i < numToApply && i < shuffledTeencodes.length; i++) {
+                    const rule = shuffledTeencodes[i];
+                    // Chọn ngẫu nhiên 1 từ thay thế từ danh sách dest
+                    const replacement = rule.dest[Math.floor(Math.random() * rule.dest.length)];
+                    // Thực hiện thay thế
+                    result = result.replace(rule.src, replacement);
+                }
+            }
+            return result;
+        };
+
+        // --- HÀM RÚT GỌN TÊN PHIM (Tránh lộ là Bot) ---
+        const getShortTitle = (title) => {
+            const parts = title.split(':');
+            let cleanTitle = parts[parts.length - 1].trim(); 
+
+            // Loại bỏ các phần trong ngoặc đơn/vuông (thường là season, part...)
+            cleanTitle = cleanTitle.replace(/ *\([^)]*\) */g, "");
+            cleanTitle = cleanTitle.replace(/ *\[[^\]]*\] */g, "");
+
+            const words = cleanTitle.split(/\s+/).filter(w => w.length > 0);
+
+            // Nếu tên phim đã ngắn (<= 3 từ) thì giữ nguyên
+            if (words.length <= 3) {
+                return cleanTitle;
+            }
+
+            // Rút gọn thành 2-4 từ đầu tiên
+            const numWords = Math.floor(Math.random() * 3) + 2; 
+            const shortTitle = words.slice(0, numWords).join(' ');
+
+            // Thêm "..." để trông tự nhiên hơn
+            if (shortTitle.length < cleanTitle.length && Math.random() < 0.7) {
+                return shortTitle + '...';
+            }
+
+            return shortTitle;
+        };
+        
         // --- HỆ THỐNG TẠO TÊN "VŨ TRỤ WIBU" (MASSIVE & MIXED) ---
         const getBotDisplayName = () => {
             const prefixes = [
@@ -66,17 +204,14 @@
                 "Dân Tổ", "Racing Boy", "Sadboy", "Goodboy", "Badboy", "Chúa Hề", "Thánh Mõm", "Vua Lười",
                 "Học Dốt", "Nhà Giàu", "Đại Gia", "Thiếu Gia", "Tiểu Thư", "Công Tử", "Thư Sinh", "Sát Gái",
                 "FA", "Ế Bền Vững", "Sợ Vợ", "Nể Vợ", "Sợ Ma", "Yếu Tim", "Mê Gái", "Mê Trai",
-                "Eren", "Mikasa", "Armin", "Gojo", "Sukuna", "Itadori", "Megumi", "Nobara", "Tanjiro", "Nezuko",
-                "Zenitsu", "Inosuke", "Rengoku", "Akaza", "Muzan", "Yuji", "Yuta", "Maki", "Panda", "Toge",
-                "Denji", "Power", "Aki", "Makima", "Himeno", "Kobeni", "Reze", "Quanxi", "Kishibe", "Katana",
-                "Boruto", "Sarada", "Mitsuki", "Kawaki", "Himawari", "Shikadai", "Inojin", "Chocho", "Sumire",
-                "Asta", "Yuno", "Noelle", "Yami", "Luck", "Magna", "Finral", "Vanessa", "Charmy", "Grey",
-                "Deku", "Bakugo", "Todoroki", "Uraraka", "Iida", "Tsuyu", "Kirishima", "Kaminari", "Jiro", "Momo",
-                "Saitama", "Genos", "Tatsumaki", "Fubuki", "Bang", "King", "Sonic", "Garou", "Boros", "Orochi",
-                "Kaneki", "Touka", "Rize", "Hide", "Tsukiyama", "Arima", "Amon", "Juuzou", "Eto", "Tatara",
-                "Rimuru", "Veldora", "Shion", "Benimaru", "Shuna", "Souei", "Hakurou", "Gobta", "Ranga", "Milim",
-                "Subaru", "Emilia", "Ram", "Beatrice", "Roswaal", "Puck", "Otto", "Garfiel", "Echidna",
-                "Ainz", "Albedo", "Shalltear", "Cocytus", "Demiurge", "Aura", "Mare", "Sebas", "Pandora"
+                "Eren", "Mikasa", "Armin", "Levi", "Erwin", "Hange", "Reiner", "Zeke", "Annie", "Historia",
+                "Light", "L", "Ryuk", "Misa", "Near", "Mello", "Rem", "Soichiro", "Matsuda", "Aizawa",
+                "Gojo", "Itadori", "Megumi", "Nobara", "Sukuna", "Maki", "Toge", "Panda", "Nanami", "Mahito",
+                "Denji", "Power", "Makima", "Aki", "Pochita", "Kobeni", "Himeno", "Kishibe", "Reze", "Quanxi",
+                "Anya", "Loid", "Yor", "Bond", "Damian", "Becky", "Yuri", "Fiona", "Franky", "Sylvia",
+                "Wibu", "Meme", "Fan", "Otaku", "Simp", "Waifu", "Husbando", "Senpai", "Kouhai", "Sensei",
+                "Admin", "Mod", "Vip", "Pro", "Noob", "Gamer", "Streamer", "Youtuber", "Tiktoker", "Facebook",
+                "Anime", "Manga", "LightNovel", "Game", "Music", "Movie", "Cosplay", "Figure", "Art", "Design"
             ];
             
             const suffixes = [
@@ -139,39 +274,29 @@
 
         // --- HỆ THỐNG AVATAR "VŨ TRỤ" (TỰ ĐỘNG TẠO + KHO ẢNH KHỔNG LỒ) ---
         const getBotAvatar = (botName) => {
-            // 1. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (20%) - Rất phổ biến ở web phim
-            if (Math.random() < 0.2) {
-                 return `https://ui-avatars.com/api/?name=${encodeURIComponent(botName)}&background=random&color=fff&size=128`;
+            const rand = Math.random();
+            
+            // 1. Tỷ lệ dùng Avatar từ URL Hardcoded (60%) - Tăng cường sự "thật"
+            if (rand < 0.6) {
+                 return UNIQUE_AVATAR_URLS[Math.floor(Math.random() * UNIQUE_AVATAR_URLS.length)];
             }
 
-            // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (40%)
-            if (Math.random() < 0.5) {
+            // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (20%)
+            if (rand < 0.8) {
                 const style = Math.random() < 0.5 ? 'lorelei' : 'notionists';
                 return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(botName)}`;
             }
 
-            // 3. Tỷ lệ dùng Avatar "Fan Cứng" (Logo/Nhân vật) (40%) - Giả lập ảnh upload
-            // Danh sách TỪ KHÓA để tạo ảnh placeholder màu sắc (Giả lập ảnh anime/logo)
+            // 3. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (10%) - Rất phổ biến ở web phim
+            if (rand < 0.9) {
+                 return `https://ui-avatars.com/api/?name=${encodeURIComponent(botName)}&background=random&color=fff&size=128`;
+            }
+
+            // 4. Tỷ lệ dùng Avatar "Fan Cứng" (Logo/Nhân vật - Placeholder) (10%)
             const keywords = [
-                "Luffy", "Zoro", "Sanji", "Nami", "Robin", "Chopper", "Usopp", "Franky", "Brook", "Jinbe",
-                "Goku", "Vegeta", "Gohan", "Piccolo", "Frieza", "Cell", "Buu", "Beerus", "Whis", "Broly",
-                "Naruto", "Sasuke", "Sakura", "Kakashi", "Itachi", "Madara", "Obito", "Gaara", "Hinata", "Jiraiya",
-                "Tanjiro", "Nezuko", "Zenitsu", "Inosuke", "Rengoku", "Giyuu", "Shinobu", "Muzan", "Akaza", "Doma",
-                "Deku", "Bakugo", "Todoroki", "AllMight", "Aizawa", "Shigaraki", "Dabi", "Toga", "Twice", "Overhaul",
-                "Saitama", "Genos", "Tatsumaki", "Fubuki", "King", "Bang", "Garou", "Sonic", "Mumen", "Boros",
-                "Asta", "Yuno", "Yami", "Noelle", "Luck", "Magna", "Julius", "Licht", "Patry", "Zagred",
-                "Rimuru", "Veldora", "Shion", "Benimaru", "Souei", "Milim", "Ramiris", "Diablo", "Guy", "Leon",
-                "Kirito", "Asuna", "Sinon", "Leafa", "Yui", "Klein", "Agil", "Yuuki", "Alice", "Eugeo",
-                "Eren", "Mikasa", "Armin", "Levi", "Erwin", "Hange", "Reiner", "Zeke", "Annie", "Historia",
-                "Light", "L", "Ryuk", "Misa", "Near", "Mello", "Rem", "Soichiro", "Matsuda", "Aizawa",
-                "Gojo", "Itadori", "Megumi", "Nobara", "Sukuna", "Maki", "Toge", "Panda", "Nanami", "Mahito",
-                "Denji", "Power", "Makima", "Aki", "Pochita", "Kobeni", "Himeno", "Kishibe", "Reze", "Quanxi",
-                "Anya", "Loid", "Yor", "Bond", "Damian", "Becky", "Yuri", "Fiona", "Franky", "Sylvia",
-                "Wibu", "Meme", "Fan", "Otaku", "Simp", "Waifu", "Husbando", "Senpai", "Kouhai", "Sensei",
-                "Admin", "Mod", "Vip", "Pro", "Noob", "Gamer", "Streamer", "Youtuber", "Tiktoker", "Facebook",
-                "Anime", "Manga", "LightNovel", "Game", "Music", "Movie", "Cosplay", "Figure", "Art", "Design"
+                "Luffy", "Goku", "Naruto", "Tanjiro", "Deku", "Saitama", "Rimuru", "Eren", "Light", "Gojo",
+                "Anya", "Wibu", "Meme", "Fan", "Otaku", "Admin", "Mod", "Vip", "Pro", "Anime"
             ];
-            
             const keyword = keywords[Math.floor(Math.random() * keywords.length)];
             // Tạo màu ngẫu nhiên
             const bg = Math.floor(Math.random()*16777215).toString(16);
@@ -179,7 +304,6 @@
             return `https://placehold.co/100x100/${bg}/${fg}/png?text=${keyword}`;
         };
 
-        const BOT_INTERVAL_MS = 5000;
         const getEl = (selector) => document.querySelector(selector);
         const log = (message, type = 'info') => {
             const logsEl = getEl('#bot-logs');
@@ -217,18 +341,19 @@
         };
 
         // === KHO BÌNH LUẬN KHỔNG LỒ (MASSIVE & TRENDY) ===
+        // Lưu ý: Đã thay thế {title} bằng {shortTitle} để dùng tên phim rút gọn
         const COMMENT_POOLS = {
             ACTION: [ 
-                `Combat tập này của {title} cháy khét lẹt luôn 🔥`, `Animation mượt như sunsilk, xem đã con mắt!`,
+                `Combat tập này của {shortTitle} cháy khét lẹt luôn 🔥`, `Animation mượt như sunsilk, xem đã con mắt!`,
                 `Main bá đạo quá, cân cả map luôn rồi!`, `Đoạn đánh nhau cuối phim đúng đỉnh cao, out trình!`,
-                `Sức mạnh tình bạn lại chiến thắng trong {title} à? 😂`, `Hóng main show skill mới trong {title} quá!`,
-                `Studio đầu tư {title} ác thật, hiệu ứng cháy máy.`, `Nhạc nền lúc combat nổi da gà luôn.`,
-                `{title} đúng là siêu phẩm hành động mùa này.`, `Coi {title} mà tim đập bịch bịch, hồi hộp xỉu.`,
-                `Nhìn main múa kiếm trong {title} mà sướng rơn người.`, `Map {title} rộng thế này đánh nhau mới đã.`,
+                `Sức mạnh tình bạn lại chiến thắng trong {shortTitle} à? 😂`, `Hóng main show skill mới trong {shortTitle} quá!`,
+                `Studio đầu tư {shortTitle} ác thật, hiệu ứng cháy máy.`, `Nhạc nền lúc combat nổi da gà luôn.`,
+                `{shortTitle} đúng là siêu phẩm hành động mùa này.`, `Coi {shortTitle} mà tim đập bịch bịch, hồi hộp xỉu.`,
+                `Nhìn main múa kiếm trong {shortTitle} mà sướng rơn người.`, `Map {shortTitle} rộng thế này đánh nhau mới đã.`,
                 `Đánh đấm thế này mới là anime chứ! 10 điểm!`, `Cháy quá anh em ơi! Xem mà muốn lao vào màn hình.`,
                 `Main giấu nghề kỹ quá, bung lụa cái là hết nước chấm.`, `Phim này đánh nhau ít nói đạo lý, ưng cái bụng.`,
-                `Skill đẹp, âm thanh chất, {title} đúng là bom tấn.`, `Đoạn này hype vãi, xem đi xem lại chục lần.`,
-                `Thằng phản diện trong {title} cũng ngầu không kém main.`, `Coi combat mà nín thở, kịch tính vãi.`,
+                `Skill đẹp, âm thanh chất, {shortTitle} đúng là bom tấn.`, `Đoạn này hype vãi, xem đi xem lại chục lần.`,
+                `Thằng phản diện trong {shortTitle} cũng ngầu không kém main.`, `Coi combat mà nín thở, kịch tính vãi.`,
                 `Tập này đốt kinh phí ác, studio chắc bán thận làm phim.`, `Chuyển cảnh mượt hơn cả Crush từ chối tôi.`,
                 `Một chữ thôi: PHÊ!`, `Xem xong muốn đi học võ luôn :)))`, `Coi mà muốn gãy cái ghế vì quá sướng!`,
                 `Màn solo này đi vào lịch sử anime rồi!`, `Top 1 server là đây chứ đâu!`,
@@ -239,13 +364,13 @@
             ],
             ROMANCE: [ 
                 `Cơm tró ngập mồm, F.A như tui tức á! 🐶`, `Ngọt sâu răng luôn rồi, cứu tui với!`,
-                `Cặp đôi chính trong {title} dễ thương xỉu up xỉu down.`, `Thuyền này bao real, không lên thuyền là phí!`,
-                `Xem {title} mà quắn quéo hết cả người.`, `Đừng drama nữa mà, cho họ hạnh phúc đi! 😭`,
-                `Tình yêu trong {title} đẹp quá, ước gì mình được như vậy.`, `Nhìn ánh mắt nam chính nhìn nữ chính kìa, soft xỉu!`,
-                `Kết thúc {title} mà không HE là tui đốt nhà tác giả á!`, `Chuẩn bị khăn giấy trước khi xem {title} nha mấy bà.`,
-                `{title} tập này làm tui nhớ người yêu cũ quá...`, `Trời ơi chemistry của 2 đứa trong {title} đỉnh vãi.`,
-                `Tui muốn có người yêu ngay lập tức sau khi xem {title}!`, `Ngọt như đường phèn, xem mà cười tủm tỉm.`,
-                `Cẩu lương chất lượng cao, ăn mãi không chán.`, `Nam phụ trong {title} cũng ngon trai, tiếc là friendzone.`,
+                `Cặp đôi chính trong {shortTitle} dễ thương xỉu up xỉu down.`, `Thuyền này bao real, không lên thuyền là phí!`,
+                `Xem {shortTitle} mà quắn quéo hết cả người.`, `Đừng drama nữa mà, cho họ hạnh phúc đi! 😭`,
+                `Tình yêu trong {shortTitle} đẹp quá, ước gì mình được như vậy.`, `Nhìn ánh mắt nam chính nhìn nữ chính kìa, soft xỉu!`,
+                `Kết thúc {shortTitle} mà không HE là tui đốt nhà tác giả á!`, `Chuẩn bị khăn giấy trước khi xem {shortTitle} nha mấy bà.`,
+                `{shortTitle} tập này làm tui nhớ người yêu cũ quá...`, `Trời ơi chemistry của 2 đứa trong {shortTitle} đỉnh vãi.`,
+                `Tui muốn có người yêu ngay lập tức sau khi xem {shortTitle}!`, `Ngọt như đường phèn, xem mà cười tủm tỉm.`,
+                `Cẩu lương chất lượng cao, ăn mãi không chán.`, `Nam phụ trong {shortTitle} cũng ngon trai, tiếc là friendzone.`,
                 `Tình tiết nhẹ nhàng, chữa lành tâm hồn F.A.`, `Xem xong muốn yêu đương liền, phim hại người quá :))`,
                 `Cứu tôi, tôi đang chìm trong sự ngọt ngào này.`, `Máu mũi tôi tuôn rơi vì sự cute này.`,
                 `Hôn nhau đi, hôn nhau đi!`, `Tỏ tình đi trời ơi, sốt ruột quá!`,
@@ -255,14 +380,14 @@
                 `Phim này không dành cho người cô đơn.`, `Tui đang GATO với nhân vật chính đây này.`
             ],
             ISEKAI: [ 
-                `Lại là xe tải-kun làm việc năng suất trong {title} :))`, `Main {title} hack game à? Sao mạnh vô lý vậy?`,
-                `Ước gì được isekai vào thế giới {title} làm slime cũng chịu.`, `Harem của main trong {title} chất lượng quá!`,
-                `Thế giới trong {title} xây dựng đỉnh ghê.`, `Skill của main ảo ma canada quá.`,
-                `Ma vương trong {title} nhìn hiền khô vậy?`, `Bộ {title} này đúng chuẩn power fantasy, xem giải trí tốt.`,
-                `Chuyển sinh thành cái gì không thành, lại thành... trong {title} 😂`, `Tiền tệ trong {title} lạm phát quá :))`,
-                `Main bá đạo trên từng hạt gạo, xem sướng mắt.`, `Thế giới game trong {title} chi tiết phết.`,
-                `Isekai giờ bão hòa rồi mà {title} vẫn cuốn lạ thường.`, `Main không cần cày cuốc cũng mạnh, ước gì mình được vậy.`,
-                `Mấy em elf trong {title} xinh xỉu.`, `Hóng main xây dựng vương quốc riêng.`,
+                `Lại là xe tải-kun làm việc năng suất trong {shortTitle} :))`, `Main {shortTitle} hack game à? Sao mạnh vô lý vậy?`,
+                `Ước gì được isekai vào thế giới {shortTitle} làm slime cũng chịu.`, `Harem của main trong {shortTitle} chất lượng quá!`,
+                `Thế giới trong {shortTitle} xây dựng đỉnh ghê.`, `Skill của main ảo ma canada quá.`,
+                `Ma vương trong {shortTitle} nhìn hiền khô vậy?`, `Bộ {shortTitle} này đúng chuẩn power fantasy, xem giải trí tốt.`,
+                `Chuyển sinh thành cái gì không thành, lại thành... trong {shortTitle} 😂`, `Tiền tệ trong {shortTitle} lạm phát quá :))`,
+                `Main bá đạo trên từng hạt gạo, xem sướng mắt.`, `Thế giới game trong {shortTitle} chi tiết phết.`,
+                `Isekai giờ bão hòa rồi mà {shortTitle} vẫn cuốn lạ thường.`, `Main không cần cày cuốc cũng mạnh, ước gì mình được vậy.`,
+                `Mấy em elf trong {shortTitle} xinh xỉu.`, `Hóng main xây dựng vương quốc riêng.`,
                 `Truck-kun is MVP.`, `Cuộc sống mới ở dị giới sướng thế này thì ai chả muốn.`,
                 `Main này số hưởng vãi, toàn gái xinh vây quanh.`, `Skill này bá đạo quá, cân cả server.`,
                 `Thế giới này thú vị phết, muốn vào chơi thử.`, `Hệ thống game trong phim làm tui nhớ đến...`,
@@ -270,52 +395,52 @@
                 `Main giấu nghề, giả heo ăn thịt hổ kinh vãi.`, `Khi nào main mới lộ sức mạnh thật đây?`
             ],
             HORROR: [ 
-                `Xem {title} lúc nửa đêm đúng là sai lầm, sợ vãi linh hồn 😱`, `Plot twist của {title} làm tui trầm cảm luôn.`,
-                `Không khí trong {title} u ám ghê, lạnh sống lưng.`, `Cái kết của {title} dark quá, ám ảnh thực sự.`,
-                `Ai yếu tim đừng xem {title} nha, cảnh báo trước!`, `Nhạc phim {title} nghe rợn người.`,
-                `Tác giả {title} não to thật, hack não người xem.`, `Thao túng tâm lý cực mạnh, {title} quá đỉnh.`,
-                `Máu me be bét, {title} không dành cho trẻ em đâu.`, `Tối nay mất ngủ vì {title} rồi...`,
-                `Jump scare tập này làm tui rớt điện thoại.`, `Cốt truyện {title} bệnh hoạn thật sự, nhưng mà cuốn.`,
-                `Nhìn con quái trong {title} mà nổi da gà.`, `Phim này xem xong không dám đi vệ sinh một mình.`,
-                `Đang xem thì con mèo nhảy lên, xém xỉu.`, `Cảm giác như có ai đang nhìn mình khi xem {title}.`,
+                `Xem {shortTitle} lúc nửa đêm đúng là sai lầm, sợ vãi linh hồn 😱`, `Plot twist của {shortTitle} làm tui trầm cảm luôn.`,
+                `Không khí trong {shortTitle} u ám ghê, lạnh sống lưng.`, `Cái kết của {shortTitle} dark quá, ám ảnh thực sự.`,
+                `Ai yếu tim đừng xem {shortTitle} nha, cảnh báo trước!`, `Nhạc phim {shortTitle} nghe rợn người.`,
+                `Tác giả {shortTitle} não to thật, hack não người xem.`, `Thao túng tâm lý cực mạnh, {shortTitle} quá đỉnh.`,
+                `Máu me be bét, {shortTitle} không dành cho trẻ em đâu.`, `Tối nay mất ngủ vì {shortTitle} rồi...`,
+                `Jump scare tập này làm tui rớt điện thoại.`, `Cốt truyện {shortTitle} bệnh hoạn thật sự, nhưng mà cuốn.`,
+                `Nhìn con quái trong {shortTitle} mà nổi da gà.`, `Phim này xem xong không dám đi vệ sinh một mình.`,
+                `Đang xem thì con mèo nhảy lên, xém xỉu.`, `Cảm giác như có ai đang nhìn mình khi xem {shortTitle}.`,
                 `Tởm lợm nhưng mà hay.`, `Tâm lý nhân vật méo mó vãi.`,
                 `Cái kết làm tui đứng hình 5 giây.`, `Không dám tắt đèn đi ngủ luôn.`,
                 `Phim này ám ảnh quá, chắc phải xem phim hài để tẩy não.`, `Ghê rợn nhưng không thể ngừng xem.`,
                 `Tác giả chắc có vấn đề tâm lý mới nghĩ ra được cái này.`, `Sợ quá mà vẫn muốn xem tiếp.`
             ],
             COMEDY: [ 
-                `Cười ỉa với {title}, tấu hài cực mạnh 😂`, `Đang ăn cơm xem {title} mà sặc mấy lần.`,
-                `Thánh meme mới là đây chứ đâu!`, `Xem {title} xả stress hiệu quả lắm nha.`,
-                `Độ lầy của main trong {title} là vô đối.`, `Cười muốn nội thương với tập này của {title}.`,
-                `Nhân vật phụ trong {title} còn mặn hơn cả main.`, `Bộ này anti-stress cực mạnh, khuyến khích xem.`,
+                `Cười ỉa với {shortTitle}, tấu hài cực mạnh 😂`, `Đang ăn cơm xem {shortTitle} mà sặc mấy lần.`,
+                `Thánh meme mới là đây chứ đâu!`, `Xem {shortTitle} xả stress hiệu quả lắm nha.`,
+                `Độ lầy của main trong {shortTitle} là vô đối.`, `Cười muốn nội thương với tập này của {shortTitle}.`,
+                `Nhân vật phụ trong {shortTitle} còn mặn hơn cả main.`, `Bộ này anti-stress cực mạnh, khuyến khích xem.`,
                 `Mặt ông main lúc đó nhìn bựa vãi chưởng.`, `Hài ẻ, tác giả chắc cũng hút cần mới vẽ được như này.`,
                 `Cười không nhặt được mồm luôn á trời.`, `Phim gì mà lầy lội dữ thần.`,
                 `Cười đau cả bụng, ai đền cho tui đi.`, `Xem phim mà cười như điên, người nhà tưởng bị gì.`
             ],
             GENERAL: [ // Chung chung, Meme, Trend (RẤT NHIỀU)
-                `{title} mãi đỉnh! Mãi mận xoài cóc ổi!`, `Keo lỳ tái châu luôn á!`,
-                `Xem {title} xong tui bị "suy" luôn rồi... 🥀`, `Flex nhẹ cái acc đã cày {title} 3 lần 😎`,
-                `Ai rồi cũng phải xem {title} thôi, quy luật vũ trụ rồi.`, `Check var gấp đoạn cuối {title} anh em ơi!`,
-                `{title} làm tui overthinking mất 3 ngày.`, `Thà nhịn ăn chứ không nhịn xem {title}!!!`,
+                `{shortTitle} mãi đỉnh! Mãi mận xoài cóc ổi!`, `Keo lỳ tái châu luôn á!`,
+                `Xem {shortTitle} xong tui bị "suy" luôn rồi... 🥀`, `Flex nhẹ cái acc đã cày {shortTitle} 3 lần 😎`,
+                `Ai rồi cũng phải xem {shortTitle} thôi, quy luật vũ trụ rồi.`, `Check var gấp đoạn cuối {shortTitle} anh em ơi!`,
+                `{shortTitle} làm tui overthinking mất 3 ngày.`, `Thà nhịn ăn chứ không nhịn xem {shortTitle}!!!`,
                 `Hóng tập sau quá ad ơi!`, `Phim hay vãi chưởng.`, `10 điểm về chỗ!`,
-                `Mấy ông chê {title} chắc chưa xem hết tập 1 rồi.`, `Siêu phẩm {title} này mà không nổi thì hơi phí.`,
-                `Web xem mượt quá, cảm ơn ad!`, `Subteam dịch {title} có tâm ghê.`,
+                `Mấy ông chê {shortTitle} chắc chưa xem hết tập 1 rồi.`, `Siêu phẩm {shortTitle} này mà không nổi thì hơi phí.`,
+                `Web xem mượt quá, cảm ơn ad!`, `Subteam dịch {shortTitle} có tâm ghê.`,
                 `Hảo anime!`, `Tuyệt vời ông mặt trời.`, `Quá đã pepsi ơi.`,
                 `Đỉnh của chóp!`, `Khét lẹt!`, `Chất lượng!`,
-                `Ai spoil {title} tui block ráng chịu nha.`, `Tập này xem xong lú luôn.`,
-                `Cần tìm info bài hát đoạn giữa phim {title}.`, `Xem {title} ở đây là chuẩn bài rồi.`,
-                `Mọi người ơi, {title} có manga không?`, `Ad ơi, ra tập mới nhanh lên!`,
+                `Ai spoil {shortTitle} tui block ráng chịu nha.`, `Tập này xem xong lú luôn.`,
+                `Cần tìm info bài hát đoạn giữa phim {shortTitle}.`, `Xem {shortTitle} ở đây là chuẩn bài rồi.`,
+                `Mọi người ơi, {shortTitle} có manga không?`, `Ad ơi, ra tập mới nhanh lên!`,
                 `Phim này cuốn hơn bánh cuốn bà Tân.`, `Nhìn visual nhân vật mà muốn rụng tim.`,
-                `Tui là người đơn giản, thấy {title} là tui click.`, `U là trời, cái đoạn đó hay xỉu.`,
-                `Mê chữ ê kéo dài nha.`, `Đang học bài mà phải lén xem {title} nè.`,
+                `Tui là người đơn giản, thấy {shortTitle} là tui click.`, `U là trời, cái đoạn đó hay xỉu.`,
+                `Mê chữ ê kéo dài nha.`, `Đang học bài mà phải lén xem {shortTitle} nè.`,
                 `Phim này ai không xem là phí nửa đời người.`, `Chấm hóng!`,
-                `Xin lịch chiếu {title} với ad ơi.`, `Có ai biết phim nào giống {title} không?`,
-                `Xem {title} xong thấy yêu đời hẳn.`, `Cày lại lần N vẫn thấy hay.`,
-                `Không xem {title} là một thiếu sót lớn.`, `Phim hay thế này mà giờ mới biết.`,
+                `Xin lịch chiếu {shortTitle} với ad ơi.`, `Có ai biết phim nào giống {shortTitle} không?`,
+                `Xem {shortTitle} xong thấy yêu đời hẳn.`, `Cày lại lần N vẫn thấy hay.`,
+                `Không xem {shortTitle} là một thiếu sót lớn.`, `Phim hay thế này mà giờ mới biết.`,
                 `Ai chưa xem thì xem đi nhé, không hối hận đâu.`, `Siêu phẩm trong lòng tôi.`,
-                `Triệu like cho {title}!`, `Cảm xúc dâng trào, tuyệt vời!`,
-                `Không uổng công thức đêm cày {title}.`, `Chấm 100 điểm cho sự nỗ lực của studio.`,
-                `Phim này mà không top trending thì hơi lạ.`, `Fan {title} điểm danh nào!`,
+                `Triệu like cho {shortTitle}!`, `Cảm xúc dâng trào, tuyệt vời!`,
+                `Không uổng công thức đêm cày {shortTitle}.`, `Chấm 100 điểm cho sự nỗ lực của studio.`,
+                `Phim này mà không top trending thì hơi lạ.`, `Fan {shortTitle} điểm danh nào!`,
                 `Nhìn dàn harem mà thèm.`, `Main ngầu lòi, không nói nhiều.`,
                 `Waifu quốc dân đây rồi!`, `Husband của emmm!`,
                 `Tình tiết phim nhanh, gọn, lẹ.`, `Không có một giây nào thừa thải.`,
@@ -324,21 +449,21 @@
                 `Ad cập nhật nhanh quá, yêu ad!`, `Web xịn, không quảng cáo, 10 điểm.`
             ],
             NEGATIVE: [ // Chê bai, Thất vọng (RẤT NHIỀU)
-                `{title} đúng là phim rác, phí thời gian.`, `Art {title} xấu đau đớn, xúc phạm người nhìn.`,
-                `Cốt truyện {title} nhạt như nước ốc. Drop gấp!`, `Diễn biến tâm lý nhân vật trong {title} vô lý đùng đùng.`,
-                `Thất vọng tràn trề về {title}.`, `Ai cho tui xin lại thời gian xem {title} đi. Refund!!!`,
-                `Anh Hai nói thẳng, {title} là phim rác.`, `Thôi xong {title} rồi, chất lượng như Phở bị nguội.`,
-                `Đừng xem {title}, hối hận đấy.`, `2 sao cho sự cố gắng, còn lại thì tệ.`,
-                `Xem được nửa tập {title} tắt luôn, không nuốt nổi.`, `Buff bẩn cho main quá đà, xem chán.`,
-                `Logic phim {title} để đâu rồi?`, `Thà xem quảng cáo còn hơn xem {title}.`,
-                `Sub dở, phim dở, combo hủy diệt.`, `Phí tiền mạng xem {title}.`,
+                `{shortTitle} đúng là phim rác, phí thời gian.`, `Art {shortTitle} xấu đau đớn, xúc phạm người nhìn.`,
+                `Cốt truyện {shortTitle} nhạt như nước ốc. Drop gấp!`, `Diễn biến tâm lý nhân vật trong {shortTitle} vô lý đùng đùng.`,
+                `Thất vọng tràn trề về {shortTitle}.`, `Ai cho tui xin lại thời gian xem {shortTitle} đi. Refund!!!`,
+                `Anh Hai nói thẳng, {shortTitle} là phim rác.`, `Thôi xong {shortTitle} rồi, chất lượng như Phở bị nguội.`,
+                `Đừng xem {shortTitle}, hối hận đấy.`, `2 sao cho sự cố gắng, còn lại thì tệ.`,
+                `Xem được nửa tập {shortTitle} tắt luôn, không nuốt nổi.`, `Buff bẩn cho main quá đà, xem chán.`,
+                `Logic phim {shortTitle} để đâu rồi?`, `Thà xem quảng cáo còn hơn xem {shortTitle}.`,
+                `Sub dở, phim dở, combo hủy diệt.`, `Phí tiền mạng xem {shortTitle}.`,
                 `Nội dung sáo rỗng, toàn fan service rẻ tiền.`, `Main phế vật, xem mà ức chế.`,
-                `Kết thúc {title} lãng xẹt, đầu voi đuôi chuột.`, `Đừng ai tin mấy cái review khen lấy khen để, toàn seeding đấy.`,
-                `Phim này flop là đúng rồi, chả có gì đặc sắc.`, `Tẩy chay {title} vì nội dung xuyên tạc.`,
-                `Xem {title} buồn ngủ kinh khủng.`, `Nhân vật nữ trong {title} bánh bèo vô dụng vãi.`,
+                `Kết thúc {shortTitle} lãng xẹt, đầu voi đuôi chuột.`, `Đừng ai tin mấy cái review khen lấy khen để, toàn seeding đấy.`,
+                `Phim này flop là đúng rồi, chả có gì đặc sắc.`, `Tẩy chay {shortTitle} vì nội dung xuyên tạc.`,
+                `Xem {shortTitle} buồn ngủ kinh khủng.`, `Nhân vật nữ trong {shortTitle} bánh bèo vô dụng vãi.`,
                 `Chán chẳng buồn nói.`, `Cốt truyện rời rạc, chả hiểu gì.`,
                 `Đồ họa như phim hoạt hình những năm 2000.`, `Thất vọng toàn tập.`,
-                `Không hiểu sao {title} lại được khen, tui thấy dở tệ.`, `Đạo diễn chắc đang ngủ gật lúc làm phim này.`,
+                `Không hiểu sao {shortTitle} lại được khen, tui thấy dở tệ.`, `Đạo diễn chắc đang ngủ gật lúc làm phim này.`,
                 `Kịch bản như viết cho trẻ con xem.`, `Nhân vật phụ còn có não hơn nhân vật chính.`,
                 `Xem mà tức cái lồng ngực.`, `Phim gì mà dark deep nửa mùa.`,
                 `Cố tỏ ra nguy hiểm nhưng thực chất rỗng tuếch.`, `Phí phạm tài nguyên.`,
@@ -362,104 +487,129 @@
             // Tỷ lệ chê bai (15%)
             if (Math.random() < 0.15) pool = COMMENT_POOLS.NEGATIVE;
 
+            const shortTitle = getShortTitle(movie.title);
             const template = pool[Math.floor(Math.random() * pool.length)];
-            return template.replace(/{title}/g, movie.title);
+            let content = template.replace(/{shortTitle}/g, shortTitle);
+
+            // Áp dụng Teencode
+            content = applyTeencode(content);
+            return content;
         };
 
         // --- REVIEW THEO THỂ LOẠI & ĐIỂM SỐ (LOGIC MỚI - BỔ SUNG NHIỀU) ---
         const getReviewContentByGenre = (movie, rating) => {
             const genres = (movie.genre || "").toLowerCase();
-            const title = movie.title;
+            const shortTitle = getShortTitle(movie.title);
             
             // 5 SAO & 4 SAO (KHEN)
+            let content;
             if (rating >= 4) {
-                if (genres.includes("hành động")) return `Combat trong ${title} quá mãn nhãn, 10/10 animation! Đỉnh của chóp! Đã mắt thật sự.`;
-                if (genres.includes("tình cảm")) return `${title} làm tui khóc hết nước mắt, nhưng mà hay. Cơm tró chất lượng! Đề cử.`;
-                if (genres.includes("isekai")) return `Mê thế giới fantasy trong ${title} quá, muốn được chuyển sinh ngay và luôn! Xây dựng world ngon.`;
-                if (genres.includes("kinh dị")) return `${title} ám ảnh thực sự, cốt truyện hack não. Đề cử mạnh cho ai gan dạ!`;
-                if (genres.includes("hài")) return `Cười xỉu với ${title}, giải trí cực tốt. Mãi mận! Cười muốn rớt hàm.`;
-                const generalPraise = [
-                    `${title} quá xuất sắc, không xem phí đời. Fan cứng điểm danh! Web load nhanh, phim hay. Đồ họa đẹp, âm thanh sống động.`,
-                    `Tuyệt phẩm! ${title} đã chạm đến trái tim tôi. Mọi thứ đều hoàn hảo.`,
-                    `Không thể rời mắt khỏi màn hình. ${title} lôi cuốn từ đầu đến cuối.`,
-                    `Một bộ anime đáng đồng tiền bát gạo. ${title} mãi đỉnh!`,
-                    `Tôi sẽ giới thiệu ${title} cho tất cả bạn bè của tôi. Quá hay!`,
-                    `Không có điểm trừ nào cho ${title}. Một trải nghiệm tuyệt vời.`,
-                    `Chắc chắn sẽ xem lại ${title} nhiều lần nữa. Quá hay!`,
-                    `Từng chi tiết trong ${title} đều được chăm chút kỹ lưỡng. 10 điểm!`,
-                    `Cảm ơn vì đã tạo ra ${title}. Nó đã cứu rỗi tâm hồn tôi.`,
-                    `Một trong những bộ anime hay nhất mình từng xem. Rất đáng xem!`
-                ];
-                return generalPraise[Math.floor(Math.random() * generalPraise.length)];
+                if (genres.includes("hành động")) content = `Combat trong ${shortTitle} qá mãn nhãn, 10/10 animation! Đỉnh của chóp! Đã mắt tht sự.`;
+                else if (genres.includes("tình cảm")) content = `${shortTitle} lm tui khóc hết nước mắt, nma hay. Cơm tró chất lượng! Đề cử.`;
+                else if (genres.includes("isekai")) content = `Mê thế giới fantasy trong ${shortTitle} qá, mun đc chuyển sinh ngay vs lun! Xây dựng world ngon.`;
+                else if (genres.includes("kinh dị")) content = `${shortTitle} ám ảnh tht sự, cốt truyện hack não. Đề cử mạnh cho ai gan dạ!`;
+                else if (genres.includes("hài")) content = `Cười xỉuu vs ${shortTitle}, giải trí cực tốt. Mãi mận! Cười mun rớt hàm.`;
+                else {
+                    const generalPraise = [
+                        `${shortTitle} qá xuất sắc, k xem phí đời. Fan cứng điểm danh! Web load nhanh, phim hay. Đồ họa đẹp, âm thanh sống động.`,
+                        `Tuyệt phẩm! ${shortTitle} đã chạm đến trái tim tui. Mọi thứ đều hoàn hảo.`,
+                        `K thể rời mắt khỏi màn hình. ${shortTitle} lôi cuốn từ đầu đến cuối.`,
+                        `Một bộ anime đáng đồng tiền bát gạo. ${shortTitle} mãi đỉnh!`,
+                        `Tôi sẽ giới thiệu ${shortTitle} cho tất cả bn của tui. Qá hay!`,
+                        `K có điểm trừ nào cho ${shortTitle}. Một trải nghiệm tuyệt vời.`,
+                        `Chắc chắn sẽ xem lại ${shortTitle} nhìu lần nữa. Qá hay!`,
+                        `Từng chi tiết trong ${shortTitle} đều đc chăm chút kỹ lưỡng. 10 điểm!`,
+                        `Cảm ơn vì đã tạo ra ${shortTitle}. Nó đã cứu rỗi tâm hồn tui.`,
+                        `Một trong nhg bộ anime hay nhất mik từng xem. Rất đáng xem!`
+                    ];
+                    content = generalPraise[Math.floor(Math.random() * generalPraise.length)];
+                }
             }
             
             // 3 SAO (TRUNG BÌNH)
-            if (rating === 3) {
-                if (genres.includes("hành động")) return `Combat tạm được nhưng cốt truyện ${title} hơi loãng. Cần cải thiện thêm.`;
-                if (genres.includes("tình cảm")) return `${title} hơi sến, nhiều đoạn tình tiết bị gượng ép. Xem giải trí thì ổn.`;
-                return `${title} xem tạm ổn, nhưng đoạn giữa hơi dài dòng. Cần cải thiện nhịp phim. Không quá đặc sắc.`;
+            else if (rating === 3) {
+                if (genres.includes("hành động")) content = `Combat tạm đc nma cốt truyện ${shortTitle} hơi loãng. Cần cải thiện thêm.`;
+                else if (genres.includes("tình cảm")) content = `${shortTitle} hơi sến, nhìu đoạn tình tiết bị gượng ép. Xem giải trí thì ổn.`;
+                else content = `${shortTitle} xem tạm ổn, nma đoạn giữa hơi dài dòng. Cần cải thiện nhịp phim. K qá đặc sắc.`;
             }
             
             // 2 SAO (CHÊ)
-            if (rating === 2) {
-                if (genres.includes("hành động")) return `Animation của ${title} cứng đơ, combat như múa rối. Thất vọng! PowerPoint à?`;
-                if (genres.includes("tình cảm")) return `Nội dung ${title} sến súa, tình tiết cẩu huyết vô lý. Chê!`;
-                const generalHate = [
-                    `Phim ${title} này chán như Phở, anh hai thấy không ổn chút nào. Drop! Phí thời gian quá.`,
-                    `Thực sự thất vọng với ${title}. Không hiểu sao lại nổi được.`,
-                    `Kịch bản ${title} quá tệ, đầy lỗ hổng. Không nuốt trôi.`,
-                    `Đừng xem ${title}, phí thời gian lắm.`,
-                    `${title} là một sự sỉ nhục đối với nguyên tác.`,
-                    `Không thể xem nổi quá 3 tập. ${title} quá chán.`,
-                    `Nhân vật chính trong ${title} quá ngu ngốc, xem mà ức chế.`,
-                    `Đồ họa xấu, nội dung dở, âm thanh tệ. Combo hủy diệt của ${title}.`,
-                    `Tiếc cho thời gian đã bỏ ra để xem ${title}.`,
-                    `Tẩy chay ${title}, làm hỏng cả một thương hiệu.`
-                ];
-                return generalHate[Math.floor(Math.random() * generalHate.length)];
+            else if (rating === 2) {
+                if (genres.includes("hành động")) content = `Animation của ${shortTitle} cứng đơ, combat như múa rối. Thất vọng! PowerPoint à?`;
+                else if (genres.includes("tình cảm")) content = `Nội dung ${shortTitle} sến súa, tình tiết cẩu huyết vô lý. Chê!`;
+                else {
+                    const generalHate = [
+                        `Phim ${shortTitle} này chán như Phở, a hai thấy k ổn chút nào. Drop! Phí thời gian qá.`,
+                        `Thực sự thất vọng vs ${shortTitle}. K hiểu sao lại nổi đc.`,
+                        `Kịch bản ${shortTitle} qá tệ, đầy lỗ hổng. K nuốt trôi.`,
+                        `Đừng xem ${shortTitle}, phí thời gian lm.`,
+                        `${shortTitle} là một sự sỉ nhục đối vs nguyên tác.`,
+                        `K thể xem nổi qá 3 ep. ${shortTitle} qá chán.`,
+                        `Ng chính trong ${shortTitle} qá ngu ngốc, xem mà ức chế.`,
+                        `Đồ họa xấu, nội dung dở, âm thanh tệ. Combo hủy diệt của ${shortTitle}.`,
+                        `Tiếc cho thời gian đã bỏ ra để xem ${shortTitle}.`,
+                        `Tẩy chay ${shortTitle}, lm hỏng cả một thương hiệu.`
+                    ];
+                    content = generalHate[Math.floor(Math.random() * generalHate.length)];
+                }
             }
-            return `${title} flop quá. Không đáng xem.`;
+            else content = `${shortTitle} flop qá. K đáng xem.`;
+
+            // Áp dụng Teencode
+            content = applyTeencode(content);
+            return content;
         };
 
         const getRandomReplyContent = (movieTitle, lastComment) => {
+             const shortTitle = getShortTitle(movieTitle);
              const lastCommentContent = (lastComment.content || "").toLowerCase();
+             
+             let replyContent;
              if (lastCommentContent.includes("phim rác") || lastCommentContent.includes("dở") || lastCommentContent.includes("tệ")) {
-                 return `Sao bạn lại chê {title} ghê vậy? Tui thấy cũng ổn mà! 🤔 Gu mỗi người mỗi khác thôi.`;
+                 replyContent = `Sao bn lại chê ${shortTitle} ghê z? Tui thấy cx ổn mà! 🤔 Gu mỗi ng mỗi khác thui.`;
              }
              else if (lastCommentContent.includes("đỉnh") || lastCommentContent.includes("hay") || lastCommentContent.includes("tuyệt")) {
-                 return `Chuẩn luôn! {title} là siêu phẩm mùa này rồi! 🔥 Cày nát máy luôn.`;
+                 replyContent = `Chuẩn lun! ${shortTitle} là siêu phẩm mùa này rùi! 🔥 Cày nát máy lun.`;
              }
              else if (lastCommentContent.includes("hóng") || lastCommentContent.includes("khi nào") || lastCommentContent.includes("bao giờ")) {
-                 return `Tui cũng đang hóng {title} mòn mỏi đây nè! Cùng cảnh ngộ T.T`;
+                 replyContent = `Tui cx đang hóng ${shortTitle} mòn mỏi đây nì! Cùng cảnh ngộ T.T`;
+             } else {
+                 const REPLY_TEMPLATES = [
+                    `Đồng quan điểm về ${shortTitle}!`, `Tui cx nghĩ y chang bn lun.`,
+                    `K thể đồng ý hơn! ${shortTitle} mãi đỉnh.`, `Bác nói chuẩn vãi.`,
+                    `Rep cmt dạo: ${shortTitle} hay tht sự.`, `Chuẩn cơm mẹ nấu!`,
+                    `Bn nói chí fai.`, `Comment chất lượng qá!`,
+                    `Like mạnh cho cmt nì.`, `Kết bn giao lưu đi ông ơi.`,
+                    `+1 Respect.`, `Chuẩn k cần chỉnh.`,
+                    `Bác nói hộ lòng tui.`, `Qá đúng lun!`
+                 ];
+                 replyContent = REPLY_TEMPLATES[Math.floor(Math.random() * REPLY_TEMPLATES.length)];
              }
-             const REPLY_TEMPLATES = [
-                `Đồng quan điểm về {title}!`, `Tui cũng nghĩ y chang bạn lun.`,
-                `Không thể đồng ý hơn! {title} mãi đỉnh.`, `Bác nói chuẩn vãi.`,
-                `Rep cmt dạo: {title} hay thật sự.`, `Chuẩn cơm mẹ nấu!`,
-                `Bạn nói chí phải.`, `Comment chất lượng quá!`,
-                `Like mạnh cho comment này.`, `Kết bạn giao lưu đi ông ơi.`,
-                `+1 Respect.`, `Chuẩn không cần chỉnh.`,
-                `Bác nói hộ lòng tôi.`, `Quá đúng luôn!`
-             ];
-             const randomTemplate = REPLY_TEMPLATES[Math.floor(Math.random() * REPLY_TEMPLATES.length)];
-             return randomTemplate.replace(/{title}/g, movieTitle);
+
+             // Áp dụng Teencode
+             return applyTeencode(replyContent);
         };
 
         const getRandomReviewContentAiring = (movieTitle) => {
+            const shortTitle = getShortTitle(movieTitle);
             const AIRING_REVIEW_TEMPLATES = [
-                `Đã set lịch xem {title} ngay khi ra mắt! Trailer quá cuốn, hứa hẹn siêu phẩm.`,
-                `5 sao cho {title} vì dàn seiyuu khủng và art tuyệt vời. Hóng từng ngày!`,
-                `{title} chắc chắn sẽ là anime of the season. Đặt gạch hóng tập 1.`,
-                `Nghe đồn {title} có cốt truyện siêu hack não, tui đã chuẩn bị tinh thần để overthinking rồi!`,
-                `Chờ đợi {title} từ năm ngoái rồi! Phải chấm 5 sao ủng hộ sự trở lại này.`,
-                `{title} là hy vọng cuối cùng của tui trong năm nay. Không được flop nha!`,
-                `Phim {title} này phải gọi là 'mãi mận', hóng ngày ra mắt để cày view.`,
-                `Tuyệt đối không thể bỏ qua {title}! Đã lưu vào list Must Watch.`,
-                `Nhìn poster {title} là thấy uy tín rồi.`, `Hóng {title} ra mắt để cày xuyên đêm.`,
-                `Mong là {title} không làm tui thất vọng.`, `Trailer đỉnh quá, 10 điểm visual!`,
-                `Đếm ngược từng ngày để được xem {title}.`, `Hy vọng {title} sẽ bùng nổ.`
+                `Đã set lịch xem ${shortTitle} ngay khi ra mắt! Trailer qá cuốn, hứa hẹn siêu phẩm.`,
+                `5 sao cho ${shortTitle} vì dàn seiyuu khủng vs art tuyệt vời. Hóng từng ngày!`,
+                `${shortTitle} chắc chắn sẽ là anime of the season. Đặt gạch hóng ep 1.`,
+                `Nghe đồn ${shortTitle} có cốt truyện siêu hack não, tui đã chuẩn bị tinh thần để overthinking rùi!`,
+                `Chờ đợi ${shortTitle} từ năm ngoái rùi! Fai chấm 5 sao ủng hộ sự trở lại nì.`,
+                `${shortTitle} là hy vọng cuối cùng của tui trong năm nay. K đc flop nha!`,
+                `Phim ${shortTitle} này fai gọi là 'mãi mận', hóng ngày ra mắt để cày view.`,
+                `Tuyệt đối k thể bỏ qua ${shortTitle}! Đã lưu vào list Must Watch.`,
+                `Nhìn poster ${shortTitle} là thấy uy tín rùi.`, `Hóng ${shortTitle} ra mắt để cày xuyên đêm.`,
+                `Mong là ${shortTitle} k lm tui thất vọng.`, `Trailer đỉnh qá, 10 điểm visual!`,
+                `Đếm ngược từng ngày để đc xem ${shortTitle}.`, `Hy vọng ${shortTitle} sẽ bùng nổ.`
             ];
-            return AIRING_REVIEW_TEMPLATES[Math.floor(Math.random() * AIRING_REVIEW_TEMPLATES.length)].replace(/{title}/g, movieTitle);
+            let content = AIRING_REVIEW_TEMPLATES[Math.floor(Math.random() * AIRING_REVIEW_TEMPLATES.length)];
+
+            // Áp dụng Teencode
+            content = applyTeencode(content);
+            return content;
         };
         
         // === HÀM XỬ LÝ HÀNH ĐỘNG BOT ===
@@ -468,7 +618,7 @@
             if (movie.status === 'sap-chieu') return;
             const movieDocRef = doc(db, dataCollectionPath, movie.id);
             updateDoc(movieDocRef, { viewCount: increment(1) })
-                .then(() => log(`[VIEW] Đã xem: "${movie.title}"`, 'success'))
+                .then(() => log(`[VIEW] Đã xem: "${getShortTitle(movie.title)}"`, 'success'))
                 .catch(e => log(`Lỗi View: ${e.message}`, 'error'));
         };
 
@@ -477,7 +627,7 @@
             if (Math.random() < 0.98) { 
                 const movieDocRef = doc(db, dataCollectionPath, movie.id);
                 updateDoc(movieDocRef, { likeCount: increment(1) })
-                    .then(() => log(`[LIKE] Đã bão like cho: "${movie.title}"`, 'success'))
+                    .then(() => log(`[LIKE] Đã bão like cho: "${getShortTitle(movie.title)}"`, 'success'))
                     .catch(e => log(`Lỗi Like: ${e.message}`, 'error'));
             }
         };
@@ -514,7 +664,7 @@
             if (!user || !user.uid) return false;
             const lastComment = await fetchLastComment(movie.id);
 
-            // 30% cơ hội trả lời nếu comment cuối là của người khác và comment đó mới
+            // 30% cơ hội trả lời nếu comment cuối là của người khác và comment đó mới (dưới 10 phút)
             if (lastComment && lastComment.displayName !== getBotDisplayName() && Math.random() < 0.3) {
                 const commentsColRef = collection(db, dataCollectionPath, movie.id, 'comments');
                 const content = getRandomReplyContent(movie.title, lastComment);
@@ -564,9 +714,6 @@
             const botName = getBotDisplayName();
             const botAvatar = getBotAvatar(botName);
 
-            // Xóa logic update reviewTotal/reviewCount cũ vì gây lỗi tăng điểm liên tục
-            // Hiện tại Bot chỉ set Review mới, không tính toán điểm cũ (chấp nhận tăng tổng điểm)
-
             const batch = writeBatch(db);
             
             batch.set(reviewDocRef, {
@@ -595,24 +742,28 @@
              if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
             const randomMovie = globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
             
+            const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
+            
             if (randomMovie.status === 'sap-chieu') {
                 simulateLike(randomMovie);
-                if (auth.currentUser && isGoogleAuth(auth.currentUser)) {
+                if (isAuthUser) {
                     simulateReview(randomMovie, auth.currentUser);
                 }
                 return;
             }
             
+            // Mọi người dùng đều thực hiện View và Like
             simulateView(randomMovie); 
             simulateLike(randomMovie);
             
-            if (auth.currentUser && isGoogleAuth(auth.currentUser)) {
+            // Chỉ người dùng Login Google mới thực hiện tương tác phức tạp (Comment, Review, Reply)
+            if (isAuthUser) {
                 const replied = await simulateReply(randomMovie, auth.currentUser);
                 if (replied) return;
                 simulateComment(randomMovie, auth.currentUser);
                 simulateReview(randomMovie, auth.currentUser);
             } else {
-                 log("Bot cần đăng nhập Google để Comment/Review.", 'info');
+                 log("Bot cần đăng nhập Google để Comment/Review/Reply (Khách chỉ cày View/Like).", 'info');
             }
         };
 
@@ -621,10 +772,10 @@
                  log(globalMovieCache.length === 0 ? "Chưa tải dữ liệu phim..." : "Bot đang chạy.", 'error');
                  return;
             }
-            if (!auth.currentUser) {
-                 log("Cần đăng nhập Google để chạy full tính năng.", 'error');
-                 return;
-            }
+            // Logic tốc độ mới: 1s cho Khách/Ẩn danh, 5s cho Google Auth
+            const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
+            currentBotInterval = isAuthUser ? BOT_INTERVAL_AUTH : BOT_INTERVAL_ANON;
+
             isBotRunning = true;
             const btn = getEl('#bot-control-btn');
             const status = getEl('#bot-status-display');
@@ -633,8 +784,12 @@
             btn.classList.replace('hover:bg-lime-600', 'hover:bg-red-600');
             status.textContent = 'ĐANG CHẠY 🚀';
             status.classList.replace('text-lime-400', 'text-red-400');
-            botInterval = setInterval(botLoop, BOT_INTERVAL_MS);
-            log(`🚀 Bot đã kích hoạt! Tốc độ: ${BOT_INTERVAL_MS/1000}s/lần.`, 'success');
+            
+            // Xóa interval cũ nếu có (để phòng hờ khi auth state thay đổi)
+            if (botInterval) clearInterval(botInterval); 
+
+            botInterval = setInterval(botLoop, currentBotInterval);
+            log(`🚀 Bot đã kích hoạt! Tốc độ hiện tại: ${currentBotInterval/1000}s/lần.`, 'success');
             botLoop();
         };
 
@@ -658,13 +813,19 @@
 
         const handleGoogleLogin = async () => {
             try {
+                // Dừng bot trước khi login để cập nhật tốc độ
+                if (isBotRunning) stopBotActivity(); 
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithPopup(auth, new GoogleAuthProvider()); 
                 log("Đăng nhập Google thành công! ✅", 'success');
             } catch (error) { log(`Lỗi Login: ${error.message}`, 'error'); }
         };
 
-        const handleLogout = () => { signOut(auth).then(() => log("Đã đăng xuất.", 'info')); };
+        const handleLogout = () => { 
+            // Dừng bot trước khi logout để cập nhật tốc độ
+            if (isBotRunning) stopBotActivity(); 
+            signOut(auth).then(() => log("Đã đăng xuất.", 'info')); 
+        };
         
         const loadInitialMovieCache = () => {
              if (!db) return;
@@ -699,7 +860,7 @@
                 const displayName = user.displayName || user.email;
                 authContainer.innerHTML = `
                     <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
-                        <span class="text-lime-400 font-bold">👤 ${displayName}</span>
+                        <span class="text-lime-400 font-bold">👤 ${displayName} (Đã Login Google)</span>
                         <button id="logout-btn" class="text-red-300 hover:text-red-100 text-xs underline">Đăng Xuất</button>
                     </div>`;
                 getEl('#logout-btn')?.addEventListener('click', handleLogout);
@@ -708,8 +869,8 @@
             } else {
                 authContainer.innerHTML = `
                     <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
-                        <span class="text-gray-400 text-sm">Chưa có quyền Comment/Review</span>
-                        <button id="google-login-btn" class="bg-white text-gray-900 font-bold py-1 px-3 rounded text-xs hover:bg-gray-200">Login Google</button>
+                        <span class="text-gray-400 text-sm">Chưa Login Google (Khách/Ẩn danh)</span>
+                        <button id="google-login-btn" class="bg-white text-gray-900 font-bold py-1 px-3 rounded text-xs hover:bg-gray-200">Login Google (Bật Full Tính Năng)</button>
                     </div>`;
                 getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
             }
@@ -723,7 +884,7 @@
     <div class="max-w-3xl mx-auto">
         <header class="mb-6 text-center">
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-green-600">FOXANIME BOT TOOL 🤖</h1>
-            <p class="text-gray-500 text-sm mt-2">Hệ thống "Cày View" & "Seeding" Tự Động Hóa</p>
+            <p class="text-gray-500 text-sm mt-2">Hệ thống "Cày View" & "Seeding" Tự Động Hóa (Cập nhật Gen Z)</p>
         </header>
 
         <!-- Auth Section -->
@@ -744,7 +905,7 @@
                 </button>
                 
                 <p class="text-gray-500 text-xs mt-4 text-center px-4">
-                    ⚠️ Bot sẽ hoạt động liên tục mỗi 5 giây. <br> Vui lòng giữ tab này mở để Bot hoạt động.
+                    ⚠️ Tốc độ Bot: 1s (Khách/Ẩn danh - View/Like) / 5s (Google Auth - Full Tương Tác). Vui lòng giữ tab này mở để Bot hoạt động.
                 </p>
             </div>
             
