@@ -1750,6 +1750,96 @@ const updateAuthStateUI = (user) => {
 </head>
 <body class="bg-gray-900 text-gray-100">
 
+
+    <div id="xmas-announcement" class="relative bg-gradient-to-r from-red-900 via-green-900 to-red-900 border-b-2 border-yellow-500 text-white z-[100] overflow-hidden shadow-lg transition-all duration-500 ease-in-out">
+        
+        <div class="absolute inset-0 opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/snow.png'); pointer-events: none;"></div>
+        
+        <div class="container mx-auto px-4 py-2 relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <div class="flex items-center space-x-3 animate-pulse flex-shrink-0">
+                <span class="text-2xl filter drop-shadow-md">🎄</span>
+                <div class="text-center md:text-left">
+                    <p class="font-bold text-sm sm:text-base text-yellow-400 uppercase tracking-wider">Sắp Cập Nhật</p>
+                    <p class="text-xs sm:text-sm text-gray-200">Giao diện Giáng Sinh lung linh sắp ra mắt!</p>
+                </div>
+            </div>
+
+            <div id="xmas-timer" class="flex items-center space-x-2 sm:space-x-4 bg-black/40 px-6 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-inner">
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="days" class="text-xl font-extrabold text-green-400 leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Ngày</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="hours" class="text-xl font-extrabold text-white leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Giờ</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="minutes" class="text-xl font-extrabold text-white leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Phút</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="seconds" class="text-xl font-extrabold text-red-400 leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Giây</span>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('xmas-announcement').style.marginTop = '-150px'; setTimeout(()=>document.getElementById('xmas-announcement').remove(), 500);" 
+                class="absolute top-2 right-2 md:relative md:top-0 md:right-0 text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-1 transition-colors focus:outline-none" title="Đóng thông báo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+    // --- CẤU HÌNH THỜI GIAN ĐẾM NGƯỢC ---
+    // Mục tiêu: 00:00:00 ngày 01/12/2025 (Thời điểm Update giao diện)
+    // Lưu ý: Tháng 12 trong JS là số 11
+        const targetDate = new Date(2025, 11, 1, 0, 0, 0).getTime();
+
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+        // Tính toán thời gian còn lại
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Cập nhật DOM (nếu phần tử tồn tại)
+            const elD = document.getElementById("days");
+            const elH = document.getElementById("hours");
+            const elM = document.getElementById("minutes");
+            const elS = document.getElementById("seconds");
+
+            if (elD) elD.innerText = d < 10 ? "0" + d : d;
+            if (elH) elH.innerText = h < 10 ? "0" + h : h;
+            if (elM) elM.innerText = m < 10 ? "0" + m : m;
+            if (elS) elS.innerText = s < 10 ? "0" + s : s;
+
+        // KHI ĐẾM NGƯỢC KẾT THÚC (Qua ngày 1/12)
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                const timerBox = document.getElementById("xmas-timer");
+                if (timerBox) {
+                // Đổi nội dung bộ đếm thành thông báo đã update
+                    timerBox.className = "bg-green-600/80 px-4 py-2 rounded-full border border-green-400 shadow-lg animate-bounce";
+                    timerBox.innerHTML = `
+                    <span class="font-bold text-white text-sm sm:text-base flex items-center">
+                        <span class="mr-2">🎉</span> UPDATE IS LIVE!
+                    </span>
+                    `;
+                }
+            }
+        }, 1000);
+    </script>
+
     <div id="cdn-failure-overlay">
         <div class="error-container">
             <div class="error-header">
