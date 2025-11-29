@@ -853,9 +853,22 @@
             } catch (error) { log(`Lỗi setup: ${error.message}`, 'error'); }
         };
 
-        const updateAuthUI = (user) => {
+       const updateAuthUI = (user) => {
             const authContainer = getEl('#auth-control');
+            // Thêm dòng này để lấy cái nút
+            const botBtn = getEl('#bot-control-btn');
+            
             if (!authContainer) return;
+
+            // --- QUAN TRỌNG: MỞ KHÓA NÚT CHO TẤT CẢ MỌI NGƯỜI (KỂ CẢ KHÁCH) ---
+            // Bé Lôi đã đưa đoạn này ra ngoài để ai cũng bấm được nè:
+            if (botBtn) {
+                botBtn.disabled = false;
+                botBtn.textContent = "BẮT ĐẦU CÀY"; // Reset chữ
+                botBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            // -------------------------------------------------------------------
+
             if (user && isGoogleAuth(user)) {
                 const displayName = user.displayName || user.email;
                 authContainer.innerHTML = `
@@ -864,13 +877,11 @@
                         <button id="logout-btn" class="text-red-300 hover:text-red-100 text-xs underline">Đăng Xuất</button>
                     </div>`;
                 getEl('#logout-btn')?.addEventListener('click', handleLogout);
-                getEl('#bot-control-btn').disabled = false;
-                getEl('#bot-control-btn').classList.remove('opacity-50', 'cursor-not-allowed');
             } else {
                 authContainer.innerHTML = `
                     <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
-                        <span class="text-gray-400 text-sm">Chưa Login Google (Khách/Ẩn danh)</span>
-                        <button id="google-login-btn" class="bg-white text-gray-900 font-bold py-1 px-3 rounded text-xs hover:bg-gray-200">Login Google (Bật Full Tính Năng)</button>
+                        <span class="text-gray-400 text-sm">Đang ở chế độ Khách (Chỉ cày View/Like)</span>
+                        <button id="google-login-btn" class="bg-white text-gray-900 font-bold py-1 px-3 rounded text-xs hover:bg-gray-200">Login Google (Full Tính Năng)</button>
                     </div>`;
                 getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
             }
