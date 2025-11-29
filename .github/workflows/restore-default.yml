@@ -1,0 +1,41 @@
+name: Auto Restore Default Interface (Happy New Year)
+on:
+  schedule:
+    # Hẹn giờ: 17:00 ngày 31/12 (Giờ UTC) 
+    # => Tương đương 00:00 ngày 01/01 (Giờ Việt Nam UTC+7)
+    - cron: '0 17 31 12 *'
+
+permissions:
+  contents: write
+
+jobs:
+  revert-interface:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Restore Default Files
+        run: |
+          # 1. Khôi phục trang chủ gốc
+          mv -f "index(default).html" index.html
+          
+          # 2. Khôi phục trang donate gốc
+          mv -f "donate(default).html" donate.html
+          
+          echo "✅ Đã khôi phục giao diện mặc định đón Năm Mới!"
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "FoxAnime Bot"
+          git config --global user.email "bot@foxanime.com"
+          
+          # Add file đã thay đổi
+          git add index.html donate.html
+          
+          # Xóa các file backup (nếu git chưa nhận diện)
+          git add "index(default).html" || true
+          git add "donate(default).html" || true
+          
+          git commit -m "🎆 HAPPY NEW YEAR! Khôi phục giao diện mặc định"
+          git push
