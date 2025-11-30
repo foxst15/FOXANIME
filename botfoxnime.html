@@ -728,7 +728,7 @@
                 updatedAt: serverTimestamp()
             }, { merge: true });
 
-            atch.update(movieDocRef, {
+            batch.update(movieDocRef, {
                 reviewTotal: increment(rating),
                 reviewCount: increment(1) 
             });
