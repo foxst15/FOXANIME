@@ -30,7 +30,8 @@
         let isAuthInitialised = false;
         let botInterval = null; 
         let isBotRunning = false;
-        
+        let targetMovie = null;
+
         // --- CẤU HÌNH TỐC ĐỘ (Theo yêu cầu của User) ---
         const BOT_INTERVAL_ANON = 1000; // 1 giây cho Khách/Ẩn danh (View + Like)
         const BOT_INTERVAL_AUTH = 5000; // 5 giây cho Google Auth (Full tương tác)
@@ -736,19 +737,58 @@
                 }).catch(e => log(`Lỗi Review: ${e.message}`, 'error'));
         };
 
+        // --- HÀM TÌM KIẾM PHIM ---
+        const handleSearchMovie = (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const resultsContainer = getEl('#search-results');
+            resultsContainer.innerHTML = '';
+            
+            if (!searchTerm) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            // Tìm phim trong kho cache (tối đa 5 kết quả)
+            const matchedMovies = globalMovieCache.filter(m => m.title.toLowerCase().includes(searchTerm)).slice(0, 5);
+            
+            if (matchedMovies.length > 0) {
+                resultsContainer.classList.remove('hidden');
+                matchedMovies.forEach(movie => {
+                    const div = document.createElement('div');
+                    div.className = "p-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2 border-b border-gray-700 last:border-0";
+                    div.innerHTML = `<img src="${movie.posterUrl}" class="w-8 h-12 object-cover rounded flex-shrink-0"><span class="text-sm text-gray-200 truncate">${movie.title}</span>`;
+                    div.onclick = () => {
+                        targetMovie = movie;
+                        getEl('#target-display').classList.remove('hidden');
+                        getEl('#target-name').textContent = movie.title;
+                        getEl('#search-input').value = '';
+                        resultsContainer.classList.add('hidden');
+                        log(`🎯 Đã ghim mục tiêu: "${movie.title}"`, 'success');
+                    };
+                    resultsContainer.appendChild(div);
+                });
+            } else {
+                resultsContainer.classList.add('hidden');
+            }
+        };
+
+        const clearTarget = () => {
+            targetMovie = null;
+            getEl('#target-display').classList.add('hidden');
+            log("🔄 Đã hủy mục tiêu. Quay lại chế độ Random.", 'info');
+        };
+
         // === LOGIC CHẠY BOT ===
         const botLoop = async () => { 
              if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
-            const randomMovie = globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
-            
-            const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
-            
-            if (randomMovie.status === 'sap-chieu') {
-                simulateLike(randomMovie);
-                if (isAuthUser) {
-                    simulateReview(randomMovie, auth.currentUser);
-                }
-                return;
+            let randomMovie;
+            if (targetMovie) {
+                randomMovie = targetMovie; // Nếu có mục tiêu thì lấy luôn
+                // Log nhẹ để biết đang buff ai (có thể bỏ nếu thấy spam log)
+                // log(`🎯 Buff: ${getShortTitle(randomMovie.title)}`, 'info'); 
+            } else {
+                // Nếu không thì random như cũ
+                randomMovie = globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
             }
             
             // Mọi người dùng đều thực hiện View và Like
@@ -829,7 +869,7 @@
         const loadInitialMovieCache = () => {
              if (!db) return;
              log("Đang tải kho phim...", 'info');
-             const q = query(collection(db, dataCollectionPath), orderBy('title'), limit(100)); 
+             const q = query(collection(db, dataCollectionPath), orderBy('title')); 
              getDocs(q).then(snapshot => {
                     globalMovieCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     log(`✅ Đã tải xong ${globalMovieCache.length} phim. Sẵn sàng!`, 'success');
@@ -887,7 +927,11 @@
         };
         
         document.addEventListener('DOMContentLoaded', setupFirebase);
-        document.addEventListener('DOMContentLoaded', () => { getEl('#bot-control-btn')?.addEventListener('click', handleBotToggle); });
+        document.addEventListener('DOMContentLoaded', () => { getEl('#bot-control-btn')?.addEventListener('click', handleBotToggle);
+            getEl('#search-input')?.addEventListener('input', handleSearchMovie);
+            getEl('#clear-target-btn')?.addEventListener('click', clearTarget);
+
+         });
     </script>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8 font-sans">
@@ -902,6 +946,29 @@
 
         <!-- Main Control -->
         <section class="bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+
+            <div class="w-full px-6 pt-6 mb-2 relative z-20">
+                    <p class="text-lime-400 text-xs uppercase tracking-wider mb-2 font-bold text-center flex items-center justify-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        CHỌN PHIM ĐỂ BUFF (TARGET)
+                    </p>
+                    
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Gõ tên phim muốn buff..." autocomplete="off"
+                            class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-lime-500 placeholder-gray-500 text-sm">
+                        
+                        <div id="search-results" class="absolute left-0 right-0 bg-gray-800 border border-gray-600 rounded-lg mt-1 hidden shadow-2xl max-h-48 overflow-y-auto"></div>
+                    </div>
+
+                    <div id="target-display" class="hidden mt-3 bg-lime-900/40 border border-lime-500/50 rounded-lg p-2 flex justify-between items-center animate-pulse">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                            <span class="text-lime-400 font-bold text-lg">🎯</span>
+                            <span class="text-lime-200 text-xs font-bold truncate">Đang buff: <span id="target-name" class="text-white"></span></span>
+                        </div>
+                        <button id="clear-target-btn" class="text-red-400 hover:text-red-200 text-xs font-extrabold px-2 py-1 bg-red-900/20 rounded hover:bg-red-900/50 transition-colors">HỦY</button>
+                    </div>
+                </div>
+
             <div class="p-6 flex flex-col items-center justify-center">
                 <div class="mb-4 text-center">
                     <p class="text-gray-400 text-sm uppercase tracking-wider mb-1">TRẠNG THÁI</p>
