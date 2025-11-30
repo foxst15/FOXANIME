@@ -279,18 +279,14 @@
         const getBotAvatar = (botName) => {
             const rand = Math.random();
             
-            // 1. Tỷ lệ dùng Avatar từ URL Hardcoded (60%) - Tăng cường sự "thật"
-            if (rand < 0.6) {
+            // 1. Tỷ lệ dùng Avatar từ URL Hardcoded (70%) - Tăng cường sự "thật"
+            if (rand < 0.7) {
                  return UNIQUE_AVATAR_URLS[Math.floor(Math.random() * UNIQUE_AVATAR_URLS.length)];
             }
 
-            // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (20%)
-            if (rand < 0.8) {
-                const style = Math.random() < 0.5 ? 'lorelei' : 'notionists';
-                return `https://api.dicebear.com/9.x/${style}/png?seed=${encodeURIComponent(botName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffdfbf,ffd5dc`;
-            }
+            // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (%)
 
-            // 3. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (10%) - Rất phổ biến ở web phim
+            // 3. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (20%) - Rất phổ biến ở web phim
             if (rand < 0.9) {
                  return `https://ui-avatars.com/api/?name=${encodeURIComponent(botName)}&background=random&color=fff&size=128`;
             }
