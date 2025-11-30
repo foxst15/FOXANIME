@@ -53,7 +53,7 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false; 
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null; 
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null; 
-        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
+        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 20; const REVIEW_DISPLAY_LIMIT =10 ;
         
         // Thêm danh sách thể loại đầy đủ để dùng cho Mobile Menu
         const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
@@ -176,7 +176,7 @@
                 const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
                 return timeB - timeA;
             });
-            deleteOldestComments(movieId, updatedComments); 
+            //deleteOldestComments(movieId, updatedComments); 
             const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
             const commentsListElement = getEl('#comments-list');
             const commentCountElement = getEl('#comment-count-display');
@@ -530,7 +530,7 @@ const renderPublicReviewItem = (review) => {
                 <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-3">
                     <div class="flex justify-between items-start">
                         <div class="flex items-center space-x-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover bg-gray-200" loading="lazy" onerror="this.src='https://placehold.co/40x40/374151/e2e8f0'">
+                           <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" style="background-color: white;" loading="lazy" onerror="this.src='https://placehold.co/40x40/ffffff/000000?text=${displayName.charAt(0).toUpperCase()}'">
                             <div>
                                 <p class="text-white font-bold text-sm">${displayName}</p>
                                 <div class="flex text-yellow-400 text-xs">
@@ -829,7 +829,7 @@ const CommentTemplate = (comment) => {
     return `
             <div class="flex space-x-3 mb-4">
                 <div class="flex-shrink-0">
-                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar CommentTemplate" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
+    <img class="w-10 h-10 rounded-full object-cover" style="background-color: white;" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/ffffff/000000?text=${displayName.charAt(0).toUpperCase()}';">
                 </div>
                 <div>
                     <div class="bg-gray-700 p-3 rounded-lg">
