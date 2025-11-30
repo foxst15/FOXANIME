@@ -10,8 +10,8 @@
          from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, signOut }
          from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, collection, query, getDocs, serverTimestamp, writeBatch, increment, orderBy, limit }
-         from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, signOut, signInAnonymously }
+ from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // CẤU HÌNH FIREBASE VÀ BIẾN TOÀN CỤC
         const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com","projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
@@ -284,7 +284,7 @@
             // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (20%)
             if (rand < 0.8) {
                 const style = Math.random() < 0.5 ? 'lorelei' : 'notionists';
-                return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(botName)}`;
+                return `https://api.dicebear.com/9.x/${style}/png?seed=${encodeURIComponent(botName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffdfbf,ffd5dc`;
             }
 
             // 3. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (10%) - Rất phổ biến ở web phim
@@ -725,10 +725,10 @@
                 updatedAt: serverTimestamp()
             }, { merge: true });
 
-            batch.update(movieDocRef, {
+            atch.update(movieDocRef, {
                 reviewTotal: increment(rating),
                 reviewCount: increment(1) 
-            }, { merge: true }); 
+            });
             
             batch.commit()
                 .then(() => {
