@@ -53,7 +53,7 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false; 
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null; 
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null; 
-        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
+        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 20; const REVIEW_DISPLAY_LIMIT = 10;
         
         // Thêm danh sách thể loại đầy đủ (Đồng bộ từ index.html)
         const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
@@ -176,7 +176,7 @@
                 const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
                 return timeB - timeA;
             });
-            deleteOldestComments(movieId, updatedComments); 
+            //deleteOldestComments(movieId, updatedComments); 
             const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
             const commentsListElement = getEl('#comments-list');
             const commentCountElement = getEl('#comment-count-display');
