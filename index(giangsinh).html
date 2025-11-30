@@ -1387,11 +1387,13 @@ const renderPage = (pageType, param) => {
         getEl('#profile-update-form')?.addEventListener('submit', handleProfileUpdate);
         return;
     case '#search':
+        if (!param) return;
         title = `Kết quả tìm kiếm cho: "${param}"`;
         const lowerCaseTerm = param.toLowerCase();
         results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
         break;
     case '#genre':
+        if (!param) return;
         const filterSlug = param.toLowerCase(); 
         const filterName = GENRE_TRANSLATIONS[param.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' '); 
         title = `Thể loại: ${filterName}`;
@@ -1406,10 +1408,12 @@ const renderPage = (pageType, param) => {
         });
         break;
     case '#top':
+        if (!param) param = 'thang'
         title = `Top ${param ? param.replace(/-/g, ' ') : 'Anime'} (Sắp xếp theo Lượt xem)`;
         results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
         break;
     case '#season':
+        if (!param) param = 'mua-he-2024';
         title = `Anime ${param ? decodeURIComponent(param).replace(/-/g, ' ') : 'Mùa (Mới nhất)'}`;
         results = cache.filter(m => m.season && m.season.toLowerCase() === param.toLowerCase());
         break;
