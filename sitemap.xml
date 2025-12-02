@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://foxanime.vercel.app/</loc>
+    <lastmod>2025-12-03</lastmod>
+    <priority>1.0</priority>
+
+    <image:image>
+      <image:loc>https://preview.redd.it/created-a-spy-x-family-poster-for-season-3-share-your-v0-og4uhe9en8zd1.png?auto=webp&s=f73b09f6b6e27841afee02a2225c309b0a60fbdf</image:loc>
+      <image:title>Spy x Family Gia Đình Điệp Viên Vietsub Full HD - Xem tại FoxAnime</image:title>
+      <image:caption>Anime Spy x Family hài hước, kịch tính</image:caption>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://cdn.animevietsub.show/data/poster/2025/10/04/animevsub-LNlextWiPy.jpg</image:loc>
+      <image:title>Vong Linh Giả Bị Ruồng Bỏ (The Unwanted Undead Adventurer) - FoxAnime</image:title>
+      <image:caption>Anime hành động phiêu lưu Vong Linh Đau Khổ</image:caption>
+    </image:image>
+
+  </url>
+</urlset>
