@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
-    <meta name="google-site-verification" content="mNWrHLdhjVYE1j-h3-yjId2oQAj4-qTLycktMEqpdlQ" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com"><link rel="dns-prefetch" href="https://unpkg.com"><link rel="dns-prefetch" href="https://www.gstatic.com">
     <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg">
-    <title>FoxAnime - Xem Anime Vietsub Online Miễn Phí Full HD (Mới Nhất 2025)</title>
-    <meta name="description" content="FoxAnime - Web xem Anime Vietsub Online miễn phí, Load siêu nhanh, Không quảng cáo làm phiền. Cập nhật liên tục One Piece, Spy x Family, Vong Linh... Full HD trọn bộ mới nhất 2025.">
-    <meta name="keywords" content="foxanime, anime mùa đông 2025, anime hay 2025, xem anime, anime vietsub, anime mới, anime online, xem anime không quảng cáo, anime full hd, web xem anime mượt, anime vietsub nhanh nhất, hoạt hình nhật bản, web xem anime,">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "FoxAnime",
-      "alternateName": ["Fox Anime", "FoxAnime Vietsub"],
-      "url": "https://foxanime.vercel.app/",
-      "image": "https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logofoxanimenoelimage.jpg"
-    }
-    </script>
+    <title>FOXANIME - Xem Anime Miễn Phí</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         const RELOAD_INTERVAL = 15000;
@@ -66,12 +53,12 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false; 
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null; 
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null; 
-        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 20; const REVIEW_DISPLAY_LIMIT = 10;
+        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
         
-        // Thêm danh sách thể loại đầy đủ (Đồng bộ từ index.html)
+        // Thêm danh sách thể loại đầy đủ để dùng cho Mobile Menu
         const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
 
-        // Thêm bản dịch (Đồng bộ từ index.html)
+
         const GENRE_TRANSLATIONS = {
             "Action": "Hành động", "Adventure": "Phiêu lưu", "Boys Love": "Đam mỹ", "Cartoon": "Hoạt hình", "Comedy": "Hài hước",
             "Dementia": "Điên loạn", "Demons": "Ác quỷ", "Drama": "Kịch tính", "Ecchi": "Ecchi", "Fantasy": "Giả tưởng",
@@ -189,7 +176,7 @@
                 const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
                 return timeB - timeA;
             });
-            //deleteOldestComments(movieId, updatedComments); 
+            deleteOldestComments(movieId, updatedComments); 
             const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
             const commentsListElement = getEl('#comments-list');
             const commentCountElement = getEl('#comment-count-display');
@@ -296,7 +283,6 @@ const handlePlayVideo = (e) => {
     if (videoElement) {
         videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
     } else if (iframeElement) {
-        // FIX: Đổi 'iframecElement' thành 'iframeElement'
         const streamSrc = iframeElement.dataset.streamSrc;
         if (streamSrc && !iframeElement.src) {
            iframeElement.src = streamSrc;
@@ -344,7 +330,7 @@ const fetchUserLikes = async (shouldRerender = false) => {
             snapshot.forEach(doc => { likes[doc.data().movieId] = doc.id; });
             currentUserLikeDocIds = likes;
             const hash = window.location.hash;
-            if (hash.startsWith('#library')) router(false); 
+            if (hash.startsWith('#library')) router(false);
         }, (error) => { console.error("Lỗi khi theo dõi danh sách likes:", error); });
     } catch (e) { console.error("Lỗi khi tải danh sách likes:", e); }
 };
@@ -404,7 +390,7 @@ const handleCommentSubmit = async (e) => {
 
 const [path, slugIdParam] = window.location.hash.substring(1).split('/');
 const movieIdMatch = slugIdParam?.match(/-([a-zA-Z0-9]+)$/);
-const movieId = movieIdMatch ? movieIdMatch[1] : null;
+const movieId = movieIdMatch ? movieIdMatch[1] : null; 
 if (!movieId) return;
 
 const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments'); 
@@ -475,11 +461,11 @@ const handleProfileUpdate = async (e) => {
 
         getEl('#profile-success').textContent = "Cập nhật hồ sơ thành công!";
         getEl('#profile-success').classList.remove('hidden');
-        getEl('#profile-success').classList.add('bg-green-900/50'); // CHRISTMAS THEME COLOR
+        getEl('#profile-success').classList.add('bg-lime-900/50');
 
                 // Force UI update
         updateAuthStateUI(auth.currentUser);
-        setTimeout(() => { getEl('#profile-success').classList.add('hidden'); getEl('#profile-success').classList.remove('bg-green-900/50'); }, 3000);
+        setTimeout(() => { getEl('#profile-success').classList.add('hidden'); getEl('#profile-success').classList.remove('bg-lime-900/50'); }, 3000);
 
     } catch (e) {
         console.error("Lỗi khi cập nhật hồ sơ:", e);
@@ -644,6 +630,7 @@ const renderSubtleRatingHtml = (movie) => {
                 <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
                     <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
                     <span class="text-white text-xs font-bold">${ratingDisplay}</span>
+                    <!-- Bỏ phần hiển thị số lượt đánh giá để gọn hơn -->
                 </div>
    `;
 };
@@ -667,14 +654,14 @@ const setupReviewSection = (movie, userReview) => {
 
     if (userReview) {
         formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-red-600/50">
-                        <h3 class="text-xl font-bold text-green-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
+                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-lime-500/50">
+                        <h3 class="text-xl font-bold text-lime-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
                         <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
                         <form id="review-form" data-movie-id="${movie.id}">
                             ${renderFormStars(userReview.rating)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-600 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
                             <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-red-600 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Cập nhật Đánh giá</button>
+                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Cập nhật Đánh giá</button>
                         </form>
                     </div>
         `;
@@ -685,9 +672,9 @@ const setupReviewSection = (movie, userReview) => {
                         <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ phim này:</p>
                         <form id="review-form" data-movie-id="${movie.id}">
                             ${renderFormStars(0)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-600 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
                             <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-red-600 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Gửi Đánh giá</button>
+                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Đánh giá</button>
                         </form>
                     </div>
         `;
@@ -695,7 +682,7 @@ const setupReviewSection = (movie, userReview) => {
         formContainer.innerHTML = `
                     <div class="p-6 bg-gray-800 rounded-lg shadow-xl text-center">
                         <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá</h3>
-                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-green-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá phim.</p>
+                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-lime-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá phim.</p>
                     </div>
         `;
     }
@@ -726,9 +713,9 @@ const MovieCardTemplate = (movie) => {
     const ratingHtml = renderSubtleRatingHtml(movie); 
 
     return `
-                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2 hover-snow-effect xmas-card-border">
+                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2">
                     <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
-                        <span class="inline-block bg-black/70 text-green-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
+                        <span class="inline-block bg-black/70 text-lime-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
                             ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
                         </span>
                         <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
@@ -739,7 +726,7 @@ const MovieCardTemplate = (movie) => {
                     ${ratingHtml}
                     <div class="absolute inset-0 z-10">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-                            <p class="text-green-400 text-lg font-bold mb-2 text-center">XEM NGAY</p>
+                            <p class="text-lime-400 text-lg font-bold mb-2 text-center">XEM NGAY</p>
                             <div class="flex items-center text-sm text-gray-300">
                                 <ion-icon name="eye-outline" class="mr-1"></ion-icon> ${(movie.viewCount || 0).toLocaleString('vi-VN')}
                                 <ion-icon name="thumbs-up-outline" class="ml-3 mr-1"></ion-icon> ${(movie.likeCount || 0).toLocaleString('vi-VN')}
@@ -748,7 +735,7 @@ const MovieCardTemplate = (movie) => {
                     </div>
                     <img src="${movie.posterUrl}" alt="${movie.title}" loading="lazy" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${movie.title.replace(/\s/g, '+')}'">
                     <div class="p-4">
-                        <h3 class="text-lg font-bold text-white truncate group-hover:text-green-400 transition-colors z-20 relative">${movie.title}</h3>
+                        <h3 class="text-lg font-bold text-white truncate group-hover:text-lime-400 transition-colors z-20 relative">${movie.title}</h3>
                         <p class="text-sm text-gray-400">${genres}</p>
                     </div>
                 </a>
@@ -772,17 +759,17 @@ const HeroSectionTemplate = (movie) => {
     const genres = movie.genre ? movie.genre.split(',').slice(0, 2).map(genre => `<span class="bg-gray-700/80 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
     return `
                 <section class="relative h-[65vh] md:h-[80vh] rounded-xl overflow-hidden mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70"onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
+                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70"  onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
                     <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
 
                     <div class="absolute bottom-0 left-0 p-6 md:p-12 max-w-2xl text-white">
-                        <span class="inline-block bg-red-600 text-gray-900 text-sm font-bold px-3 py-1 rounded-md uppercase mb-4">Mới Cập Nhật</span>
+                        <span class="inline-block bg-lime-500 text-gray-900 text-sm font-bold px-3 py-1 rounded-md uppercase mb-4">Mới Cập Nhật</span>
                         <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight">${movie.title}</h1>
         ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
                         <p class="text-gray-300 text-lg mb-6 line-clamp-3">${movie.summary || 'Không có tóm tắt.'}</p>
                         <div class="flex items-center space-x-4">
-                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3 bg-red-600 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-red-700 transition-colors">
+                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
                                 <ion-icon name="information-circle-outline" class="text-2xl mr-2"></ion-icon>
                                 Xem Thông Tin
                             </a>
@@ -792,9 +779,9 @@ const HeroSectionTemplate = (movie) => {
 
                     <div class="absolute bottom-0 right-0 p-6 md:p-12 z-10 hidden md:block">
                          <div class="flex space-x-2 md:space-x-4 text-sm text-gray-400">
-                             <a href="#" class="hover:text-green-400 border-b-2 border-red-600 text-white pb-1">Tất cả</a>
-                             <a href="#season/mua-he-2024" class="hover:text-green-400">Mùa Hè 2024</a>
-                             <a href="#top/thang" class="hover:text-green-400">Top Tháng</a>
+                             <a href="#" class="hover:text-lime-400 border-b-2 border-lime-400 text-white pb-1">Tất cả</a>
+                             <a href="#season/mua-he-2024" class="hover:text-lime-400">Mùa Hè 2024</a>
+                             <a href="#top/thang" class="hover:text-lime-400">Top Tháng</a>
                          </div>
                     </div>
                 </section>
@@ -812,7 +799,7 @@ const MovieSectionTemplate = (title, movieList, xemThemLink = "#") => {
                         ${movieList.map(MovieCardTemplate).join('')}
                     </div>
                     <div class="text-center mt-8">
-                        <a href="${xemThemLink}" class="bg-gray-700 text-gray-300 font-medium px-6 py-3 rounded-lg hover:bg-red-600 hover:text-white transition-colors">XEM THÊM</a>
+                        <a href="${xemThemLink}" class="bg-gray-700 text-gray-300 font-medium px-6 py-3 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors">XEM THÊM</a>
                     </div>
                 </section>
     `;
@@ -857,7 +844,7 @@ const CommentTemplate = (comment) => {
 
 const renderProfilePage = (user) => {
     const displayName = user.displayName || user.email.split('@')[0];
-    const photoURL = user.photoURL || `https://placehold.co/128x128/dc2626/111827?text=${displayName.charAt(0).toUpperCase()}`;
+    const photoURL = user.photoURL || `https://placehold.co/128x128/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
     const email = user.email || 'Không có';
     const provider = isGoogleAuth(user) ? 'Google' : 'Admin Custom Token';
 
@@ -867,7 +854,7 @@ const renderProfilePage = (user) => {
                         <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
 
                         <div class="flex flex-col items-center mb-8">
-                            <img src="${photoURL}" alt="Avatar" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-red-600" onerror="this.onerror=null;this.src='https://placehold.co/128x128/dc2626/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <img src="${photoURL}" alt="Avatar" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-lime-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                             <p class="text-xl font-bold text-white">${displayName}</p>
                             <p class="text-gray-400 text-sm">${email}</p>
                             <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
@@ -877,13 +864,13 @@ const renderProfilePage = (user) => {
                             <div class="space-y-1">
                                 <label for="profile-name-input" class="block text-sm font-medium text-gray-300">Tên Hiển Thị Mới</label>
                                 <input type="text" id="profile-name-input" value="${displayName}" required minlength="3"
-                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-600">
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
                             </div>
 
-                            <div id="profile-success" class="p-3 rounded-lg text-sm text-green-300 hidden transition-all"></div>
+                            <div id="profile-success" class="p-3 rounded-lg text-sm text-lime-300 hidden transition-all"></div>
                             <p id="profile-error" class="text-red-400 text-sm hidden"></p>
 
-                            <button type="submit" class="w-full bg-red-600 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                            <button type="submit" class="w-full bg-lime-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-lime-600 transition-colors">
                                 Cập Nhật
                             </button>
                         </form>
@@ -941,13 +928,13 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                 </div>
                                 <p class="text-gray-300 text-lg mb-6">${movie.summary || 'Không có tóm tắt.'}</p>
                                 <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-                                    <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-red-700 transition-colors w-full md:w-auto">
+                                    <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors w-full md:w-auto">
                                         <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Xem Phim
                                     </a>
 
                                     <button id="like-button" data-movie-id="${movie.id}" class="
                                         inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors w-full md:w-auto
-                                        ${isLiked ? 'bg-red-700 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
+                                        ${isLiked ? 'bg-lime-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
                                     ">
                                         <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
                                         <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
@@ -974,8 +961,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                 ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid">
                                 ${episodes.map(ep => `
                                         <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
-                                            class="block py-3 px-4 rounded-lg text-center font-medium transition-colors duration-200 
-                                            ${'bg-gray-700 text-white hover:bg-red-600 hover:text-white'}">
+                                            class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors duration-200">
                                             Tập ${ep.episodeNumber}
                                         </a>
                                     `).join('')}
@@ -1013,7 +999,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                             `;
 
                             const nextButton = nextEpisodeLink ? `
-                <a href="${nextEpisodeLink}" class="bg-red-600 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
+                <a href="${nextEpisodeLink}" class="bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-600 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
                     Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
                 </a>
                                 ` : `
@@ -1043,10 +1029,10 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                 </div>
                             </div>
 
-                            <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-red-600">
+                            <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-lime-500">
                                 <h1 class="text-3xl font-extrabold text-white mb-1">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                                <h2 class="text-xl font-bold text-green-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
                                 <p class="text-gray-400 text-sm mt-2">${movie.genre}</p>
                                 <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
                                     <div class="flex flex-wrap items-center justify-start space-x-3">
@@ -1063,13 +1049,13 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                 <h3 class="text-2xl font-bold text-white mb-4">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
                                 ${canComment ? `
                                     <form id="comment-form" class="mb-6">
-                                        <textarea id="comment-input" class="w-full h-20 p-3 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                                        <textarea id="comment-input" class="w-full h-20 p-3 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
                                         <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                                        <button type="submit" class="bg-red-600 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Gửi Bình Luận</button>
+                                        <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Bình Luận</button>
                                     </form>
                                     ` : `
                                     <div class="p-4 bg-gray-700 rounded-lg text-center mb-6">
-                                        <p class="text-gray-300">Bạn cần <a href="#login" class="text-green-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+                                        <p class="text-gray-300">Bạn cần <a href="#login" class="text-lime-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
                                     </div>
                                     `}
 
@@ -1097,7 +1083,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                             <a href="${epLink}" 
                                                 class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
                                                 ${isActive 
-                                                    ? 'bg-red-600 text-white font-bold shadow-md hover:bg-red-700' 
+                                                    ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' 
                                                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
                                                     }">
                                                 Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
@@ -1116,15 +1102,15 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                                 const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
                                                 const episodeCount = movie.episodes ? movie.episodes.length : 0;
                                                 const totalEpisodes = movie.totalEpisodes || '??';
-                                                const statusColor = movie.status === 'sap-chieu' ? 'text-yellow-400' : 'text-green-400'; // CHRISTMAS ACCENT
+                                                const statusColor = movie.status === 'sap-chieu' ? 'text-yellow-400' : 'text-lime-400';
                                                 const statusText = movie.status === 'sap-chieu' ? 'Sắp Chiếu' : `Tập ${episodeCount}/${totalEpisodes}`;
 
 
                                                 return `
-                <a href="${infoUrl}" class="group block bg-gray-700 p-2 rounded-lg flex items-center space-x-2 transition duration-200 hover:bg-red-600/20 border border-gray-600 hover:border-red-600/50">
+                <a href="${infoUrl}" class="group block bg-gray-700 p-2 rounded-lg flex items-center space-x-2 transition duration-200 hover:bg-lime-500/20 border border-gray-600 hover:border-lime-500/50">
                     <img src="${movie.posterUrl}" alt="${movie.title}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
                     <div class="flex-grow overflow-hidden">
-                        <p class="text-white font-semibold text-sm truncate group-hover:text-green-400">${movie.title}</p>
+                        <p class="text-white font-semibold text-sm truncate group-hover:text-lime-400">${movie.title}</p>
                         <p class="text-xs ${statusColor}">${statusText}</p>
                     </div>
                 </a>
@@ -1136,12 +1122,12 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
 
                                                 return `
                 <section class="min-h-[70vh]">
-                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-red-600 pb-3">LỊCH CHIẾU ANIME TRONG TUẦN</h2>
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-lime-500 pb-3">LỊCH CHIẾU ANIME TRONG TUẦN</h2>
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
                                                     ${daysOfWeek.map(day => `
-                            <div class="bg-gray-800 p-3 rounded-xl shadow-xl border border-gray-700 hover:border-red-600/50 transition min-h-[250px] flex flex-col">
-                                <h3 class="text-xl font-extrabold text-green-400 mb-3 text-center border-b border-gray-700 pb-2">${day}</h3>
+                            <div class="bg-gray-800 p-3 rounded-xl shadow-xl border border-gray-700 hover:border-lime-500/50 transition min-h-[250px] flex flex-col">
+                                <h3 class="text-xl font-extrabold text-lime-400 mb-3 text-center border-b border-gray-700 pb-2">${day}</h3>
                                 <div class="flex-grow space-y-2 max-h-[60vh] overflow-y-auto schedule-scroll-area">
                                     ${(moviesByDay[day] && moviesByDay[day].length > 0)
                                         ? moviesByDay[day].map(renderScheduleMovieCard).join('')
@@ -1183,7 +1169,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                         <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
                         <p class="text-lg mb-2">${message}</p>
                                                             ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
-                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-red-600 text-gray-900 font-bold rounded-lg hover:bg-red-700 transition-colors">Về Trang Chủ</button>
+                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
                     </div>
                                                         `;
                                                     }
@@ -1194,7 +1180,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                                     if (appEl) {
                                                         appEl.innerHTML = `
                     <div class="flex justify-center items-center h-[50vh]">
-                        <svg class="animate-spin h-10 w-10 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -1286,7 +1272,7 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                                                 const likeButtonIcon = button?.querySelector('ion-icon');
 
                                                 if(button) {
-                                                    button.classList.toggle('bg-red-700', isLiked);
+                                                    button.classList.toggle('bg-lime-600', isLiked);
                                                     button.classList.toggle('text-white', isLiked);
                                                     button.classList.toggle('font-bold', isLiked);
                                                     button.classList.toggle('bg-gray-700', !isLiked);
@@ -1393,20 +1379,18 @@ const renderPage = (pageType, param) => {
     case '#profile':
         const user = auth?.currentUser;
         if (!user || user.isAnonymous || !isGoogleAuth(user)) {
-            getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Hồ Sơ</h2><p>Bạn cần <a href="#login" class="text-green-400 hover:underline">Đăng Nhập bằng Google</a> để xem hồ sơ cá nhân.</p></div>`; // CHRISTMAS ACCENT
+            getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Hồ Sơ</h2><p>Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập bằng Google</a> để xem hồ sơ cá nhân.</p></div>`;
             return;
         }
         getEl('#app').innerHTML = renderProfilePage(user);
         getEl('#profile-update-form')?.addEventListener('submit', handleProfileUpdate);
         return;
     case '#search':
-        if (!param) return;
         title = `Kết quả tìm kiếm cho: "${param}"`;
         const lowerCaseTerm = param.toLowerCase();
         results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
         break;
     case '#genre':
-        if (!param) return;
         const filterSlug = param.toLowerCase(); 
         const filterName = GENRE_TRANSLATIONS[param.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' '); 
         title = `Thể loại: ${filterName}`;
@@ -1421,18 +1405,16 @@ const renderPage = (pageType, param) => {
         });
         break;
     case '#top':
-        if (!param) param = 'thang'
         title = `Top ${param ? param.replace(/-/g, ' ') : 'Anime'} (Sắp xếp theo Lượt xem)`;
         results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
         break;
     case '#season':
-        if (!param) param = 'mua-he-2024';
         title = `Anime ${param ? decodeURIComponent(param).replace(/-/g, ' ') : 'Mùa (Mới nhất)'}`;
         results = cache.filter(m => m.season && m.season.toLowerCase() === param.toLowerCase());
         break;
     case '#library':
         if (!auth?.currentUser || auth.currentUser.isAnonymous) {
-            getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-green-400 hover:underline">Đăng Nhập bằng Google</a> để xem thư viện cá nhân.</p></div>`; // CHRISTMAS ACCENT
+            getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-lime-400 hover:underline">Đăng Nhập bằng Google</a> để xem thư viện cá nhân.</p></div>`;
             return;
         }
         title = "Thư Viện (Phim đã thích)";
@@ -1603,26 +1585,26 @@ const updateAuthStateUI = (user) => {
     if (!authButtonDesktop || !authButtonMobile) return;
 
     if (!user || user.isAnonymous) {
-        authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
-        authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+        authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+        authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
         return;
     }
 
     if (isGoogleAuth(user)) {
         const displayName = user.displayName || user.email.split('@')[0];
-        const photoURL = user.photoURL || `https://placehold.co/32x32/dc2626/111827?text=${displayName.charAt(0).toUpperCase()}`; // CHRISTMAS ACCENT
+        const photoURL = user.photoURL || `https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
 
         authButtonDesktop.innerHTML = `
                     <div class="user-profile-dropdown">
-                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-red-600 transition-shadow">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/dc2626/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-lime-500 transition-shadow">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                         </button>
                         <div id="user-dropdown-menu" class="user-dropdown-content">
                             <div class="p-4 border-b border-gray-600">
                                 <p class="text-white font-bold">${displayName}</p>
                                 <p class="text-gray-400 text-sm truncate">${user.email}</p>
                             </div>
-                            <a href="#profile" id="profile-link-desktop" class="w-full text-left flex items-center px-4 py-2 text-green-400 hover:bg-gray-700 hover:text-green-300 transition-colors">
+                            <a href="#profile" id="profile-link-desktop" class="w-full text-left flex items-center px-4 py-2 text-lime-400 hover:bg-gray-700 hover:text-lime-300 transition-colors">
                                 <ion-icon name="person-circle-outline" class="text-xl mr-2"></ion-icon>
                                 Hồ Sơ
                             </a>
@@ -1636,13 +1618,13 @@ const updateAuthStateUI = (user) => {
 
         authButtonMobile.innerHTML = `
                         <div class="flex items-center mb-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/dc2626/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-green-400">${displayName}</span></p>
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-lime-400">${displayName}</span></p>
                         </div>
-                        <a href="#profile" class="block w-full text-center text-gray-900 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors mb-3">
+                        <a href="#profile" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors mb-3">
                             Hồ Sơ
                         </a>
-            <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`; // CHRISTMAS ACCENT
+            <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
 
             getEl('#profile-avatar-btn')?.addEventListener('click', function() {getEl('#user-dropdown-menu')?.classList.toggle('active');});
             getEl('#logout-button-desktop')?.addEventListener('click', handleLogout);
@@ -1655,133 +1637,7 @@ const updateAuthStateUI = (user) => {
     window.addEventListener('hashchange', router);
 
     document.addEventListener('DOMContentLoaded', async () => {
-        // --- ADVANCED CANVAS SNOWFALL IMPLEMENTATION (Christmas Theme) ---
-        (function() {
-            const canvas = document.getElementById('snowCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let width = window.innerWidth;
-            let height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-
-            const snowflakes = [];
-            const numberOfSnowflakes = 180; 
-            const pileHeight = height * 0.05; 
-            let wind = 0;
-
-            function createSnowflake() {
-                return {
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    radius: Math.random() * 2 + 1,
-                    speed: Math.random() * 0.8 + 0.3
-                };
-            }
-
-            for (let i = 0; i < numberOfSnowflakes; i++) { 
-                snowflakes.push(createSnowflake());
-            }
-
-            const snowMounds = [];
-            const numMounds = Math.floor(width / 80);
-            for (let i = 0; i < numMounds; i++) {
-                snowMounds.push({
-                    x: i * (width / numMounds) + Math.random() * 50 - 25,
-                    y: height - pileHeight,
-                    width: Math.random() * 100 + 150,
-                    height: Math.random() * 15 + 10,
-                    baseHeight: pileHeight + Math.random() * 20
-                });
-            }
-
-
-            function drawSnow() {
-                ctx.clearRect(0, 0, width, height);
-
-                    // --- 1. Vẽ lớp tuyết đọng tĩnh ---
-                ctx.fillStyle = "white";
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "rgba(255, 255, 255, 0.7)"; 
-
-                    // a. Vẽ lớp nền mờ (Gradient)
-                const gradient = ctx.createLinearGradient(0, height - pileHeight * 2, 0, height);
-                gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
-                gradient.addColorStop(0.3, "rgba(255, 255, 255, 0.2)");
-                gradient.addColorStop(1, "rgba(255, 255, 255, 1)");
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, height - pileHeight * 2, width, pileHeight * 2);
-
-                    // b. Vẽ các đốm tuyết gợn sóng (Mounds)
-                ctx.fillStyle = "white"; 
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = "white";
-
-                snowMounds.forEach(mound => {
-                    mound.x += Math.sin(Date.now() / 5000 + mound.width / 100) * 0.2;
-
-                    ctx.beginPath();
-                    ctx.ellipse(
-                        mound.x, 
-                        height - mound.baseHeight - Math.sin(Date.now() / 1500) * 5, 
-                        mound.width * 0.8, 
-                        mound.height * 1.5, 
-                        0, 0, Math.PI * 2
-                        );
-                    ctx.fill();
-                });
-
-                ctx.shadowBlur = 0;
-
-                    // --- 2. Vẽ và cập nhật bông tuyết rơi ---
-                ctx.fillStyle = "white";
-                wind = Math.sin(Date.now() / 1500) * 0.5;
-
-                for (let i = 0; i < snowflakes.length; i++) {
-                    let flake = snowflakes[i];
-
-                    ctx.beginPath();
-                    ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-
-                    ctx.shadowBlur = flake.radius * 2;
-                    ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-
-                    flake.x += wind + Math.sin(flake.y / 80 + i) * 0.1;
-                    flake.y += flake.speed;
-
-                    if (flake.y > height - pileHeight / 2 || flake.x < -10 || flake.x > width + 10) {
-                        flake.x = Math.random() * width;
-                        flake.y = -10;
-                    }
-                }
-
-                requestAnimationFrame(drawSnow);
-            }
-
-            window.addEventListener('resize', () => {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            });
-
-            drawSnow();
-        })();
-
-        // End of Canvas Snowfall
-
         await setupFirebase();
-        const mobileGenreContainer = getEl('#genre-mobile-list');
-        if (mobileGenreContainer) {
-            mobileGenreContainer.innerHTML = ALL_GENRES.map(g => {
-                const linkData = renderGenreLinkWithSub(g);
-                const accentClass = linkData.isPopular ? 'text-green-400' : 'text-gray-400';
-                return `<a href="#genre/${linkData.slug}" class="genre-item block ${accentClass} hover:text-white px-2 py-1 rounded-md text-sm">${linkData.text}</a>`;
-            }).join('');
-        }
-
         getEl('#resume-modal-yes')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(true); });
         getEl('#resume-modal-no')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(false); });
         getEl('#mobile-menu-button')?.addEventListener('click', () => getEl('#mobile-menu')?.classList.toggle('hidden'));
@@ -1827,13 +1683,11 @@ const updateAuthStateUI = (user) => {
 </script>
 
 <style>
-    /* --- CHRISTMAS SCROLLBAR --- */
     ::-webkit-scrollbar {width: 12px;background-color: #1a202c;}
-    ::-webkit-scrollbar-thumb {background-color: #dc2626;border-radius: 6px;border: 3px solid #1a202c;} /* Red accent */
-    ::-webkit-scrollbar-thumb:hover {background-color: #b91c1c;}
-    .comments-scroll-area, .schedule-scroll-area, .review-scroll-area {scrollbar-width: thin;scrollbar-color: #dc2626 #1a202c;} /* For Firefox */
-
-    body {font-family: 'Inter', sans-serif;background-color: #111827; overflow-x: hidden;}
+    ::-webkit-scrollbar-thumb {background-color: #a3e635;border-radius: 6px;border: 3px solid #1a202c;}
+    ::-webkit-scrollbar-thumb:hover {background-color: #84cc16;}
+    .comments-scroll-area, .schedule-scroll-area, .review-scroll-area {scrollbar-width: thin;scrollbar-color: #a3e635 #1a202c;}
+    body {font-family: 'Inter', sans-serif;background-color: #111827;}
     #app {transition: opacity 0.3s ease-in-out;}
     .dropdown { position: relative; }
     .dropdown-content {display: none;position: absolute;top: 100%;left: 0;background-color: #374151;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);z-index: 10;border-radius: 0 0 0.5rem 0.5rem;}
@@ -1844,13 +1698,9 @@ const updateAuthStateUI = (user) => {
     .dropdown-content a {color: #d1d5db;padding: 0.5rem 0;display: block;white-space: nowrap;}
     .dropdown-content.mega-menu-1-col {min-width: 250px;grid-template-columns: repeat(1, 1fr);padding: 1rem;gap: 0;}
     .dropdown-content.mega-menu-1-col a:hover { background-color: #4b5563; }
-
-    /* --- CHRISTMAS ACCENT --- */
-    .nav-link.nav-active {color: #10b981;position: relative;} /* Green Text Accent */
-    .nav-link.nav-active::after {content: '';position: absolute;bottom: -2px;left: 0;width: 100%;height: 4px;background-color: #dc2626;border-radius: 2px;} /* Red Underline */
-
-    .mobile-nav-link.mobile-nav-active {background-color: #374151;color: #10b981;font-weight: 700;} /* Green Mobile Accent */
-    
+    .nav-link.nav-active {color: #a3e635;position: relative;}
+    .nav-link.nav-active::after {content: '';position: absolute;bottom: -2px;left: 0;width: 100%;height: 4px;background-color: #a3e635;border-radius: 2px;}
+    .mobile-nav-link.mobile-nav-active {background-color: #374151;color: #a3e635;font-weight: 700;}
     .dropdown-icon { transition: transform 0.2s ease-in-out; }
     #like-button:disabled { opacity: 0.5; cursor: not-allowed; }
     .line-clamp-3 {overflow: hidden;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 3;}
@@ -1865,16 +1715,17 @@ const updateAuthStateUI = (user) => {
     .overlay-style {transition: opacity 0.5s ease-in-out;cursor: pointer;}
     .overlay-style.fade-out {opacity: 0;pointer-events: none;}
     #video-player-container > * {width: 100%;height: 100%;}
-
-    /* --- CHRISTMAS PLAY BUTTON PULSE (RED) --- */
-    .play-button-overlay {background-color: rgba(239, 68, 68, 0.6);border: none;transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;animation: pulse-button-new 3s infinite;}
-    .play-button-overlay:hover {background-color: rgba(239, 68, 68, 1);animation: none;transform: scale(1.05);}
-    @keyframes pulse-button-new {0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }}
-
+    .play-button-overlay {background-color: rgba(163, 230, 53, 0.5);border: none;transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;animation: pulse-button-new 3s infinite;}
+    .play-button-overlay:hover {background-color: rgba(163, 230, 53, 1);animation: none;transform: scale(1.05);}
+    @keyframes pulse-button-new {0% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }50% { box-shadow: 0 0 0 10px rgba(163, 230, 53, 0); }100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }}
     #mobile-menu {position: fixed;top: 80px;left: 0;right: 0;bottom: 0;background-color: #1f2937;overflow-y: auto;padding: 1rem;z-index: 40;}
     .mobile-dropdown-content {display: grid;grid-template-columns: repeat(2, 1fr);gap: 0.5rem;padding: 0.5rem 0;}
     @media (min-width: 640px) {.mobile-dropdown-content {grid-template-columns: repeat(3, 1fr);}}
     .mobile-dropdown-content a {background-color: #374151;border-radius: 0.375rem;font-weight: 400;padding: 0.5rem 0.75rem;}
+    #genre-mobile-list { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 40vh; overflow-y: auto; padding-right: 0.5rem; }
+    @media (min-width: 640px) {#genre-mobile-list { grid-template-columns: repeat(3, 1fr);}}
+    .mobile-dropdown-content a.genre-item { background-color: #1f2937; border: 1px solid #374151; }
+    .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
     #cdn-failure-overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: #111827;color: #f3f4f6;display: none;flex-direction: column;align-items: center;justify-content: center;text-align: center;z-index: 10000;padding: 20px;font-family: 'Inter', sans-serif, Arial;margin: 0;}
     .error-container {width: 100%;max-width: 750px;margin: 0 auto;padding: 20px;box-sizing: border-box;background: #1f2937;border-radius: 12px;box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);}
     .error-content-grid {display: grid;grid-template-columns: 1fr;gap: 20px;padding-bottom: 20px;}
@@ -1883,281 +1734,155 @@ const updateAuthStateUI = (user) => {
     .error-header h1 {color: #f59e0b;font-size: 1.8rem;font-weight: 800;margin: 0;}
     .error-header p {font-size: 1rem;color: #9ca3af;margin-top: 5px;}
     .error-card {background: #374151;padding: 15px;border-radius: 8px;margin-bottom: 15px;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);text-align: left;}
-    .error-card h3 {color: #10b981;font-size: 1.1rem;font-weight: 600;margin-top: 0;margin-bottom: 10px;border-bottom: 2px solid #10b981;padding-bottom: 5px;} /* Green Header */
+    .error-card h3 {color: #a3e635;font-size: 1.1rem;font-weight: 600;margin-top: 0;margin-bottom: 10px;border-bottom: 2px solid #a3e635;padding-bottom: 5px;}
     .error-card ul {list-style: none;padding: 0;margin: 0;}
     .error-card ul li {font-size: 0.95rem;color: #d1d5db;margin-bottom: 5px;position: relative;padding-left: 15px;}
     .error-card ul li::before {content: "•";color: #f59e0b;font-weight: bold;display: inline-block;width: 1em;margin-left: -1em;}
     .action-card {text-align: center;padding-top: 5px;grid-column: 1 / -1;}
-    .action-link {display: inline-block;background-color: #dc2626;color: #111827;padding: 10px 20px;border-radius: 8px;text-decoration: none;font-weight: bold;transition: background-color 0.3s ease;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);font-size: 1rem;} /* Red Action Link */
-    .action-link:hover {background-color: #b91c1c;}
+    .action-link {display: inline-block;background-color: #a3e635;color: #111827;padding: 10px 20px;border-radius: 8px;text-decoration: none;font-weight: bold;transition: background-color 0.3s ease;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);font-size: 1rem;}
+    .action-link:hover {background-color: #84cc16;}
     .right-column {display: flex;flex-direction: column;align-items: center;justify-content: flex-start;gap: 15px;padding: 10px;background: #1f2937;border-radius: 8px;border: 1px dashed #374151;}
     @media (max-width: 599px) {.right-column {display: none;}}
-    .komiko-logo {width: 100px;height: 100px;border-radius: 50%;margin: 0 auto;border: 3px solid #dc2626;} /* Red Border */
+    .komiko-logo {width: 100px;height: 100px;border-radius: 50%;margin: 0 auto;border: 3px solid #a3e635;}
     .apology-text {color: #f59e0b;font-size: 1.1rem;font-weight: 600;margin-top: 20px;grid-column: 1 / -1;}
     .contact-info {display: flex;align-items: center;justify-content: center;margin-top: 15px;}
-    .contact-info a {color: #10b981;text-decoration: none;font-size: 0.95rem;display: flex;align-items: center;transition: color 0.3s;}
-    .contact-info a:hover {color: #059669;text-decoration: underline;}
+    .contact-info a {color: #a3e635;text-decoration: none;font-size: 0.95rem;display: flex;align-items: center;transition: color 0.3s;}
+    .contact-info a:hover {color: #84cc16;text-decoration: underline;}
     #rating-input-area .rating-star-icon {transition: color 0.2s;cursor: pointer;}
-
-    /* --- CANVAS SNOWFALL CSS --- */
-    #snow-canvas-container {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        z-index: 9999;
-        pointer-events: none;
-    }
-    #snowCanvas {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-    
-    /* --- CHRISTMAS HEADER EFFECTS --- */
-    .xmas-logo-text {
-        text-shadow: 2px 2px #10b981, 
-        -2px -2px #facc15, 
-        0 0 10px rgba(255, 255, 255, 0.7);
-    }
-    .xmas-greeting {
-        color: #facc15;
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-left: 1rem;
-        animation: glow 1.5s infinite alternate;
-        text-shadow: 0 0 5px #facc15, 0 0 10px #facc15;
-        display: flex;
-        align-items: center;
-    }
-    @keyframes glow {
-        from { opacity: 1; }
-        to { opacity: 0.8; }
-    }
-    .christmas-tree {
-        margin-right: 0.5rem;
-        font-size: 1.5rem;
-        color: #10b981; 
-        animation: blink 1s infinite alternate;
-    }
-    @keyframes blink {
-        0% { opacity: 0.7; transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-        100% { opacity: 1; transform: scale(1.1); text-shadow: 0 0 10px rgba(250, 204, 21, 0.9); }
-    }
-
-    /* --- CHRISTMAS CARD HOVER EFFECT --- */
-    .hover-snow-effect {
-        position: relative;
-        z-index: 1;
-    }
-    .hover-snow-effect:hover::before {
-        content: '❅ ❆ ❅ ❄ ☃ ❅ ❆ ❄';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.7) 50%, rgba(255,255,255,0));
-        color: #111827;
-        font-size: 30px;
-        text-align: center;
-        padding-top: 10px;
-        opacity: 1;
-        transition: all 0.3s ease-in-out;
-        pointer-events: none;
-        overflow: hidden;
-        border-radius: 0.5rem 0.5rem 0 0;
-        text-shadow: 1px 1px 2px #333;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    /* --- CARD BORDER BLINKING LIGHTS --- */
-    .xmas-card-border {
-        box-shadow: 0 0 0 2px #1f2937;
-        transition: box-shadow 0.5s ease-in-out;
-    }
-    .xmas-card-border:hover {
-        animation: light-blink 1s infinite alternate;
-    }
-    @keyframes light-blink {
-        0% { 
-            box-shadow: 0 0 0 2px #dc2626, 0 0 10px rgba(220, 38, 38, 0.7); /* Red glow */
-        }
-        50% {
-            box-shadow: 0 0 0 2px #10b981, 0 0 10px rgba(16, 185, 129, 0.7); /* Green glow */
-        }
-        100% {
-            box-shadow: 0 0 0 2px #dc2626, 0 0 10px rgba(220, 38, 38, 0.7); /* Red glow */
-        }
-    }
-
-    #foxanime_bottom_left {  position: fixed; z-index: 50; } 
-    #foxanime_bottom_left { bottom: 60px; left: -30px; }
-
-    #genre-mobile-list { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 40vh; overflow-y: auto; padding-right: 0.5rem; }
-    @media (min-width: 640px) {#genre-mobile-list { grid-template-columns: repeat(3, 1fr);}}
-    .mobile-dropdown-content a.genre-item { background-color: #1f2937; border: 1px solid #374151; }
-    .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
-
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
 
 
-    <div id="xmas-popup" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500" onclick="if(event.target === this) closeXmasPopup()">
-    
-    <div id="xmas-popup-content" class="relative bg-gray-900 w-full max-w-md mx-4 rounded-3xl border-2 border-red-600/50 shadow-[0_0_40px_rgba(220,38,38,0.3)] transform scale-90 transition-all duration-500 overflow-hidden">
-        
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-b from-red-600/20 to-transparent opacity-50 blur-3xl pointer-events-none"></div>
-        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/snow.png'); pointer-events: none;"></div>
+    <div id="xmas-announcement" class="relative bg-gradient-to-r from-red-900 via-green-900 to-red-900 border-b-2 border-yellow-500 text-white z-[100] overflow-hidden shadow-lg transition-all duration-500 ease-in-out">
 
-        <button onclick="closeXmasPopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors z-20 group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
+        <div class="absolute inset-0 opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/snow.png'); pointer-events: none;"></div>
 
-        <div class="relative z-10 p-8 text-center">
-            
-            <div class="mb-6 animate-pulse drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]">
-                <img src="https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logofoxanimenoelimage.jpg" 
-                     alt="FoxAnime Logo" 
-                     class="h-16 mx-auto object-contain filter brightness-110 contrast-125"
-                     onerror="this.src='https://placehold.co/200x80/FF0000/FFFFFF?text=FOXANIME+LOGO'">
-            </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-300 to-green-500 mb-3 uppercase tracking-wider">
-                Giáng Sinh Vui Vẻ!
-            </h2>
-            <p class="text-gray-300 text-sm mb-6 leading-relaxed">
-                Chào mừng bạn đến với giao diện lễ hội đặc biệt của FOXANIME. <br>
-                Chúc bạn có những giây phút xem phim thật ấm áp! ❄️
-            </p>
+        <div class="container mx-auto px-4 py-2 relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
 
-            <div class="bg-black/50 rounded-2xl p-4 border border-green-500/20 mb-6 backdrop-blur-md">
-                <p class="text-[9px] text-green-400 uppercase font-bold mb-3 tracking-[0.2em] text-center">Sự kiện kết thúc sau</p>
-                <div class="flex justify-center items-center gap-2 sm:gap-4 text-white">
-                    <div class="flex flex-col items-center w-12 sm:w-14">
-                        <span id="pop-days" class="text-xl sm:text-2xl font-bold text-yellow-400 font-mono tabular-nums">00</span>
-                        <span class="text-[8px] text-gray-500 font-medium mt-1">NGÀY</span>
-                    </div>
-                    <span class="text-gray-600 font-bold text-lg sm:text-xl mb-4">:</span>
-                    <div class="flex flex-col items-center w-12 sm:w-14">
-                        <span id="pop-hours" class="text-xl sm:text-2xl font-bold font-mono tabular-nums">00</span>
-                        <span class="text-[8px] text-gray-500 font-medium mt-1">GIỜ</span>
-                    </div>
-                    <span class="text-gray-600 font-bold text-lg sm:text-xl mb-4">:</span>
-                    <div class="flex flex-col items-center w-12 sm:w-14">
-                        <span id="pop-minutes" class="text-xl sm:text-2xl font-bold font-mono tabular-nums">00</span>
-                        <span class="text-[8px] text-gray-500 font-medium mt-1">PHÚT</span>
-                    </div>
-                    <span class="text-gray-600 font-bold text-lg sm:text-xl mb-4">:</span>
-                    <div class="flex flex-col items-center w-12 sm:w-14">
-                        <span id="pop-seconds" class="text-xl sm:text-2xl font-bold text-red-500 font-mono tabular-nums">00</span>
-                        <span class="text-[8px] text-gray-500 font-medium mt-1">GIÂY</span>
-                    </div>
+            <div class="flex items-center space-x-3 animate-pulse flex-shrink-0">
+                <span class="text-2xl filter drop-shadow-md">🎄</span>
+                <div class="text-center md:text-left">
+                    <p class="font-bold text-sm sm:text-base text-yellow-400 uppercase tracking-wider">Sắp Cập Nhật</p>
+                    <p class="text-xs sm:text-sm text-gray-200">Giao diện Giáng Sinh lung linh sắp ra mắt!</p>
                 </div>
             </div>
 
-            <button onclick="closeXmasPopup()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold text-sm sm:text-base shadow-lg shadow-red-900/30 transform transition hover:scale-[1.02] active:scale-95">
-                🎁 NHẬN QUÀ & XEM PHIM NGAY
+            <div id="xmas-timer" class="flex items-center space-x-2 sm:space-x-4 bg-black/40 px-6 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-inner">
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="days" class="text-xl font-extrabold text-green-400 leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Ngày</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="hours" class="text-xl font-extrabold text-white leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Giờ</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="minutes" class="text-xl font-extrabold text-white leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Phút</span>
+                </div>
+                <span class="text-gray-500 font-bold -mt-3">:</span>
+                <div class="flex flex-col items-center min-w-[30px]">
+                    <span id="seconds" class="text-xl font-extrabold text-red-400 leading-none" style="font-variant-numeric: tabular-nums;">00</span>
+                    <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-medium">Giây</span>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('xmas-announcement').style.marginTop = '-150px'; setTimeout(()=>document.getElementById('xmas-announcement').remove(), 500);" 
+                class="absolute top-2 right-2 md:relative md:top-0 md:right-0 text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-1 transition-colors focus:outline-none" title="Đóng thông báo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
             </button>
         </div>
     </div>
-</div>
 
-<script>
-    // 1. Hàm hiện Popup (Tự động sau 0.8s)
-    window.addEventListener('load', () => {
-        if (!sessionStorage.getItem('hideXmasPopup')) {
-            setTimeout(() => {
-                const popup = document.getElementById('xmas-popup');
-                const content = document.getElementById('xmas-popup-content');
-                if (popup && content) {
-                    popup.classList.remove('opacity-0', 'pointer-events-none');
-                    content.classList.remove('scale-90');
-                    content.classList.add('scale-100');
+    <script>
+    // --- CẤU HÌNH THỜI GIAN ĐẾM NGƯỢC ---
+    // Mục tiêu: 00:00:00 ngày 01/12/2025 (Thời điểm Update giao diện)
+    // Lưu ý: Tháng 12 trong JS là số 11
+        const targetDate = new Date(2025, 11, 1, 0, 0, 0).getTime();
+
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+        // Tính toán thời gian còn lại
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Cập nhật DOM (nếu phần tử tồn tại)
+            const elD = document.getElementById("days");
+            const elH = document.getElementById("hours");
+            const elM = document.getElementById("minutes");
+            const elS = document.getElementById("seconds");
+
+            if (elD) elD.innerText = d < 10 ? "0" + d : d;
+            if (elH) elH.innerText = h < 10 ? "0" + h : h;
+            if (elM) elM.innerText = m < 10 ? "0" + m : m;
+            if (elS) elS.innerText = s < 10 ? "0" + s : s;
+
+        // KHI ĐẾM NGƯỢC KẾT THÚC (Qua ngày 1/12)
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                const timerBox = document.getElementById("xmas-timer");
+                if (timerBox) {
+                // Đổi nội dung bộ đếm thành thông báo đã update
+                    timerBox.className = "bg-green-600/80 px-4 py-2 rounded-full border border-green-400 shadow-lg animate-bounce";
+                    timerBox.innerHTML = `
+                    <span class="font-bold text-white text-sm sm:text-base flex items-center">
+                        <span class="mr-2">🎉</span> UPDATE IS LIVE!
+                    </span>
+                    `;
                 }
-            }, 800);
-        }
-    });
+            }
+        }, 1000);
+    </script>
 
-    // 2. Hàm đóng Popup
-    window.closeXmasPopup = function() {
-        const popup = document.getElementById('xmas-popup');
-        const content = document.getElementById('xmas-popup-content');
-        if (popup && content) {
-            popup.classList.add('opacity-0', 'pointer-events-none');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-90');
-            sessionStorage.setItem('hideXmasPopup', 'true');
-        }
-    };
-
-    // 3. Logic Đếm ngược (Đến 01/01/2026)
-    const popupEndDate = new Date(2026, 0, 1, 0, 0, 0).getTime();
-    const popupInterval = setInterval(function() {
-        const now = new Date().getTime();
-        const distance = popupEndDate - now;
-        // (Phần tính toán ngày giờ giữ nguyên như cũ...)
-        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-
-        const elD = document.getElementById("pop-days"); if(elD) elD.innerText = d<10?"0"+d:d;
-        const elH = document.getElementById("pop-hours"); if(elH) elH.innerText = h<10?"0"+h:h;
-        const elM = document.getElementById("pop-minutes"); if(elM) elM.innerText = m<10?"0"+m:m;
-        const elS = document.getElementById("pop-seconds"); if(elS) elS.innerText = s<10?"0"+s:s;
-
-        if (distance < 0) { clearInterval(popupInterval); closeXmasPopup(); }
-    }, 1000);
-</script>
-
-<!-- NEW CANVAS FOR ADVANCED SNOW EFFECT WITH THICK ACCUMULATION -->
-<div id="snow-canvas-container" class="fixed inset-0 z-[9999] pointer-events-none"> 
-    <canvas id="snowCanvas"></canvas>
-</div>
-
-<div id="cdn-failure-overlay">
-    <div class="error-container">
-        <div class="error-header">
-            <h1>Lỗi Hệ Thống FOXANIME 5xx!</h1>
-            <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
-        </div>
-        <div class="error-content-grid">
-            <div class="left-column">
-                <div class="error-card">
-                    <h3>Chi tiết Sự cố</h3>
-                    <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">**CDN/Network Failure**</p>
-                    <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Trang web không thể tải được các tài nguyên bên ngoài (CSS, fonts, icons) cần thiết để hiển thị giao diện chính.</p>
+    <div id="cdn-failure-overlay">
+        <div class="error-container">
+            <div class="error-header">
+                <h1>Lỗi Hệ Thống FOXANIME 5xx!</h1>
+                <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
+            </div>
+            <div class="error-content-grid">
+                <div class="left-column">
+                    <div class="error-card">
+                        <h3>Chi tiết Sự cố</h3>
+                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">**CDN/Network Failure**</p>
+                        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Trang web không thể tải được các tài nguyên bên ngoài (CSS, fonts, icons) cần thiết để hiển thị giao diện chính.</p>
+                    </div>
+                    <div class="error-card" style="margin-bottom: 0;">
+                        <h3>Nguyên nhân có thể</h3>
+                        <ul>
+                            <li>Lỗi mạng của Quý khách</li>
+                            <li>Sự cố nhà cung cấp dịch vụ (ví dụ: Cloudflare CDN)</li>
+                            <li>Lỗi kết nối từ máy chủ FOXANIME</li>
+                            <li>Vấn đề bảo trì không báo trước</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="error-card" style="margin-bottom: 0;">
-                    <h3>Nguyên nhân có thể</h3>
-                    <ul>
-                        <li>Lỗi mạng của Quý khách</li>
-                        <li>Sự cố nhà cung cấp dịch vụ (ví dụ: Cloudflare CDN)</li>
-                        <li>Lỗi kết nối từ máy chủ FOXANIME</li>
-                        <li>Vấn đề bảo trì không báo trước</li>
-                    </ul>
+                <div class="right-column">
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452bnsfd/KomikoAI.jpg" alt="KomikoAI Logo" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/d1d5db?text=KOMIKO'">
+                    <div class="error-card" style="margin-bottom: 0; width: 100%; text-align: center;">
+                        <h3>Khôi phục Tự động</h3>
+                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">Hệ thống sẽ thử lại tự động sau 15 giây.</p>
+                        <a href="javascript:location.reload()" class="action-link" style="font-size: 0.9rem; padding: 8px 15px;">Tải lại trang ngay</a>
+                    </div>
+                    <div class="contact-info" style="margin-top: 0;">
+                       <a href="mailto:haistrem6792@gmail.com">
+                        <ion-icon name="mail-outline" style="font-size: 1.2rem; margin-right: 5px;"></ion-icon>
+                        Liên hệ ngay
+                    </a>
                 </div>
             </div>
-            <div class="right-column">
-                <img src="https://uploads.onecompiler.io/43u4wb3ft/4452bnsfd/KomikoAI.jpg" alt="KomikoAI Logo" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/d1d5db?text=KOMIKO'">
-                <div class="error-card" style="margin-bottom: 0; width: 100%; text-align: center;">
-                    <h3>Khôi phục Tự động</h3>
-                    <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">Hệ thống sẽ thử lại tự động sau 15 giây.</p>
-                    <a href="javascript:location.reload()" class="action-link" style="font-size: 0.9rem; padding: 8px 15px;">Tải lại trang ngay</a>
-                </div>
-                <div class="contact-info" style="margin-top: 0;">
-                   <a href="mailto:haistrem6792@gmail.com">
-                    <ion-icon name="mail-outline" style="font-size: 1.2rem; margin-right: 5px;"></ion-icon>
-                    Liên hệ ngay
-                </a>
-            </div>
         </div>
+        <p class="apology-text">Thành thật xin lỗi vì sự bất tiện này!</p>
     </div>
-    <p class="apology-text">Thành thật xin lỗi vì sự bất tiện này!</p>
-</div>
 </div>
 
 <div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
@@ -2204,7 +1929,7 @@ const updateAuthStateUI = (user) => {
     </p>
 
     <button onclick="closeWarningModal()" 
-    class="bg-red-600 hover:bg-red-700 text-gray-900 font-bold py-3 px-6 rounded-lg transition-colors text-lg shadow-xl cursor-pointer">
+    class="bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-3 px-6 rounded-lg transition-colors text-lg shadow-xl cursor-pointer">
     TÔI ĐÃ HIỂU (Đóng)
 </button>
 </div>
@@ -2228,11 +1953,11 @@ const updateAuthStateUI = (user) => {
 
 
 <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
-    <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-red-600">
-        <h3 class="text-xl font-bold text-red-600 mb-4">Xem Tiếp Phim</h3>
+    <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
+        <h3 class="text-xl font-bold text-lime-400 mb-4">Xem Tiếp Phim</h3>
         <p id="resume-modal-text" class="text-gray-300 mb-6"></p>
         <div class="flex justify-center space-x-4">
-            <button id="resume-modal-yes" class="bg-red-600 hover:bg-red-700 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors">Xem tiếp</button>
+            <button id="resume-modal-yes" class="bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors">Xem tiếp</button>
             <button id="resume-modal-no" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Xem từ đầu</button>
         </div>
     </div>
@@ -2243,32 +1968,27 @@ const updateAuthStateUI = (user) => {
         <div class="flex justify-between items-center h-20">
             <div class="flex items-center h-full space-x-8">
                 <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
-                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logofoxanimenoelimage.jpg" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
-                    <div class="flex items-center">
-                        <span class="text-4xl font-extrabold text-white xmas-logo-text">FOX</span>
-                        <span class="text-4xl font-extrabold text-red-600 xmas-logo-text">ANIME</span>
-                        <span class="christmas-tree ml-3">🎄</span> <!-- Cây thông nhấp nháy -->
-                        <span class="xmas-greeting hidden md:block">🎅🏻MERRY CHRISTMAS🎅🏻</span> <!-- Chữ chúc mừng -->
-                    </div>
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
+                    <span class="text-4xl font-extrabold text-white">FOX<span class="text-lime-500">ANIME</span></span>
                 </a>
             </div>
 
             <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
                 <form id="search-form-desktop" class="relative flex-grow flex items-center">
                     <input id="search-input-desktop" type="text" placeholder="Tìm kiếm anime..." 
-                    class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-red-600 focus:bg-gray-600 transition-all" autocomplete="off">
-                    <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-green-400 flex items-center justify-center">
+                    class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
+                    <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-lime-400 flex items-center justify-center">
                         <ion-icon name="search-outline"></ion-icon>
                     </button>
                 </form>
 
                 <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
-                    <a href="#login" class="text-gray-900 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
+                    <a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
                 </div>
             </div>
 
             <div class="lg:hidden flex items-center">
-                <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-600" aria-controls="mobile-menu" aria-expanded="false">
+                <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-lime-500" aria-controls="mobile-menu" aria-expanded="false">
                     <span class="sr-only">Mở menu</span>
                     <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -2278,10 +1998,10 @@ const updateAuthStateUI = (user) => {
 
         <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
             <div class="flex space-x-6 items-center">
-                <a href="#home" class="nav-link text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang Chủ</a>
+                <a href="#home" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang Chủ</a>
 
                 <div class="dropdown">
-                    <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                    <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
                         Dạng Anime
                         <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </a>
@@ -2294,7 +2014,7 @@ const updateAuthStateUI = (user) => {
                 </div>
 
                 <div class="dropdown">
-                    <a href="#top" data-hash-group="#top" class="nav-link flex items-center text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                    <a href="#top" data-hash-group="#top" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
                         Top Anime
                         <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </a>
@@ -2307,75 +2027,75 @@ const updateAuthStateUI = (user) => {
                 </div>
 
                 <div class="dropdown">
-                    <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                    <a href="#genre" data-hash-group="#genre" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
                         Thể Loại
                         <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </a>
                     <div class="dropdown-content mega-menu-3-cols-scroll">
                         <div class="col-span-full mb-2 border-b border-gray-600 pb-1">
-                            <span class="text-green-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
+                            <span class="text-lime-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
                             <div class="grid grid-cols-3 gap-x-4">
-                                <a href="#genre/action" class="font-bold text-green-300 hover:text-green-500 rounded-md block px-2 py-1 transition-colors duration-200">Action (Hành động)</a>
-                                <a href="#genre/romance" class="font-bold text-green-300 hover:text-green-500 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
-                                <a href="#genre/comedy" class="font-bold text-green-300 hover:text-green-500 rounded-md block px-2 py-1 transition-colors duration-200">Comedy (Hài hước)</a>
+                                <a href="#genre/action" class="font-bold text-lime-300 hover:text-lime-500 rounded-md block px-2 py-1 transition-colors duration-200">Action (Hành động)</a>
+                                <a href="#genre/romance" class="font-bold text-lime-300 hover:text-lime-500 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
+                                <a href="#genre/comedy" class="font-bold text-lime-300 hover:text-lime-500 rounded-md block px-2 py-1 transition-colors duration-200">Comedy (Hài hước)</a>
                             </div>
                         </div>
 
-                        <a href="#genre/adventure" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure (Phiêu lưu)</a>
-                        <a href="#genre/boys-love" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Boys Love (Đam mỹ)</a>
-                        <a href="#genre/cartoon" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Cartoon (Hoạt hình)</a>
-                        <a href="#genre/dementia" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Dementia (Điên loạn)</a>
-                        <a href="#genre/demons" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Demons (Ác quỷ)</a>
-                        <a href="#genre/drama" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama (Kịch tính)</a>
-                        <a href="#genre/ecchi" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi (Ecchi)</a>
-                        <a href="#genre/fantasy" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy (Giả tưởng)</a>
-                        <a href="#genre/game" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Game (Trò chơi)</a>
-                        <a href="#genre/harem" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem (Harem)</a>
-                        <a href="#genre/historical" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical (Lịch sử)</a>
-                        <a href="#genre/horror" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror (Kinh dị)</a>
-                        <a href="#genre/josei" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei (Josei)</a>
-                        <a href="#genre/kids" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Kids (Trẻ em)</a>
-                        <a href="#genre/live-action" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Live Action (Người đóng)</a>
-                        <a href="#genre/magic" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Magic (Ma thuật)</a>
-                        <a href="#genre/martial-arts" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial Arts (Võ thuật)</a>
-                        <a href="#genre/mecha" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha (Robot)</a>
-                        <a href="#genre/military" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Military (Quân sự)</a>
-                        <a href="#genre/music" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Music (Âm nhạc)</a>
-                        <a href="#genre/mystery" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery (Bí ẩn)</a>
-                        <a href="#genre/parody" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Parody (Hài nhái)</a>
-                        <a href="#genre/police" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Police (Cảnh sát)</a>
-                        <a href="#genre/psychological" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological (Tâm lý)</a>
-                        <a href="#genre/samurai" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Samurai (Samurai)</a>
-                        <a href="#genre/school" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">School (Học đường)</a>
-                        <a href="#genre/sci-fi" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-Fi (Viễn tưởng)</a>
-                        <a href="#genre/seinen" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen (Seinen)</a>
-                        <a href="#genre/shoujo" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo (Thiếu nữ)</a>
-                        <a href="#genre/shoujo-ai" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo Ai (Bách hợp (Nhẹ))</a>
-                        <a href="#genre/shounen" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen (Thiếu niên)</a>
-                        <a href="#genre/shounen-ai" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen Ai (Đam mỹ (Nhẹ))</a>
-                        <a href="#genre/slice-of-life" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice of Life (Đời thường)</a>
-                        <a href="#genre/space" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Space (Vũ trụ)</a>
-                        <a href="#genre/sports" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports (Thể thao)</a>
-                        <a href="#genre/super-power" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Super Power (Siêu năng lực)</a>
-                        <a href="#genre/supernatural" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural (Siêu nhiên)</a>
-                        <a href="#genre/suspense" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Suspense (Hồi hộp)</a>
-                        <a href="#genre/thriller" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Thriller (Giật gân)</a>
-                        <a href="#genre/tokusatsu" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Tokusatsu (Tokusatsu)</a>
-                        <a href="#genre/vampire" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Vampire (Ma cà rồng)</a>
-                        <a href="#genre/yaoi" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Yaoi (Đam mỹ (Mạnh))</a>
-                        <a href="#genre/yuri" class="text-gray-300 hover:bg-gray-600 hover:text-green-400 rounded-md block px-2 py-1 transition-colors duration-200">Yuri (Bách hợp (Mạnh))</a>
+                        <a href="#genre/adventure" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure (Phiêu lưu)</a>
+                        <a href="#genre/boys-love" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Boys Love (Đam mỹ)</a>
+                        <a href="#genre/cartoon" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Cartoon (Hoạt hình)</a>
+                        <a href="#genre/dementia" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Dementia (Điên loạn)</a>
+                        <a href="#genre/demons" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Demons (Ác quỷ)</a>
+                        <a href="#genre/drama" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama (Kịch tính)</a>
+                        <a href="#genre/ecchi" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi (Ecchi)</a>
+                        <a href="#genre/fantasy" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy (Giả tưởng)</a>
+                        <a href="#genre/game" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Game (Trò chơi)</a>
+                        <a href="#genre/harem" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem (Harem)</a>
+                        <a href="#genre/historical" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical (Lịch sử)</a>
+                        <a href="#genre/horror" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror (Kinh dị)</a>
+                        <a href="#genre/josei" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei (Josei)</a>
+                        <a href="#genre/kids" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Kids (Trẻ em)</a>
+                        <a href="#genre/live-action" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Live Action (Người đóng)</a>
+                        <a href="#genre/magic" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Magic (Ma thuật)</a>
+                        <a href="#genre/martial-arts" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial Arts (Võ thuật)</a>
+                        <a href="#genre/mecha" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha (Robot)</a>
+                        <a href="#genre/military" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Military (Quân sự)</a>
+                        <a href="#genre/music" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Music (Âm nhạc)</a>
+                        <a href="#genre/mystery" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery (Bí ẩn)</a>
+                        <a href="#genre/parody" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Parody (Hài nhái)</a>
+                        <a href="#genre/police" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Police (Cảnh sát)</a>
+                        <a href="#genre/psychological" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological (Tâm lý)</a>
+                        <a href="#genre/samurai" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Samurai (Samurai)</a>
+                        <a href="#genre/school" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">School (Học đường)</a>
+                        <a href="#genre/sci-fi" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-Fi (Viễn tưởng)</a>
+                        <a href="#genre/seinen" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen (Seinen)</a>
+                        <a href="#genre/shoujo" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo (Thiếu nữ)</a>
+                        <a href="#genre/shoujo-ai" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo Ai (Bách hợp (Nhẹ))</a>
+                        <a href="#genre/shounen" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen (Thiếu niên)</a>
+                        <a href="#genre/shounen-ai" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen Ai (Đam mỹ (Nhẹ))</a>
+                        <a href="#genre/slice-of-life" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice of Life (Đời thường)</a>
+                        <a href="#genre/space" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Space (Vũ trụ)</a>
+                        <a href="#genre/sports" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports (Thể thao)</a>
+                        <a href="#genre/super-power" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Super Power (Siêu năng lực)</a>
+                        <a href="#genre/supernatural" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural (Siêu nhiên)</a>
+                        <a href="#genre/suspense" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Suspense (Hồi hộp)</a>
+                        <a href="#genre/thriller" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Thriller (Giật gân)</a>
+                        <a href="#genre/tokusatsu" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Tokusatsu (Tokusatsu)</a>
+                        <a href="#genre/vampire" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Vampire (Ma cà rồng)</a>
+                        <a href="#genre/yaoi" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Yaoi (Đam mỹ (Mạnh))</a>
+                        <a href="#genre/yuri" class="text-gray-300 hover:bg-gray-600 hover:text-lime-400 rounded-md block px-2 py-1 transition-colors duration-200">Yuri (Bách hợp (Mạnh))</a>
                     </div>
                 </div>
 
                 <div class="dropdown">
-                   <a href="#season" data-hash-group="#season" class="nav-link flex items-center text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                   <a href="#season" data-hash-group="#season" class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
                     Season
                     <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </a>
                 <div class="dropdown-content mega-menu-3-cols-season">
 
                     <div>
-                        <span class="text-green-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2026</span>
+                        <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2026</span>
                         <a href="#season/mua-xuan-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
                         <a href="#season/mua-he-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
                         <a href="#season/mua-thu-2026" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
@@ -2383,7 +2103,7 @@ const updateAuthStateUI = (user) => {
                     </div>
 
                     <div>
-                        <span class="text-green-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2025</span>
+                        <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2025</span>
                         <a href="#season/mua-xuan-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
                         <a href="#season/mua-he-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
                         <a href="#season/mua-thu-2025" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
@@ -2391,7 +2111,7 @@ const updateAuthStateUI = (user) => {
                     </div>
 
                     <div>
-                        <span class="text-green-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2024</span>
+                        <span class="text-lime-400 font-bold text-sm uppercase block mb-1 border-b border-gray-600 pb-1">Năm 2024</span>
                         <a href="#season/mua-xuan-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Xuân</a>
                         <a href="#season/mua-he-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Hè</a>
                         <a href="#season/mua-thu-2024" class="hover:bg-gray-600 rounded-md block px-1 py-1">Mùa Thu</a>
@@ -2401,8 +2121,8 @@ const updateAuthStateUI = (user) => {
                 </div>
             </div>
 
-            <a href="#library" class="nav-link text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
-            <a href="#schedule" class="nav-link text-gray-300 hover:text-green-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+            <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
+            <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
         </div>
     </nav>
 </div>
@@ -2431,7 +2151,52 @@ const updateAuthStateUI = (user) => {
                 <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </button>
             <div id="genre-mobile-list" class="pl-4 mt-1 hidden">
-
+                <a href="#genre/action" class="genre-item text-lime-400 block px-2 py-1 rounded-md text-sm">Action (Hành động)</a>
+                <a href="#genre/romance" class="genre-item text-lime-400 block px-2 py-1 rounded-md text-sm">Romance (Lãng mạn)</a>
+                <a href="#genre/comedy" class="genre-item text-lime-400 block px-2 py-1 rounded-md text-sm">Comedy (Hài hước)</a>
+                <a href="#genre/adventure" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adventure (Phiêu lưu)</a>
+                <a href="#genre/boys-love" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Boys Love (Đam mỹ)</a>
+                <a href="#genre/cartoon" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cartoon (Hoạt hình)</a>
+                <a href="#genre/dementia" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Dementia (Điên loạn)</a>
+                <a href="#genre/demons" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Demons (Ác quỷ)</a>
+                <a href="#genre/drama" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Drama (Kịch tính)</a>
+                <a href="#genre/ecchi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ecchi (Ecchi)</a>
+                <a href="#genre/fantasy" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Fantasy (Giả tưởng)</a>
+                <a href="#genre/game" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Game (Trò chơi)</a>
+                <a href="#genre/harem" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Harem (Harem)</a>
+                <a href="#genre/historical" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Historical (Lịch sử)</a>
+                <a href="#genre/horror" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Horror (Kinh dị)</a>
+                <a href="#genre/josei" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Josei (Josei)</a>
+                <a href="#genre/kids" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Kids (Trẻ em)</a>
+                <a href="#genre/live-action" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Live Action (Người đóng)</a>
+                <a href="#genre/magic" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Magic (Ma thuật)</a>
+                <a href="#genre/martial-arts" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Martial Arts (Võ thuật)</a>
+                <a href="#genre/mecha" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mecha (Robot)</a>
+                <a href="#genre/military" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Military (Quân sự)</a>
+                <a href="#genre/music" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Music (Âm nhạc)</a>
+                <a href="#genre/mystery" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mystery (Bí ẩn)</a>
+                <a href="#genre/parody" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Parody (Hài nhái)</a>
+                <a href="#genre/police" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Police (Cảnh sát)</a>
+                <a href="#genre/psychological" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Psychological (Tâm lý)</a>
+                <a href="#genre/samurai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Samurai (Samurai)</a>
+                <a href="#genre/school" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">School (Học đường)</a>
+                <a href="#genre/sci-fi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sci-Fi (Viễn tưởng)</a>
+                <a href="#genre/seinen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Seinen (Seinen)</a>
+                <a href="#genre/shoujo" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo (Thiếu nữ)</a>
+                <a href="#genre/shoujo-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo Ai (Bách hợp (Nhẹ))</a>
+                <a href="#genre/shounen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen (Thiếu niên)</a>
+                <a href="#genre/shounen-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen Ai (Đam mỹ (Nhẹ))</a>
+                <a href="#genre/slice-of-life" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Slice of Life (Đời thường)</a>
+                <a href="#genre/space" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Space (Vũ trụ)</a>
+                <a href="#genre/sports" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sports (Thể thao)</a>
+                <a href="#genre/super-power" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Super Power (Siêu năng lực)</a>
+                <a href="#genre/supernatural" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Supernatural (Siêu nhiên)</a>
+                <a href="#genre/suspense" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Suspense (Hồi hộp)</a>
+                <a href="#genre/thriller" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Thriller (Giật gân)</a>
+                <a href="#genre/tokusatsu" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tokusatsu (Tokusatsu)</a>
+                <a href="#genre/vampire" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Vampire (Ma cà rồng)</a>
+                <a href="#genre/yaoi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Yaoi (Đam mỹ (Mạnh))</a>
+                <a href="#genre/yuri" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Yuri (Bách hợp (Mạnh))</a>
             </div>
         </div>
 
@@ -2443,21 +2208,21 @@ const updateAuthStateUI = (user) => {
             <div class="mobile-dropdown-content pl-4 mt-1 hidden grid-cols-2">
 
                 <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
-                   <span class="text-green-400 font-bold text-xs uppercase block">Năm 2026</span>
+                   <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2026</span>
                    <a href="#season/mua-xuan-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2026</a>
                    <a href="#season/mua-he-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2026</a>
                    <a href="#season/mua-thu-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2026</a>
                    <a href="#season/mua-dong-2026" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2026</a>
                </div>
                <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
-                   <span class="text-green-400 font-bold text-xs uppercase block">Năm 2025</span>
+                   <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2025</span>
                    <a href="#season/mua-xuan-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2025</a>
                    <a href="#season/mua-he-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2025</a>
                    <a href="#season/mua-thu-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2025</a>
                    <a href="#season/mua-dong-2025" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2025</a>
                </div>
                <div class="col-span-full pt-1 pb-1 border-b border-gray-700">
-                   <span class="text-green-400 font-bold text-xs uppercase block">Năm 2024</span>
+                   <span class="text-lime-400 font-bold text-xs uppercase block">Năm 2024</span>
                    <a href="#season/mua-xuan-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Xuân 2024</a>
                    <a href="#season/mua-he-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Hè 2024</a>
                    <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
@@ -2471,18 +2236,18 @@ const updateAuthStateUI = (user) => {
    </div>
    <div class="px-5 pb-3">
     <form id="search-form-mobile">
-        <input id="search-input-mobile" type="text" placeholder="Tìm kiếm anime..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-red-600 focus:bg-gray-600 transition-all" autocomplete="off">
+        <input id="search-input-mobile" type="text" placeholder="Tìm kiếm anime..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
     </form>
 </div>
 <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
-    <a href="#login" class="block w-full text-center text-gray-900 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
+    <a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
 </div>
 </div>
 </header>
 
 <main id="app" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen">
     <div class="flex justify-center items-center h-[50vh]">
-        <svg class="animate-spin h-10 w-10 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -2492,8 +2257,8 @@ const updateAuthStateUI = (user) => {
 <!-- Footer -->
 <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
     <!-- Hiệu ứng nền trang trí (Background Glow) -->
-    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-50"></div>
-    <div class="absolute -top-24 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-lime-500 to-transparent opacity-50"></div>
+    <div class="absolute -top-24 left-1/4 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -2503,44 +2268,45 @@ const updateAuthStateUI = (user) => {
             <!-- Logo -->
             <div class="flex items-center space-x-4 group cursor-pointer">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-red-600 blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-lg"></div>
-                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logofoxanimenoelimage.jpg" 
+                    <div class="absolute inset-0 bg-lime-400 blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-lg"></div>
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" 
                     alt="FOXANIME Logo" 
                     class="w-16 h-16 object-contain rounded-lg shadow-xl relative z-10">
                 </div>
                 <div>
                     <span class="text-4xl font-extrabold text-white tracking-wide block leading-none">
-                        FOX<span class="text-red-600">ANIME</span>
+                        FOX<span class="text-lime-500">ANIME</span>
                     </span>
                     <span class="text-sm text-gray-400 tracking-wider">Thế giới Anime trong tầm tay</span>
                 </div>
             </div>
 
             <!-- Newsletter -->
-            <div class="w-full max-w-md bg-gray-700/30 p-1.5 rounded-full border border-gray-600 flex items-center focus-within:border-red-600/70 focus-within:ring-2 focus-within:ring-red-600/20 transition-all">
+            <div class="w-full max-w-md bg-gray-700/30 p-1.5 rounded-full border border-gray-600 flex items-center focus-within:border-lime-500/70 focus-within:ring-2 focus-within:ring-lime-500/20 transition-all">
                 <input type="email" placeholder="Nhập email để nhận Anime mới..." class="bg-transparent border-none outline-none text-white px-4 py-2 w-full placeholder-gray-500 text-sm">
-                <button class="bg-red-600 hover:bg-red-700 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm">
+                <button class="bg-lime-500 hover:bg-lime-400 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm">
                     Đăng ký
                 </button>
             </div>
         </div>
 
         <!-- PHẦN DONATE (MỚI THÊM) -->
-        <div class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-red-500/20 to-purple-500/20 border border-red-600/30 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-[url('https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logodonatefoxanimenoelmage.jpg')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500 mix-blend-overlay"></div>
+        <div class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-lime-500/20 to-purple-500/20 border border-lime-500/30 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-[url('https://uploads.onecompiler.io/43u4wb3ft/445btd8v7/KomikoAI%20donate(1).jpg')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500 mix-blend-overlay"></div>
             <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4464qyfpr/logodonatefoxanimenoelmage.jpg" 
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/445btd8v7/KomikoAI%20donate(1).jpg" 
                     alt="DONATE Logo" 
-                    class="w-20 h-20 object-cover rounded-full shadow-lg ring-4 ring-red-600/50 animate-pulse">
+                    class="w-20 h-20 object-cover rounded-full shadow-lg ring-4 ring-lime-500/50 animate-pulse">
                     <div>
-                        <h3 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-white">DONATE NGAY TẠI ĐÂY!</h3>
+                        <h3 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-white">DONATE NGAY TẠI ĐÂY!</h3>
                         <p class="text-gray-300 text-sm mt-1">Ủng hộ FoxAnime để chúng mình có thêm động lực phát triển nhé! ♡</p>
                     </div>
                 </div>
-                <a href="donate.html" class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-full shadow-lg shadow-red-600/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                <a href="donate.html" class="px-8 py-3 bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white font-bold rounded-full shadow-lg shadow-lime-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                    <!-- FIX LỖI SVG PATH -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
                     Ủng hộ ngay
                 </a>
@@ -2552,37 +2318,37 @@ const updateAuthStateUI = (user) => {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
 
             <!-- FoxAnime - Fandom -->
-            <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-red-600/50 transition-all duration-300">
-                <img src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Fandom" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-red-600 transition-all">
+            <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                <img src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Fandom" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
                 <div>
-                    <div class="font-bold text-gray-200 group-hover:text-red-600 text-sm">FoxAnime Fandom</div>
+                    <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">FoxAnime Fandom</div>
                     <div class="text-xs text-gray-400">Group Facebook</div>
                 </div>
             </a>
 
             <!-- FoxStudioLive -->
-            <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-red-600/50 transition-all duration-300">
-                <img src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Live" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-red-600 transition-all">
+            <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                <img src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Live" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
                 <div>
-                    <div class="font-bold text-gray-200 group-hover:text-red-600 text-sm">FoxStudioLive</div>
+                    <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">FoxStudioLive</div>
                     <div class="text-xs text-gray-400">Kênh YouTube</div>
                 </div>
             </a>
 
             <!-- Discord -->
-            <a href="https://discord.gg/89UxfT4V" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-red-600/50 transition-all duration-300">
-                <img src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Discord" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-red-600 transition-all">
+            <a href="https://discord.gg/89UxfT4V" target="_blank" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                <img src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2" alt="Discord" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
                 <div>
-                    <div class="font-bold text-gray-200 group-hover:text-red-600 text-sm">Discord Server</div>
+                    <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">Discord Server</div>
                     <div class="text-xs text-gray-400">Tham gia ngay!</div>
                 </div>
             </a>
 
             <!-- Liên hệ -->
-            <a href="mailto:haistrem6792@gmail.com" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-red-600/50 transition-all duration-300">
-                <img src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Contact" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-red-600 transition-all">
+            <a href="mailto:haistrem6792@gmail.com" class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-lime-500/50 transition-all duration-300">
+                <img src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2" alt="Contact" class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-lime-400 transition-all">
                 <div>
-                    <div class="font-bold text-gray-200 group-hover:text-red-600 text-sm">Liên hệ Quảng Cáo</div>
+                    <div class="font-bold text-gray-200 group-hover:text-lime-400 text-sm">Liên hệ Quảng Cáo</div>
                     <div class="text-xs text-gray-400 truncate w-32">foxstudio299@...</div>
                 </div>
             </a>
@@ -2603,7 +2369,7 @@ const updateAuthStateUI = (user) => {
                 <!-- Instagram -->
                 <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                     </svg>
                 </a>
 
@@ -2625,40 +2391,19 @@ const updateAuthStateUI = (user) => {
             <!-- Copyright & Legal -->
             <div class="text-center md:text-right">
                 <div class="text-gray-500 text-sm mb-2">
-                    <a href="#" class="hover:text-green-400 transition-colors">Điều khoản sử dụng</a>
+                    <a href="#" class="hover:text-lime-400 transition-colors">Điều khoản sử dụng</a>
                     <span class="mx-2">•</span>
-                    <a href="#" class="hover:text-green-400 transition-colors">Chính sách bảo mật</a>
+                    <a href="#" class="hover:text-lime-400 transition-colors">Chính sách bảo mật</a>
                     <span class="mx-2">•</span>
-                    <a href="#" class="hover:text-green-400 transition-colors">DMCA</a>
+                    <a href="#" class="hover:text-lime-400 transition-colors">DMCA</a>
                 </div>
                 <p class="text-gray-400 text-sm">
-                    &copy; 2025. Bản quyền thuộc về <span class="text-red-600 font-bold">Foxstudio.co.Ltd</span>.
+                    &copy; 2025. Bản quyền thuộc về <span class="text-lime-400 font-bold">Foxstudio.co.Ltd</span>.
                 </p>
             </div>
         </div>
     </div>
-    
-     <img id="foxanime_bottom_left" src="https://nguyencongnam.id.vn/wp-content/uploads/2023/11/bottomleft.png" />
-
 </footer>
-    
-   
-     <div class="mb-12 p-4 border-t border-b border-gray-700/50 text-center">
-                <h1 class="text-lg font-bold text-gray-300 mb-2">FoxAnime - Web Xem Anime Vietsub Online Tốt Nhất 2025</h1>
-                <p class="text-gray-500 text-sm leading-relaxed max-w-4xl mx-auto">
-                    Bạn đang tìm kiếm trang web <strong>xem anime không quảng cáo</strong>, tốc độ load nhanh và chất lượng Full HD? 
-                    <strong>FoxAnime</strong> là sự lựa chọn hàng đầu cho cộng đồng Wibu Việt Nam. Tại đây, bạn có thể thưởng thức các bộ phim hoạt hình Nhật Bản hot nhất như 
-                    <strong>One Piece (Đảo Hải Tặc)</strong>, <strong>Naruto Shippuden</strong>, <strong>Spy x Family</strong>, <strong>Vong Linh Giả Bị Ruồng Bỏ</strong>... 
-                    với phụ đề tiếng Việt chuẩn xác. Website được tối ưu hóa cho cả điện thoại và máy tính, mang lại trải nghiệm xem phim mượt mà nhất. 
-                    Hãy truy cập <strong>FoxAnime</strong> mỗi ngày để cập nhật các tập phim mới nhất mùa Đông 2025!
-                </p>
-            </div>
 
 </body>
 </html>
-
-
-
-
-
-
