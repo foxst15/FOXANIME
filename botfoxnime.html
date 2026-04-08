@@ -795,6 +795,9 @@
             simulateView(randomMovie); 
             simulateLike(randomMovie);
             
+            // Khai báo lại biến isAuthUser ở đây để botLoop nhận diện được
+            const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
+            
             // Chỉ người dùng Login Google mới thực hiện tương tác phức tạp (Comment, Review, Reply)
             if (isAuthUser) {
                 const replied = await simulateReply(randomMovie, auth.currentUser);
