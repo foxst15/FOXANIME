@@ -778,34 +778,89 @@
             log("🔄 Đã hủy mục tiêu. Quay lại chế độ Random.", 'info');
         };
 
-        // === LOGIC CHẠY BOT ===
+        // === LOGIC CHẠY BOT (ĐÃ FIX LỖI GỘP LỆNH BATCH) ===
         const botLoop = async () => { 
-             if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
-            let randomMovie;
-            if (targetMovie) {
-                randomMovie = targetMovie; // Nếu có mục tiêu thì lấy luôn
-                // Log nhẹ để biết đang buff ai (có thể bỏ nếu thấy spam log)
-                // log(`🎯 Buff: ${getShortTitle(randomMovie.title)}`, 'info'); 
-            } else {
-                // Nếu không thì random như cũ
-                randomMovie = globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
-            }
+            if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
             
-            // Mọi người dùng đều thực hiện View và Like
-            simulateView(randomMovie); 
-            simulateLike(randomMovie);
-            
-            // Khai báo lại biến isAuthUser ở đây để botLoop nhận diện được
+            let randomMovie = targetMovie ? targetMovie : globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
             const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
             
-            // Chỉ người dùng Login Google mới thực hiện tương tác phức tạp (Comment, Review, Reply)
+            // TẠO GIỎ HÀNG (BATCH) ĐỂ ĐÓNG GÓI LỆNH
+            const batch = writeBatch(db);
+            const movieDocRef = doc(db, dataCollectionPath, randomMovie.id);
+            
+            // 1. Mặc định luôn có View trong giỏ
+            let movieUpdates = { viewCount: increment(1) };
+            let logDetails = `[VIEW]`;
+            
+            // 2. Bỏ thêm Like vào giỏ (Tỷ lệ 98%)
+            if (Math.random() < 0.98) {
+                movieUpdates.likeCount = increment(1);
+                logDetails += ` + [LIKE]`;
+            }
+            
+            // 3. Bỏ thêm Comment & Review vào giỏ (Chỉ khi đã Login Google)
             if (isAuthUser) {
-                const replied = await simulateReply(randomMovie, auth.currentUser);
-                if (replied) return;
-                simulateComment(randomMovie, auth.currentUser);
-                simulateReview(randomMovie, auth.currentUser);
-            } else {
-                 log("Bot cần đăng nhập Google để Comment/Review/Reply (Khách chỉ cày View/Like).", 'info');
+                const replied = await simulateReply(randomMovie, auth.currentUser); 
+                
+                if (!replied) {
+                    // Random Comment (50%) - KHÔNG chạy cho phim sắp chiếu
+                    if (randomMovie.status !== 'sap-chieu' && Math.random() < 0.5) {
+                        const commentsColRef = collection(db, dataCollectionPath, randomMovie.id, 'comments');
+                        const botName = getBotDisplayName();
+                        const newCommentRef = doc(commentsColRef); 
+                        batch.set(newCommentRef, {
+                            content: getCommentContentByGenre(randomMovie),
+                            userId: auth.currentUser.uid,
+                            email: auth.currentUser.email,
+                            displayName: botName, 
+                            photoURL: getBotAvatar(botName), 
+                            createdAt: serverTimestamp()
+                        });
+                        logDetails += ` + [CMT]`;
+                    }
+                    
+                    // Random Review (50%) - Chạy cho CẢ phim sắp chiếu
+                    if (Math.random() < 0.5) {
+                        let rating;
+                        let content;
+                        if (randomMovie.status === 'sap-chieu') {
+                            rating = Math.random() < 0.5 ? 5 : 4; 
+                            content = getRandomReviewContentAiring(randomMovie.title);
+                        } else {
+                            const rand = Math.random();
+                            rating = rand < 0.5 ? 5 : (rand < 0.8 ? 4 : (rand < 0.9 ? 3 : 2));
+                            content = getReviewContentByGenre(randomMovie, rating);
+                        }
+                        
+                        const reviewDocRef = doc(db, dataCollectionPath, randomMovie.id, 'reviews', auth.currentUser.uid);
+                        const botName = getBotDisplayName();
+                        
+                        batch.set(reviewDocRef, {
+                            userId: auth.currentUser.uid,
+                            rating: rating,
+                            content: content,
+                            displayName: botName,
+                            photoURL: getBotAvatar(botName), 
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                        
+                        // Bỏ điểm Review vào chung giỏ hàng Phim
+                        movieUpdates.reviewTotal = increment(rating);
+                        movieUpdates.reviewCount = increment(1);
+                        logDetails += ` + [REV ${rating}⭐]`;
+                    }
+                }
+            }
+            
+            // 4. GỬI GÓI HÀNG ĐI TRONG 1 LẦN DUY NHẤT!
+            batch.update(movieDocRef, movieUpdates);
+            
+            try {
+                await batch.commit();
+                log(`🎯 ${getShortTitle(randomMovie.title)}: ${logDetails}`, 'success');
+            } catch (e) {
+                log(`Lỗi gộp lệnh Firebase: ${e.message}`, 'error');
             }
         };
 
