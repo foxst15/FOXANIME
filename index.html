@@ -1,8 +1,21 @@
 <!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "FoxAnime",
+      "alternateName": ["Fox Anime", "FoxAnime Vietsub"],
+      "url": "https://foxanime.vercel.app/"
+    }
+    </script>
+    <meta name="google-site-verification" content="mNWrHLdhjVYE1j-h3-yjId2oQAj4-qTLycktMEqpdlQ" />
+    <meta property="og:site_name" content="FoxAnime" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com"><link rel="dns-prefetch" href="https://unpkg.com"><link rel="dns-prefetch" href="https://www.gstatic.com">
     <link rel="icon" type="image/png" href="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg">
     <title>FOXANIME - Xem Anime Miễn Phí</title>
@@ -713,7 +726,7 @@ const MovieCardTemplate = (movie) => {
     const ratingHtml = renderSubtleRatingHtml(movie); 
 
     return `
-                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-lg shadow-lg bg-gray-800 transition-transform duration-300 ease-in-out hover:-translate-y-2">
+                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
                     <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
                         <span class="inline-block bg-black/70 text-lime-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
                             ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
@@ -751,40 +764,52 @@ const SearchPageTemplate = (movieList, title) => `
             </section>
 `;
 
-const HeroSectionTemplate = (movie) => {
-    if (!movie) return '';
-    const movieSlug = createSlug(movie.title);
-    const infoUrl = `#phim/${movieSlug}-${movie.id}`; 
-    const imageUrl = movie.bannerUrl || movie.posterUrl; 
-    const genres = movie.genre ? movie.genre.split(',').slice(0, 2).map(genre => `<span class="bg-gray-700/80 backdrop-blur-sm text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
-    return `
-                <section class="relative h-[65vh] md:h-[80vh] rounded-xl overflow-hidden mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover opacity-70"  onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
+const SliderSectionTemplate = (movieList) => {
+    if (!movieList || movieList.length === 0) return '';
+    
+    // Lấy tối đa 5 phim mới nhất cho mượt ạ
+    const slideItems = movieList.slice(0, 5).map(movie => {
+        const movieSlug = createSlug(movie.title);
+        const infoUrl = `#phim/${movieSlug}-${movie.id}`; 
+        const imageUrl = movie.bannerUrl || movie.posterUrl; 
+        const genres = movie.genre ? movie.genre.split(',').slice(0, 3).map(genre => `<span class="glass-card text-gray-200 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
+        
+        return `
+            <div class="swiper-slide">
+                <div class="relative h-[60vh] md:h-[75vh] w-full rounded-2xl overflow-hidden group">
+                    <img src="${imageUrl}" alt="${movie.title} backdrop" class="w-full h-full object-cover transform transition-transform duration-[10s] group-hover:scale-110" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#111827] via-[#111827]/60 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#111827] via-[#111827]/40 to-transparent"></div>
 
-                    <div class="absolute bottom-0 left-0 p-6 md:p-12 max-w-2xl text-white">
-                        <span class="inline-block bg-lime-500 text-gray-900 text-sm font-bold px-3 py-1 rounded-md uppercase mb-4">Mới Cập Nhật</span>
-                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight">${movie.title}</h1>
-        ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                        <p class="text-gray-300 text-lg mb-6 line-clamp-3">${movie.summary || 'Không có tóm tắt.'}</p>
+                    <div class="absolute bottom-0 left-0 p-6 md:p-14 max-w-3xl text-white">
+                        <span class="inline-block bg-lime-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(163,230,53,0.5)]">Mới Cập Nhật</span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-3 leading-tight drop-shadow-2xl">${movie.title}</h1>
+                        ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-lime-400/80 mb-3 drop-shadow-lg">${movie.titleOriginal}</h4>` : ''}
+                        <p class="text-gray-300 text-base md:text-lg mb-6 line-clamp-3 drop-shadow-md">${movie.summary || 'Đang cập nhật nội dung...'}</p>
                         <div class="flex items-center space-x-4">
-                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3 bg-lime-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-lime-600 transition-colors">
-                                <ion-icon name="information-circle-outline" class="text-2xl mr-2"></ion-icon>
-                                Xem Thông Tin
+                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3.5 bg-lime-500 text-gray-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(163,230,53,0.4)] hover:bg-lime-400 hover:scale-105 transition-all duration-300">
+                                <ion-icon name="play-circle" class="text-2xl mr-2"></ion-icon>
+                                Xem Ngay
                             </a>
-                            <div class="flex space-x-2">${genres}</div>
+                            <div class="hidden md:flex space-x-2">${genres}</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 
-                    <div class="absolute bottom-0 right-0 p-6 md:p-12 z-10 hidden md:block">
-                         <div class="flex space-x-2 md:space-x-4 text-sm text-gray-400">
-                             <a href="#" class="hover:text-lime-400 border-b-2 border-lime-400 text-white pb-1">Tất cả</a>
-                             <a href="#season/mua-he-2024" class="hover:text-lime-400">Mùa Hè 2024</a>
-                             <a href="#top/thang" class="hover:text-lime-400">Top Tháng</a>
-                         </div>
-                    </div>
-                </section>
+    return `
+        <section class="relative mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+            <div class="swiper hero-swiper rounded-2xl overflow-hidden shadow-2xl">
+                <div class="swiper-wrapper">
+                    ${slideItems}
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev hidden md:flex"></div>
+                <div class="swiper-button-next hidden md:flex"></div>
+            </div>
+        </section>
     `;
 };
 
@@ -1369,8 +1394,30 @@ const renderPage = (pageType, param) => {
         const moiCapNhatList = cache.filter(a => a.status === 'dang-chieu').slice(0, HOME_PAGE_LIMIT);
         const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, HOME_PAGE_LIMIT);
         const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, HOME_PAGE_LIMIT);
-        const heroMovie = moiCapNhatList.length > 0 ? moiCapNhatList[0] : (cache.length > 0 ? cache[0] : null);
-        getEl('#app').innerHTML = HeroSectionTemplate(heroMovie) + MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') + MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') + MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
+        
+        // --- BÉ LÔI PHÙ PHÉP TẠO DANH SÁCH SLIDER NGẪU NHIÊN ---
+        // Lấy toàn bộ phim, đảo lộn xộn lên, rồi cắt đúng 5 bộ đầu tiên để làm Slider
+        const randomSlideMovies = [...cache].sort(() => 0.5 - Math.random()).slice(0, 5);
+
+        // Gắn giao diện Slider ngẫu nhiên và các Section khác
+        getEl('#app').innerHTML = 
+            SliderSectionTemplate(randomSlideMovies) + 
+            MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') + 
+            MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') + 
+            MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
+
+        // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
+        setTimeout(() => {
+            new Swiper('.hero-swiper', {
+                effect: 'fade', 
+                fadeEffect: { crossFade: true },
+                autoplay: { delay: 4000, disableOnInteraction: false },
+                pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                loop: true,
+                grabCursor: true,
+            });
+        }, 100);
         return;
     case '#login':
         getEl('#app').innerHTML = AuthPageTemplate();
@@ -1636,41 +1683,136 @@ const updateAuthStateUI = (user) => {
 
     window.addEventListener('hashchange', router);
 
-    document.addEventListener('DOMContentLoaded', async () => {
+   document.addEventListener('DOMContentLoaded', async () => {
         await setupFirebase();
         getEl('#resume-modal-yes')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(true); });
         getEl('#resume-modal-no')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(false); });
-        getEl('#mobile-menu-button')?.addEventListener('click', () => getEl('#mobile-menu')?.classList.toggle('hidden'));
-
-        getEl('#search-form-desktop')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const searchTerm = getEl('#search-input-desktop').value.trim();
-            if (searchTerm) window.location.hash = `#search/${encodeURIComponent(searchTerm)}`;
+        
+        // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
+        // --- 1. Nút mở Menu chính ---
+        getEl('#mobile-menu-button')?.addEventListener('click', () => { 
+            getEl('#mobile-menu')?.classList.toggle('menu-open');
+            getEl('#mobile-menu-overlay')?.classList.toggle('menu-open'); 
         });
+
+        // Ấn ra ngoài tấm màn thì tự đóng menu mượt mà
+        getEl('#mobile-menu-overlay')?.addEventListener('click', () => {
+            getEl('#mobile-menu')?.classList.remove('menu-open');
+            getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
+        });
+
+        // Khi tìm kiếm xong trên mobile cũng tự trượt menu vào
         getEl('#search-form-mobile')?.addEventListener('submit', (e) => {
             e.preventDefault();
             const searchTerm = getEl('#search-input-mobile').value.trim();
             if (searchTerm) window.location.hash = `#search/${encodeURIComponent(searchTerm)}`;
-            getEl('#mobile-menu')?.classList.add('hidden');
+            getEl('#mobile-menu')?.classList.remove('menu-open');
+            getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
         });
 
+        // --- 2. Xổ Menu Con mượt mà (Accordion) ---
         getAllEl('.mobile-dropdown-toggle').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 const target = e.currentTarget.nextElementSibling;
-                target.classList.toggle('hidden');
-                target.classList.toggle('grid');
+                // Thêm/Xóa class is-open để CSS tạo hiệu ứng sổ xuống
+                target.classList.toggle('is-open');
                 e.currentTarget.querySelector('.dropdown-icon')?.classList.toggle('rotate-180');
             });
         });
 
+        // Ấn vào link thì trượt cất menu đi
         getAllEl('#mobile-menu a').forEach(link => {
             link.addEventListener('click', function() {
-               if (!this.classList.contains('mobile-dropdown-toggle')) {getEl('#mobile-menu')?.classList.add('hidden');}
+               if (!this.classList.contains('mobile-dropdown-toggle')) {
+                   getEl('#mobile-menu')?.classList.remove('menu-open');
+                   getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
+               }
            });
         });
 
         document.body.addEventListener('submit', globalCommentSubmitHandler);
+
+        document.addEventListener('click', function(e) {
+            const userDropdown = getEl('.user-profile-dropdown');
+            const userDropdownMenu = getEl('#user-dropdown-menu');
+            if (userDropdown && userDropdownMenu && !userDropdown.contains(e.target)) {
+                userDropdownMenu.classList.remove('active');
+            }
+        });
+
+        // --- MAGIC: GỢI Ý TÌM KIẾM TRỰC TIẾP CỦA BÉ LÔI ---
+        const renderSuggestItem = (movie) => {
+            const slug = createSlug(movie.title);
+            const imageUrl = movie.posterUrl || '';
+            return `
+                <a href="#phim/${slug}-${movie.id}" class="flex items-center p-3 hover:bg-gray-700/50 transition-colors border-b border-gray-700/50 last:border-none group">
+                    <img src="${imageUrl}" class="w-12 h-16 object-cover rounded shadow-md mr-4 border border-gray-600" onerror="this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                    <div class="flex-1 overflow-hidden">
+                        <h4 class="text-sm font-bold text-white truncate group-hover:text-lime-400 transition-colors">${movie.title}</h4>
+                        <p class="text-xs text-gray-400 truncate mt-0.5">${movie.titleOriginal || ''}</p>
+                        <p class="text-xs text-lime-400 font-medium mt-1 flex items-center gap-1">
+                            <ion-icon name="play-circle-outline"></ion-icon>
+                            ${movie.status === 'sap-chieu' ? 'Sắp chiếu' : (movie.episodes ? `Tập ${movie.episodes.length}` : 'Đang cập nhật')}
+                        </p>
+                    </div>
+                </a>
+            `;
+        };
+
+        const setupLiveSearch = (inputId, resultsId) => {
+            const inputEl = getEl(inputId);
+            const resultsEl = getEl(resultsId);
+            if (!inputEl || !resultsEl) return;
+
+            inputEl.addEventListener('input', (e) => {
+                const term = e.target.value.trim().toLowerCase();
+                
+                if (!term) {
+                    resultsEl.classList.add('hidden');
+                    return;
+                }
+
+                const results = globalMovieCache.filter(m => 
+                    m.title.toLowerCase().includes(term) || 
+                    (m.titleOriginal && m.titleOriginal.toLowerCase().includes(term))
+                ).slice(0, 5);
+
+                if (results.length > 0) {
+                    resultsEl.innerHTML = results.map(renderSuggestItem).join('') + 
+                        `<a href="#search/${encodeURIComponent(term)}" class="block p-3 text-center text-sm text-gray-900 bg-lime-500 hover:bg-lime-400 font-bold transition-colors">
+                            Xem tất cả kết quả...
+                        </a>`;
+                    resultsEl.classList.remove('hidden');
+                } else {
+                    resultsEl.innerHTML = `<div class="p-5 text-sm text-gray-400 text-center italic flex flex-col items-center">
+                        <ion-icon name="sad-outline" class="text-3xl mb-2 text-gray-500"></ion-icon>
+                        Úi! Không tìm thấy phim này ạ 💦
+                    </div>`;
+                    resultsEl.classList.remove('hidden');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!inputEl.contains(e.target) && !resultsEl.contains(e.target)) {
+                    resultsEl.classList.add('hidden');
+                }
+            });
+            
+            // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem phim
+            resultsEl.addEventListener('click', (e) => {
+                if (e.target.closest('a')) {
+                    resultsEl.classList.add('hidden');
+                    inputEl.value = ''; 
+                    getEl('#mobile-menu')?.classList.remove('menu-open'); // Đổi ở đây
+                    getEl('#mobile-menu-overlay')?.classList.remove('menu-open'); // Đổi ở đây
+                }
+            });
+        };
+
+        setupLiveSearch('#search-input-desktop', '#search-results-desktop');
+        setupLiveSearch('#search-input-mobile', '#search-results-mobile');
+        // --- KẾT THÚC MAGIC ---
 
         document.addEventListener('click', function(e) {
             const userDropdown = getEl('.user-profile-dropdown');
@@ -1690,11 +1832,35 @@ const updateAuthStateUI = (user) => {
     body {font-family: 'Inter', sans-serif;background-color: #111827;}
     #app {transition: opacity 0.3s ease-in-out;}
     .dropdown { position: relative; }
-    .dropdown-content {display: none;position: absolute;top: 100%;left: 0;background-color: #374151;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);z-index: 10;border-radius: 0 0 0.5rem 0.5rem;}
+    
+    /* --- BÉ LÔI PHÙ PHÉP DROPDOWN DESKTOP TRƯỢT MƯỢT --- */
+    .dropdown-content {
+        display: grid !important; 
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #374151;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 10;
+        border-radius: 0 0 0.5rem 0.5rem;
+        /* Animation properties */
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(15px);
+        transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+        pointer-events: none;
+    }
+    .dropdown:hover .dropdown-content { 
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    /* --------------------------------------------------- */
+
     .dropdown-content.mega-menu-3-cols-scroll {grid-template-columns: repeat(3, 1fr);gap: 0.5rem 1rem;padding: 1.5rem;min-width: 600px;max-height: 400px;overflow-y: auto;}
     .dropdown-content.mega-menu-3-cols-season {grid-template-columns: repeat(3, 1fr);gap: 1rem 1.5rem;padding: 1rem 1.5rem;min-width: 550px;max-height: 400px;overflow-y: auto;}
     @media (max-width: 768px) {.dropdown-content.mega-menu-3-cols-scroll, .dropdown-content.mega-menu-3-cols-season {min-width: unset;width: 100vw;left: -1rem;}}
-    .dropdown:hover .dropdown-content { display: grid; }
     .dropdown-content a {color: #d1d5db;padding: 0.5rem 0;display: block;white-space: nowrap;}
     .dropdown-content.mega-menu-1-col {min-width: 250px;grid-template-columns: repeat(1, 1fr);padding: 1rem;gap: 0;}
     .dropdown-content.mega-menu-1-col a:hover { background-color: #4b5563; }
@@ -1718,14 +1884,97 @@ const updateAuthStateUI = (user) => {
     .play-button-overlay {background-color: rgba(163, 230, 53, 0.5);border: none;transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;animation: pulse-button-new 3s infinite;}
     .play-button-overlay:hover {background-color: rgba(163, 230, 53, 1);animation: none;transform: scale(1.05);}
     @keyframes pulse-button-new {0% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }50% { box-shadow: 0 0 0 10px rgba(163, 230, 53, 0); }100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }}
-    #mobile-menu {position: fixed;top: 80px;left: 0;right: 0;bottom: 0;background-color: #1f2937;overflow-y: auto;padding: 1rem;z-index: 40;}
-    .mobile-dropdown-content {display: grid;grid-template-columns: repeat(2, 1fr);gap: 0.5rem;padding: 0.5rem 0;}
-    @media (min-width: 640px) {.mobile-dropdown-content {grid-template-columns: repeat(3, 1fr);}}
-    .mobile-dropdown-content a {background-color: #374151;border-radius: 0.375rem;font-weight: 400;padding: 0.5rem 0.75rem;}
-    #genre-mobile-list { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 40vh; overflow-y: auto; padding-right: 0.5rem; }
-    @media (min-width: 640px) {#genre-mobile-list { grid-template-columns: repeat(3, 1fr);}}
+    
+    /* --- BÉ LÔI PHÙ PHÉP MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
+    #mobile-menu {
+        position: fixed;
+        top: 80px;
+        right: 0; 
+        width: 65%; 
+        max-width: 320px; 
+        bottom: 0;
+        background-color: #111827; 
+        overflow-y: auto;
+        padding: 1rem;
+        z-index: 40;
+        border-top-left-radius: 1.5rem; 
+        border-bottom-left-radius: 1.5rem;
+        box-shadow: -15px 0 30px rgba(0, 0, 0, 0.6);
+        /* Animations */
+        display: block !important;
+        visibility: hidden;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
+    }
+    #mobile-menu.menu-open {
+        visibility: visible;
+        transform: translateX(0);
+    }
+    
+    #mobile-menu-overlay {
+        display: block !important;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    #mobile-menu-overlay.menu-open {
+        opacity: 1;
+        visibility: visible;
+    }
+    /* --------------------------------------------------------- */
+
+    /* --- BÉ LÔI PHÙ PHÉP MENU ACCORDION SỔ XUỐNG BÊN TRONG --- */
+    .mobile-dropdown-content, #genre-mobile-list {
+        display: grid !important; 
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem; 
+        max-height: 0; /* Chiều cao = 0 để giấu đi */
+        opacity: 0;
+        overflow: hidden;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-top: 0 !important;
+        transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin 0.3s ease, padding 0.3s ease;
+    }
+    @media (min-width: 640px) {
+        .mobile-dropdown-content, #genre-mobile-list {grid-template-columns: repeat(3, 1fr);}
+    }
+    
+    .mobile-dropdown-content.is-open {
+        max-height: 800px;
+        opacity: 1;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        margin-top: 0.25rem !important;
+    }
+    #genre-mobile-list.is-open {
+        max-height: 40vh;
+        opacity: 1;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        margin-top: 0.25rem !important;
+        overflow-y: auto;
+    }
+    
+    /* --- BÉ LÔI FIX MENU MOBILE LINH HOẠT --- */
+.mobile-dropdown-content a, .mobile-dropdown-content a.genre-item {
+    background-color: #374151;
+    border-radius: 0.5rem; /* Bo tròn mềm mại hơn */
+    font-weight: 500; /* Chữ đậm lên xíu xiu dễ nhìn */
+    padding: 0.5rem;
+    display: flex; /* Bật chế độ Flexbox linh hoạt */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    text-align: center;
+    min-height: 48px; /* Đảm bảo đủ to để ngón tay dễ bấm */
+    font-size: 0.85rem; /* Thu nhỏ chữ lại một tẹo cho vừa vặn */
+    line-height: 1.3;
+    word-break: break-word; /* Tự động xuống dòng gọn gàng không tràn viền */
+}
     .mobile-dropdown-content a.genre-item { background-color: #1f2937; border: 1px solid #374151; }
-    .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
+    .mobile-dropdown-content a:hover, .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
+    /* --------------------------------------------------------- */
+
     #cdn-failure-overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: #111827;color: #f3f4f6;display: none;flex-direction: column;align-items: center;justify-content: center;text-align: center;z-index: 10000;padding: 20px;font-family: 'Inter', sans-serif, Arial;margin: 0;}
     .error-container {width: 100%;max-width: 750px;margin: 0 auto;padding: 20px;box-sizing: border-box;background: #1f2937;border-radius: 12px;box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);}
     .error-content-grid {display: grid;grid-template-columns: 1fr;gap: 20px;padding-bottom: 20px;}
@@ -1749,6 +1998,32 @@ const updateAuthStateUI = (user) => {
     .contact-info a {color: #a3e635;text-decoration: none;font-size: 0.95rem;display: flex;align-items: center;transition: color 0.3s;}
     .contact-info a:hover {color: #84cc16;text-decoration: underline;}
     #rating-input-area .rating-star-icon {transition: color 0.2s;cursor: pointer;}
+
+    /* Hiệu ứng Glassmorphism chuẩn trend */
+    .glass-nav { 
+        background: rgba(17, 24, 39, 0.6) !important; 
+        backdrop-filter: blur(16px); 
+        -webkit-backdrop-filter: blur(16px); 
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+    }
+    .glass-card { 
+        background: rgba(31, 41, 55, 0.3) !important; 
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05); 
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .glass-card:hover { 
+        border-color: rgba(163, 230, 53, 0.4); 
+        box-shadow: 0 10px 40px 0 rgba(163, 230, 53, 0.15); 
+    }
+
+    /* Tùy chỉnh màu sắc cho Swiper Slider */
+    .swiper-pagination-bullet-active { background: #a3e635 !important; }
+    .swiper-button-next, .swiper-button-prev { color: #a3e635 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .swiper-button-next::after, .swiper-button-prev::after { font-size: 24px !important; font-weight: bold; }
 </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
@@ -1876,24 +2151,27 @@ const updateAuthStateUI = (user) => {
     </div>
 </div>
 
-<header class="bg-gray-800 shadow-lg sticky top-0 z-50">
+<header class="glass-nav shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
             <div class="flex items-center h-full space-x-8">
                 <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
-                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" alt="FOXANIME Logo" class="w-14 h-14 object-contain">
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" alt="FOXANIME Logo" class="w-14 h-14 object-cover rounded-2xl border-2 border-lime-500/50 shadow-[0_0_10px_rgba(163,230,53,0.3)]">
                     <span class="text-4xl font-extrabold text-white">FOX<span class="text-lime-500">ANIME</span></span>
                 </a>
             </div>
 
             <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
                 <form id="search-form-desktop" class="relative flex-grow flex items-center">
-                    <input id="search-input-desktop" type="text" placeholder="Tìm kiếm anime..." 
-                    class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
-                    <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-lime-400 flex items-center justify-center">
-                        <ion-icon name="search-outline"></ion-icon>
-                    </button>
-                </form>
+    <input id="search-input-desktop" type="text" placeholder="Tìm kiếm anime..." 
+    class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
+    <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-lime-400 flex items-center justify-center">
+        <ion-icon name="search-outline"></ion-icon>
+    </button>
+    
+    <!-- HỘP THOẠI KẾT QUẢ TÌM KIẾM ĐƯỢC BÉ LÔI THÊM VÀO -->
+    <div id="search-results-desktop" class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[60vh] flex flex-col shadow-2xl overflow-y-auto"></div>
+</form>
 
                 <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
                     <a href="#login" class="text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
@@ -2040,7 +2318,11 @@ const updateAuthStateUI = (user) => {
     </nav>
 </div>
 
-<div class="lg:hidden hidden" id="mobile-menu">
+</header>
+
+<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden" style="top: 80px;"></div>
+
+<div class="lg:hidden hidden bg-gray-900 border-l border-gray-700" id="mobile-menu">
     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <a href="#home" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang Chủ</a>
 
@@ -2141,22 +2423,23 @@ const updateAuthStateUI = (user) => {
                    <a href="#season/mua-thu-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Thu 2024</a>
                    <a href="#season/mua-dong-2024" class="block text-gray-400 hover:bg-gray-600 hover:text-white py-1 text-sm">Đông 2024</a>
                </div>
-           </div>
-       </div>
+            </div>
+        </div>
 
-       <a href="#library" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư Viện</a>
-       <a href="#schedule" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch Chiếu</a>
-   </div>
-   <div class="px-5 pb-3">
-    <form id="search-form-mobile">
-        <input id="search-input-mobile" type="text" placeholder="Tìm kiếm anime..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
-    </form>
+        <a href="#library" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư Viện</a>
+        <a href="#schedule" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch Chiếu</a>
+    </div>
+    <div class="px-5 pb-3">
+        <form id="search-form-mobile" class="relative">
+            <input id="search-input-mobile" type="text" placeholder="Tìm kiếm anime..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-lime-500 focus:bg-gray-600 transition-all" autocomplete="off">
+            
+            <div id="search-results-mobile" class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[50vh] flex flex-col shadow-2xl overflow-y-auto"></div>
+        </form>
+    </div>
+    <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
+        <a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
+    </div>
 </div>
-<div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
-    <a href="#login" class="block w-full text-center text-gray-900 bg-lime-500 hover:bg-lime-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>
-</div>
-</div>
-</header>
 
 <main id="app" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen">
     <div class="flex justify-center items-center h-[50vh]">
