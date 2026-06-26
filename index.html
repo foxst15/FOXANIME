@@ -163,36 +163,41 @@
         }
     };
 
-    const deleteOldestComments = async (movieId, comments) => {
-        if (comments.length > COMMENT_LIMIT) {
-            comments.sort((a, b) => {
-               const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-               const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
-               return timeA - timeB;
-           });
-            const commentsToDelete = comments.slice(0, comments.length - COMMENT_LIMIT);
-            const batch = writeBatch(db);
-            const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
-            commentsToDelete.forEach(comment => {batch.delete(doc(commentsColRef, comment.id));});
-            try {
-                await batch.commit();
-                console.log(`Đã xóa ${commentsToDelete.length} bình luận cũ nhất cho phim ${movieId}.`);
-            } catch (e) {console.error("Lỗi khi xóa bình luận cũ:", e);}
+   
+const setupCommentsListener = (movieId) => {
+    if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+    const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
+    
+    // BÉ LÔI FIX: Dùng orderBy và limit để chỉ lấy 20 bình luận mới nhất, KHÔNG CẦN XÓA DATA TRONG DATABASE NỮA!
+    const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT)); 
+    
+    unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
+        const updatedComments = [];
+        snapshot.forEach(doc => {updatedComments.push({ id: doc.id, ...doc.data() });});
+        
+        // Không cần gọi hàm xóa nữa, vì database chỉ gửi về tối đa 20 bài thôi!
+        const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
+        const commentsListElement = getEl('#comments-list');
+        const commentCountElement = getEl('#comment-count-display');
+        
+        if (commentCountElement) commentCountElement.textContent = updatedComments.length;
+        if (commentsListElement) {
+            commentsListElement.innerHTML = `
+                <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                    ${displayedComments.length > 0
+                        ? displayedComments.map(CommentTemplate).join('')
+                        : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                    }
+                    ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                </div>
+            `;
         }
-    };
-
-    const setupCommentsListener = (movieId) => {
-        if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
-        const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
-        const commentsQuery = query(commentsColRef); 
-        unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
-            const updatedComments = [];
-            snapshot.forEach(doc => {updatedComments.push({ id: doc.id, ...doc.data() });});
-            updatedComments.sort((a, b) => {
-                const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-                const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
-                return timeB - timeA;
-            });
+    }, (error) => {
+        console.error("Lỗi listener bình luận:", error);
+        const commentsListElement = getEl('#comments-list');
+        if (commentsListElement) {commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';}
+    });
+};
             deleteOldestComments(movieId, updatedComments); 
             const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
             const commentsListElement = getEl('#comments-list');
@@ -336,7 +341,8 @@ const handleLogout = (e) => {
 };
 
 const fetchUserLikes = async (shouldRerender = false) => { 
-    if (!auth?.currentUser || !db || userId === 'guest' || !userId) { 
+    // BÉ LÔI FIX: Thêm isGoogleAuth(auth.currentUser) để chặn tài khoản Khách gọi API này
+    if (!auth?.currentUser || !db || userId === 'guest' || !userId || !isGoogleAuth(auth.currentUser)) { 
         currentUserLikeDocIds = {}; 
         return; 
     }
