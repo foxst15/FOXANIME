@@ -166,16 +166,20 @@
    
 const setupCommentsListener = (movieId) => {
     if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+    
     const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
     
-    // BÉ LÔI FIX: Dùng orderBy và limit để chỉ lấy 20 bình luận mới nhất, KHÔNG CẦN XÓA DATA TRONG DATABASE NỮA!
+    // --- PHẦN FIX CHUẨN ---
+    // Chỉ tải 20 bình luận MỚI NHẤT từ trên Server, không cần tải hết rồi xóa
     const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT)); 
+    // ----------------------
     
     unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
         const updatedComments = [];
         snapshot.forEach(doc => {updatedComments.push({ id: doc.id, ...doc.data() });});
         
-        // Không cần gọi hàm xóa nữa, vì database chỉ gửi về tối đa 20 bài thôi!
+        // Không cần gọi deleteOldestComments nữa vì mình đã giới hạn bằng query rồi!
+        
         const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
         const commentsListElement = getEl('#comments-list');
         const commentCountElement = getEl('#comment-count-display');
@@ -198,28 +202,6 @@ const setupCommentsListener = (movieId) => {
         if (commentsListElement) {commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';}
     });
 };
-            deleteOldestComments(movieId, updatedComments); 
-            const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
-            const commentsListElement = getEl('#comments-list');
-            const commentCountElement = getEl('#comment-count-display');
-            if (commentCountElement) commentCountElement.textContent = updatedComments.length;
-            if (commentsListElement) {
-                commentsListElement.innerHTML = `
-                        <div class="max-h-96 overflow-y-auto comments-scroll-area">
-                            ${displayedComments.length > 0
-                                ? displayedComments.map(CommentTemplate).join('')
-                                : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
-                            }
-                                ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
-                        </div>
-                            `;
-                        }
-                    }, (error) => {
-                        console.error("Lỗi listener bình luận:", error);
-                        const commentsListElement = getEl('#comments-list');
-                        if (commentsListElement) {commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';}
-                    });
-    };
 
     const incrementViewCount = async (movieId) => {
         const viewedKey = `viewed_${movieId}`;
