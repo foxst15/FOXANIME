@@ -164,7 +164,7 @@
     };
 
    
-const setupCommentsListener = (movieId) => {
+    const setupCommentsListener = (movieId) => {
     if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
     
     const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
