@@ -30,8 +30,8 @@
         let isAuthInitialised = false;
         let botInterval = null; 
         let isBotRunning = false;
-        let targetMovie = null;
-
+        let targetMovies = [];
+        
         // --- CẤU HÌNH TỐC ĐỘ (Theo yêu cầu của User) ---
         const BOT_INTERVAL_ANON = 1000; // 1 giây cho Khách/Ẩn danh (View + Like)
         const BOT_INTERVAL_AUTH = 5000; // 5 giây cho Google Auth (Full tương tác)
@@ -739,50 +739,89 @@
 
         // --- HÀM TÌM KIẾM PHIM ---
         const handleSearchMovie = (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            const resultsContainer = getEl('#search-results');
-            resultsContainer.innerHTML = '';
-            
-            if (!searchTerm) {
-                resultsContainer.classList.add('hidden');
-                return;
-            }
+    const searchTerm = e.target.value.toLowerCase().trim();
+    const resultsContainer = getEl('#search-results');
+    resultsContainer.innerHTML = '';
+    
+    if (!searchTerm) {
+        resultsContainer.classList.add('hidden');
+        return;
+    }
 
-            // Tìm phim trong kho cache (tối đa 5 kết quả)
-            const matchedMovies = globalMovieCache.filter(m => m.title.toLowerCase().includes(searchTerm)).slice(0, 5);
+    const matchedMovies = globalMovieCache.filter(m => m.title.toLowerCase().includes(searchTerm)).slice(0, 5);
+    
+    if (matchedMovies.length > 0) {
+        resultsContainer.classList.remove('hidden');
+        matchedMovies.forEach(movie => {
+            const div = document.createElement('div');
+            div.className = "p-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2 border-b border-gray-700 last:border-0";
+            div.innerHTML = `<img src="${movie.posterUrl}" class="w-8 h-12 object-cover rounded flex-shrink-0"><span class="text-sm text-gray-200 truncate">${movie.title}</span>`;
             
-            if (matchedMovies.length > 0) {
-                resultsContainer.classList.remove('hidden');
-                matchedMovies.forEach(movie => {
-                    const div = document.createElement('div');
-                    div.className = "p-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2 border-b border-gray-700 last:border-0";
-                    div.innerHTML = `<img src="${movie.posterUrl}" class="w-8 h-12 object-cover rounded flex-shrink-0"><span class="text-sm text-gray-200 truncate">${movie.title}</span>`;
-                    div.onclick = () => {
-                        targetMovie = movie;
-                        getEl('#target-display').classList.remove('hidden');
-                        getEl('#target-name').textContent = movie.title;
-                        getEl('#search-input').value = '';
-                        resultsContainer.classList.add('hidden');
-                        log(`🎯 Đã ghim mục tiêu: "${movie.title}"`, 'success');
-                    };
-                    resultsContainer.appendChild(div);
-                });
-            } else {
+            div.onclick = () => {
+                // Kiểm tra xem phim đã có trong danh sách chưa
+                if (!targetMovies.find(m => m.id === movie.id)) {
+                    targetMovies.push(movie);
+                    renderTargetList();
+                    log(`🎯 Đã thêm vào danh sách buff: "${movie.title}"`, 'success');
+                } else {
+                    log(`⚠️ Phim "${movie.title}" đã có trong danh sách rồi ạ!`, 'error');
+                }
+                
+                getEl('#search-input').value = '';
                 resultsContainer.classList.add('hidden');
-            }
-        };
+            };
+            resultsContainer.appendChild(div);
+        });
+    } else {
+        resultsContainer.classList.add('hidden');
+    }
+};
 
-        const clearTarget = () => {
-            targetMovie = null;
-            getEl('#target-display').classList.add('hidden');
-            log("🔄 Đã hủy mục tiêu. Quay lại chế độ Random.", 'info');
-        };
+const renderTargetList = () => {
+    const container = getEl('#target-display-container');
+    const listEl = getEl('#target-list');
+    listEl.innerHTML = '';
+
+    if (targetMovies.length > 0) {
+        container.classList.remove('hidden');
+        targetMovies.forEach((movie, index) => {
+            const div = document.createElement('div');
+            div.className = "bg-lime-900/40 border border-lime-500/50 rounded flex justify-between items-center p-2 mb-1 animate-pulse";
+            div.innerHTML = `
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <span class="text-lime-400 font-bold text-sm">🎯</span>
+                    <span class="text-lime-200 text-xs font-bold truncate">${movie.title}</span>
+                </div>
+            `;
+            
+            const btnRemove = document.createElement('button');
+            btnRemove.className = "text-red-400 hover:text-red-200 text-xs font-extrabold px-2 py-1 bg-red-900/20 rounded hover:bg-red-900/50 transition-colors";
+            btnRemove.textContent = "XÓA";
+            btnRemove.onclick = () => {
+                targetMovies.splice(index, 1); // Xóa phim khỏi mảng
+                renderTargetList(); // Cập nhật lại UI
+            };
+            
+            div.appendChild(btnRemove);
+            listEl.appendChild(div);
+        });
+    } else {
+        container.classList.add('hidden');
+        log("🔄 Đã xóa hết danh sách. Bot sẽ tự động buff Random toàn server nha cậu chủ!", 'info');
+    }
+};
+
+const clearAllTargets = () => {
+    targetMovies = [];
+    renderTargetList();
+};
 
         // === LOGIC CHẠY BOT (ĐÃ FIX LỖI GỘP LỆNH BATCH) ===
         const botLoop = async () => { 
             if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
             
-            let randomMovie = targetMovie ? targetMovie : globalMovieCache[Math.floor(Math.random() * globalMovieCache.length)];
+           let pool = targetMovies.length > 0 ? targetMovies : globalMovieCache;
+           let randomMovie = pool[Math.floor(Math.random() * pool.length)];
             const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
             
             // TẠO GIỎ HÀNG (BATCH) ĐỂ ĐÓNG GÓI LỆNH
@@ -987,7 +1026,7 @@
         document.addEventListener('DOMContentLoaded', setupFirebase);
         document.addEventListener('DOMContentLoaded', () => { getEl('#bot-control-btn')?.addEventListener('click', handleBotToggle);
             getEl('#search-input')?.addEventListener('input', handleSearchMovie);
-            getEl('#clear-target-btn')?.addEventListener('click', clearTarget);
+            getEl('#clear-all-targets-btn')?.addEventListener('click', clearAllTargets);
 
          });
     </script>
@@ -1018,12 +1057,9 @@
                         <div id="search-results" class="absolute left-0 right-0 bg-gray-800 border border-gray-600 rounded-lg mt-1 hidden shadow-2xl max-h-48 overflow-y-auto"></div>
                     </div>
 
-                    <div id="target-display" class="hidden mt-3 bg-lime-900/40 border border-lime-500/50 rounded-lg p-2 flex justify-between items-center animate-pulse">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <span class="text-lime-400 font-bold text-lg">🎯</span>
-                            <span class="text-lime-200 text-xs font-bold truncate">Đang buff: <span id="target-name" class="text-white"></span></span>
-                        </div>
-                        <button id="clear-target-btn" class="text-red-400 hover:text-red-200 text-xs font-extrabold px-2 py-1 bg-red-900/20 rounded hover:bg-red-900/50 transition-colors">HỦY</button>
+                    <div id="target-display-container" class="hidden mt-3">
+                        <div id="target-list" class="max-h-40 overflow-y-auto space-y-1 scrollbar-hide"></div>
+                        <button id="clear-all-targets-btn" class="mt-2 w-full text-red-400 hover:text-red-200 text-xs font-bold py-2 bg-red-900/20 rounded border border-red-500/30 hover:bg-red-900/50 transition-colors">🗑️ XÓA TẤT CẢ DANH SÁCH CHỌN</button>
                     </div>
                 </div>
 
