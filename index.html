@@ -731,8 +731,8 @@ const MovieCardTemplate = (movie) => {
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
                             <p class="text-lime-400 text-lg font-bold mb-2 text-center">XEM NGAY</p>
                             <div class="flex items-center text-sm text-gray-300">
-                                <ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${movie.id}">${(movie.viewCount || 0).toLocaleString('vi-VN')}</span>
-                                <ion-icon name="thumbs-up-outline" class="ml-3 mr-1"></ion-icon> <span class="like-count-${movie.id}">${(movie.likeCount || 0).toLocaleString('vi-VN')}</span>
+                                <div class="flex items-center"><ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${movie.id}">${(movie.viewCount || 0).toLocaleString('vi-VN')}</span></div>
+                                <div class="flex items-center ml-3"><ion-icon name="thumbs-up-outline" class="mr-1"></ion-icon> <span class="like-count-${movie.id}">${(movie.likeCount || 0).toLocaleString('vi-VN')}</span></div>
                             </div>
                         </div>
                     </div>
@@ -1614,7 +1614,6 @@ const loadInitialMovieCache = () => {
             movieList.push(data);
 
             // --- BÉ LÔI PHÙ PHÉP: CẬP NHẬT TRỰC TIẾP VÀO DOM TRÁNH RELOAD TRANG ---
-            if (wasCacheLoaded) {
                 // Cập nhật lượt xem
                 const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
                 viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
