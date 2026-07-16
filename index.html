@@ -1641,10 +1641,8 @@ const loadInitialMovieCache = () => {
         globalMovieCache = movieList;
 
         // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
-        if (!wasCacheLoaded) {
-            if (window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
+        if (!wasCacheLoaded) {          
                 router(false);
-            }
         }
     }, (error) => {
         console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
