@@ -1628,7 +1628,7 @@ const loadInitialMovieCache = () => {
                 const reviewTotal = data.reviewTotal || 0;
                 const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
                 ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
-            }
+            
         });
 
         // Sắp xếp lại kho phim
