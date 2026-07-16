@@ -627,17 +627,15 @@ const renderSubtleRatingHtml = (movie) => {
     const ratingDisplay = averageRating.toFixed(1);
 
     if (reviewCount === 0) {
-
        return `<div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md text-gray-400 text-xs">--/5</div>`;
-   }
+    }
 
-   return `
-                <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
-                    <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
-                    <span class="text-white text-xs font-bold">${ratingDisplay}</span>
-                    <!-- Bỏ phần hiển thị số lượt đánh giá để gọn hơn -->
-                </div>
-   `;
+    return `
+        <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
+            <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
+            <span class="text-white text-xs font-bold rating-score-${movie.id}">${ratingDisplay}</span>
+        </div>
+    `;
 };
 
 const renderFormStars = (currentRating) => {
@@ -733,8 +731,8 @@ const MovieCardTemplate = (movie) => {
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
                             <p class="text-lime-400 text-lg font-bold mb-2 text-center">XEM NGAY</p>
                             <div class="flex items-center text-sm text-gray-300">
-                                <ion-icon name="eye-outline" class="mr-1"></ion-icon> ${(movie.viewCount || 0).toLocaleString('vi-VN')}
-                                <ion-icon name="thumbs-up-outline" class="ml-3 mr-1"></ion-icon> ${(movie.likeCount || 0).toLocaleString('vi-VN')}
+                                <ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${movie.id}">${(movie.viewCount || 0).toLocaleString('vi-VN')}</span>
+                                <ion-icon name="thumbs-up-outline" class="ml-3 mr-1"></ion-icon> <span class="like-count-${movie.id}">${(movie.likeCount || 0).toLocaleString('vi-VN')}</span>
                             </div>
                         </div>
                     </div>
@@ -1607,7 +1605,34 @@ const loadInitialMovieCache = () => {
     const q = query(collection(db, dataCollectionPath));
 
     onSnapshot(q, (snapshot) => {
-        const movieList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const wasCacheLoaded = isGlobalCacheLoaded;
+        isGlobalCacheLoaded = true;
+
+        const movieList = [];
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            movieList.push(data);
+
+            // --- BÉ LÔI PHÙ PHÉP: CẬP NHẬT TRỰC TIẾP VÀO DOM TRÁNH RELOAD TRANG ---
+            if (wasCacheLoaded) {
+                // Cập nhật lượt xem
+                const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
+                viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
+                
+                // Cập nhật lượt thích
+                const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
+                likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
+
+                // Cập nhật điểm đánh giá
+                const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
+                const reviewCount = data.reviewCount || 0;
+                const reviewTotal = data.reviewTotal || 0;
+                const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+                ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
+            }
+        });
+
+        // Sắp xếp lại kho phim
         movieList.sort((a, b) => {
             const timeA = b.lastEpisodeUpdate?.toMillis() || b.createdAt?.toMillis() || 0;
             const timeB = a.lastEpisodeUpdate?.toMillis() || a.createdAt?.toMillis() || 0;
@@ -1615,11 +1640,12 @@ const loadInitialMovieCache = () => {
         });
 
         globalMovieCache = movieList;
-        const wasCacheLoaded = isGlobalCacheLoaded;
-        isGlobalCacheLoaded = true;
 
-        if (!wasCacheLoaded || window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
-            router(false);
+        // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
+        if (!wasCacheLoaded) {
+            if (window.location.hash.startsWith('#home') || window.location.hash === '' || window.location.hash.startsWith('#schedule')) {
+                router(false);
+            }
         }
     }, (error) => {
         console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
@@ -1627,7 +1653,7 @@ const loadInitialMovieCache = () => {
         showError("Lỗi tải dữ liệu phim.", error.message);
     });
 } catch (e) {
-   console.error("Lỗi nghiêm trọng khi gọi collection() (Kiểm tra dataCollectionPath):", e);
+   console.error("Lỗi nghiêm trọng khi gọi collection():", e);
    setupError = e;
    router();
 }
