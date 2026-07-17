@@ -1034,6 +1034,10 @@
         let adminProfilesCollectionRef = null; 
         let userProfileDocRef = null;
         
+        // BIẾN MỚI CỦA BÉ LÔI CHO HERO SLIDER NÈ
+        let sliderSettingsDocRef = null;
+        let currentSliderSettings = { mode: 'random', selectedMovieIds: [] };
+        
         let currentUserProfile = {};
         let globalAdminMoviesCache = [];
         let unsubscribeMoviesListener = null;
@@ -1561,6 +1565,103 @@
             }
         };
         // END: BULK IMPORT LOGIC
+
+        // THÊM HÀM CHO HERO SLIDER NÈ CẬU CHỦ!!! 🎀
+        window.changeSliderMode = (mode) => {
+            currentSliderSettings.mode = mode;
+            $('manual-slider-controls').classList.toggle('hidden', mode === 'random');
+        };
+
+        window.handleSliderSearch = (term) => {
+            const resultsEl = $('slider-search-results');
+            if (!term.trim()) { resultsEl.classList.add('hidden'); return; }
+            
+            const results = globalAdminMoviesCache.filter(m => 
+                m.title.toLowerCase().includes(term.toLowerCase())
+            ).slice(0, 5);
+
+            if (results.length > 0) {
+                resultsEl.innerHTML = results.map(m => `
+                    <div class="p-2 hover:bg-[#ff69b4] hover:text-white cursor-pointer flex items-center gap-2 border-b border-[#5d3f9e] last:border-0" 
+                         onclick="window.addMovieToSlider('${m.id}')">
+                        <img src="${m.posterUrl}" class="w-8 h-12 object-cover rounded">
+                        <span class="truncate text-sm font-medium">${m.title}</span>
+                    </div>
+                `).join('');
+                resultsEl.classList.remove('hidden');
+            } else {
+                resultsEl.innerHTML = '<div class="p-2 text-sm text-gray-400 italic">Không tìm thấy phim.</div>';
+                resultsEl.classList.remove('hidden');
+            }
+        };
+
+        window.addMovieToSlider = (movieId) => {
+            $('slider-search-input').value = '';
+            $('slider-search-results').classList.add('hidden');
+            
+            if (currentSliderSettings.selectedMovieIds.includes(movieId)) {
+                window.showConfirmModal("Phim này đã có trong Slider rồi ạ!");
+                return;
+            }
+            if (currentSliderSettings.selectedMovieIds.length >= 6) {
+                window.showConfirmModal("Đã đạt giới hạn 6 phim! Vui lòng xóa bớt trước khi thêm.");
+                return;
+            }
+            currentSliderSettings.selectedMovieIds.push(movieId);
+            window.renderSelectedSliderMoviesUI();
+        };
+
+        window.removeMovieFromSlider = (movieId) => {
+            currentSliderSettings.selectedMovieIds = currentSliderSettings.selectedMovieIds.filter(id => id !== movieId);
+            window.renderSelectedSliderMoviesUI();
+        };
+
+        window.renderSelectedSliderMoviesUI = () => {
+            const container = $('slider-selected-list');
+            if(!container) return;
+            
+            if (currentSliderSettings.selectedMovieIds.length === 0) {
+                container.innerHTML = '<p class="col-span-full text-sm text-gray-400 italic">Chưa chọn phim nào.</p>';
+                return;
+            }
+
+            container.innerHTML = currentSliderSettings.selectedMovieIds.map(id => {
+                const movie = globalAdminMoviesCache.find(m => m.id === id);
+                if (!movie) return '';
+                return `
+                    <div class="relative bg-[#2f1d56] rounded-lg border border-[#5d3f9e] p-2 flex flex-col items-center group">
+                        <img src="${movie.posterUrl}" class="w-full h-32 object-cover rounded mb-2">
+                        <span class="text-xs text-center font-bold text-white truncate w-full">${movie.title}</span>
+                        <button onclick="window.removeMovieFromSlider('${id}')" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-800 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.saveSliderSettings = async () => {
+            try {
+                if (currentSliderSettings.mode === 'manual' && currentSliderSettings.selectedMovieIds.length === 0) {
+                    $('slider-msg').innerHTML = '<span class="text-red-400">Vui lòng chọn ít nhất 1 phim cho chế độ thủ công!</span>';
+                    return;
+                }
+                
+                $('slider-msg').innerHTML = '<span class="text-yellow-400">Đang lưu...</span>';
+                await setDoc(sliderSettingsDocRef, {
+                    mode: currentSliderSettings.mode,
+                    selectedMovieIds: currentSliderSettings.selectedMovieIds,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: userId
+                });
+                $('slider-msg').innerHTML = '<span class="text-[#00ffaa]">Đã lưu cấu hình Slider thành công! 🎉</span>';
+                setTimeout(() => $('slider-msg').innerHTML = '', 3000);
+            } catch (error) {
+                console.error("Lỗi lưu slider:", error);
+                $('slider-msg').innerHTML = `<span class="text-red-400">Lỗi: ${error.message}</span>`;
+            }
+        };
+        // KẾT THÚC HÀM HERO SLIDER
 
         const extractMovieData = (prefix = '') => {
             const containerId = prefix === 'edit-' ? 'edit-genre-tag-container' : 'genre-tag-container';
@@ -2129,6 +2230,22 @@
 
                 adminProfilesCollectionRef = collection(db, 'artifacts', appId, 'adminProfiles');
 
+                // Lắng nghe cấu hình Hero Slider
+                sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'heroSlider');
+                onSnapshot(sliderSettingsDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentSliderSettings = docSnap.data();
+                    } else {
+                        currentSliderSettings = { mode: 'random', selectedMovieIds: [] };
+                    }
+                    if (window.location.hash === '' || window.location.hash === '#dashboard') {
+                        const manualControls = $('manual-slider-controls');
+                        if(manualControls) {
+                            window.renderSelectedSliderMoviesUI();
+                        }
+                    }
+                });
+
                 onAuthStateChanged(auth, async (user) => {
                     if (user && !user.isAnonymous) {
                         
@@ -2348,6 +2465,49 @@
             const totalMoviesCache = globalAdminMoviesCache.length;
             const totalEpisodes = globalAdminMoviesCache.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
             
+            // TẠO GIAO DIỆN HERO SLIDER MANAGEMENT
+            const sliderManagementHtml = `
+                <div class="bg-[#1e1346] p-5 rounded-xl border-2 border-[#00ffaa] mb-6 shadow-[0_0_15px_rgba(0,255,170,0.15)] relative overflow-visible z-20">
+                    <div class="absolute -top-3 left-4 bg-[#00ffaa] text-gray-900 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-md">
+                        <i class="fas fa-images mr-1"></i> Quản Lý Hero Slider
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 mb-4 mt-2">
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="random" ${currentSliderSettings.mode === 'random' ? 'checked' : ''} onchange="window.changeSliderMode('random')" class="form-radio text-[#00ffaa] focus:ring-[#00ffaa] w-4 h-4">
+                            <span class="font-medium text-sm">Tự động Random (5 Phim)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="manual" ${currentSliderSettings.mode === 'manual' ? 'checked' : ''} onchange="window.changeSliderMode('manual')" class="form-radio text-[#ff69b4] focus:ring-[#ff69b4] w-4 h-4">
+                            <span class="font-medium text-sm text-[#ff69b4]">Chọn tay (Max 6 Phim)</span>
+                        </label>
+                    </div>
+
+                    <div id="manual-slider-controls" class="${currentSliderSettings.mode === 'random' ? 'hidden' : 'block'} transition-all bg-[#2f1d56] p-4 rounded-lg border border-[#5d3f9e]">
+                        <!-- Search & Add -->
+                        <div class="flex space-x-2 mb-4 relative z-30">
+                            <div class="relative flex-grow">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="slider-search-input" placeholder="Gõ tên phim để thêm vào Slider..." class="form-input text-sm w-full pl-10 h-10" oninput="window.handleSliderSearch(this.value)">
+                            </div>
+                            <div id="slider-search-results" class="absolute top-full left-0 w-full mt-1 bg-[#1a0f3d] border border-[#ff69b4] rounded-lg shadow-2xl z-50 hidden max-h-48 overflow-y-auto"></div>
+                        </div>
+                        
+                        <!-- Selected List -->
+                        <div id="slider-selected-list" class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-2">
+                            <!-- Rendered via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 border-t border-gray-700 pt-4">
+                        <p id="slider-msg" class="text-sm font-bold"></p>
+                        <button onclick="window.saveSliderSettings()" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-6 rounded-lg shadow-md flex items-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> LƯU CẤU HÌNH SLIDER
+                        </button>
+                    </div>
+                </div>
+            `;
+
             $('main-content').innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
@@ -2373,6 +2533,8 @@
                         
                         <div id="fix-legacy-status" class="text-[#00ffaa] font-bold mb-2"></div>
                         
+                        ${sliderManagementHtml}
+
                         <div class="filter-bar-container">
                             <div class="flex-grow">
                                 <input type="text" id="filter-title-input" placeholder="🔍 Tìm tên phim..." class="form-input h-10 text-sm" 
@@ -2437,16 +2599,30 @@
                 </div>
             `;
             
+            window.renderSelectedSliderMoviesUI(); // Tải UI list phim ngay sau khi render Dashboard
+            
             document.addEventListener('click', function(event) {
                  const dropdown = $('genre-filter-dropdown');
                  const dropdownButton = $('genre-filter-button');
                  
+                 // Kiểm tra cho dropdown thể loại
                  if (dropdown && !dropdown.classList.contains('hidden')) {
                      const isClickInsideButton = event.target.closest('#genre-filter-button');
                      const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
                      
                      if (!isClickInsideButton && !isClickInsideDropdown) {
                          dropdown.classList.add('hidden');
+                     }
+                 }
+
+                 // Kiểm tra cho dropdown search của Slider
+                 const sliderSearchResults = $('slider-search-results');
+                 const sliderSearchInput = $('slider-search-input');
+                 if (sliderSearchResults && !sliderSearchResults.classList.contains('hidden')) {
+                     const isClickInsideInput = event.target.closest('#slider-search-input');
+                     const isClickInsideResults = event.target.closest('#slider-search-results');
+                     if (!isClickInsideInput && !isClickInsideResults) {
+                         sliderSearchResults.classList.add('hidden');
                      }
                  }
             });
