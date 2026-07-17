@@ -2347,98 +2347,110 @@ const updateAuthStateUI = (user) => {
     .mobile-dropdown-content a:hover, .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
     /* --------------------------------------------------------- */
 
-/* --- BÉ LÔI TỐI ƯU LỖI 5XX TƯƠNG THÍCH MỌI MÀN HÌNH (MOBILE + PC) --- */
-    #cdn-failure-overlay {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background-color: #0b0f19; color: #f3f4f6;
-        display: none; flex-direction: column; align-items: center; justify-content: center;
-        z-index: 10000; padding: 15px; box-sizing: border-box;
-        overflow-y: auto; overflow-x: hidden; /* Cấm tuyệt đối tràn viền ngang */
-    }
+/* --- OVERLAY LỖI 5XX --- */
+#cdn-failure-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: #0b0f19; color: #f3f4f6;
+    display: none; /* đổi thành flex khi muốn hiện */
+    flex-direction: column; align-items: center; justify-content: center;
+    z-index: 10000; padding: 15px; box-sizing: border-box;
+    overflow-y: auto; overflow-x: hidden;
+}
+#cdn-failure-overlay * { box-sizing: border-box; }
 
-    /* Bùa chú ép viền: Không cho hộp phình to hơn màn hình */
-    #cdn-failure-overlay * {
-        box-sizing: border-box; 
-    }
+/* Hộp ngoài */
+.error-container {
+    width: 100%; max-width: 800px; margin: auto;
+    position: relative; overflow: hidden;
+    border-radius: 22px; padding: 3px;
+    box-shadow: 0 0 40px rgba(163, 230, 53, 0.15);
+}
+.error-container::before {
+    content: ''; position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 70%, #a3e635 85%, #c084fc 100%);
+    animation: spin-border 3s linear infinite; z-index: 1;
+}
+@keyframes spin-border { 100% { transform: rotate(360deg); } }
 
-    /* Hộp bọc ngoài (Che khuất phần đĩa xoay thừa) */
-    .error-container {
-        width: 100%; max-width: 800px; margin: auto; 
-        position: relative; overflow: hidden; 
-        border-radius: 22px; 
-        padding: 3px; /* Độ dày viền Neon */
-        box-shadow: 0 0 40px rgba(163, 230, 53, 0.15);
-    }
+/* Hộp trong */
+.error-inner {
+    background: #111827; border-radius: 19px;
+    position: relative; z-index: 2;
+    width: 100%; display: flex; flex-direction: column;
+}
 
-    /* Đĩa màu Neon xoay tròn bên dưới */
-    .error-container::before {
-        content: ''; position: absolute;
-        top: -50%; left: -50%; width: 200%; height: 200%;
-        background: conic-gradient(from 0deg, transparent 70%, #a3e635 85%, #c084fc 100%);
-        animation: spin-border 3s linear infinite;
-        z-index: 1;
-    }
-    @keyframes spin-border { 100% { transform: rotate(360deg); } }
-    
-    /* Hộp màu đen bên trong đè lên */
-    .error-inner {
-        background: #111827; border-radius: 19px;
-        position: relative; z-index: 2;
-        width: 100%; display: flex; flex-direction: column;
-    }
-    
-    /* --- CĂN CHỈNH CHO MOBILE TRƯỚC --- */
-    /* --- CĂN CHỈNH CHO MOBILE ĐƯỢC TỐI ƯU HÓA --- */
+/* --- MOBILE DEFAULT --- */
 .error-header { text-align: center; padding: 15px 10px; border-bottom: 1px solid #1f2937; }
 .error-icon-pulse { font-size: 2rem; margin-bottom: 5px; display: inline-block; animation: pulse-warn 2s infinite; }
+@keyframes pulse-warn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-/* Giảm font chữ, cho phép bẻ dòng tự động hoàn hảo trên mọi kích thước */
-.error-header h1 { 
-    color: #ffffff; font-size: 1.1rem; font-weight: 800; 
+.error-header h1 {
+    color: #ffffff; font-size: 1.1rem; font-weight: 800;
     margin: 0; letter-spacing: 0.5px; line-height: 1.3;
-    word-break: break-word; /* Tốt hơn word-wrap cho mobile */
+    word-break: break-word;
 }
 .error-header p { font-size: 0.8rem; color: #9ca3af; margin-top: 5px; line-height: 1.4; }
 
-/* Dùng flex để mobile tự động xếp dọc */
-.error-content-grid { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
-.error-card { background: #1f2937; padding: 12px; border-radius: 10px; text-align: left; }
+.error-content-grid {
+    display: flex; flex-direction: column;
+    gap: 12px; padding: 12px;
+}
 
+.error-card { background: #1f2937; padding: 12px; border-radius: 10px; text-align: left; }
 .error-card.border-amber { border-left: 4px solid #f59e0b; }
 .error-card.border-purple { border-left: 4px solid #c084fc; }
 .error-card h3 { color: #ffffff; font-size: 0.95rem; font-weight: 700; margin: 0 0 8px 0; }
+
 .error-list { list-style: none; padding: 0; margin: 0; }
 .error-list li { font-size: 0.8rem; color: #d1d5db; margin-bottom: 6px; padding-left: 18px; line-height: 1.4; position: relative; }
 .error-list li::before { content: "✦"; color: #c084fc; position: absolute; left: 0; top: 0; }
 
-.right-column { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px; background: #1a202c; border-radius: 10px; border: 1px dashed #374151; }
+.right-column { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; background: #1a202c; border-radius: 10px; border: 1px dashed #374151; }
 .status-box { text-align: center; width: 100%; }
-.action-link { display: block; background: #a3e635; color: #111827; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; text-align: center; margin: 0 auto; max-width: 200px;}
+.action-link { display: block; background: #a3e635; color: #111827; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; text-align: center; margin: 0 auto; max-width: 200px; }
 
-/* Ảnh logo: Sửa lại để hiện thị khi cần */
-.komiko-logo { display: block; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; } 
+.komiko-logo { display: block; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
 
 .loader-ring { width: 20px; height: 20px; border: 3px solid rgba(163,230,53,0.1); border-radius: 50%; border-top-color: #a3e635; animation: spin-load 1s linear infinite; margin-bottom: 8px; }
-@keyframes spin-load { to { transform: rotate(360deg); } }
+@keyframes spin-load { 100% { transform: rotate(360deg); } }
 
 .contact-info { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
 .contact-info a { color: #9ca3af; text-decoration: none; font-size: 0.75rem; display: flex; align-items: center; }
-
 .apology-text { color: #6b7280; font-size: 0.75rem; margin: 0; padding-bottom: 10px; text-align: center; font-style: italic; }
 
-    /* --- CĂN CHỈNH KHI LÊN MÀN HÌNH LỚN (PC/TABLET) --- */
-    @media (min-width: 640px) { 
-        .error-content-grid { grid-template-columns: 1.6fr 1fr; gap: 20px; padding: 25px; } 
-        .error-header h1 { font-size: 1.8rem; }
-        .error-icon-pulse { font-size: 3rem; }
-        .error-header { padding: 30px 20px 20px 20px; }
-        .error-card { padding: 20px; }
-        .error-card h3 { font-size: 1.1rem; margin-bottom: 15px; }
-        .error-list li { font-size: 0.9rem; margin-bottom: 10px; }
-        .komiko-logo { display: block; width: 90px; height: 90px; border-radius: 50%; border: 3px solid #a3e635; object-fit: cover; box-shadow: 0 0 15px rgba(163,230,53,0.3); }
-        .action-link { padding: 12px 20px; font-size: 0.95rem; }
-        .contact-info a { font-size: 0.85rem; }
+/* --- TABLET >=640px --- */
+@media (min-width: 640px) {
+    .error-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* cân bằng hơn */
+        gap: 20px; padding: 25px;
     }
+    .error-header h1 { font-size: 1.5rem; }
+    .error-icon-pulse { font-size: 2.5rem; }
+    .error-header { padding: 25px 20px 20px 20px; }
+    .error-card { padding: 18px; }
+    .error-card h3 { font-size: 1.05rem; margin-bottom: 12px; }
+    .error-list li { font-size: 0.85rem; margin-bottom: 8px; }
+    .komiko-logo { width: 85px; height: 85px; }
+    .action-link { padding: 10px 18px; font-size: 0.9rem; }
+    .contact-info a { font-size: 0.8rem; }
+}
+
+/* --- DESKTOP >=1024px --- */
+@media (min-width: 1024px) {
+    .error-content-grid {
+        grid-template-columns: 1.6fr 1fr; /* lúc này cột trái rộng hơn */
+    }
+    .error-header h1 { font-size: 1.8rem; }
+    .error-icon-pulse { font-size: 3rem; }
+    .error-card { padding: 20px; }
+    .error-card h3 { font-size: 1.1rem; margin-bottom: 15px; }
+    .error-list li { font-size: 0.9rem; margin-bottom: 10px; }
+    .komiko-logo { width: 90px; height: 90px; border: 3px solid #a3e635; box-shadow: 0 0 15px rgba(163,230,53,0.3); }
+    .action-link { padding: 12px 20px; font-size: 0.95rem; }
+    .contact-info a { font-size: 0.85rem; }
+}
 
     /* Hiệu ứng Glassmorphism chuẩn trend */
     .glass-nav { 
