@@ -2288,55 +2288,6 @@ const updateAuthStateUI = (user) => {
     </div>
 </div>
 
-<div id="browser-warning-modal" class="fixed inset-0 bg-black/80 items-center justify-center z-[9999] backdrop-blur-sm font-sans" style="display: none;">
-    <div class="relative p-8 rounded-xl w-full max-w-lg mx-4 text-center bg-gray-800 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]">
-
-        <!-- Logo Chính (Hiệu ứng khung vàng) -->
-        <img src="anh/foxanimecanhbao.jpg" 
-        alt="Cảnh báo Komiko AI" 
-        class="mx-auto mb-6 w-40 h-40 object-cover rounded-full border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]" 
-        onerror="this.onerror=null;this.src='https://placehold.co/160x160/f59e0b/111827?text=Warning';" />
-
-        <h3 class="text-3xl font-extrabold text-white mb-4"> ⚠️CHÚ Ý QUAN TRỌNG!⚠️</h3>
-        <p class="text-xl text-yellow-400 mb-6 font-semibold">
-            Bạn đang dùng Edge và gặp lỗi video?
-        </p>
-
-        <p class="text-gray-300 mb-6 text-lg">
-            Để có trải nghiệm xem phim mượt mà và ổn định nhất FoxAnime khuyến nghị:
-        </p>
-
-        <div class="flex justify-center items-center space-x-6 mb-2 text-white">
-           <div class="text-center">
-            <img src="https://static.vecteezy.com/system/resources/previews/022/484/505/original/google-chrome-icon-logo-symbol-free-png.png" 
-            alt="Chrome" class="w-12 h-12 object-contain mx-auto rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/48x48/4285F4/ffffff?text=C'" />
-            <p class="text-sm font-semibold mt-1">Chrome</p>
-        </div>
-        <div class="text-center">
-            <img src="https://images-eds-ssl.xboxlive.com/image?url=4rt9.lXDC4H_93laV1_eHHFT949fUipzkiFOBH3fAiZZUCdYojwUyX2aTonS1aIwMrx6NUIsHfUHSLzjGJFxxtj3WMWEcdizFJ_lWFKualPWxv8XgjhnjQcY4q6p8oU2bIsTOD2JpDRIDQ2oI6DDRNllQJi9sB9jOaxLSd5Fix8-&format=source" 
-            alt="Cốc Cốc" class="w-12 h-12 object-contain mx-auto rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/48x48/009688/ffffff?text=CC'">
-            <p class="text-sm font-semibold mt-1">Cốc Cốc</p>
-        </div>
-        <div class="text-center">
-            <img src="https://th.bing.com/th/id/OSAAS.CAEDCF679CE094D1FA12A2EFD5427542?w=72&h=72&c=17&rs=1&o=6&dpr=1.3&pid=TechQna" 
-            alt="Firefox" class="w-12 h-12 object-contain mx-auto rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/48x48/FF7100/ffffff?text=F'" />
-            <p class="text-sm font-semibold mt-1">Firefox</p>
-        </div>
-    </div>
-
-    <p class="text-sm text-gray-500 mb-6 italic">và còn nhiều trình duyệt khác</p>
-
-    <!-- Lời xin lỗi chủ nhân yêu cầu đây ạ -->
-    <p class="text-gray-300 mb-6 italic">
-        FoxAnime chân thành xin lỗi vì sự bất tiện này!😓
-    </p>
-
-    <button onclick="closeWarningModal()" 
-    class="bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-3 px-6 rounded-lg transition-colors text-lg shadow-xl cursor-pointer">
-    TÔI ĐÃ HIỂU (Đóng)
-</button>
-</div>
-</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
