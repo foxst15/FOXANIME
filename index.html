@@ -30,13 +30,16 @@
             let isTailwindLoaded = false;
             try {
                 const testEl = document.createElement('div');
-                testEl.className = 'opacity-100'; 
-                testEl.style.display = 'none';
+                testEl.className = 'flex'; 
+                testEl.style.visibility = 'hidden';
+                testEl.style.position = 'absolute';
                 document.body.appendChild(testEl);
+                
                 const computedStyle = window.getComputedStyle(testEl);
-                isTailwindLoaded = computedStyle.opacity === '1'; 
+                isTailwindLoaded = computedStyle.display === 'flex'; 
                 document.body.removeChild(testEl);
             } catch (e) {console.error("Lỗi khi kiểm tra Tailwind:", e);}
+            
             if (!isTailwindLoaded) {
                 const overlay = document.getElementById('cdn-failure-overlay');
                 if (overlay) overlay.style.display = 'flex';
@@ -44,12 +47,13 @@
                 if (mainApp) mainApp.style.display = 'none'; 
                 const header = document.querySelector('header');
                 if (header) header.style.display = 'none'; 
-                console.warn(`[CDN ERROR] Tailwind failed to load. Initiating self-healing reload loop in ${RELOAD_INTERVAL/1000}s.`);
+                console.warn(`[Hệ thống] Mất kết nối giao diện. Tự động khôi phục sau ${RELOAD_INTERVAL/1000}s.`);
                 setTimeout(() => {location.reload();}, RELOAD_INTERVAL);
             }
         }
         window.addEventListener('load', () => {setTimeout(checkTailwindLoadAndShowFallback, 300);});
     </script>
+    
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
