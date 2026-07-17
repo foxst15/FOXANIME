@@ -2347,16 +2347,21 @@ const updateAuthStateUI = (user) => {
     .mobile-dropdown-content a:hover, .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
     /* --------------------------------------------------------- */
 
-      #cdn-failure-overlay {
+/* --- BÉ LÔI TỐI ƯU LỖI 5XX TƯƠNG THÍCH MỌI MÀN HÌNH (MOBILE + PC) --- */
+    #cdn-failure-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background-color: #0b0f19; color: #f3f4f6;
         display: none; flex-direction: column; align-items: center; justify-content: center;
         z-index: 10000; padding: 15px; box-sizing: border-box;
-        overflow-y: auto; overflow-x: hidden;
+        overflow-y: auto; overflow-x: hidden; /* Cấm tuyệt đối tràn viền ngang */
     }
+
+    /* Bùa chú ép viền: Không cho hộp phình to hơn màn hình */
     #cdn-failure-overlay * {
         box-sizing: border-box; 
     }
+
+    /* Hộp bọc ngoài (Che khuất phần đĩa xoay thừa) */
     .error-container {
         width: 100%; max-width: 800px; margin: auto; 
         position: relative; overflow: hidden; 
@@ -2365,6 +2370,7 @@ const updateAuthStateUI = (user) => {
         box-shadow: 0 0 40px rgba(163, 230, 53, 0.15);
     }
 
+    /* Đĩa màu Neon xoay tròn bên dưới */
     .error-container::before {
         content: ''; position: absolute;
         top: -50%; left: -50%; width: 200%; height: 200%;
@@ -2374,16 +2380,19 @@ const updateAuthStateUI = (user) => {
     }
     @keyframes spin-border { 100% { transform: rotate(360deg); } }
     
+    /* Hộp màu đen bên trong đè lên */
     .error-inner {
         background: #111827; border-radius: 19px;
         position: relative; z-index: 2;
         width: 100%; display: flex; flex-direction: column;
     }
     
+    /* --- CĂN CHỈNH CHO MOBILE TRƯỚC --- */
     .error-header { text-align: center; padding: 20px 15px 15px 15px; border-bottom: 1px solid #1f2937; }
     .error-icon-pulse { font-size: 2.2rem; margin-bottom: 8px; display: inline-block; animation: pulse-warn 2s infinite; }
     @keyframes pulse-warn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     
+    /* Giảm font chữ, cho phép bẻ dòng tự động */
     .error-header h1 { 
         color: #ffffff; font-size: 1.25rem; font-weight: 800; 
         margin: 0; letter-spacing: 0.5px; line-height: 1.4;
@@ -2406,7 +2415,7 @@ const updateAuthStateUI = (user) => {
     .action-link { display: block; background: #a3e635; color: #111827; padding: 10px 15px; border-radius: 10px; text-decoration: none; font-weight: 800; transition: all 0.3s; font-size: 0.9rem; text-align: center; margin: 0 auto; max-width: 250px;}
     .action-link:hover { background: #84cc16; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(163,230,53,0.4); }
     
-    .komiko-logo { display: none; } 
+    .komiko-logo { display: none; } /* Giấu avatar trên mobile cho tiết kiệm diện tích */
     
     .loader-ring { width: 22px; height: 22px; border: 3px solid rgba(163,230,53,0.1); border-radius: 50%; border-top-color: #a3e635; display: inline-block; animation: spin-load 1s linear infinite; }
     @keyframes spin-load { to { transform: rotate(360deg); } }
@@ -2414,6 +2423,20 @@ const updateAuthStateUI = (user) => {
     .contact-info a { color: #9ca3af; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; transition: color 0.3s; }
     .contact-info a:hover { color: #c084fc; text-decoration: underline; }
     .apology-text { color: #6b7280; font-size: 0.8rem; margin: 0; padding-bottom: 15px; text-align: center; font-style: italic; }
+
+    /* --- CĂN CHỈNH KHI LÊN MÀN HÌNH LỚN (PC/TABLET) --- */
+    @media (min-width: 640px) { 
+        .error-content-grid { grid-template-columns: 1.6fr 1fr; gap: 20px; padding: 25px; } 
+        .error-header h1 { font-size: 1.8rem; }
+        .error-icon-pulse { font-size: 3rem; }
+        .error-header { padding: 30px 20px 20px 20px; }
+        .error-card { padding: 20px; }
+        .error-card h3 { font-size: 1.1rem; margin-bottom: 15px; }
+        .error-list li { font-size: 0.9rem; margin-bottom: 10px; }
+        .komiko-logo { display: block; width: 90px; height: 90px; border-radius: 50%; border: 3px solid #a3e635; object-fit: cover; box-shadow: 0 0 15px rgba(163,230,53,0.3); }
+        .action-link { padding: 12px 20px; font-size: 0.95rem; }
+        .contact-info a { font-size: 0.85rem; }
+    }
 
     /* Hiệu ứng Glassmorphism chuẩn trend */
     .glass-nav { 
@@ -2446,7 +2469,6 @@ const updateAuthStateUI = (user) => {
 
 <div id="cdn-failure-overlay">
     <div class="error-container">
-        <!-- Vỏ bọc bên trong để đè lên nền phát sáng -->
         <div class="error-inner">
             <div class="error-header">
                 <div class="error-icon-pulse">⚠️</div>
