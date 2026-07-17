@@ -2348,13 +2348,22 @@ const updateAuthStateUI = (user) => {
     /* --------------------------------------------------------- */
 
 /* --- OVERLAY LỖI 5XX --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* chặn cuộn toàn trang */
+}
+
 #cdn-failure-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; /* tránh dùng 100vw/100vh vì tính cả scrollbar */
     background-color: #0b0f19; color: #f3f4f6;
     display: none; /* đổi thành flex khi muốn hiện */
     flex-direction: column; align-items: center; justify-content: center;
     z-index: 10000; padding: 15px; box-sizing: border-box;
-    overflow-y: auto; overflow-x: hidden;
+    overflow: hidden; /* chặn cuộn trong overlay */
+}
+
 }
 #cdn-failure-overlay * { box-sizing: border-box; }
 
