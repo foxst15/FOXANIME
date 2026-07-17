@@ -56,7 +56,7 @@
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com","projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
@@ -308,12 +308,21 @@ const handleGoogleLogin = async () => {
     if (!auth) return;
     const errorElement = getEl('#auth-error');
     try {
+        if (errorElement) {
+            errorElement.textContent = 'Đang kết nối với Google... Bạn đợi xíu nhé!';
+            errorElement.classList.remove('text-red-400');
+            errorElement.classList.add('text-lime-400');
+        }
         await setPersistence(auth, browserLocalPersistence);
-        await signInWithPopup(auth, new GoogleAuthProvider()); 
-        window.location.hash = '#home'; 
+        // Thay Popup bằng Redirect để vĩnh viễn không bị trình duyệt chặn COOP nữa!
+        await signInWithRedirect(auth, new GoogleAuthProvider()); 
     } catch (error) {
         console.error("Lỗi đăng nhập Google:", error);
-        if (errorElement) errorElement.textContent = `Lỗi Google: ${error.message}`;
+        if (errorElement) {
+            errorElement.textContent = `Lỗi Google: ${error.message}`;
+            errorElement.classList.remove('text-lime-400');
+            errorElement.classList.add('text-red-400');
+        }
     }
 };
 
@@ -450,6 +459,7 @@ const handleProfileUpdate = async (e) => {
     }
 
     const newName = getEl('#profile-name-input').value.trim();
+    const newAvatarUrl = getEl('#profile-avatar-input').value.trim(); // Nhặt link ảnh nè
     const errorEl = getEl('#profile-error');
     errorEl.classList.add('hidden');
 
@@ -460,18 +470,31 @@ const handleProfileUpdate = async (e) => {
     }
 
     try {
+        // Gói quà update gồm Tên và Ảnh
+        const updateData = { displayName: newName };
+        if (newAvatarUrl) updateData.photoURL = newAvatarUrl;
 
-        await updateProfile(user, { displayName: newName });
+        // Cập nhật vào Auth gốc của Firebase
+        await updateProfile(user, updateData);
+        
+        // Cập nhật cả vào Database người dùng để backup
         const userDocRef = doc(db, userRoleCollectionPath, user.uid);
-        await updateDoc(userDocRef, { displayName: newName, updatedAt: serverTimestamp() });
+        await updateDoc(userDocRef, { 
+            displayName: newName, 
+            photoURL: newAvatarUrl || user.photoURL,
+            updatedAt: serverTimestamp() 
+        });
 
-        getEl('#profile-success').textContent = "Cập nhật hồ sơ thành công!";
+        getEl('#profile-success').textContent = "Cập nhật hồ sơ thành công! (Ảnh bình luận sẽ đổi ở lần bình luận tới nha)";
         getEl('#profile-success').classList.remove('hidden');
         getEl('#profile-success').classList.add('bg-lime-900/50');
 
-                // Force UI update
+        // Ép UI tải lại ngay lập tức
         updateAuthStateUI(auth.currentUser);
-        setTimeout(() => { getEl('#profile-success').classList.add('hidden'); getEl('#profile-success').classList.remove('bg-lime-900/50'); }, 3000);
+        setTimeout(() => { 
+            getEl('#profile-success').classList.add('hidden'); 
+            getEl('#profile-success').classList.remove('bg-lime-900/50'); 
+        }, 4000);
 
     } catch (e) {
         console.error("Lỗi khi cập nhật hồ sơ:", e);
@@ -870,7 +893,7 @@ const renderProfilePage = (user) => {
                         <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
 
                         <div class="flex flex-col items-center mb-8">
-                            <img src="${photoURL}" alt="Avatar" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-lime-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <img src="${photoURL}" alt="Avatar" id="live-avatar-preview" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-lime-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                             <p class="text-xl font-bold text-white">${displayName}</p>
                             <p class="text-gray-400 text-sm">${email}</p>
                             <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
@@ -883,14 +906,22 @@ const renderProfilePage = (user) => {
                                     class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
                             </div>
 
+                            <!-- BÉ LÔI THÊM Ô NHẬP LINK ẢNH VÀO ĐÂY NÈ -->
+                            <div class="space-y-1 mt-4">
+                                <label for="profile-avatar-input" class="block text-sm font-medium text-gray-300">URL Ảnh Đại Diện (Link ảnh)</label>
+                                <input type="url" id="profile-avatar-input" value="${user.photoURL || ''}" placeholder="Dán link ảnh (VD: https://i.imgur.com/...)"
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
+                                    oninput="document.getElementById('live-avatar-preview').src = this.value || '${photoURL}'">
+                                <p class="text-xs text-gray-400 mt-1">Mẹo: Dùng link ảnh để bình luận load nhanh hơn nha!</p>
+                            </div>
+
                             <div id="profile-success" class="p-3 rounded-lg text-sm text-lime-300 hidden transition-all"></div>
                             <p id="profile-error" class="text-red-400 text-sm hidden"></p>
 
-                            <button type="submit" class="w-full bg-lime-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-lime-600 transition-colors">
-                                Cập Nhật
+                            <button type="submit" class="w-full bg-lime-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-lime-600 transition-colors mt-4">
+                                Cập Nhật Hồ Sơ
                             </button>
                         </form>
-
                     </div>
                 </div>
     `;
