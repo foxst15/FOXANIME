@@ -2356,7 +2356,7 @@ html, body {
 
 #cdn-failure-overlay {
     position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%; /* tránh dùng 100vw/100vh vì tính cả scrollbar */
+    width: 100%; height: 100%; /* tránh dùng 100vw/100vh */
     background-color: #0b0f19; color: #f3f4f6;
     display: none; /* đổi thành flex khi muốn hiện */
     flex-direction: column; align-items: center; justify-content: center;
@@ -2364,7 +2364,6 @@ html, body {
     overflow: hidden; /* chặn cuộn trong overlay */
 }
 
-}
 #cdn-failure-overlay * { box-sizing: border-box; }
 
 /* Hộp ngoài */
@@ -2379,6 +2378,7 @@ html, body {
     top: -50%; left: -50%; width: 200%; height: 200%;
     background: conic-gradient(from 0deg, transparent 70%, #a3e635 85%, #c084fc 100%);
     animation: spin-border 3s linear infinite; z-index: 1;
+    pointer-events: none; /* tránh ảnh hưởng chuột */
 }
 @keyframes spin-border { 100% { transform: rotate(360deg); } }
 
@@ -2416,12 +2416,19 @@ html, body {
 .error-list li::before { content: "✦"; color: #c084fc; position: absolute; left: 0; top: 0; }
 
 .right-column { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; background: #1a202c; border-radius: 10px; border: 1px dashed #374151; }
-.status-box { text-align: center; width: 100%; }
+.status-box { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; }
 .action-link { display: block; background: #a3e635; color: #111827; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; text-align: center; margin: 0 auto; max-width: 200px; }
 
 .komiko-logo { display: block; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
 
-.loader-ring { width: 20px; height: 20px; border: 3px solid rgba(163,230,53,0.1); border-radius: 50%; border-top-color: #a3e635; animation: spin-load 1s linear infinite; margin-bottom: 8px; }
+.loader-ring {
+    width: 20px; height: 20px;
+    border: 3px solid rgba(163,230,53,0.1);
+    border-radius: 50%;
+    border-top-color: #a3e635;
+    animation: spin-load 1s linear infinite;
+    margin: 0 auto 8px auto; /* căn giữa ngang */
+}
 @keyframes spin-load { 100% { transform: rotate(360deg); } }
 
 .contact-info { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
@@ -2432,7 +2439,7 @@ html, body {
 @media (min-width: 640px) {
     .error-content-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* cân bằng hơn */
+        grid-template-columns: 1fr 1fr; /* cân bằng */
         gap: 20px; padding: 25px;
     }
     .error-header h1 { font-size: 1.5rem; }
@@ -2449,7 +2456,7 @@ html, body {
 /* --- DESKTOP >=1024px --- */
 @media (min-width: 1024px) {
     .error-content-grid {
-        grid-template-columns: 1.6fr 1fr; /* lúc này cột trái rộng hơn */
+        grid-template-columns: 1.6fr 1fr; /* cột trái rộng hơn */
     }
     .error-header h1 { font-size: 1.8rem; }
     .error-icon-pulse { font-size: 3rem; }
