@@ -1440,18 +1440,25 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
         }
         
         window.iframeEndedListener = function(e) {
+            // --- MÁY GHI ÂM BÉ LÔI: IN RA TẤT CẢ MỌI THỨ IFRAME NÓI ---
+            console.log("🎧 BÉ LÔI ĐANG NGHE TỪ IFRAME:", e.data);
+
             try {
                 let data = e.data;
                 if (typeof data === 'string') {
                     try { data = JSON.parse(data); } catch (err) {}
                 }
                 
+                // Bé Lôi bổ sung thêm một đống từ khóa dự phòng xem có trúng không
                 const isEnded = 
                     data === 'ended' || 
                     data === 'videoEnded' || 
                     data.event === 'complete' || 
                     data.event === 'ended' || 
-                    data.message === 'complete';
+                    data.message === 'complete' ||
+                    data.action === 'ended' ||
+                    data.status === 'ended' ||
+                    (data.info && data.info === 'ended');
                     
                 if (isEnded) {
                     console.log("💌 [Bé Lôi bắt được tín hiệu Iframe]: Phim đã hết! Đang chuyển tập...");
