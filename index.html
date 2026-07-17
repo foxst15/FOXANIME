@@ -164,7 +164,142 @@
         }
     };
 
-   
+    // ========================================================
+// HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
+// ========================================================
+const getZodiacInfo = (d, m) => {
+    if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return { name: "Bạch Dương", genre: "Action", fortune: "Năng lượng rực rỡ! Một bộ phim Hành động (Action) sẽ rất phù hợp với bạn hôm nay." };
+    if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return { name: "Kim Ngưu", genre: "Slice of Life", fortune: "Bình yên là chân ái. Hãy thư giãn cùng một bộ phim Đời thường (Slice of Life) nhé!" };
+    if ((m == 5 && d >= 21) || (m == 6 && d <= 21)) return { name: "Song Tử", genre: "Comedy", fortune: "Năng lượng vui vẻ! Bạn đang cần một trận cười sảng khoái (Comedy) ngay lúc này." };
+    if ((m == 6 && d >= 22) || (m == 7 && d <= 22)) return { name: "Cự Giải", genre: "Romance", fortune: "Cảm xúc thăng hoa. Một câu chuyện tình lãng mạn (Romance) là lựa chọn tuyệt vời." };
+    if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) return { name: "Sư Tử", genre: "Super Power", fortune: "Hào quang tỏa sáng! Xem ngay một bộ phim Siêu năng lực (Super Power) thôi!" };
+    if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) return { name: "Xử Nữ", genre: "Mystery", fortune: "Tư duy sắc bén. Thử sức giải mã những bí ẩn (Mystery) ngay nào!" };
+    if ((m == 9 && d >= 23) || (m == 10 && d <= 23)) return { name: "Thiên Bình", genre: "Fantasy", fortune: "Thế giới kỳ ảo đang vẫy gọi. Cùng bước vào vũ trụ Phép thuật (Fantasy) tuyệt đep." };
+    if ((m == 10 && d >= 24) || (m == 11 && d <= 22)) return { name: "Thiên Yết", genre: "Thriller", fortune: "Bí ẩn và kịch tính. Thể loại Giật gân (Thriller) sẽ kích thích giác quan của bạn hôm nay." };
+    if ((m == 11 && d >= 23) || (m == 12 && d <= 21)) return { name: "Nhân Mã", genre: "Adventure", fortune: "Đam mê khám phá! Một chuyến phiêu lưu (Adventure) sẽ làm bạn thỏa mãn." };
+    if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return { name: "Ma Kết", genre: "Drama", fortune: "Sâu sắc và lắng đọng. Những bộ phim Kịch tính (Drama) sẽ chạm đến cảm xúc của bạn." };
+    if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return { name: "Bảo Bình", genre: "Sci-Fi", fortune: "Hướng về tương lai. Khoa học viễn tưởng (Sci-Fi) chính là chân ái!" };
+    if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) return { name: "Song Ngư", genre: "Magic", fortune: "Tâm hồn mộng mơ. Thể loại Phép thuật (Magic) sẽ mang lại điều kỳ diệu cho bạn!" };
+    return { name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ Harem xem sao!" };
+};
+
+window.handleGachaPull = (amount) => {
+    const today = new Date().toDateString();
+    let lastDate = localStorage.getItem('_gachaDate');
+    let pullsLeft = parseInt(localStorage.getItem('_gachaPulls'));
+
+    if (lastDate !== today || isNaN(pullsLeft)) {
+        pullsLeft = 5;
+        localStorage.setItem('_gachaDate', today);
+    }
+
+    const msgEl = getEl('#gacha-msg');
+    const resultsEl = getEl('#gacha-results');
+    const fortuneEl = getEl('#fortune-results');
+
+    if (pullsLeft < amount) {
+        msgEl.innerHTML = `<span class="text-red-400">Bạn chỉ còn ${pullsLeft} lượt quay hôm nay. Vui lòng quay lại vào ngày mai!</span>`;
+        return;
+    }
+
+    pullsLeft -= amount;
+    localStorage.setItem('_gachaPulls', pullsLeft);
+    getEl('#gacha-pulls-left').textContent = pullsLeft;
+
+    msgEl.innerHTML = `<span class="text-lime-400">Đang tìm kiếm anime ngẫu nhiên...</span>`;
+    resultsEl.innerHTML = `<div class="col-span-full flex justify-center py-10"><svg class="animate-spin h-12 w-12 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
+    fortuneEl.innerHTML = ''; 
+
+    setTimeout(() => {
+        const randomMovies = [...globalMovieCache].sort(() => 0.5 - Math.random()).slice(0, amount);
+        resultsEl.innerHTML = randomMovies.map(MovieCardTemplate).join('');
+        msgEl.innerHTML = `<span class="text-lime-400">Thành công! Chúc bạn xem phim vui vẻ. 🎉</span>`;
+    }, 1200);
+};
+
+window.handleFortuneTelling = (e) => {
+    e.preventDefault();
+    const dobStr = getEl('#dob-input').value;
+    if (!dobStr) return;
+
+    const date = new Date(dobStr);
+    const zodiac = getZodiacInfo(date.getDate(), date.getMonth() + 1);
+    
+    let recommended = globalMovieCache.filter(m => (m.genre || '').includes(zodiac.genre)).sort(() => 0.5 - Math.random()).slice(0, 5);
+    if (recommended.length < 5) {
+        const extra = [...globalMovieCache].sort(() => 0.5 - Math.random()).slice(0, 5 - recommended.length);
+        recommended = [...recommended, ...extra];
+    }
+
+    getEl('#gacha-results').innerHTML = ''; 
+    getEl('#gacha-msg').innerHTML = '';
+    
+    getEl('#fortune-results').innerHTML = `
+        <div class="bg-gray-800/80 p-8 rounded-2xl border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)] mt-8 text-center animate-fade-in">
+            <div class="text-6xl mb-4">🔮</div>
+            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-3">Cung ${zodiac.name}</h3>
+            <p class="text-gray-300 text-lg italic mb-6 px-4">"${zodiac.fortune}"</p>
+            <h4 class="text-lime-400 font-bold mb-6 uppercase tracking-wider border-b border-gray-600 inline-block pb-2">Đề xuất phim ${zodiac.genre} dành cho bạn:</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-left">
+                ${recommended.map(MovieCardTemplate).join('')}
+            </div>
+        </div>
+    `;
+};
+
+const GachaPageTemplate = () => {
+    return `
+        <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400 mb-4 drop-shadow-lg uppercase tracking-wide">🌟 Góc Nhân Phẩm 🌟</h2>
+                <p class="text-gray-400 text-lg">Thử vận may hôm nay hoặc để hệ thống chọn phim giúp bạn nhé!</p>
+            </div>
+
+            <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <!-- BOX GACHA -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(163,230,53,0.15)] border border-lime-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-lime-500/10 rounded-full blur-3xl"></div>
+                    <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" class="w-24 h-24 rounded-full border-4 border-lime-400 mb-6 shadow-[0_0_15px_rgba(163,230,53,0.6)] animate-bounce object-cover">
+                    <h3 class="text-2xl font-bold text-white mb-2">Gacha Phim Ngẫu Nhiên</h3>
+                    <p class="text-gray-300 mb-6 text-center">Hôm nay bạn còn <span id="gacha-pulls-left" class="text-3xl font-black text-lime-400 mx-1 drop-shadow-md">5</span> lượt</p>
+                    
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full">
+                        <button onclick="window.handleGachaPull(1)" class="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-lime-600 hover:to-lime-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-gray-500 hover:border-lime-400">
+                            Quay x1 <ion-icon name="ticket-outline" class="ml-1"></ion-icon>
+                        </button>
+                        <button onclick="window.handleGachaPull(5)" class="flex-1 bg-gradient-to-r from-lime-600 to-green-500 hover:from-lime-500 hover:to-green-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.4)]">
+                            Quay x5 VIP <ion-icon name="sparkles" class="ml-1 text-yellow-300"></ion-icon>
+                        </button>
+                    </div>
+                    <div id="gacha-msg" class="mt-5 h-6 text-sm font-semibold tracking-wide"></div>
+                </div>
+
+                <!-- BOX BÓI TOÁN -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(168,85,247,0.15)] border border-purple-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+                    <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">🔮</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Đề Xuất Theo Cung Hoàng Đạo</h3>
+                    <p class="text-gray-300 mb-6 text-center">Nhập ngày sinh để hệ thống đề xuất thể loại phim phù hợp với bạn hôm nay!</p>
+                    
+                    <form id="fortune-form" class="w-full flex flex-col space-y-4 relative z-10">
+                        <input type="date" id="dob-input" required class="w-full px-5 py-3.5 bg-gray-900 border-2 border-purple-500/50 rounded-xl text-white focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 text-center font-bold tracking-widest cursor-pointer">
+                        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                            Xem Đề Xuất <ion-icon name="star-half-outline" class="ml-1"></ion-icon>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- KẾT QUẢ -->
+            <div class="w-full max-w-7xl">
+                <div id="gacha-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+                <div id="fortune-results" class="w-full"></div>
+            </div>
+        </section>
+    `;
+};
+// ========================================================
+
     const setupCommentsListener = (movieId) => {
     if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
     
@@ -1474,7 +1609,7 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
                     (data.info && data.info === 'ended');
                     
                 if (isEnded) {
-                    console.log("💌 [Bé Lôi bắt được tín hiệu Iframe]: Phim đã hết! Đang chuyển tập...");
+                    console.log("[Hệ thống]: Đã phát hiện kết thúc video. Đang tự động chuyển tập...");
                     window.removeEventListener('message', window.iframeEndedListener);
                     
                     const container = getEl('#video-player-container');
@@ -1515,7 +1650,7 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
 } catch (e) { showError("Lỗi khi tải trang xem phim.", e.message); }
 };
         
-
+  
 const renderPage = (pageType, param) => {
     if (setupError) {showError(setupError.message, setupError.stack || '');return;}
     if (!db || !isGlobalCacheLoaded) {showLoading();return;}
@@ -1577,6 +1712,22 @@ const renderPage = (pageType, param) => {
         }, 100);
         return;
             
+    case '#gacha':
+        getEl('#app').innerHTML = GachaPageTemplate();
+        
+        // Khởi tạo và đếm số lượt quay hôm nay
+        const today = new Date().toDateString();
+        let lastDate = localStorage.getItem('_gachaDate');
+        if (lastDate !== today) {
+            localStorage.setItem('_gachaDate', today);
+            localStorage.setItem('_gachaPulls', 5);
+        }
+        getEl('#gacha-pulls-left').textContent = localStorage.getItem('_gachaPulls');
+        
+        // Gắn sự kiện cho nút Xem Bói
+        getEl('#fortune-form').addEventListener('submit', window.handleFortuneTelling);
+        return; // Dừng lại ở đây vì mình tự vẽ HTML rồi
+            
     case '#login':
         getEl('#app').innerHTML = AuthPageTemplate();
         getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
@@ -1628,12 +1779,14 @@ const renderPage = (pageType, param) => {
         break;
     case '#schedule':
         return renderSchedulePage();
-    default:
+    default:   
         window.location.hash = '#home';
         return;
     }
     getEl('#app').innerHTML = SearchPageTemplate(results, title);
 };
+
+   
 
 const router = (shouldUpdateHash = true) => {
     if (setupError) {showError(setupError.message, setupError.stack || '');return;}
@@ -1645,7 +1798,7 @@ const router = (shouldUpdateHash = true) => {
 
     getAllEl('.nav-active, .mobile-nav-active').forEach(el => el.classList.remove('nav-active', 'mobile-nav-active'));
 
-    const navMap = { '#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile' };
+    const navMap = { '#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile', '#gacha': '#gacha' };
     const groupMap = { '#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season' };
     const targetHash = navMap[primaryHash] || groupMap[primaryHash];
 
@@ -2480,6 +2633,8 @@ const updateAuthStateUI = (user) => {
 
             <a href="#library" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư Viện</a>
             <a href="#schedule" class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch Chiếu</a>
+            <a href="#gacha" class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
+                
         </div>
     </nav>
 </div>
@@ -2594,6 +2749,7 @@ const updateAuthStateUI = (user) => {
 
         <a href="#library" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư Viện</a>
         <a href="#schedule" class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch Chiếu</a>
+        <a href="#gacha" class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
     </div>
     <div class="px-5 pb-3">
         <form id="search-form-mobile" class="relative">
