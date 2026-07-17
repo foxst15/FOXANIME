@@ -56,7 +56,7 @@
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com","projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
@@ -1682,6 +1682,13 @@ const setupFirebase = async () => {
             await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Lỗi đăng nhập bằng Custom Token:", e));
         } 
 
+        // --- BÉ LÔI PHÙ PHÉP: Ép hệ thống phải đón kết quả Google về trước ---
+        try {
+            await getRedirectResult(auth);
+        } catch(err) {
+            console.error("Lỗi khi xử lý Redirect Google:", err);
+        }
+
         onAuthStateChanged(auth, async (user) => {
             let needsRerender = false;
 
@@ -1697,9 +1704,12 @@ const setupFirebase = async () => {
                     userEmail = user.email;
                     await ensureUserProfile(user); 
                     updateAuthStateUI(user);
+                    // Đăng nhập xong mà đang kẹt ở trang login thì đá về sảnh nha!
+                    if (window.location.hash === '#login') window.location.hash = '#home';
                 } else {
                     userEmail = user.email || 'Admin User'; 
                     updateAuthStateUI(user);
+                    if (window.location.hash === '#login') window.location.hash = '#home';
                 }
 
                 if (oldUserId !== userId) {
@@ -1712,24 +1722,24 @@ const setupFirebase = async () => {
                     userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
                 }
                 updateAuthStateUI(null);
+                
+                // --- BÉ LÔI DỜI TẠO TÀI KHOẢN ẨN DANH VÀO ĐÂY ---
+                // Chỉ khi nào chắc chắn Google không trả về, mới tạo account khách
+                try {
+                    await signInAnonymously(auth); 
+                } catch (e) {
+                    console.error("Lỗi đăng nhập ẩn danh:", e);
+                    updatePaths(null); 
+                }
             }
 
             if(!isAuthInitialised) {
                isAuthInitialised = true;
                loadInitialMovieCache(); 
-           } else if(needsRerender) {
-            router();
-        }
-    });
-
-        if (!auth.currentUser) {
-            try {
-                signInAnonymously(auth).catch(e => console.error("Lỗi đăng nhập ẩn danh:", e)); 
-            } catch (e) {
-                console.error("Lỗi đăng nhập ẩn danh:", e);
-                updatePaths(null); 
+            } else if(needsRerender) {
+               router();
             }
-        }
+        });
 
     } catch (error) {
         console.error("Lỗi nghiêm trọng khi khởi tạo Firebase SDK:", error);
@@ -1737,7 +1747,7 @@ const setupFirebase = async () => {
         router();
     }
 };
-
+      
 const loadInitialMovieCache = () => {
    if (!db || isGlobalCacheLoaded) return;
 
