@@ -1391,8 +1391,45 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
     }
 
     if (videoElement) {
+        // Lưu thời gian xem dở
         videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
-        videoElement.addEventListener('ended', () => {localStorage.removeItem(`_watchTime_${episodeUniqueId}`);});
+        
+        // Sự kiện khi xem hết phim
+        videoElement.addEventListener('ended', () => {
+            // Xóa thời gian xem dở
+            localStorage.removeItem(`_watchTime_${episodeUniqueId}`);
+            
+            // --- BÉ LÔI PHÙ PHÉP TỰ ĐỘNG CHUYỂN TẬP KẾ TIẾP ---
+            if (nextEpisodeLink) {
+                console.log("Phim đã hết! Đang tự động chuyển sang tập tiếp theo...");
+                
+                // Hiện bảng thông báo chuyển tập cho ngầu
+                const overlay = getEl('#video-overlay');
+                const container = getEl('#video-player-container');
+                
+                if (!overlay && container) {
+                    // Nếu overlay đã bị xóa lúc bấm Play thì mình tạo lại nè
+                    const newOverlay = document.createElement('div');
+                    newOverlay.id = 'video-overlay';
+                    newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
+                    newOverlay.innerHTML = `
+                        <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-lime-500 shadow-[0_0_30px_rgba(163,230,53,0.3)] text-center flex flex-col items-center">
+                            <svg class="animate-spin h-12 w-12 text-lime-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
+                        </div>
+                    `;
+                    container.appendChild(newOverlay);
+                }
+
+                // Đợi 2 giây rồi mới trượt qua tập mới cho mượt
+                setTimeout(() => {
+                    window.location.hash = nextEpisodeLink;
+                }, 2000); 
+            }
+        });
     }
 
     getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
