@@ -2442,22 +2442,6 @@ const updateAuthStateUI = (user) => {
 </div>
 
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var isEdge = /Edg/.test(navigator.userAgent);
-        var hasClosed = sessionStorage.getItem('hideEdgeWarning') === 'true';
-
-        if (isEdge && !hasClosed) {
-            document.getElementById('browser-warning-modal').style.display = 'flex';
-        }
-    });
-
-    function closeWarningModal() {
-        document.getElementById('browser-warning-modal').style.display = 'none';
-        sessionStorage.setItem('hideEdgeWarning', 'true');
-    }
-</script>
-
 
 <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
     <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
