@@ -50,10 +50,19 @@
 1. **Clone kho lưu trữ này về máy:**
    ```bash
    git clone [https://github.com/your-username/foxanime.git](https://github.com/your-username/foxanime.git)
+   
 
-👨‍💻 Tác giả (Author):
- FoxST (Nguyễn Văn Hải) - Sinh viên CNTT @ Trường Đại học Phạm Văn Đồng
+**Thiết lập Firebase:**
+ * Tạo một dự án trên Firebase Console.
+ * Kích hoạt Firestore Database và Authentication (Bật Google Sign-in và Anonymous).
+ * Thay thế FIREBASE_DEFAULT_CONFIG trong file index.html và admin.html bằng config của bạn.
+ 
+**Mở dự án:**
+ * Sử dụng Live Server extension trong VSCode (hoặc bất kỳ local server nào) để mở file index.html.
 
-Email Liên hệ: haistrem6792@gmail.com
+**👨‍💻 Tác giả (Author):**
+* FoxST (Nguyễn Văn Hải) - Sinh viên CNTT @ Trường Đại học Phạm Văn Đồng
 
-Trang web: foxanime.top
+* Email Liên hệ: haistrem6792@gmail.com
+
+* Trang web: foxanime.top
