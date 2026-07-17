@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://uploads.onecompiler.io/43u4wb3ft/4452q4hvx/KomikoAIolog%20(1).jpg" alt="FoxAnime Logo" width="150" height="150" style="border-radius: 50%; box-shadow: 0 0 15px rgba(163,230,53,0.5);">
+  <img src="anh/foxanimelogo.jpg" alt="FoxAnime Logo" width="150" height="150" style="border-radius: 50%; box-shadow: 0 0 15px rgba(163,230,53,0.5);">
   
   <h1>🌸 FOXANIME 🌸</h1>
   
