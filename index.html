@@ -168,7 +168,7 @@
         }
     };
 
-    // ========================================================
+// ========================================================
 // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
 // ========================================================
 const getZodiacInfo = (d, m) => {
@@ -2347,29 +2347,73 @@ const updateAuthStateUI = (user) => {
     .mobile-dropdown-content a:hover, .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
     /* --------------------------------------------------------- */
 
-    #cdn-failure-overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: #111827;color: #f3f4f6;display: none;flex-direction: column;align-items: center;justify-content: center;text-align: center;z-index: 10000;padding: 20px;font-family: 'Inter', sans-serif, Arial;margin: 0;}
-    .error-container {width: 100%;max-width: 750px;margin: 0 auto;padding: 20px;box-sizing: border-box;background: #1f2937;border-radius: 12px;box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);}
-    .error-content-grid {display: grid;grid-template-columns: 1fr;gap: 20px;padding-bottom: 20px;}
-    @media (min-width: 600px) {.error-content-grid {grid-template-columns: 2fr 1fr;}}
-    .error-header {text-align: center;padding-bottom: 15px;border-bottom: 1px solid #374151;margin-bottom: 20px;grid-column: 1 / -1;}
-    .error-header h1 {color: #f59e0b;font-size: 1.8rem;font-weight: 800;margin: 0;}
-    .error-header p {font-size: 1rem;color: #9ca3af;margin-top: 5px;}
-    .error-card {background: #374151;padding: 15px;border-radius: 8px;margin-bottom: 15px;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);text-align: left;}
-    .error-card h3 {color: #a3e635;font-size: 1.1rem;font-weight: 600;margin-top: 0;margin-bottom: 10px;border-bottom: 2px solid #a3e635;padding-bottom: 5px;}
-    .error-card ul {list-style: none;padding: 0;margin: 0;}
-    .error-card ul li {font-size: 0.95rem;color: #d1d5db;margin-bottom: 5px;position: relative;padding-left: 15px;}
-    .error-card ul li::before {content: "•";color: #f59e0b;font-weight: bold;display: inline-block;width: 1em;margin-left: -1em;}
-    .action-card {text-align: center;padding-top: 5px;grid-column: 1 / -1;}
-    .action-link {display: inline-block;background-color: #a3e635;color: #111827;padding: 10px 20px;border-radius: 8px;text-decoration: none;font-weight: bold;transition: background-color 0.3s ease;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);font-size: 1rem;}
-    .action-link:hover {background-color: #84cc16;}
-    .right-column {display: flex;flex-direction: column;align-items: center;justify-content: flex-start;gap: 15px;padding: 10px;background: #1f2937;border-radius: 8px;border: 1px dashed #374151;}
-    @media (max-width: 599px) {.right-column {display: none;}}
-    .komiko-logo {width: 100px;height: 100px;border-radius: 50%;margin: 0 auto;border: 3px solid #a3e635;}
-    .apology-text {color: #f59e0b;font-size: 1.1rem;font-weight: 600;margin-top: 20px;grid-column: 1 / -1;}
-    .contact-info {display: flex;align-items: center;justify-content: center;margin-top: 15px;}
-    .contact-info a {color: #a3e635;text-decoration: none;font-size: 0.95rem;display: flex;align-items: center;transition: color 0.3s;}
-    .contact-info a:hover {color: #84cc16;text-decoration: underline;}
-    #rating-input-area .rating-star-icon {transition: color 0.2s;cursor: pointer;}
+      #cdn-failure-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: #0b0f19; color: #f3f4f6;
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 10000; padding: 15px; box-sizing: border-box;
+        overflow-y: auto; overflow-x: hidden;
+    }
+    #cdn-failure-overlay * {
+        box-sizing: border-box; 
+    }
+    .error-container {
+        width: 100%; max-width: 800px; margin: auto; 
+        position: relative; overflow: hidden; 
+        border-radius: 22px; 
+        padding: 3px; /* Độ dày viền Neon */
+        box-shadow: 0 0 40px rgba(163, 230, 53, 0.15);
+    }
+
+    .error-container::before {
+        content: ''; position: absolute;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background: conic-gradient(from 0deg, transparent 70%, #a3e635 85%, #c084fc 100%);
+        animation: spin-border 3s linear infinite;
+        z-index: 1;
+    }
+    @keyframes spin-border { 100% { transform: rotate(360deg); } }
+    
+    .error-inner {
+        background: #111827; border-radius: 19px;
+        position: relative; z-index: 2;
+        width: 100%; display: flex; flex-direction: column;
+    }
+    
+    .error-header { text-align: center; padding: 20px 15px 15px 15px; border-bottom: 1px solid #1f2937; }
+    .error-icon-pulse { font-size: 2.2rem; margin-bottom: 8px; display: inline-block; animation: pulse-warn 2s infinite; }
+    @keyframes pulse-warn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    
+    .error-header h1 { 
+        color: #ffffff; font-size: 1.25rem; font-weight: 800; 
+        margin: 0; letter-spacing: 0.5px; line-height: 1.4;
+        word-wrap: break-word; 
+    }
+    .error-header p { font-size: 0.85rem; color: #9ca3af; margin-top: 8px; }
+    
+    .error-content-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 15px; }
+    .error-card { background: #1f2937; padding: 15px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); text-align: left; }
+    
+    .error-card.border-amber { border-left: 4px solid #f59e0b; }
+    .error-card.border-purple { border-left: 4px solid #c084fc; }
+    .error-card h3 { color: #ffffff; font-size: 1.05rem; font-weight: 700; margin-top: 0; margin-bottom: 10px; }
+    .error-list { list-style: none; padding: 0; margin: 0; }
+    .error-list li { font-size: 0.85rem; color: #d1d5db; margin-bottom: 8px; position: relative; padding-left: 18px; line-height: 1.4; }
+    .error-list li::before { content: "✦"; color: #c084fc; position: absolute; left: 0; top: 0; }
+    
+    .right-column { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 15px; padding: 15px; background: #1a202c; border-radius: 12px; border: 1px dashed #374151; }
+    .status-box { text-align: center; width: 100%; }
+    .action-link { display: block; background: #a3e635; color: #111827; padding: 10px 15px; border-radius: 10px; text-decoration: none; font-weight: 800; transition: all 0.3s; font-size: 0.9rem; text-align: center; margin: 0 auto; max-width: 250px;}
+    .action-link:hover { background: #84cc16; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(163,230,53,0.4); }
+    
+    .komiko-logo { display: none; } 
+    
+    .loader-ring { width: 22px; height: 22px; border: 3px solid rgba(163,230,53,0.1); border-radius: 50%; border-top-color: #a3e635; display: inline-block; animation: spin-load 1s linear infinite; }
+    @keyframes spin-load { to { transform: rotate(360deg); } }
+    .contact-info { width: 100%; display: flex; justify-content: center; }
+    .contact-info a { color: #9ca3af; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; transition: color 0.3s; }
+    .contact-info a:hover { color: #c084fc; text-decoration: underline; }
+    .apology-text { color: #6b7280; font-size: 0.8rem; margin: 0; padding-bottom: 15px; text-align: center; font-style: italic; }
 
     /* Hiệu ứng Glassmorphism chuẩn trend */
     .glass-nav { 
@@ -2400,53 +2444,59 @@ const updateAuthStateUI = (user) => {
 </head>
 <body class="bg-gray-900 text-gray-100">
 
-
-    
-
-    <div id="cdn-failure-overlay">
-        <div class="error-container">
+<div id="cdn-failure-overlay">
+    <div class="error-container">
+        <div class="error-inner">
             <div class="error-header">
-                <h1>Lỗi Hệ Thống FOXANIME 5xx!</h1>
-                <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
+                <div class="error-icon-pulse">⚠️</div>
+                <h1>MẤT KẾT NỐI HỆ THỐNG (5XX)</h1>
+                 <p>Máy chủ đang gặp sự cố và không thể tải dữ liệu yêu cầu.</p>
             </div>
+            
             <div class="error-content-grid">
                 <div class="left-column">
-                    <div class="error-card">
-                        <h3>Chi tiết Sự cố</h3>
-                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">**CDN/Network Failure**</p>
-                        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Trang web không thể tải được các tài nguyên bên ngoài (CSS, fonts, icons) cần thiết để hiển thị giao diện chính.</p>
+                    <div class="error-card border-amber">
+                        <h3>🔍 Chi tiết Sự cố</h3>
+                        <p style="font-size:0.95rem; color:#f59e0b; font-weight:700; margin-bottom: 8px;">[CDN & Network Connection Failure]</p>
+                        <p style="font-size:0.9rem; color:#9ca3af; margin:0; line-height:1.5;">Trang web không thể tải được các tài nguyên bên ngoài (CSS, fonts, icons) cần thiết để hiển thị giao diện chính.</p>
                     </div>
-                    <div class="error-card" style="margin-bottom: 0;">
-                        <h3>Nguyên nhân có thể</h3>
-                        <ul>
-                            <li>Lỗi mạng của Quý khách</li>
+                    
+                    <div class="error-card border-purple">
+                        <h3>🛠️ Hướng giải quyết khả thi</h3>
+                        <ul class="error-list">
+                             <li>Lỗi mạng của Quý khách</li>
                             <li>Sự cố nhà cung cấp dịch vụ (ví dụ: Cloudflare CDN)</li>
                             <li>Lỗi kết nối từ máy chủ FOXANIME</li>
                             <li>Vấn đề bảo trì không báo trước</li>
                         </ul>
                     </div>
                 </div>
+                
                 <div class="right-column">
-                    <img src="anh/foxanimebaoloi.jpg" alt="KomikoAI Logo" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/d1d5db?text=KOMIKO'">
-                    <div class="error-card" style="margin-bottom: 0; width: 100%; text-align: center;">
-                        <h3>Khôi phục Tự động</h3>
-                        <p style="font-size:0.95rem; color:#d1d5db; margin-bottom: 10px;">Hệ thống sẽ thử lại tự động sau 15 giây.</p>
-                        <a href="javascript:location.reload()" class="action-link" style="font-size: 0.9rem; padding: 8px 15px;">Tải lại trang ngay</a>
+                    <div class="avatar-wrapper">
+                        <img src="anh/foxanimecanhbao.jpg" alt="Logo Sự cố" class="komiko-logo" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/111827/ffffff?text=FOXANIME';">
                     </div>
-                    <div class="contact-info" style="margin-top: 0;">
-                       <a href="mailto:haistrem6792@gmail.com">
-                        <ion-icon name="mail-outline" style="font-size: 1.2rem; margin-right: 5px;"></ion-icon>
-                        Liên hệ ngay
-                    </a>
+                    
+                    <div class="status-box">
+                        <div class="loader-ring"></div>
+                        <p style="font-size:0.9rem; color:#d1d5db; margin: 10px 0 15px 0; font-weight: 500;">Đang tự động kết nối lại...</p>
+                        <a href="javascript:location.reload()" class="action-link">Tải lại trang ngay</a>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <a href="mailto:haistrem6792@gmail.com">
+                            <svg style="width:16px; height:16px; fill:currentColor; margin-right:6px;" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                            Báo cáo sự cố kỹ thuật
+                        </a>
+                    </div>
                 </div>
             </div>
+            
+            <p class="apology-text"> thành thật xin lỗi vì sự bất tiện tạm thời này!</p>
         </div>
-        <p class="apology-text">Thành thật xin lỗi vì sự bất tiện này!</p>
     </div>
 </div>
-
-
-
+    
 <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
     <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-lime-400">
         <h3 class="text-xl font-bold text-lime-400 mb-4">Xem Tiếp Phim</h3>
