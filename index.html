@@ -309,13 +309,26 @@ const handleGoogleLogin = async () => {
     const errorElement = getEl('#auth-error');
     try {
         if (errorElement) {
-            errorElement.textContent = 'Đang kết nối với Google... Bạn đợi xíu nhé!';
+            errorElement.textContent = 'Đang kết nối với Google... Cậu chủ đợi xíu nhé! 🚀';
             errorElement.classList.remove('text-red-400');
             errorElement.classList.add('text-lime-400');
         }
         await setPersistence(auth, browserLocalPersistence);
-        // Thay Popup bằng Redirect để vĩnh viễn không bị trình duyệt chặn COOP nữa!
-        await signInWithRedirect(auth, new GoogleAuthProvider()); 
+        
+        // --- BÉ LÔI PHÙ PHÉP HYBRID: THỬ POPUP TRƯỚC, NẾU BỊ CHẶN THÌ CHẠY REDIRECT ---
+        try {
+            await signInWithPopup(auth, new GoogleAuthProvider());
+            if (window.location.hash === '#login') window.location.hash = '#home';
+        } catch (popupError) {
+            console.warn("⚠️ Popup bị chặn, Bé Lôi đang tự động chuyển sang Redirect...", popupError);
+            
+            // Nếu trình duyệt (hoặc Vercel/Iframe) bướng bỉnh chặn Popup, lách luật qua Redirect
+            if (popupError.code === 'auth/popup-blocked' || popupError.message.includes('Cross-Origin')) {
+                await signInWithRedirect(auth, new GoogleAuthProvider());
+            } else {
+                throw popupError; // Báo lỗi thực sự nếu không phải lỗi chặn cửa sổ
+            }
+        }
     } catch (error) {
         console.error("Lỗi đăng nhập Google:", error);
         if (errorElement) {
@@ -1046,14 +1059,14 @@ const InfoPageTemplate = (movie, episodes, isLiked) => {
                             `;
 
                             const nextButton = nextEpisodeLink ? `
-                <a href="${nextEpisodeLink}" class="bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-600 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
-                    Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
-                </a>
-                                ` : `
-                 <button disabled class="bg-red-800 text-red-200 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 opacity-50">
-                    Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
-                </button>
-                            `;
+            <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
+                Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
+            </a>
+        ` : `
+            <button disabled class="bg-red-900/80 text-red-200 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 opacity-60 cursor-not-allowed">
+                Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
+            </button>
+        `;
 
 
                             return `
@@ -2078,6 +2091,14 @@ const updateAuthStateUI = (user) => {
     .play-button-overlay {background-color: rgba(163, 230, 53, 0.5);border: none;transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;animation: pulse-button-new 3s infinite;}
     .play-button-overlay:hover {background-color: rgba(163, 230, 53, 1);animation: none;transform: scale(1.05);}
     @keyframes pulse-button-new {0% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }50% { box-shadow: 0 0 0 10px rgba(163, 230, 53, 0); }100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.3); }}
+    @keyframes bounce-attention {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 20px rgba(163, 230, 53, 0.8); }
+    }
+    .btn-next-episode-glow {
+        animation: bounce-attention 2s infinite;
+        border: 1px solid #a3e635;
+    }
     
     /* --- BÉ LÔI PHÙ PHÉP MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
     #mobile-menu {
