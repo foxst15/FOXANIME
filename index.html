@@ -70,6 +70,7 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false; 
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null; 
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null; 
+        let globalSliderSettings = { mode: 'random', selectedMovieIds: [] };
         const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
         
         // Thêm danh sách thể loại đầy đủ để dùng cho Mobile Menu
@@ -1385,18 +1386,26 @@ const renderPage = (pageType, param) => {
         const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, HOME_PAGE_LIMIT);
         const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, HOME_PAGE_LIMIT);
         
-        // --- BÉ LÔI PHÙ PHÉP TẠO DANH SÁCH SLIDER NGẪU NHIÊN ---
-        // Lấy toàn bộ phim, đảo lộn xộn lên, rồi cắt đúng 5 bộ đầu tiên để làm Slider
-        const randomSlideMovies = [...cache].sort(() => 0.5 - Math.random()).slice(0, 5);
+        // --- BÉ LÔI PHÙ PHÉP SLIDER LẤY TỪ DATABASE ADMIN ---
+        let slideMovies = [];
+        if (globalSliderSettings.mode === 'manual' && globalSliderSettings.selectedMovieIds.length > 0) {
+            // Chế độ thủ công: Lấy đúng thứ tự danh sách ID Admin đã chọn
+            globalSliderSettings.selectedMovieIds.forEach(id => {
+                const movie = cache.find(m => m.id === id);
+                if (movie) slideMovies.push(movie);
+            });
+        } else {
+            // Chế độ tự động hoặc danh sách rỗng: Lấy toàn bộ phim, đảo lộn xộn lên, rồi cắt 5 bộ
+            slideMovies = [...cache].sort(() => 0.5 - Math.random()).slice(0, 5);
+        }
 
         // Gắn giao diện Slider ngẫu nhiên và các Section khác
         getEl('#app').innerHTML = 
-            SliderSectionTemplate(randomSlideMovies) + 
+            SliderSectionTemplate(slideMovies) + 
             MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') + 
             MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') + 
             MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
 
-        // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
         // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
         setTimeout(() => {
             new Swiper('.hero-swiper', {
@@ -1419,11 +1428,12 @@ const renderPage = (pageType, param) => {
                     nextEl: '.swiper-button-next', 
                     prevEl: '.swiper-button-prev' 
                 },
-                loop: true,
+                loop: slideMovies.length > 1, // Fix lỗi: Chỉ loop nếu có nhiều hơn 1 phim
                 grabCursor: true,
             });
         }, 100);
         return;
+            
     case '#login':
         getEl('#app').innerHTML = AuthPageTemplate();
         getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
@@ -1602,6 +1612,21 @@ const loadInitialMovieCache = () => {
    if (!db || isGlobalCacheLoaded) return;
 
    try {
+    // 1. NGHE LÉN CẤU HÌNH SLIDER TỪ ADMIN
+    const sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'heroSlider');
+    onSnapshot(sliderSettingsDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            globalSliderSettings = docSnap.data();
+        } else {
+            globalSliderSettings = { mode: 'random', selectedMovieIds: [] };
+        }
+        // Gọi lại router để vẽ lại trang chủ nếu đang đứng ở trang chủ
+        if (window.location.hash.startsWith('#home') || window.location.hash === '') {
+            router(false); 
+        }
+    });
+
+    // 2. NGHE LÉN TOÀN BỘ PHIM
     const q = query(collection(db, dataCollectionPath));
 
     onSnapshot(q, (snapshot) => {
@@ -1614,21 +1639,20 @@ const loadInitialMovieCache = () => {
             movieList.push(data);
 
             // --- BÉ LÔI PHÙ PHÉP: CẬP NHẬT TRỰC TIẾP VÀO DOM TRÁNH RELOAD TRANG ---
-                // Cập nhật lượt xem
-                const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
-                viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
-                
-                // Cập nhật lượt thích
-                const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
-                likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
-
-                // Cập nhật điểm đánh giá
-                const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
-                const reviewCount = data.reviewCount || 0;
-                const reviewTotal = data.reviewTotal || 0;
-                const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
-                ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
+            // Cập nhật lượt xem
+            const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
+            viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
             
+            // Cập nhật lượt thích
+            const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
+            likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
+
+            // Cập nhật điểm đánh giá
+            const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
+            const reviewCount = data.reviewCount || 0;
+            const reviewTotal = data.reviewTotal || 0;
+            const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+            ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
         });
 
         // Sắp xếp lại kho phim
