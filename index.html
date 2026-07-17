@@ -284,66 +284,25 @@ const handlePlayVideo = (e) => {
     overlay.classList.add('fade-out');
     const videoElement = getEl('#video-player-element');
     const iframeElement = getEl('#video-player-iframe');
-    if (iframeElement && nextEpisodeLink) {
-        // Xóa máy nghe lén cũ nếu có (tránh lỗi chuyển tập liên tục)
-        if (window.iframeEndedListener) {
-            window.removeEventListener('message', window.iframeEndedListener);
-        }
-        
-        window.iframeEndedListener = function(e) {
-            try {
-                let data = e.data;
-                // Cố gắng dịch tin nhắn sang JSON
-                if (typeof data === 'string') {
-                    try { data = JSON.parse(data); } catch (err) {}
-                }
-                
-                // Các từ khóa bí mật báo hiệu "Tui chạy xong rồi nha!" từ iframe
-                const isEnded = 
-                    data === 'ended' || 
-                    data === 'videoEnded' || 
-                    data.event === 'complete' || 
-                    data.event === 'ended' || 
-                    data.message === 'complete';
-                    
-                if (isEnded) {
-                    console.log("💌 [Bé Lôi bắt được tín hiệu Iframe]: Phim đã hết! Đang chuyển tập...");
-                    
-                    // Tháo tai nghe lén ra tránh chạy lại 2 lần
-                    window.removeEventListener('message', window.iframeEndedListener);
-                    
-                    // Hiện bảng thông báo chuyển tập
-                    const container = getEl('#video-player-container');
-                    const existingOverlay = getEl('#video-overlay');
-                    if (!existingOverlay && container) {
-                        const newOverlay = document.createElement('div');
-                        newOverlay.id = 'video-overlay';
-                        newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
-                        newOverlay.innerHTML = `
-                            <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-lime-500 shadow-[0_0_30px_rgba(163,230,53,0.3)] text-center flex flex-col items-center">
-                                <svg class="animate-spin h-12 w-12 text-lime-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
-                            </div>
-                        `;
-                        container.appendChild(newOverlay);
-                    }
 
-                    // Đợi 2 giây rồi trượt sang tập mới
-                    setTimeout(() => {
-                        window.location.hash = nextEpisodeLink;
-                    }, 2000);
-                }
-            } catch (error) {
-                // Kệ mấy cái tin nhắn rác không liên quan
-            }
-        };
-        
-        // Bắt đầu đeo tai nghe lén
-        window.addEventListener('message', window.iframeEndedListener);
+    if (videoElement) {
+        videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
+    } else if (iframeElement) {
+        const streamSrc = iframeElement.dataset.streamSrc;
+        if (streamSrc && !iframeElement.src) {
+           iframeElement.src = streamSrc;
+           console.log("[STREAMC] Kích hoạt tải video bằng user gesture.");
+       }
+       const frameSrc = iframeElement.src;
+       if (frameSrc.includes('youtube.com/embed')) {
+        setTimeout(() => {
+            const message = JSON.stringify({'event': 'command', 'func': 'playVideo'});
+            try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {console.error("Lỗi gửi postMessage tới YouTube:", e);}
+        }, 100);
     }
+}
+setTimeout(() => { overlay.remove(); }, 500); 
+};
 
 const handleGoogleLogin = async () => {
     if (!auth) return;
@@ -1473,6 +1432,60 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
         });
     }
 
+    // --- BÉ LÔI CHÈN MÁY NGHE LÉN IFRAME VÀO ĐÂY NÈ ---
+    const iframeElement = getEl('#video-player-iframe');
+    if (iframeElement && nextEpisodeLink) {
+        if (window.iframeEndedListener) {
+            window.removeEventListener('message', window.iframeEndedListener);
+        }
+        
+        window.iframeEndedListener = function(e) {
+            try {
+                let data = e.data;
+                if (typeof data === 'string') {
+                    try { data = JSON.parse(data); } catch (err) {}
+                }
+                
+                const isEnded = 
+                    data === 'ended' || 
+                    data === 'videoEnded' || 
+                    data.event === 'complete' || 
+                    data.event === 'ended' || 
+                    data.message === 'complete';
+                    
+                if (isEnded) {
+                    console.log("💌 [Bé Lôi bắt được tín hiệu Iframe]: Phim đã hết! Đang chuyển tập...");
+                    window.removeEventListener('message', window.iframeEndedListener);
+                    
+                    const container = getEl('#video-player-container');
+                    const existingOverlay = getEl('#video-overlay');
+                    if (!existingOverlay && container) {
+                        const newOverlay = document.createElement('div');
+                        newOverlay.id = 'video-overlay';
+                        newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
+                        newOverlay.innerHTML = `
+                            <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-lime-500 shadow-[0_0_30px_rgba(163,230,53,0.3)] text-center flex flex-col items-center">
+                                <svg class="animate-spin h-12 w-12 text-lime-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
+                            </div>
+                        `;
+                        container.appendChild(newOverlay);
+                    }
+
+                    setTimeout(() => {
+                        window.location.hash = nextEpisodeLink;
+                    }, 2000);
+                }
+            } catch (error) {}
+        };
+        
+        window.addEventListener('message', window.iframeEndedListener);
+    }
+    // ----------------------------------------------------
+
     getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
 
     if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
@@ -1481,6 +1494,7 @@ window.renderWatchPage = async (movieId, episodeUniqueId) => {
 
 } catch (e) { showError("Lỗi khi tải trang xem phim.", e.message); }
 };
+        
 
 const renderPage = (pageType, param) => {
     if (setupError) {showError(setupError.message, setupError.stack || '');return;}
