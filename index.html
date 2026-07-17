@@ -759,7 +759,7 @@ const SliderSectionTemplate = (movieList) => {
     if (!movieList || movieList.length === 0) return '';
     
     // Lấy tối đa 5 phim mới nhất cho mượt ạ
-    const slideItems = movieList.slice(0, 5).map(movie => {
+    const slideItems = movieList.slice(0, 6).map(movie => {
         const movieSlug = createSlug(movie.title);
         const infoUrl = `#phim/${movieSlug}-${movie.id}`; 
         const imageUrl = movie.bannerUrl || movie.posterUrl; 
