@@ -3026,6 +3026,18 @@ html, body {
         </div>
     </div>
 </footer>
-
 </body>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('✨ Hệ thống phòng ngự Offline đã kích hoạt thành công! Phạm vi:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('💦 Ôi không, gọi cô người máy dậy thất bại rồi:', error);
+                });
+        });
+    }
+</script>
 </html>
