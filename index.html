@@ -1677,8 +1677,12 @@ const renderPage = (pageType, param) => {
                 if (movie) slideMovies.push(movie);
             });
         } else {
-            // Chế độ tự động hoặc danh sách rỗng: Lấy toàn bộ phim, đảo lộn xộn lên, rồi cắt 5 bộ
-            slideMovies = [...cache].sort(() => 0.5 - Math.random()).slice(0, 5);
+            if (cache.length > 0) {
+                const tempCache = [...cache];
+                for (let i = 0; i < 5 && tempCache.length > 0; i++) {
+                    const randIndex = Math.floor(Math.random() * tempCache.length);
+                    slideMovies.push(tempCache.splice(randIndex, 1)[0]);
+                }
         }
 
         // Gắn giao diện Slider ngẫu nhiên và các Section khác
@@ -1948,21 +1952,25 @@ const loadInitialMovieCache = () => {
             const data = { id: doc.id, ...doc.data() };
             movieList.push(data);
 
-            // --- BÉ LÔI PHÙ PHÉP: CẬP NHẬT TRỰC TIẾP VÀO DOM TRÁNH RELOAD TRANG ---
-            // Cập nhật lượt xem
-            const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
-            viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
-            
-            // Cập nhật lượt thích
-            const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
-            likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
+            // --- CẬP NHẬT TRỰC TIẾP VÀO DOM CỰC NHẸ BẰNG REQUEST ANIMATION FRAME ---
+            requestAnimationFrame(() => {
+                // Cập nhật lượt xem (Chỉ tìm và sửa nếu phần tử thực sự tồn tại trên màn hình)
+                const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
+                if (viewEls.length > 0) viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
+                
+                // Cập nhật lượt thích
+                const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
+                if (likeEls.length > 0) likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
 
-            // Cập nhật điểm đánh giá
-            const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
-            const reviewCount = data.reviewCount || 0;
-            const reviewTotal = data.reviewTotal || 0;
-            const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
-            ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
+                // Cập nhật điểm đánh giá
+                const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
+                if (ratingEls.length > 0) {
+                    const reviewCount = data.reviewCount || 0;
+                    const averageRating = reviewCount > 0 ? ((data.reviewTotal || 0) / reviewCount) : 0;
+                    ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
+                }
+            });
+            // ------------------------------------------------------------------------------------------
         });
 
         // Sắp xếp lại kho phim
