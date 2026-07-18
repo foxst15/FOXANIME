@@ -2263,9 +2263,8 @@ const updateAuthStateUI = (user) => {
     .btn-next-episode-glow {
         animation: bounce-attention 2s infinite;
         border: 1px solid #a3e635;
-    }
-    
-    /* --- BÉ LÔI PHÙ PHÉP MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
+    }    
+    /* ---  MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
     #mobile-menu {
         position: fixed;
         top: 80px;
@@ -2301,9 +2300,7 @@ const updateAuthStateUI = (user) => {
         opacity: 1;
         visibility: visible;
     }
-    /* --------------------------------------------------------- */
-
-    /* --- BÉ LÔI PHÙ PHÉP MENU ACCORDION SỔ XUỐNG BÊN TRONG --- */
+    /* --- MENU ACCORDION SỔ XUỐNG BÊN TRONG --- */
     .mobile-dropdown-content, #genre-mobile-list {
         display: grid !important; 
         grid-template-columns: repeat(2, 1fr);
@@ -2336,20 +2333,20 @@ const updateAuthStateUI = (user) => {
         overflow-y: auto;
     }
     
-    /* --- BÉ LÔI FIX MENU MOBILE LINH HOẠT --- */
+    /* ---  MENU MOBILE LINH HOẠT --- */
 .mobile-dropdown-content a, .mobile-dropdown-content a.genre-item {
     background-color: #374151;
-    border-radius: 0.5rem; /* Bo tròn mềm mại hơn */
-    font-weight: 500; /* Chữ đậm lên xíu xiu dễ nhìn */
+    border-radius: 0.5rem; 
+    font-weight: 500; 
     padding: 0.5rem;
-    display: flex; /* Bật chế độ Flexbox linh hoạt */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    justify-content: center; /* Căn giữa theo chiều ngang */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
     text-align: center;
-    min-height: 48px; /* Đảm bảo đủ to để ngón tay dễ bấm */
-    font-size: 0.85rem; /* Thu nhỏ chữ lại một tẹo cho vừa vặn */
+    min-height: 48px; 
+    font-size: 0.85rem; 
     line-height: 1.3;
-    word-break: break-word; /* Tự động xuống dòng gọn gàng không tràn viền */
+    word-break: break-word; 
 }
     .mobile-dropdown-content a.genre-item { background-color: #1f2937; border: 1px solid #374151; }
     .mobile-dropdown-content a:hover, .mobile-dropdown-content a.genre-item:hover { background-color: #4b5563; }
@@ -2359,7 +2356,7 @@ const updateAuthStateUI = (user) => {
 html, body {
   margin: 0;
   padding: 0;
-  overflow: auto; /* chặn cuộn toàn trang */
+  overflow: auto; 
 }
 
 #cdn-failure-overlay {
@@ -2503,8 +2500,8 @@ html, body {
     .swiper-button-next::after, .swiper-button-prev::after { font-size: 24px !important; font-weight: bold; }
 </style>
 </head>
+    
 <body class="bg-gray-900 text-gray-100">
-
 <div id="cdn-failure-overlay">
     <div class="error-container">
         <div class="error-inner">
