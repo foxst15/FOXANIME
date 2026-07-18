@@ -1683,8 +1683,8 @@ const renderPage = (pageType, param) => {
                     const randIndex = Math.floor(Math.random() * tempCache.length);
                     slideMovies.push(tempCache.splice(randIndex, 1)[0]);
                 }
+            }
         }
-
         // Gắn giao diện Slider ngẫu nhiên và các Section khác
         getEl('#app').innerHTML = 
             SliderSectionTemplate(slideMovies) + 
@@ -1719,7 +1719,7 @@ const renderPage = (pageType, param) => {
             });
         }, 100);
         return;
-            
+
     case '#gacha':
         getEl('#app').innerHTML = GachaPageTemplate();
         
