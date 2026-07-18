@@ -26,6 +26,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         const RELOAD_INTERVAL = 15000;
+        window.trigger5XXError = function() {
+            const overlay = document.getElementById('cdn-failure-overlay');
+            if (overlay) overlay.style.display = 'flex';
+            const mainApp = document.getElementById('app');
+            if (mainApp) mainApp.style.display = 'none'; 
+            const header = document.querySelector('header');
+            if (header) header.style.display = 'none'; 
+            console.warn(`[Hệ thống] Mất kết nối nghiêm trọng. Tự động khôi phục sau ${RELOAD_INTERVAL/1000}s.`);
+            setTimeout(() => {location.reload();}, RELOAD_INTERVAL);
+        };
+
         function checkTailwindLoadAndShowFallback() {
             let isTailwindLoaded = false;
             try {
@@ -34,21 +45,14 @@
                 testEl.style.visibility = 'hidden';
                 testEl.style.position = 'absolute';
                 document.body.appendChild(testEl);
-                
                 const computedStyle = window.getComputedStyle(testEl);
                 isTailwindLoaded = computedStyle.display === 'flex'; 
                 document.body.removeChild(testEl);
             } catch (e) {console.error("Lỗi khi kiểm tra Tailwind:", e);}
             
+            // Nếu sập CSS -> Bấm nút khẩn cấp
             if (!isTailwindLoaded) {
-                const overlay = document.getElementById('cdn-failure-overlay');
-                if (overlay) overlay.style.display = 'flex';
-                const mainApp = document.getElementById('app');
-                if (mainApp) mainApp.style.display = 'none'; 
-                const header = document.querySelector('header');
-                if (header) header.style.display = 'none'; 
-                console.warn(`[Hệ thống] Mất kết nối giao diện. Tự động khôi phục sau ${RELOAD_INTERVAL/1000}s.`);
-                setTimeout(() => {location.reload();}, RELOAD_INTERVAL);
+                window.trigger5XXError();
             }
         }
         window.addEventListener('load', () => {setTimeout(checkTailwindLoadAndShowFallback, 300);});
@@ -1918,7 +1922,11 @@ const setupFirebase = async () => {
     } catch (error) {
         console.error("Lỗi nghiêm trọng khi khởi tạo Firebase SDK:", error);
         setupError = new Error("Lỗi Khởi tạo Firebase SDK. Chi tiết: " + error.message);
-        router();
+        if (window.trigger5XXError) {
+            window.trigger5XXError();
+        } else {
+            router();
+        }
     }
 };
       
