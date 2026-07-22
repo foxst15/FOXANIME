@@ -3699,26 +3699,29 @@
                     </div>
                 </div>
 
-                <!-- Newsletter Formspree Dùng AJAX (Không chuyển trang) -->
-                <form id="newsletter-form" action="https://formspree.io/f/mykrdwgw" method="POST"
-                    class="w-full max-w-md bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-lime-500 focus-within:ring-2 focus-within:ring-lime-500/30 transition-all shadow-lg relative">
+                <!-- Khu vực Newsletter bọc gọn trong một cột Flex để thông báo không bị lệch -->
+                <div class="w-full max-w-md flex flex-col items-center">
+                    <!-- Newsletter Formspree Dùng AJAX (Không chuyển trang) -->
+                    <form id="newsletter-form" action="https://formspree.io/f/mykrdwgw" method="POST"
+                        class="w-full bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-lime-500 focus-within:ring-2 focus-within:ring-lime-500/30 transition-all shadow-lg relative">
 
-                    <!-- Ô nhập email -->
-                    <input type="email" id="email-input" name="email" placeholder="Nhập email để nhận Anime mới..."
-                        required
-                        class="bg-transparent border-none outline-none text-white px-5 py-2 w-full placeholder-gray-400 text-sm focus:ring-0">
+                        <!-- Ô nhập email -->
+                        <input type="email" id="email-input" name="email" placeholder="Nhập email để nhận Anime mới..."
+                            required
+                            class="bg-transparent border-none outline-none text-white px-5 py-2 w-full placeholder-gray-400 text-sm focus:ring-0">
 
-                    <!-- Nút đăng ký -->
-                    <button type="submit" id="submit-btn"
-                        class="bg-lime-500 hover:bg-lime-400 text-gray-950 font-bold py-2.5 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm shadow-md">
-                        Đăng ký
-                    </button>
-                </form>
+                        <!-- Nút đăng ký -->
+                        <button type="submit" id="submit-btn"
+                            class="bg-lime-500 hover:bg-lime-400 text-gray-950 font-bold py-2.5 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm shadow-md">
+                            Đăng ký
+                        </button>
+                    </form>
 
-                <!-- Dòng thông báo trạng thái nhỏ xinh -->
-                <p id="newsletter-msg" class="text-xs mt-2 text-center w-full max-w-md"></p>
+                    <!-- Dòng thông báo trạng thái đã nằm gọn gàng bên dưới form -->
+                    <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
+                </div>
 
-                <!-- Phép thuật JavaScript chặn chuyển trang -->
+                <!-- Phép thuật JavaScript xử lý AJAX -->
                 <script>
                     const form = document.getElementById('newsletter-form');
                     const msg = document.getElementById('newsletter-msg');
