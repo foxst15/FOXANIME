@@ -3282,9 +3282,8 @@
                     </div>
                 </div>
 
-                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE -->
+                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE-->
                 <div class="w-full max-w-md flex flex-col items-center">
-                
                     <form id="newsletter-form"
                         class="w-full bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-lime-500 focus-within:ring-2 focus-within:ring-lime-500/30 transition-all shadow-lg relative">
                         <input type="email" id="email-input" placeholder="Nhập email để nhận Anime mới..." required
@@ -3296,15 +3295,12 @@
                     </form>
                     <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
                 </div>
-    
-                <script type="module">
-                    import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-                    import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-                    const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
-                    
-                    const app = initializeApp(firebaseConfig);
-                    const db = getFirestore(app);
 
+                <!-- Phép thuật Firebase Module siêu gọn nhẹ -->
+                <script type="module">
+                   
+                    import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+                    const firestoreDB = getFirestore();
                     const form = document.getElementById('newsletter-form');
                     const msg = document.getElementById('newsletter-msg');
                     const emailInput = document.getElementById('email-input');
@@ -3318,24 +3314,22 @@
                         submitBtn.disabled = true;
 
                         try {
-                            
-                            await addDoc(collection(db, "subscribers"), {
+                            // Bắn thẳng dữ liệu vào kho mà không sợ lỗi
+                            await addDoc(collection(firestoreDB, "subscribers"), {
                                 email: emailValue,
-                                subscribedAt: serverTimestamp() 
+                                subscribedAt: serverTimestamp()
                             });
 
-                           
                             msg.style.color = '#00e676';
                             msg.textContent = '🎉 Đăng ký thành công! Cảm ơn cậu đã đồng hành cùng FoxAnime nhé!';
                             form.reset();
                         } catch (error) {
-                            console.error("Lỗi òi:", error);
+                            console.error("Lỗi òi FoxST-sama ơi:", error);
                             msg.style.color = '#e94560';
                             msg.textContent = '❌ Ối chà, hệ thống đang bận xíu, cậu thử lại sau nha!';
                         } finally {
                             submitBtn.textContent = 'Đăng ký';
                             submitBtn.disabled = false;
-                           
                             setTimeout(() => {msg.textContent = '';}, 5000);
                         }
                     });
