@@ -23,9 +23,8 @@ except Exception as e:
     exit()
 
 # Tọa độ VIP đi thẳng vào kho phim
-APP_ID = "14c200fbc905e79b3c6fb9" 
+APP_ID = "default-app-id" 
 movies_ref = db.collection("artifacts").document(APP_ID).collection("public").document("data").collection("movies")
-
 # Lọc ra những phim có cờ isNotified == false (Cả phim mới tạo lẫn phim vừa được thêm tập mới mà Admin đã lật cờ)
 new_movies = movies_ref.where("isNotified", "==", False).stream()
 
