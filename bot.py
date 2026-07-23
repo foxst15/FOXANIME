@@ -41,35 +41,22 @@ for movie in new_movies:
     movie_name = data.get("title", "Một bộ phim siêu hay") 
     movie_genre = data.get("genre", "Đang cập nhật thể loại")
     
-    # Ưu tiên lấy trường posterUrl giống trong file Admin của cậu chủ
-    movie_image = data.get("posterUrl", data.get("poster", data.get("image", "https://i.imgur.com/Q99M0L5.png"))) 
+    # Lấy link ảnh từ database
+    raw_image = data.get("posterUrl") or data.get("poster") or data.get("image") or ""
     
-    # Dựa vào file Admin, check Status để lên màu cho Badge
-    status_raw = data.get("status", "dang-chieu")
-    if status_raw == "dang-chieu":
-        status_text = "ĐANG CHIẾU"
-        status_color = "#00ffaa" # Màu xanh Neon đặc trưng của FoxAnime
-    elif status_raw == "tron-bo":
-        status_text = "TRỌN BỘ"
-        status_color = "#ff69b4" # Màu hồng Pink
+    # Màng lọc bảo vệ và lách luật Hotlink của các web nguồn
+    if raw_image.startswith("data:image") or raw_image.strip() == "":
+        movie_image = "https://i.imgur.com/Q99M0L5.png" 
     else:
-        status_text = "SẮP CHIẾU"
-        status_color = "#fbbf24" # Màu vàng
-
-    # Đếm số tập phim đang có
-    episodes = data.get("episodes", [])
-    ep_count = len(episodes)
-    ep_text = f"Tập {ep_count}" if ep_count > 0 else "Trailer"
+        # Ép qua Proxy để Gmail chịu hiển thị ảnh từ nguonc.com
+        movie_image = f"https://wsrv.nl/?url={raw_image}"
 
     movies_to_announce.append({
         "id": movie.id,
         "ref": movie.reference,
         "name": movie_name,
         "genre": movie_genre,
-        "image": movie_image,
-        "status_text": status_text,
-        "status_color": status_color,
-        "ep_text": ep_text
+        "image": movie_image
     })
 
 if not movies_to_announce:
@@ -93,31 +80,13 @@ try:
     server.starttls() 
     server.login(SENDER_EMAIL, APP_PASSWORD)
     
-    # --- XÂY DỰNG GIAO DIỆN THẺ BÀI CHUẨN DESIGN CỦA FOXST-SAMA ---
+    # --- THIẾT KẾ THẺ BÀI TỐI GIẢN ---
     movie_cards_html = ""
     for m in movies_to_announce:
         movie_cards_html += f"""
-        <div style="background-color: #1e1346; border-radius: 12px; border: 1px solid #5d3f9e; overflow: hidden; max-width: 320px; margin: 0 auto 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: Arial, sans-serif; text-align: left; position: relative;">
+        <div style="background-color: #1e1346; border-radius: 12px; border: 1px solid #5d3f9e; overflow: hidden; max-width: 320px; margin: 0 auto 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: Arial, sans-serif; text-align: left;">
             
-            <!-- Điểm số góc trái -->
-            <div style="position: absolute; top: 10px; left: 10px; background-color: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; z-index: 10;">
-                --/5
-            </div>
-
-            <!-- Các Badge Trạng Thái góc phải -->
-            <div style="position: absolute; top: 10px; right: 10px; text-align: right; z-index: 10;">
-                <div style="background-color: rgba(0,0,0,0.8); color: {m['status_color']}; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; display: inline-block;">
-                    {m['status_text']}
-                </div><br>
-                <div style="background-color: rgba(0,0,0,0.8); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; display: inline-block;">
-                    HD
-                </div><br>
-                <div style="background-color: rgba(0,0,0,0.8); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block;">
-                    {m['ep_text']}
-                </div>
-            </div>
-
-            <!-- Ảnh Poster -->
+            <!-- Ảnh Poster (Bọc proxy siêu mượt) -->
             <img src="{m['image']}" style="width: 100%; height: auto; display: block; border-bottom: 2px solid #5d3f9e;" alt="{m['name']}">
             
             <!-- Phần Tên & Thể loại bên dưới -->
@@ -125,6 +94,7 @@ try:
                 <h3 style="color: #e0e7ff; font-size: 20px; font-weight: bold; margin: 0 0 5px 0; line-height: 1.3;">{m['name']}</h3>
                 <p style="color: #94a3b8; font-size: 13px; margin: 0; line-height: 1.5;">{m['genre']}</p>
             </div>
+            
         </div>
         """
 
