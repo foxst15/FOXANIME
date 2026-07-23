@@ -1934,7 +1934,8 @@
 
                 await updateDoc(movieDocRef, { 
                     episodes: existingEpisodes,
-                    lastEpisodeUpdate: serverTimestamp() 
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
                 });
                 
                 $('add-episode-form').reset();
@@ -2033,7 +2034,8 @@
 
                 await updateDoc(movieDocRef, { 
                     episodes: existingEpisodes,
-                    lastEpisodeUpdate: serverTimestamp() 
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
                 });
                 
                 let warning = '';
