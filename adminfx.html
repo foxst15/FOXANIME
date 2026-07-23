@@ -1400,6 +1400,7 @@
                 createdAt: serverTimestamp(),
                 updatedBy: userId,
                 lastEpisodeUpdate: serverTimestamp()
+                isNotified: false
             };
 
             return sanitized;
@@ -1742,6 +1743,7 @@
                     status: data.status,
                     airingDay: data.airingDay,
                     lastEpisodeUpdate: serverTimestamp() 
+                    isNotified: false
                 });
 
                 $('add-movie-form').reset();
