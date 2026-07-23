@@ -62,15 +62,14 @@ for movie in new_movies:
         subject_prefix = "[Phim Mới]"
     # -----------------------------------------------------------
     
-    # Lấy link ảnh từ database
+   # Lấy link ảnh từ database
     raw_image = data.get("posterUrl") or data.get("poster") or data.get("image") or ""
     
-    # Màng lọc bảo vệ và lách luật Hotlink của các web nguồn
+    # Dùng trực tiếp link gốc không qua trung gian nữa
     if raw_image.startswith("data:image") or raw_image.strip() == "":
         movie_image = "https://i.imgur.com/Q99M0L5.png" 
     else:
-        # Ép qua Proxy để Gmail chịu hiển thị ảnh
-        movie_image = f"https://wsrv.nl/?url={raw_image}"
+        movie_image = raw_image
 
     movies_to_announce.append({
         "id": movie.id,
