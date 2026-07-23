@@ -1,16 +1,14 @@
 import os
 import json
-import smtplib
 import time
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend # Động cơ phản lực mới thay cho smtplib!
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
-APP_PASSWORD = os.environ.get("APP_PASSWORD")
+# Lấy chìa khóa từ két sắt GitHub Secrets
 FIREBASE_CREDS_JSON = os.environ.get("FIREBASE_CREDENTIALS")
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 print("Bé Lôi đang khởi động hệ thống đây ạ! 🐾✨")
 
@@ -101,12 +99,8 @@ if not email_list:
     print("Chưa có ai đăng ký nhận mail cả!")
     exit()
 
-# Gửi mail thông báo
+# Gửi mail thông báo bằng động cơ Resend
 try:
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls() 
-    server.login(SENDER_EMAIL, APP_PASSWORD)
-    
     # --- THIẾT KẾ THẺ BÀI: Tích hợp Văn mẫu tự động ---
     movie_cards_html = ""
     for m in movies_to_announce:
@@ -136,46 +130,50 @@ try:
     # TIÊU ĐỀ BIẾN HÌNH: Có thêm thẻ [Tập Mới] hay [Sắp Chiếu]
     first_movie = movies_to_announce[0]
     subject_line = f"🎉 FoxAnime: {first_movie['subject_prefix']} {first_movie['name']} đã có mặt!"
+    
+    # Phần nội dung body HTML siêu xinh xắn
+    body = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9; padding: 20px; margin: 0;">
+        <div style="background-color: #ffffff; padding: 30px 20px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
+          <h2 style="color: #4CAF50; font-size: 26px; margin-bottom: 10px;">Oha-yooo! 🐾✨</h2>
+          <p style="font-size: 16px; color: #555; margin-bottom: 30px;">Trạm tin tức <strong>FoxAnime</strong> vừa bắt được tín hiệu nóng hổi dành cho cậu nè:</p>
+          
+          <!-- NHÚNG DANH SÁCH CARD VÀO ĐÂY -->
+          {movie_cards_html}
+          
+          <p style="font-size: 16px; color: #555; margin-top: 30px;">Mau mau chuẩn bị bắp nước và truy cập pháo đài ngay thôi!</p>
+          <div style="margin-top: 30px; margin-bottom: 30px;">
+            <a href="https://foxanime.top" style="background-color: #a3e635; color: #000000; padding: 14px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 6px rgba(163, 230, 53, 0.3);">🍿 Khám Phá Ngay 🍿</a>
+          </div>
+          
+          <!-- Tấm bùa hộ mệnh chống Spam -->
+          <hr style="border: none; border-top: 1px solid #eee; margin-bottom: 15px;">
+          <p style="font-size: 12px; color: #999; margin: 0;">
+            Bạn nhận được thư này vì đã đăng ký nhận thông báo từ FoxAnime.<br>
+            Nếu không muốn nhận thư nữa, cậu có thể <a href="https://foxanime.top" style="color: #4CAF50; text-decoration: underline;">nhấn vào đây để hủy đăng ký</a>.
+          </p>
+        </div>
+      </body>
+    </html>
+    """
 
     for recipient_email in email_list:
-        msg = MIMEMultipart()
-        msg['From'] = f"FoxAnime 🦊 <{SENDER_EMAIL}>"
-        msg['To'] = recipient_email
-        msg['Subject'] = subject_line
+        # Lắp ráp tên lửa Resend
+        params = {
+            "from": "FoxAnime 🦊 <thongbao@foxanime.top>", # Đã đổi sang hòm thư VIP!
+            "to": [recipient_email],
+            "subject": subject_line,
+            "html": body
+        }
         
-        body = f"""
-        <html>
-          <body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9; padding: 20px; margin: 0;">
-            <div style="background-color: #ffffff; padding: 30px 20px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
-              <h2 style="color: #4CAF50; font-size: 26px; margin-bottom: 10px;">Oha-yooo! 🐾✨</h2>
-              <p style="font-size: 16px; color: #555; margin-bottom: 30px;">Trạm tin tức <strong>FoxAnime</strong> vừa bắt được tín hiệu nóng hổi dành cho cậu nè:</p>
-              
-              <!-- NHÚNG DANH SÁCH CARD VÀO ĐÂY -->
-              {movie_cards_html}
-              
-              <p style="font-size: 16px; color: #555; margin-top: 30px;">Mau mau chuẩn bị bắp nước và truy cập pháo đài ngay thôi!</p>
-              <div style="margin-top: 30px; margin-bottom: 30px;">
-                <a href="https://foxanime.top" style="background-color: #a3e635; color: #000000; padding: 14px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 6px rgba(163, 230, 53, 0.3);">🍿 Khám Phá Ngay 🍿</a>
-              </div>
-              
-              <!-- Tấm bùa hộ mệnh chống Spam -->
-              <hr style="border: none; border-top: 1px solid #eee; margin-bottom: 15px;">
-              <p style="font-size: 12px; color: #999; margin: 0;">
-                Bạn nhận được thư này vì đã đăng ký nhận thông báo từ FoxAnime.<br>
-                Nếu không muốn nhận thư nữa, cậu có thể <a href="https://foxanime.top" style="color: #4CAF50; text-decoration: underline;">nhấn vào đây để hủy đăng ký</a>.
-              </p>
-            </div>
-          </body>
-        </html>
-        """
-        msg.attach(MIMEText(body, 'html'))
-        server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
+        # Khai hỏa!
+        email = resend.Emails.send(params)
         
-        # Bắt Bé Bot đi ngủ 2 giây để tránh bị khóa mõm!
+        # Bắt Bé Bot đi ngủ 2 giây để tránh kẹt xe hệ thống!
         time.sleep(2)
     
-    server.quit()
-    print("Đã gửi mail thành công cho tất cả khán giả!")
+    print("Đã gửi mail thành công bằng động cơ phản lực Resend!")
 
     # Đánh dấu phim đã thông báo xong (lật cờ thành True)
     for m in movies_to_announce:
@@ -183,4 +181,4 @@ try:
         print(f"Đã cập nhật trạng thái isNotified=True cho: {m['name']}")
 
 except Exception as e:
-    print(f"Huhu, lỗi gửi mail rồi cậu chủ ơi: {e}")
+    print(f"Huhu, tên lửa Resend xịt khói rồi cậu chủ ơi: {e}")
