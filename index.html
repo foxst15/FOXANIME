@@ -39,7 +39,7 @@
             const header = document.querySelector('header');
             if (header) header.style.display = 'none';
             console.warn(`[Hệ thống] Mất kết nối nghiêm trọng. Tự động khôi phục sau ${RELOAD_INTERVAL / 1000}s.`);
-            setTimeout(() => { location.reload(); }, RELOAD_INTERVAL);
+            setTimeout(() => {location.reload();}, RELOAD_INTERVAL);
         };
 
         function checkTailwindLoadAndShowFallback() {
@@ -53,14 +53,14 @@
                 const computedStyle = window.getComputedStyle(testEl);
                 isTailwindLoaded = computedStyle.display === 'flex';
                 document.body.removeChild(testEl);
-            } catch (e) { console.error("Lỗi khi kiểm tra Tailwind:", e); }
+            } catch (e) {console.error("Lỗi khi kiểm tra Tailwind:", e);}
 
             // Nếu sập CSS -> Bấm nút khẩn cấp
             if (!isTailwindLoaded) {
                 window.trigger5XXError();
             }
         }
-        window.addEventListener('load', () => { setTimeout(checkTailwindLoadAndShowFallback, 300); });
+        window.addEventListener('load', () => {setTimeout(checkTailwindLoadAndShowFallback, 300);});
     </script>
 
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -70,11 +70,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script type="module">
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const FIREBASE_DEFAULT_CONFIG = { "apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9" };
+        const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
@@ -85,7 +85,7 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false;
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null;
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null;
-        let globalSliderSettings = { mode: 'random', selectedMovieIds: [] };
+        let globalSliderSettings = {mode: 'random', selectedMovieIds: []};
         const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
 
         // Thêm danh sách thể loại đầy đủ để dùng cho Mobile Menu
@@ -119,7 +119,7 @@
         const getAllEl = (selector) => document.querySelectorAll(selector);
 
         const updatePaths = (currentUserId) => {
-            if (!appId && appId !== '') { console.error("FATAL: appId is not defined. Path creation failed."); setupError = new Error("Lỗi Cấu hình: appId không hợp lệ."); return; }
+            if (!appId && appId !== '') {console.error("FATAL: appId is not defined. Path creation failed."); setupError = new Error("Lỗi Cấu hình: appId không hợp lệ."); return;}
             const safeUserId = currentUserId || 'guest';
             dataCollectionPath = `artifacts/${appId}/public/data/movies`;
             userLikesCollectionPath = `artifacts/${appId}/users/${safeUserId}/likes`;
@@ -165,7 +165,7 @@
             const seconds = Math.floor(time % 60);
             getEl('#resume-modal-text').textContent = `Bạn đã xem "${movieTitle}" đến ${minutes} phút ${seconds} giây. Bạn có muốn xem tiếp không?`;
             modal.classList.remove('hidden'); modal.classList.add('flex');
-            return new Promise(resolve => { resolveResumeModal = resolve; });
+            return new Promise(resolve => {resolveResumeModal = resolve;});
         };
         window.hideResumeModal = () => {
             const modal = getEl('#resume-modal');
@@ -183,19 +183,19 @@
         // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
         // ========================================================
         const getZodiacInfo = (d, m) => {
-            if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return { name: "Bạch Dương", genre: "Action", fortune: "Năng lượng rực rỡ! Một bộ phim Hành động (Action) sẽ rất phù hợp với bạn hôm nay." };
-            if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return { name: "Kim Ngưu", genre: "Slice of Life", fortune: "Bình yên là chân ái. Hãy thư giãn cùng một bộ phim Đời thường (Slice of Life) nhé!" };
-            if ((m == 5 && d >= 21) || (m == 6 && d <= 21)) return { name: "Song Tử", genre: "Comedy", fortune: "Năng lượng vui vẻ! Bạn đang cần một trận cười sảng khoái (Comedy) ngay lúc này." };
-            if ((m == 6 && d >= 22) || (m == 7 && d <= 22)) return { name: "Cự Giải", genre: "Romance", fortune: "Cảm xúc thăng hoa. Một câu chuyện tình lãng mạn (Romance) là lựa chọn tuyệt vời." };
-            if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) return { name: "Sư Tử", genre: "Super Power", fortune: "Hào quang tỏa sáng! Xem ngay một bộ phim Siêu năng lực (Super Power) thôi!" };
-            if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) return { name: "Xử Nữ", genre: "Mystery", fortune: "Tư duy sắc bén. Thử sức giải mã những bí ẩn (Mystery) ngay nào!" };
-            if ((m == 9 && d >= 23) || (m == 10 && d <= 23)) return { name: "Thiên Bình", genre: "Fantasy", fortune: "Thế giới kỳ ảo đang vẫy gọi. Cùng bước vào vũ trụ Phép thuật (Fantasy) tuyệt đep." };
-            if ((m == 10 && d >= 24) || (m == 11 && d <= 22)) return { name: "Thiên Yết", genre: "Thriller", fortune: "Bí ẩn và kịch tính. Thể loại Giật gân (Thriller) sẽ kích thích giác quan của bạn hôm nay." };
-            if ((m == 11 && d >= 23) || (m == 12 && d <= 21)) return { name: "Nhân Mã", genre: "Adventure", fortune: "Đam mê khám phá! Một chuyến phiêu lưu (Adventure) sẽ làm bạn thỏa mãn." };
-            if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return { name: "Ma Kết", genre: "Drama", fortune: "Sâu sắc và lắng đọng. Những bộ phim Kịch tính (Drama) sẽ chạm đến cảm xúc của bạn." };
-            if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return { name: "Bảo Bình", genre: "Sci-Fi", fortune: "Hướng về tương lai. Khoa học viễn tưởng (Sci-Fi) chính là chân ái!" };
-            if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) return { name: "Song Ngư", genre: "Magic", fortune: "Tâm hồn mộng mơ. Thể loại Phép thuật (Magic) sẽ mang lại điều kỳ diệu cho bạn!" };
-            return { name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ Harem xem sao!" };
+            if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return {name: "Bạch Dương", genre: "Action", fortune: "Năng lượng rực rỡ! Một bộ phim Hành động (Action) sẽ rất phù hợp với bạn hôm nay."};
+            if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return {name: "Kim Ngưu", genre: "Slice of Life", fortune: "Bình yên là chân ái. Hãy thư giãn cùng một bộ phim Đời thường (Slice of Life) nhé!"};
+            if ((m == 5 && d >= 21) || (m == 6 && d <= 21)) return {name: "Song Tử", genre: "Comedy", fortune: "Năng lượng vui vẻ! Bạn đang cần một trận cười sảng khoái (Comedy) ngay lúc này."};
+            if ((m == 6 && d >= 22) || (m == 7 && d <= 22)) return {name: "Cự Giải", genre: "Romance", fortune: "Cảm xúc thăng hoa. Một câu chuyện tình lãng mạn (Romance) là lựa chọn tuyệt vời."};
+            if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) return {name: "Sư Tử", genre: "Super Power", fortune: "Hào quang tỏa sáng! Xem ngay một bộ phim Siêu năng lực (Super Power) thôi!"};
+            if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) return {name: "Xử Nữ", genre: "Mystery", fortune: "Tư duy sắc bén. Thử sức giải mã những bí ẩn (Mystery) ngay nào!"};
+            if ((m == 9 && d >= 23) || (m == 10 && d <= 23)) return {name: "Thiên Bình", genre: "Fantasy", fortune: "Thế giới kỳ ảo đang vẫy gọi. Cùng bước vào vũ trụ Phép thuật (Fantasy) tuyệt đep."};
+            if ((m == 10 && d >= 24) || (m == 11 && d <= 22)) return {name: "Thiên Yết", genre: "Thriller", fortune: "Bí ẩn và kịch tính. Thể loại Giật gân (Thriller) sẽ kích thích giác quan của bạn hôm nay."};
+            if ((m == 11 && d >= 23) || (m == 12 && d <= 21)) return {name: "Nhân Mã", genre: "Adventure", fortune: "Đam mê khám phá! Một chuyến phiêu lưu (Adventure) sẽ làm bạn thỏa mãn."};
+            if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return {name: "Ma Kết", genre: "Drama", fortune: "Sâu sắc và lắng đọng. Những bộ phim Kịch tính (Drama) sẽ chạm đến cảm xúc của bạn."};
+            if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return {name: "Bảo Bình", genre: "Sci-Fi", fortune: "Hướng về tương lai. Khoa học viễn tưởng (Sci-Fi) chính là chân ái!"};
+            if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) return {name: "Song Ngư", genre: "Magic", fortune: "Tâm hồn mộng mơ. Thể loại Phép thuật (Magic) sẽ mang lại điều kỳ diệu cho bạn!"};
+            return {name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ Harem xem sao!"};
         };
 
         window.handleGachaPull = (amount) => {
@@ -316,7 +316,7 @@
         // ========================================================
 
         const setupCommentsListener = (movieId) => {
-            if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+            if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
 
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
 
@@ -327,7 +327,7 @@
 
             unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
                 const updatedComments = [];
-                snapshot.forEach(doc => { updatedComments.push({ id: doc.id, ...doc.data() }); });
+                snapshot.forEach(doc => {updatedComments.push({id: doc.id, ...doc.data()});});
 
                 // Không cần gọi deleteOldestComments nữa vì mình đã giới hạn bằng query rồi!
 
@@ -350,7 +350,7 @@
             }, (error) => {
                 console.error("Lỗi listener bình luận:", error);
                 const commentsListElement = getEl('#comments-list');
-                if (commentsListElement) { commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>'; }
+                if (commentsListElement) {commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';}
             });
         };
 
@@ -360,10 +360,10 @@
                 try {
                     if (db && dataCollectionPath) {
                         const movieDocRef = doc(db, dataCollectionPath, movieId);
-                        await updateDoc(movieDocRef, { viewCount: increment(1) });
+                        await updateDoc(movieDocRef, {viewCount: increment(1)});
                         sessionStorage.setItem(viewedKey, 'true');
                     }
-                } catch (e) { console.error("Lỗi khi tăng lượt xem:", e); }
+                } catch (e) {console.error("Lỗi khi tăng lượt xem:", e);}
             }
         };
 
@@ -372,7 +372,7 @@
             try {
                 const urlObj = new URL(url);
                 const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
-                if (videoId) { return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1&autoplay=1`; }
+                if (videoId) {return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1&autoplay=1`;}
             } catch (e) { }
             return null;
         };
@@ -381,9 +381,9 @@
             try {
                 const urlObj = new URL(url);
                 let fileId = '';
-                if (urlObj.pathname.startsWith('/file/d/')) { fileId = urlObj.pathname.split('/')[3]; }
-                else if (urlObj.pathname.startsWith('/uc')) { fileId = urlObj.searchParams.get('id'); }
-                if (fileId) { return `https://drive.google.com/file/d/${fileId}/preview`; }
+                if (urlObj.pathname.startsWith('/file/d/')) {fileId = urlObj.pathname.split('/')[3];}
+                else if (urlObj.pathname.startsWith('/uc')) {fileId = urlObj.searchParams.get('id');}
+                if (fileId) {return `https://drive.google.com/file/d/${fileId}/preview`;}
             } catch (e) { }
             return null;
         };
@@ -424,7 +424,7 @@
 
                 html = `<iframe id="video-player-iframe" class="w-full h-full" ${srcAttr} title="Video player" frameborder="0" ${allowAttr} allowfullscreen disablepictureinpicture ${isYoutube ? 'data-is-youtube="true"' : ''} ${dataSrcAttr} ${isStreamEmbed ? sandboxAttr : ''}></iframe>`;
             }
-            return { html, isHtml5Video };
+            return {html, isHtml5Video};
         };
 
         const handlePlayVideo = (e) => {
@@ -446,12 +446,12 @@
                 const frameSrc = iframeElement.src;
                 if (frameSrc.includes('youtube.com/embed')) {
                     setTimeout(() => {
-                        const message = JSON.stringify({ 'event': 'command', 'func': 'playVideo' });
-                        try { iframeElement.contentWindow.postMessage(message, '*'); } catch (e) { console.error("Lỗi gửi postMessage tới YouTube:", e); }
+                        const message = JSON.stringify({'event': 'command', 'func': 'playVideo'});
+                        try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {console.error("Lỗi gửi postMessage tới YouTube:", e);}
                     }, 100);
                 }
             }
-            setTimeout(() => { overlay.remove(); }, 500);
+            setTimeout(() => {overlay.remove();}, 500);
         };
 
         const handleGoogleLogin = async () => {
@@ -505,16 +505,16 @@
                 const q = query(collection(db, userLikesCollectionPath));
                 onSnapshot(q, (snapshot) => {
                     const likes = {};
-                    snapshot.forEach(doc => { likes[doc.data().movieId] = doc.id; });
+                    snapshot.forEach(doc => {likes[doc.data().movieId] = doc.id;});
                     currentUserLikeDocIds = likes;
                     const hash = window.location.hash;
                     if (hash.startsWith('#library')) router(false);
-                }, (error) => { console.error("Lỗi khi theo dõi danh sách likes:", error); });
-            } catch (e) { console.error("Lỗi khi tải danh sách likes:", e); }
+                }, (error) => {console.error("Lỗi khi theo dõi danh sách likes:", error);});
+            } catch (e) {console.error("Lỗi khi tải danh sách likes:", e);}
         };
 
         const handleLike = async (e) => {
-            if (!db || !auth?.currentUser) { window.location.hash = '#login'; return; }
+            if (!db || !auth?.currentUser) {window.location.hash = '#login'; return;}
             const button = e.currentTarget;
             const movieId = button.dataset.movieId;
             button.disabled = true;
@@ -529,14 +529,14 @@
                     const likeDocId = currentUserLikeDocIds[movieId];
                     if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
                     batch.delete(doc(userLikesColRef, likeDocId));
-                    batch.update(movieDocRef, { likeCount: increment(-1) });
+                    batch.update(movieDocRef, {likeCount: increment(-1)});
                 } else {
                     newLikeDocRef = doc(userLikesColRef);
-                    batch.set(newLikeDocRef, { movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp() });
-                    batch.update(movieDocRef, { likeCount: increment(1) });
+                    batch.set(newLikeDocRef, {movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
+                    batch.update(movieDocRef, {likeCount: increment(1)});
                 }
                 await batch.commit();
-                if (isLiked) { delete currentUserLikeDocIds[movieId]; } else { currentUserLikeDocIds[movieId] = newLikeDocRef.id; }
+                if (isLiked) {delete currentUserLikeDocIds[movieId];} else {currentUserLikeDocIds[movieId] = newLikeDocRef.id;}
             } catch (e) {
                 console.error("[LIKE ERROR] Thao tác Firebase thất bại:", e);
             } finally {
@@ -591,7 +591,7 @@
         };
 
         const globalCommentSubmitHandler = (e) => {
-            if (e.target && e.target.id === 'comment-form') { handleCommentSubmit(e); }
+            if (e.target && e.target.id === 'comment-form') {handleCommentSubmit(e);}
         };
 
         const ensureUserProfile = async (user) => {
@@ -606,9 +606,9 @@
                         photoURL: user.photoURL,
                         role: 'user',
                         createdAt: serverTimestamp()
-                    }, { merge: true });
+                    }, {merge: true});
                 }
-            } catch (e) { console.error("Lỗi tạo user profile lần đầu:", e); }
+            } catch (e) {console.error("Lỗi tạo user profile lần đầu:", e);}
         };
 
 
@@ -634,7 +634,7 @@
 
             try {
                 // Gói quà update gồm Tên và Ảnh
-                const updateData = { displayName: newName };
+                const updateData = {displayName: newName};
                 if (newAvatarUrl) updateData.photoURL = newAvatarUrl;
 
                 // Cập nhật vào Auth gốc của Firebase
@@ -676,8 +676,8 @@
             const reviewErrorEl = getEl('#review-error');
 
             reviewErrorEl.classList.add('hidden');
-            if (!rating) { reviewErrorEl.textContent = "Vui lòng chọn số sao đánh giá."; reviewErrorEl.classList.remove('hidden'); return; }
-            if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) { reviewErrorEl.textContent = "Bạn cần Đăng nhập bằng Google để đánh giá."; reviewErrorEl.classList.remove('hidden'); return; }
+            if (!rating) {reviewErrorEl.textContent = "Vui lòng chọn số sao đánh giá."; reviewErrorEl.classList.remove('hidden'); return;}
+            if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) {reviewErrorEl.textContent = "Bạn cần Đăng nhập bằng Google để đánh giá."; reviewErrorEl.classList.remove('hidden'); return;}
 
             const movieDocRef = doc(db, dataCollectionPath, movieId);
             const reviewDocRef = doc(db, dataCollectionPath, movieId, 'reviews', user.uid);
@@ -689,7 +689,7 @@
                 const ratingDifference = rating - oldRating;
 
                 if (isUpdate) {
-                    batch.update(reviewDocRef, { rating: rating, content: content, updatedAt: serverTimestamp() });
+                    batch.update(reviewDocRef, {rating: rating, content: content, updatedAt: serverTimestamp()});
                 } else {
                     batch.set(reviewDocRef, {
                         userId: user.uid, rating: rating, content: content,
@@ -699,9 +699,9 @@
                 }
 
                 if (isUpdate) {
-                    batch.update(movieDocRef, { reviewTotal: increment(ratingDifference) });
+                    batch.update(movieDocRef, {reviewTotal: increment(ratingDifference)});
                 } else {
-                    batch.update(movieDocRef, { reviewTotal: increment(rating), reviewCount: increment(1) });
+                    batch.update(movieDocRef, {reviewTotal: increment(rating), reviewCount: increment(1)});
                 }
 
                 await batch.commit();
@@ -738,7 +738,7 @@
         };
 
         const setupPublicReviewsListener = (movieId) => {
-            if (unsubscribePublicReviewsListener) { unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null; }
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
             const reviewsColRef = collection(db, dataCollectionPath, movieId, 'reviews');
             const q = query(reviewsColRef, orderBy('updatedAt', 'desc'), limit(COMMENT_LIMIT));
 
@@ -746,7 +746,7 @@
                 const publicReviewsContainer = getEl('#public-reviews-list');
                 if (!publicReviewsContainer) return;
                 const reviews = [];
-                snapshot.forEach(doc => { reviews.push({ id: doc.id, ...doc.data() }); });
+                snapshot.forEach(doc => {reviews.push({id: doc.id, ...doc.data()});});
                 const displayedReviews = reviews.slice(0, REVIEW_DISPLAY_LIMIT);
 
                 if (reviews.length > 0) {
@@ -770,7 +770,7 @@
         };
 
         const setupUserReviewListener = (movieId) => {
-            if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
             if (!auth?.currentUser || auth.currentUser.isAnonymous) return;
 
             const user = auth.currentUser;
@@ -778,12 +778,12 @@
 
             unsubscribeReviewListener = onSnapshot(reviewDocRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    currentUserReviewCache = { id: docSnap.id, ...docSnap.data() };
+                    currentUserReviewCache = {id: docSnap.id, ...docSnap.data()};
                 } else {
                     currentUserReviewCache = null;
                 }
                 const movie = globalMovieCache.find(m => m.id === movieId);
-                if (movie) { setupReviewSection(movie, currentUserReviewCache); }
+                if (movie) {setupReviewSection(movie, currentUserReviewCache);}
             }, (error) => {
                 console.error("Lỗi listener review người dùng:", error);
                 currentUserReviewCache = null;
@@ -1185,7 +1185,7 @@
         };
 
         const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
-            const { html: videoPlayerHtml } = getVideoPlayer(episode.videoUrl, movie.posterUrl);
+            const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, movie.posterUrl);
             const movieSlug = createSlug(movie.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
@@ -1361,7 +1361,7 @@
         };
 
         const renderSchedulePage = () => {
-            const moviesByDay = { "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": [] };
+            const moviesByDay = {"Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []};
             const airingMovies = globalMovieCache.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
             airingMovies.forEach(movie => {
                 const day = movie.airingDay || "Không có";
@@ -1400,10 +1400,10 @@
         };
 
         window.renderInfoPage = async (movieId) => {
-            if (!db) { showLoading(); return; }
-            if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
-            if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
-            if (unsubscribePublicReviewsListener) { unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null; }
+            if (!db) {showLoading(); return;}
+            if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
 
             const movieDocRef = doc(db, dataCollectionPath, movieId);
             let hasRenderedFullPage = false;
@@ -1414,7 +1414,7 @@
                     return;
                 }
 
-                const updatedMovieData = { id: movieDocSnap.id, ...movieDocSnap.data() };
+                const updatedMovieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
                 const isLiked = !!currentUserLikeDocIds[movieId];
 
                 if (!hasRenderedFullPage) {
@@ -1499,39 +1499,39 @@
         };
 
         window.renderWatchPage = async (movieId, episodeUniqueId) => {
-            if (!db) { showLoading(); return; }
-            if (unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
-            if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
-            if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
-            if (unsubscribePublicReviewsListener) { unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null; }
+            if (!db) {showLoading(); return;}
+            if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
+            if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
 
             try {
                 let movieData = globalMovieCache.find(a => a.id === movieId);
                 if (!movieData) {
                     const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
                     if (movieDocSnap.exists()) {
-                        movieData = { id: movieDocSnap.id, ...movieDocSnap.data() };
-                    } else { showError("Không tìm thấy bộ phim này."); return; }
+                        movieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
+                    } else {showError("Không tìm thấy bộ phim này."); return;}
                 }
 
                 const episodesList = movieData.episodes || [];
                 const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
                 const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
 
-                if (isNaN(episodeNumber)) { showError("Lỗi: Không tìm thấy số tập phim."); return; }
+                if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số tập phim."); return;}
 
                 const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
-                if (!episodeData) { showError("Không tìm thấy tập phim này trong mảng."); return; }
+                if (!episodeData) {showError("Không tìm thấy tập phim này trong mảng."); return;}
 
                 const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
                 let commentsList = [];
                 let commentsSnapshot;
                 try {
                     commentsSnapshot = await getDocs(query(commentsColRef));
-                    commentsSnapshot.forEach(doc => commentsList.push({ id: doc.id, ...doc.data() }));
+                    commentsSnapshot.forEach(doc => commentsList.push({id: doc.id, ...doc.data()}));
                     commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
                     commentsList = commentsList.slice(0, COMMENT_LIMIT);
-                } catch (e) { console.error("Lỗi khi tải bình luận:", e); }
+                } catch (e) {console.error("Lỗi khi tải bình luận:", e);}
 
                 const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
                 let nextEpisodeLink = null;
@@ -1540,7 +1540,7 @@
                     nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpId}.html`;
                 }
 
-                const allEpisodesWithId = episodesList.map((ep, index) => ({ ...ep, id: `${movieId}_${ep.episodeNumber}_${index}` }));
+                const allEpisodesWithId = episodesList.map((ep, index) => ({...ep, id: `${movieId}_${ep.episodeNumber}_${index}`}));
 
                 getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
 
@@ -1555,7 +1555,7 @@
 
                 if (videoElement) {
                     // Lưu thời gian xem dở
-                    videoElement.addEventListener('timeupdate', () => { saveWatchTime(episodeUniqueId, videoElement.currentTime); });
+                    videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
 
                     // Sự kiện khi xem hết phim
                     videoElement.addEventListener('ended', () => {
@@ -1609,7 +1609,7 @@
                         try {
                             let data = e.data;
                             if (typeof data === 'string') {
-                                try { data = JSON.parse(data); } catch (err) { }
+                                try {data = JSON.parse(data);} catch (err) { }
                             }
 
                             // Bé Lôi bổ sung thêm một đống từ khóa dự phòng xem có trúng không
@@ -1662,13 +1662,13 @@
 
                 setupCommentsListener(movieId);
 
-            } catch (e) { showError("Lỗi khi tải trang xem phim.", e.message); }
+            } catch (e) {showError("Lỗi khi tải trang xem phim.", e.message);}
         };
 
 
         const renderPage = (pageType, param) => {
-            if (setupError) { showError(setupError.message, setupError.stack || ''); return; }
-            if (!db || !isGlobalCacheLoaded) { showLoading(); return; }
+            if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
+            if (!db || !isGlobalCacheLoaded) {showLoading(); return;}
 
             const cache = globalMovieCache; let results = []; let title = '';
             const HOME_PAGE_LIMIT = 12;
@@ -1808,7 +1808,7 @@
 
 
         const router = (shouldUpdateHash = true) => {
-            if (setupError) { showError(setupError.message, setupError.stack || ''); return; }
+            if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
             if (!isAuthInitialised) return;
 
             const activeHash = window.location.hash || '#home';
@@ -1817,8 +1817,8 @@
 
             getAllEl('.nav-active, .mobile-nav-active').forEach(el => el.classList.remove('nav-active', 'mobile-nav-active'));
 
-            const navMap = { '#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile', '#gacha': '#gacha' };
-            const groupMap = { '#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season' };
+            const navMap = {'#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile', '#gacha': '#gacha'};
+            const groupMap = {'#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season'};
             const targetHash = navMap[primaryHash] || groupMap[primaryHash];
 
             if (targetHash) {
@@ -1827,12 +1827,12 @@
             }
 
             if (primaryHash !== '#phim') {
-                if (unsubscribeMovieListener) { unsubscribeMovieListener(); unsubscribeMovieListener = null; }
-                if (unsubscribeReviewListener) { unsubscribeReviewListener(); unsubscribeReviewListener = null; }
-                if (unsubscribePublicReviewsListener) { unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null; }
+                if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
+                if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+                if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
             }
 
-            if (primaryHash !== '#phim' && unsubscribeCommentsListener) { unsubscribeCommentsListener(); unsubscribeCommentsListener = null; }
+            if (primaryHash !== '#phim' && unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
 
             if (primaryHash === '#phim' && pathSegments.length >= 2) {
                 const movieIdMatch = pathSegments[1].match(/-([a-zA-Z0-9]+)$/);
@@ -1854,7 +1854,7 @@
         };
 
         const setupFirebase = async () => {
-            if (!finalConfig.projectId) { setupError = new Error("Lỗi Cấu hình: 'projectId' không được cung cấp."); router(); return; }
+            if (!finalConfig.projectId) {setupError = new Error("Lỗi Cấu hình: 'projectId' không được cung cấp."); router(); return;}
 
             try {
                 app = initializeApp(finalConfig);
@@ -1947,7 +1947,7 @@
                     if (docSnap.exists()) {
                         globalSliderSettings = docSnap.data();
                     } else {
-                        globalSliderSettings = { mode: 'random', selectedMovieIds: [] };
+                        globalSliderSettings = {mode: 'random', selectedMovieIds: []};
                     }
                     // Gọi lại router để vẽ lại trang chủ nếu đang đứng ở trang chủ
                     if (window.location.hash.startsWith('#home') || window.location.hash === '') {
@@ -1964,7 +1964,7 @@
 
                     const movieList = [];
                     snapshot.forEach(doc => {
-                        const data = { id: doc.id, ...doc.data() };
+                        const data = {id: doc.id, ...doc.data()};
                         movieList.push(data);
 
                         // --- CẬP NHẬT TRỰC TIẾP VÀO DOM CỰC NHẸ BẰNG REQUEST ANIMATION FRAME ---
@@ -2060,10 +2060,10 @@
                         </a>
             <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
 
-                getEl('#profile-avatar-btn')?.addEventListener('click', function () { getEl('#user-dropdown-menu')?.classList.toggle('active'); });
+                getEl('#profile-avatar-btn')?.addEventListener('click', function () {getEl('#user-dropdown-menu')?.classList.toggle('active');});
                 getEl('#logout-button-desktop')?.addEventListener('click', handleLogout);
-                getEl('#logout-button-mobile')?.addEventListener('click', (e) => { handleLogout(e); getEl('#mobile-menu')?.classList.add('hidden'); });
-                getEl('#profile-link-desktop')?.addEventListener('click', () => { getEl('#user-dropdown-menu')?.classList.remove('active'); });
+                getEl('#logout-button-mobile')?.addEventListener('click', (e) => {handleLogout(e); getEl('#mobile-menu')?.classList.add('hidden');});
+                getEl('#profile-link-desktop')?.addEventListener('click', () => {getEl('#user-dropdown-menu')?.classList.remove('active');});
             }
         };
 
@@ -2072,8 +2072,8 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await setupFirebase();
-            getEl('#resume-modal-yes')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(true); });
-            getEl('#resume-modal-no')?.addEventListener('click', () => { window.hideResumeModal(); resolveResumeModal(false); });
+            getEl('#resume-modal-yes')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(true);});
+            getEl('#resume-modal-no')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(false);});
 
             // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
             // --- 1. Nút mở Menu chính ---
@@ -3282,72 +3282,67 @@
                     </div>
                 </div>
 
-                <!-- Khu vực Newsletter bọc gọn trong một cột Flex để thông báo không bị lệch -->
+                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE -->
                 <div class="w-full max-w-md flex flex-col items-center">
-                    <!-- Newsletter Formspree Dùng AJAX (Không chuyển trang) -->
-                    <form id="newsletter-form" action="https://formspree.io/f/mykrdwgw" method="POST"
+                
+                    <form id="newsletter-form"
                         class="w-full bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-lime-500 focus-within:ring-2 focus-within:ring-lime-500/30 transition-all shadow-lg relative">
-
-                        <!-- Ô nhập email -->
-                        <input type="email" id="email-input" name="email" placeholder="Nhập email để nhận Anime mới..."
-                            required
+                        <input type="email" id="email-input" placeholder="Nhập email để nhận Anime mới..." required
                             class="bg-transparent border-none outline-none text-white px-5 py-2 w-full placeholder-gray-400 text-sm focus:ring-0">
-
-                        <!-- Nút đăng ký -->
                         <button type="submit" id="submit-btn"
                             class="bg-lime-500 hover:bg-lime-400 text-gray-950 font-bold py-2.5 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm shadow-md">
                             Đăng ký
                         </button>
                     </form>
-
-                    <!-- Dòng thông báo trạng thái đã nằm gọn gàng bên dưới form -->
                     <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
                 </div>
+    
+                <script type="module">
+                    import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+                    import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+                    const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
+                    
+                    const app = initializeApp(firebaseConfig);
+                    const db = getFirestore(app);
 
-                <!-- Phép thuật JavaScript xử lý AJAX -->
-                <script>
                     const form = document.getElementById('newsletter-form');
                     const msg = document.getElementById('newsletter-msg');
                     const emailInput = document.getElementById('email-input');
                     const submitBtn = document.getElementById('submit-btn');
 
                     form.addEventListener('submit', async function (e) {
-                        e.preventDefault(); // Chặn không cho nhảy sang trang Formspree
-                        submitBtn.textContent = 'Đang gửi...';
+                        e.preventDefault();
+
+                        const emailValue = emailInput.value.trim();
+                        submitBtn.textContent = 'Đang lưu...';
                         submitBtn.disabled = true;
 
-                        const formData = new FormData(form);
-
                         try {
-                            const response = await fetch(form.action, {
-                                method: 'POST',
-                                body: formData,
-                                headers: { 'Accept': 'json' }
+                            
+                            await addDoc(collection(db, "subscribers"), {
+                                email: emailValue,
+                                subscribedAt: serverTimestamp() 
                             });
 
-                            if (response.ok) {
-                                msg.style.color = '#00e676'; // Màu xanh lá thành công
-                                msg.textContent = '🎉 Đăng ký thành công! Cảm ơn cậu đã đồng hành cùng FoxAnime nhé!';
-                                form.reset(); // Xóa sạch ô nhập email
-                            } else {
-                                msg.style.color = '#e94560'; // Màu đỏ báo lỗi
-                                msg.textContent = '❌ Ối chà, có lỗi chút xíu, cậu thử lại sau nha!';
-                            }
+                           
+                            msg.style.color = '#00e676';
+                            msg.textContent = '🎉 Đăng ký thành công! Cảm ơn cậu đã đồng hành cùng FoxAnime nhé!';
+                            form.reset();
                         } catch (error) {
+                            console.error("Lỗi òi:", error);
                             msg.style.color = '#e94560';
-                            msg.textContent = '❌ Không thể kết nối tới máy chủ!';
+                            msg.textContent = '❌ Ối chà, hệ thống đang bận xíu, cậu thử lại sau nha!';
                         } finally {
                             submitBtn.textContent = 'Đăng ký';
                             submitBtn.disabled = false;
-
-                            // Tự động ẩn thông báo sau 5 giây cho gọn gàng
-                            setTimeout(() => { msg.textContent = ''; }, 5000);
+                           
+                            setTimeout(() => {msg.textContent = '';}, 5000);
                         }
                     });
                 </script>
             </div>
 
-            <!-- PHẦN DONATE (MỚI THÊM) -->
+            <!-- PHẦN DONATE -->
             <div
                 class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-lime-500/20 to-purple-500/20 border border-lime-500/30 relative overflow-hidden group">
                 <div
