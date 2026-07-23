@@ -28,9 +28,9 @@ jobs:
 
       - name: 🚀 Khởi động Bé Bot quét phim và gửi Mail
         env:
-          # Đưa chìa khóa từ két sắt Secrets vào cho Bot Python nhận diện
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: python bot.py
         
