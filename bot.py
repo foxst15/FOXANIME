@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter # Thêm vũ khí mới để fix lỗi cảnh báo
 
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
@@ -25,8 +26,16 @@ except Exception as e:
 # Tọa độ VIP đi thẳng vào kho phim
 APP_ID = "default-app-id" 
 movies_ref = db.collection("artifacts").document(APP_ID).collection("public").document("data").collection("movies")
-# Lọc ra những phim có cờ isNotified == false (Cả phim mới tạo lẫn phim vừa được thêm tập mới mà Admin đã lật cờ)
-new_movies = movies_ref.where("isNotified", "==", False).stream()
+
+# --- 📡 BẬT RA ĐA ĐỂ KIỂM TRA ĐƯỜNG DẪN ---
+all_movies = list(movies_ref.stream())
+print(f"Bíp bíp! Ra đa của Bé Lôi đếm được tổng cộng {len(all_movies)} bộ phim trong kho!")
+if len(all_movies) > 0:
+    print(f"Ví dụ một phim quét được: {all_movies[0].to_dict().get('title', 'Phim ẩn danh')}")
+# ------------------------------------------
+
+# Lọc ra những phim có cờ isNotified == false (Dùng cú pháp FieldFilter mới để sạch bóng lỗi cảnh báo)
+new_movies = movies_ref.where(filter=FieldFilter("isNotified", "==", False)).stream()
 
 movies_to_announce = []
 for movie in new_movies:
