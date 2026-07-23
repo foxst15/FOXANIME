@@ -102,7 +102,9 @@ try:
         msg = MIMEMultipart()
         msg['From'] = f"FoxAnime 🦊 <{SENDER_EMAIL}>"
         msg['To'] = recipient_email
-        msg['Subject'] = "🎉 FoxAnime vừa cập nhật tập mới / phim mới siêu HOT!"
+        # Lấy tên bộ phim đầu tiên ghép vào Tiêu đề để mỗi lần gửi mail là một tiêu đề khác nhau!
+        first_movie_name = movies_to_announce[0]['name']
+        msg['Subject'] = f"🎉 FoxAnime cập nhật HOT: {first_movie_name} đã có mặt!"
         
         body = f"""
         <html>
