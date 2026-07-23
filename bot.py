@@ -1,6 +1,7 @@
 import os
 import json
 import smtplib
+import time # Gọi thêm công cụ điều khiển thời gian
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import firebase_admin
@@ -80,7 +81,7 @@ try:
     server.starttls() 
     server.login(SENDER_EMAIL, APP_PASSWORD)
     
-    # --- THIẾT KẾ THẺ BÀI TỐI GIẢN ---
+    # --- THIẾT KẾ THẺ BÀI TỐI GIẢN CHỐNG LỖI ẢNH ---
     movie_cards_html = ""
     for m in movies_to_announce:
         movie_cards_html += f"""
@@ -98,13 +99,15 @@ try:
         </div>
         """
 
+    # TIÊU ĐỀ BIẾN HÌNH: Lấy tên phim đầu tiên ghép vào tiêu đề chống gộp thư của Gmail
+    first_movie_name = movies_to_announce[0]['name']
+    subject_line = f"🎉 FoxAnime cập nhật HOT: {first_movie_name} đã có mặt!"
+
     for recipient_email in email_list:
         msg = MIMEMultipart()
         msg['From'] = f"FoxAnime 🦊 <{SENDER_EMAIL}>"
         msg['To'] = recipient_email
-        # Lấy tên bộ phim đầu tiên ghép vào Tiêu đề để mỗi lần gửi mail là một tiêu đề khác nhau!
-        first_movie_name = movies_to_announce[0]['name']
-        msg['Subject'] = f"🎉 FoxAnime cập nhật HOT: {first_movie_name} đã có mặt!"
+        msg['Subject'] = subject_line
         
         body = f"""
         <html>
@@ -117,15 +120,25 @@ try:
               {movie_cards_html}
               
               <p style="font-size: 16px; color: #555; margin-top: 30px;">Mau mau chuẩn bị bắp nước và truy cập để xem ngay cho nóng nhé!</p>
-              <div style="margin-top: 30px; margin-bottom: 10px;">
+              <div style="margin-top: 30px; margin-bottom: 30px;">
                 <a href="https://foxanime.top" style="background-color: #a3e635; color: #000000; padding: 14px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 6px rgba(163, 230, 53, 0.3);">🍿 Xem Phim Ngay 🍿</a>
               </div>
+              
+              <!-- Tấm bùa hộ mệnh chống Spam -->
+              <hr style="border: none; border-top: 1px solid #eee; margin-bottom: 15px;">
+              <p style="font-size: 12px; color: #999; margin: 0;">
+                Bạn nhận được thư này vì đã đăng ký nhận thông báo từ FoxAnime.<br>
+                Nếu không muốn nhận thư nữa, cậu có thể <a href="https://foxanime.top" style="color: #4CAF50; text-decoration: underline;">nhấn vào đây để hủy đăng ký</a>.
+              </p>
             </div>
           </body>
         </html>
         """
         msg.attach(MIMEText(body, 'html'))
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
+        
+        # Thần chú phanh gấp: Bắt Bé Bot đi ngủ 2 giây để tránh bị Google khóa mõm!
+        time.sleep(2)
     
     server.quit()
     print("Đã gửi mail thành công cho tất cả khán giả!")
