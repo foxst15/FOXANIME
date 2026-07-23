@@ -2,7 +2,7 @@ name: FoxAnime Bot Notifier
 
 on:
   schedule:
-    # Lịch trình: Bé Bot sẽ thức dậy lặp lại mỗi .. phút
+    # Lịch trình: Bé Bot sẽ thức dậy lặp lại mỗi 5 phút
     - cron: '*/5 * * * *'
   # Cho phép FoxST-sama bấm nút chạy thử bằng tay bất cứ lúc nào
   workflow_dispatch: 
@@ -28,9 +28,8 @@ jobs:
       - name: 🚀 Khởi động Bé Bot quét phim và gửi Mail
         env:
           # Đưa chìa khóa từ két sắt Secrets vào cho Bot Python nhận diện
-          env:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python bot.py
-
+        
