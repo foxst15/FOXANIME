@@ -857,7 +857,7 @@
             </section>
 `;
 
-        // --- BÉ LÔI ĐÃ FIX LỖI TÓM TẮT DÀI SỌC DÙNG ÉP KIỂU INLINE VÀ TẨY HTML ---
+       
         const SliderSectionTemplate = (mangaList) => {
             if (!mangaList || mangaList.length === 0) return '';
 
@@ -865,9 +865,10 @@
                 const mangaSlug = createSlug(manga.title);
                 const infoUrl = `#truyen/${mangaSlug}-${manga.id}`;
                 const imageUrl = manga.bannerUrl || manga.posterUrl;
-                const genres = manga.genre ? manga.genre.split(',').slice(0, 3).map(genre => `<span class="glass-card text-gray-200 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
+                // Lấy 3 thể loại
+                const genres = manga.genre ? manga.genre.split(',').slice(0, 3).map(genre => `<span class="glass-card text-gray-200 text-xs font-medium px-3 py-1.5 rounded-full">${genre.trim()}</span>`).join('') : '';
 
-                // BÉ LÔI THÊM PHÉP THUẬT TẨY RỬA THẺ HTML VÀ XÓA DẤU ENTER Ở ĐÂY NÈ
+                // Làm sạch thẻ HTML trong tóm tắt
                 const cleanSummary = (manga.summary || 'Đang cập nhật nội dung...').replace(/<[^>]*>?/gm, '').replace(/\n/g, ' ').trim();
 
                 return `
@@ -882,15 +883,16 @@
                         <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight drop-shadow-2xl">${manga.title}</h1>
                         ${manga.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-orange-400/80 mb-4 drop-shadow-lg">${manga.titleOriginal}</h4>` : '<div class="mb-4"></div>'}
                         
-                        <!-- BÉ LÔI ÉP KIỂU INLINE CSS VÀ ĐƯA TEXT ĐÃ LÀM SẠCH VÀO NÈ -->
+                        <!-- CẮT TÓM TẮT 2 DÒNG -->
                         <p class="text-gray-300 text-base md:text-lg mb-6 drop-shadow-md" style="display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; white-space: normal !important;">${cleanSummary}</p>
                         
-                        <div class="flex items-center space-x-4">
-                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3.5 bg-orange-500 text-gray-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
-                                <ion-icon name="play-circle" class="text-2xl mr-2"></ion-icon>
+                        <!-- BÉ LÔI ĐÃ GỠ LỆNH "HIDDEN" VÀ THÊM "FLEX-WRAP" ĐỂ TỰ RỚT DÒNG TRÊN ĐIỆN THOẠI -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-6 md:px-8 py-3 bg-orange-500 text-gray-900 text-base md:text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
+                                <ion-icon name="play-circle" class="text-xl md:text-2xl mr-2"></ion-icon>
                                 Xem Ngay
                             </a>
-                            <div class="hidden md:flex space-x-2">${genres}</div>
+                            <div class="flex flex-wrap gap-2">${genres}</div>
                         </div>
                     </div>
                 </div>
