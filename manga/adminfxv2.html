@@ -1420,6 +1420,18 @@
                 rawBanner = `${domainImage}/uploads/comics/${rawBanner}`.replace(/([^:]\/)\/+/g, "$1");
             }
 
+            // --- BÉ LÔI THÊM LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG TRUYỆN NÈ ---
+            let detectedFormat = 'manga'; // Mặc định vẫn là Manga
+            const genresCheck = genres.map(g => g.toLowerCase());
+            
+            if (genresCheck.some(g => g.includes('manhwa') || g.includes('hàn quốc'))) {
+                detectedFormat = 'manhwa';
+            } else if (genresCheck.some(g => g.includes('manhua') || g.includes('trung quốc'))) {
+                detectedFormat = 'manhua';
+            } else if (genresCheck.some(g => g.includes('18+') || g.includes('adult') || g.includes('smut') || g.includes('taihen'))) {
+                detectedFormat = 'taihen';
+            }
+
             // 4. Đóng gói thành chuẩn dữ liệu của FoxManga
             let mangaData = {
                 title: data.name || data.original_name || 'Unknown Title',
@@ -1433,7 +1445,7 @@
                 genre: genres.join(', '),
                 totalEpisodes: parseInt(data.total_episodes) || 0,
 
-                formatType: 'manga',
+                formatType: detectedFormat, // Đã thay 'manga' tĩnh bằng biến tự động nhận diện
                 airingDay: 'Không có',
                 episodes: [],
             };
