@@ -2970,6 +2970,11 @@
                     <a href="#gacha"
                         class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
                             name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
+                    <div class="h-4 w-px bg-gray-600 mx-2"></div> <!-- Vạch kẻ dọc phân cách -->
+                    <a href="/manga/"
+                        class="text-orange-500 hover:text-orange-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">
+                        <ion-icon name="book-outline" class="mr-1 text-lg"></ion-icon>FoxManga
+                    </a>
 
                 </div>
             </nav>
@@ -3220,6 +3225,10 @@
             <a href="#gacha"
                 class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
                     name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
+            <a href="/manga/"
+                class="block px-3 py-2 mt-2 bg-gradient-to-r from-orange-600/20 to-transparent border-l-4 border-orange-500 rounded-r-md text-orange-400 text-base font-extrabold transition-colors">
+                <ion-icon name="book" class="mr-2"></ion-icon>Sang Đọc Truyện (FoxManga)
+            </a>
         </div>
         <div class="px-5 pb-3">
             <form id="search-form-mobile" class="relative">
@@ -3296,7 +3305,7 @@
                     <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
                 </div>
 
-                
+
                 <script type="module">
                     import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
                     import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
