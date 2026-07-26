@@ -1,0 +1,3156 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+
+<head>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "FoxManga",
+      "alternateName": ["Fox Manga", "FoxManga Vietsub" , "foxmanga"],
+      "url": "https://foxmanga.top/"
+    }
+    </script>
+    <meta name="google-site-verification" content="q11Z8-9RJYhX14rqOGPUbVU2FynPJgPa8_3kMC34J4A" />
+    <meta property="og:site_name" content="FoxManga" />
+
+    <meta name="description"
+        content="FOXMANGA - Nền tảng đọc truyện trực tuyến miễn phí, chất lượng cao HD, cập nhật mới nhất cực nhanh." />
+    <meta property="og:description"
+        content="FOXMANGA - Nền tảng đọc truyện trực tuyến miễn phí, chất lượng cao HD, cập nhật mới nhất cực nhanh." />
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    <link rel="icon" type="image/png" href="../anh/foxanimelogo.jpg">
+    <title>FOXMANGA - Đọc Truyện Miễn Phí</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        const RELOAD_INTERVAL = 15000;
+        window.trigger5XXError = function () {
+            const overlay = document.getElementById('cdn-failure-overlay');
+            if (overlay) overlay.style.display = 'flex';
+            const mainApp = document.getElementById('app');
+            if (mainApp) mainApp.style.display = 'none';
+            const header = document.querySelector('header');
+            if (header) header.style.display = 'none';
+            console.warn(`[Hệ thống] Mất kết nối nghiêm trọng. Tự động khôi phục sau ${RELOAD_INTERVAL / 1000}s.`);
+            setTimeout(() => {location.reload();}, RELOAD_INTERVAL);
+        };
+
+        function checkTailwindLoadAndShowFallback() {
+            let isTailwindLoaded = false;
+            try {
+                const testEl = document.createElement('div');
+                testEl.className = 'flex';
+                testEl.style.visibility = 'hidden';
+                testEl.style.position = 'absolute';
+                document.body.appendChild(testEl);
+                const computedStyle = window.getComputedStyle(testEl);
+                isTailwindLoaded = computedStyle.display === 'flex';
+                document.body.removeChild(testEl);
+            } catch (e) {console.error("Lỗi khi kiểm tra Tailwind:", e);}
+
+            if (!isTailwindLoaded) {
+                window.trigger5XXError();
+            }
+        }
+        window.addEventListener('load', () => {setTimeout(checkTailwindLoadAndShowFallback, 300);});
+    </script>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script type="module">
+
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
+        
+        let app, db, auth;
+        let userId = null; let userEmail = null; let dataCollectionPath, userLikesCollectionPath, userRoleCollectionPath;
+        let isAuthInitialised = false; let globalMangaCache = []; let unsubscribeCommentsListener = null;
+        let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false;
+        let resolveResumeModal; let unsubscribeMangaListener = null; let currentUserReviewCache = null;
+        let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null;
+        let globalSliderSettings = {mode: 'random', selectedMangaIds: []};
+        const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
+
+        const ALL_GENRES = [
+            "Action", "Adult", "Adventure", "Anime", "Chuyển Sinh", "Comedy", "Comic", "Cooking", "Cổ Đại", "Doujinshi", 
+            "Drama", "Đam Mỹ", "Ecchi", "Fantasy", "Gender Bender", "Harem", "Historical", "Horror", "Josei", "Live action", 
+            "Manga", "Manhua", "Manhwa", "Martial Arts", "Mature", "Mecha", "Mystery", "Ngôn Tình", "One shot", "Psychological", 
+            "Romance", "School Life", "Sci-fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Smut", 
+            "Soft Yaoi", "Soft Yuri", "Sports", "Supernatural", "Tạp chí truyện tranh", "Thiếu Nhi", "Tragedy", "Trinh Thám", 
+            "Truyện scan", "Truyện Màu", "Việt Nam", "Webtoon", "Xuyên Không", "16+"
+        ];
+
+        const GENRE_TRANSLATIONS = {
+            "Action": "Hành động", "Adventure": "Phiêu lưu", "Comedy": "Hài hước", "Drama": "Kịch tính",
+            "Fantasy": "Giả tưởng", "Historical": "Lịch sử", "Horror": "Kinh dị", "Martial Arts": "Võ thuật",
+            "Mecha": "Robot", "Mystery": "Bí ẩn", "Psychological": "Tâm lý", "Romance": "Lãng mạn",
+            "School Life": "Học đường", "Sci-fi": "Viễn tưởng", "Sports": "Thể thao", "Supernatural": "Siêu nhiên",
+            "Tragedy": "Bi kịch"
+        };
+
+        const renderGenreLinkWithSub = (genre) => {
+            const slug = createSlug(genre);
+            const sub = GENRE_TRANSLATIONS[genre] ? ` (${GENRE_TRANSLATIONS[genre]})` : '';
+            return {
+                text: `${genre}${sub}`,
+                slug: slug,
+                isPopular: ["Action", "Romance", "Comedy"].includes(genre)
+            };
+        };
+
+        const getEl = (selector) => document.querySelector(selector);
+        const getAllEl = (selector) => document.querySelectorAll(selector);
+
+        // --- BÉ LÔI ĐÃ TÁCH BIẾN VÀ ĐƯỜNG DẪN DATABASE THÀNH MANGA Ở ĐÂY NÈ ---
+        const updatePaths = (currentUserId) => {
+            if (!appId && appId !== '') {console.error("FATAL: appId is not defined. Path creation failed."); setupError = new Error("Lỗi Cấu hình: appId không hợp lệ."); return;}
+            const safeUserId = currentUserId || 'guest';
+            dataCollectionPath = `artifacts/${appId}/public/data/mangas`;
+            userLikesCollectionPath = `artifacts/${appId}/users/${safeUserId}/manga_likes`;
+            userRoleCollectionPath = `artifacts/${appId}/users`;
+        };
+        updatePaths(null);
+
+        const isGoogleAuth = (userFromCallback = null) => {
+            const user = userFromCallback || auth?.currentUser;
+            return user && user.providerData.some(p => p.providerId === 'google.com');
+        };
+        const BANNED_WORDS = ["đụ", "cặc", "lồn", "buồi", "địt", "mẹ mày", "đm", "dcm", "cc", "chó chết", "súc vật", "phản động", "kích war", "xuyên tạc", "tự tử", "chết đi", "đánh nhau", "chia rẽ", "phá hoại", "vô học", "thằng ngu", "con điên", "chửi", "bố láo", "cút", "biến", "đồ khốn", "khốn nạn", "sản", "ngu xuẩn", "óc chó", "thiếu văn minh", "fuck", "shit"];
+
+        const isCommentProfane = (content) => {
+            const normalizedContent = content.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/[^a-z0-9\s]/g, "");
+            for (const word of BANNED_WORDS) {
+                const normalizedBannedWord = word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd');
+                if (normalizedContent.includes(normalizedBannedWord.replace(/\s+/g, '')) || content.toLowerCase().includes(word.toLowerCase())) return true;
+            }
+            return false;
+        };
+
+        const createSlug = (text) => {
+            if (!text) return '';
+            return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+        };
+
+        const formatCommentDate = (dateObj) => {
+            if (!dateObj) return 'Vừa xong';
+            let date;
+            if (typeof dateObj.toDate === 'function') date = dateObj.toDate();
+            else if (dateObj instanceof Date) date = dateObj;
+            else if (typeof dateObj === 'number') date = new Date(dateObj);
+            else if (typeof dateObj === 'string') date = new Date(dateObj);
+            else return 'Không xác định';
+            if (isNaN(date.getTime())) return 'Lỗi ngày tháng';
+            return date.toLocaleString('vi-VN');
+        };
+
+        window.showResumeModal = (mangaTitle, time) => {
+            const modal = getEl('#resume-modal');
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            getEl('#resume-modal-text').textContent = `Bạn đã đọc "${mangaTitle}" đến ${minutes} phút ${seconds} giây. Bạn có muốn xem tiếp không?`;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            return new Promise(resolve => {resolveResumeModal = resolve;});
+        };
+        window.hideResumeModal = () => {
+            const modal = getEl('#resume-modal');
+            modal.classList.add('hidden'); modal.classList.remove('flex'); resolveResumeModal = null;
+        };
+
+        // --- TÁCH LOCAL STORAGE KHỎI ANIME ---
+        const saveWatchTime = (episodeId, time) => {
+            if (episodeId && time >= 5 && (Date.now() - parseInt(localStorage.getItem(`_lastReadSave_${episodeId}`) || '0') > 30000)) {
+                localStorage.setItem(`_readTime_${episodeId}`, time);
+                localStorage.setItem(`_lastReadSave_${episodeId}`, Date.now());
+            }
+        };
+
+        const getZodiacInfo = (d, m) => {
+            if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return {name: "Bạch Dương", genre: "Action", fortune: "Năng lượng rực rỡ! Một bộ truyện Hành động (Action) sẽ rất phù hợp với bạn hôm nay."};
+            if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return {name: "Kim Ngưu", genre: "Slice of Life", fortune: "Bình yên là chân ái. Hãy thư giãn cùng một bộ truyện Đời thường (Slice of Life) nhé!"};
+            if ((m == 5 && d >= 21) || (m == 6 && d <= 21)) return {name: "Song Tử", genre: "Comedy", fortune: "Năng lượng vui vẻ! Bạn đang cần một trận cười sảng khoái (Comedy) ngay lúc này."};
+            if ((m == 6 && d >= 22) || (m == 7 && d <= 22)) return {name: "Cự Giải", genre: "Romance", fortune: "Cảm xúc thăng hoa. Một câu chuyện tình lãng mạn (Romance) là lựa chọn tuyệt vời."};
+            if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) return {name: "Sư Tử", genre: "Super Power", fortune: "Hào quang tỏa sáng! Xem ngay một bộ truyện Siêu năng lực (Super Power) thôi!"};
+            if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) return {name: "Xử Nữ", genre: "Mystery", fortune: "Tư duy sắc bén. Thử sức giải mã những bí ẩn (Mystery) ngay nào!"};
+            if ((m == 9 && d >= 23) || (m == 10 && d <= 23)) return {name: "Thiên Bình", genre: "Fantasy", fortune: "Thế giới kỳ ảo đang vẫy gọi. Cùng bước vào vũ trụ Phép thuật (Fantasy) tuyệt đep."};
+            if ((m == 10 && d >= 24) || (m == 11 && d <= 22)) return {name: "Thiên Yết", genre: "Thriller", fortune: "Bí ẩn và kịch tính. Thể loại Giật gân (Thriller) sẽ kích thích giác quan của bạn hôm nay."};
+            if ((m == 11 && d >= 23) || (m == 12 && d <= 21)) return {name: "Nhân Mã", genre: "Adventure", fortune: "Đam mê khám phá! Một chuyến phiêu lưu (Adventure) sẽ làm bạn thỏa mãn."};
+            if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return {name: "Ma Kết", genre: "Drama", fortune: "Sâu sắc và lắng đọng. Những bộ truyện Kịch tính (Drama) sẽ chạm đến cảm xúc của bạn."};
+            if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return {name: "Bảo Bình", genre: "Sci-Fi", fortune: "Hướng về tương lai. Khoa học viễn tưởng (Sci-Fi) chính là chân ái!"};
+            if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) return {name: "Song Ngư", genre: "Magic", fortune: "Tâm hồn mộng mơ. Thể loại Phép thuật (Magic) sẽ mang lại điều kỳ diệu cho bạn!"};
+            return {name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ Harem xem sao!"};
+        };
+
+        window.handleGachaPull = (amount) => {
+            const today = new Date().toDateString();
+            let lastDate = localStorage.getItem('_mangaGachaDate');
+            let pullsLeft = parseInt(localStorage.getItem('_mangaGachaPulls'));
+
+            if (lastDate !== today || isNaN(pullsLeft)) {
+                pullsLeft = 5;
+                localStorage.setItem('_mangaGachaDate', today);
+            }
+
+            const msgEl = getEl('#gacha-msg');
+            const resultsEl = getEl('#gacha-results');
+            const fortuneEl = getEl('#fortune-results');
+
+            if (pullsLeft < amount) {
+                msgEl.innerHTML = `<span class="text-red-400">Bạn chỉ còn ${pullsLeft} lượt quay hôm nay. Vui lòng quay lại vào ngày mai!</span>`;
+                return;
+            }
+
+            pullsLeft -= amount;
+            localStorage.setItem('_mangaGachaPulls', pullsLeft);
+            getEl('#gacha-pulls-left').textContent = pullsLeft;
+
+            msgEl.innerHTML = `<span class="text-orange-400">Đang tìm kiếm truyện ngẫu nhiên...</span>`;
+            resultsEl.innerHTML = `<div class="col-span-full flex justify-center py-10"><svg class="animate-spin h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
+            fortuneEl.innerHTML = '';
+
+            setTimeout(() => {
+                const randomMangas = [...globalMangaCache].sort(() => 0.5 - Math.random()).slice(0, amount);
+                resultsEl.innerHTML = randomMangas.map(MangaCardTemplate).join('');
+                msgEl.innerHTML = `<span class="text-orange-400">Thành công! 🎉</span>`;
+            }, 1200);
+        };
+
+        window.handleFortuneTelling = (e) => {
+            e.preventDefault();
+            const dobStr = getEl('#dob-input').value;
+            if (!dobStr) return;
+
+            const date = new Date(dobStr);
+            const zodiac = getZodiacInfo(date.getDate(), date.getMonth() + 1);
+
+            let recommended = globalMangaCache.filter(m => (m.genre || '').includes(zodiac.genre)).sort(() => 0.5 - Math.random()).slice(0, 5);
+            if (recommended.length < 5) {
+                const extra = [...globalMangaCache].sort(() => 0.5 - Math.random()).slice(0, 5 - recommended.length);
+                recommended = [...recommended, ...extra];
+            }
+
+            getEl('#gacha-results').innerHTML = '';
+            getEl('#gacha-msg').innerHTML = '';
+
+            getEl('#fortune-results').innerHTML = `
+        <div class="bg-gray-800/80 p-8 rounded-2xl border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)] mt-8 text-center animate-fade-in">
+            <div class="text-6xl mb-4">🔮</div>
+            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-3">Cung ${zodiac.name}</h3>
+            <p class="text-gray-300 text-lg italic mb-6 px-4">"${zodiac.fortune}"</p>
+            <h4 class="text-orange-400 font-bold mb-6 uppercase tracking-wider border-b border-gray-600 inline-block pb-2">Đề xuất truyện ${zodiac.genre} dành cho bạn:</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-left">
+                ${recommended.map(MangaCardTemplate).join('')}
+            </div>
+        </div>
+    `;
+        };
+
+        const GachaPageTemplate = () => {
+            return `
+        <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 mb-4 drop-shadow-lg uppercase tracking-wide">🌟 Góc Nhân Phẩm 🌟</h2>
+                <p class="text-gray-400 text-lg">Thử vận may hôm nay hoặc để hệ thống chọn truyện giúp bạn nhé!</p>
+            </div>
+
+            <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <!-- BOX GACHA -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(249,115,22,0.15)] border border-orange-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
+                    <img src="../anh/FOX anime.gif" class="w-24 h-24 rounded-full border-4 border-orange-400 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.6)] animate-bounce object-cover">
+                    <h3 class="text-2xl font-bold text-white mb-2">Gacha Truyện Ngẫu Nhiên</h3>
+                    <p class="text-gray-300 mb-6 text-center">Hôm nay bạn còn <span id="gacha-pulls-left" class="text-3xl font-black text-orange-400 mx-1 drop-shadow-md">5</span> lượt</p>
+                    
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full">
+                        <button onclick="window.handleGachaPull(1)" class="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-gray-500 hover:border-orange-400">
+                            Quay x1 <ion-icon name="ticket-outline" class="ml-1"></ion-icon>
+                        </button>
+                        <button onclick="window.handleGachaPull(5)" class="flex-1 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                            Quay x5 VIP <ion-icon name="sparkles" class="ml-1 text-yellow-300"></ion-icon>
+                        </button>
+                    </div>
+                    <div id="gacha-msg" class="mt-5 h-6 text-sm font-semibold tracking-wide"></div>
+                </div>
+
+                <!-- BOX BÓI TOÁN -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(168,85,247,0.15)] border border-purple-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+                    <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">🔮</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Đề Xuất Theo Cung Hoàng Đạo</h3>
+                    <p class="text-gray-300 mb-6 text-center">Nhập ngày sinh để hệ thống đề xuất thể loại phù hợp với bạn hôm nay!</p>
+                    
+                    <form id="fortune-form" class="w-full flex flex-col space-y-4 relative z-10">
+                        <input type="date" id="dob-input" required class="w-full px-5 py-3.5 bg-gray-900 border-2 border-purple-500/50 rounded-xl text-white focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 text-center font-bold tracking-widest cursor-pointer">
+                        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                            Xem Đề Xuất <ion-icon name="star-half-outline" class="ml-1"></ion-icon>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- KẾT QUẢ -->
+            <div class="w-full max-w-7xl">
+                <div id="gacha-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+                <div id="fortune-results" class="w-full"></div>
+            </div>
+        </section>
+    `;
+        };
+
+        const setupCommentsListener = (mangaId) => {
+            if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
+
+            const commentsColRef = collection(db, dataCollectionPath, mangaId, 'comments');
+            const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT));
+
+            unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
+                const updatedComments = [];
+                snapshot.forEach(doc => {updatedComments.push({id: doc.id, ...doc.data()});});
+
+                const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
+                const commentsListElement = getEl('#comments-list');
+                const commentCountElement = getEl('#comment-count-display');
+
+                if (commentCountElement) commentCountElement.textContent = updatedComments.length;
+                if (commentsListElement) {
+                    commentsListElement.innerHTML = `
+                <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                    ${displayedComments.length > 0
+                            ? displayedComments.map(CommentTemplate).join('')
+                            : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                        }
+                    ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                </div>
+            `;
+                }
+            }, (error) => {
+                console.error("Lỗi listener bình luận:", error);
+                const commentsListElement = getEl('#comments-list');
+                if (commentsListElement) {commentsListElement.innerHTML = '<p class="text-red-400 text-center">Lỗi tải bình luận. Vui lòng kiểm tra kết nối/quyền.</p>';}
+            });
+        };
+
+        const incrementViewCount = async (mangaId) => {
+            const viewedKey = `viewed_${mangaId}`;
+            if (!sessionStorage.getItem(viewedKey)) {
+                try {
+                    if (db && dataCollectionPath) {
+                        const mangaDocRef = doc(db, dataCollectionPath, mangaId);
+                        await updateDoc(mangaDocRef, {viewCount: increment(1)});
+                        sessionStorage.setItem(viewedKey, 'true');
+                    }
+                } catch (e) {console.error("Lỗi khi tăng lượt xem:", e);}
+            }
+        };
+
+        const getYoutubeEmbedUrl = (url) => {
+            const OFFICIAL_ORIGIN = 'https://foxanime.vercel.app';
+            try {
+                const urlObj = new URL(url);
+                const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
+                if (videoId) {return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1&autoplay=1`;}
+            } catch (e) { }
+            return null;
+        };
+
+        const getGoogleDriveEmbedUrl = (url) => {
+            try {
+                const urlObj = new URL(url);
+                let fileId = '';
+                if (urlObj.pathname.startsWith('/file/d/')) {fileId = urlObj.pathname.split('/')[3];}
+                else if (urlObj.pathname.startsWith('/uc')) {fileId = urlObj.searchParams.get('id');}
+                if (fileId) {return `https://drive.google.com/file/d/${fileId}/preview`;}
+            } catch (e) { }
+            return null;
+        };
+
+        const getStreamEmbedUrl = (url) => {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes('streamc.xyz')) {
+                    let finalUrl = url.includes('?') ? `${url}&autoplay=1&auto=1&allowautoplay=1` : `${url}?autoplay=1&auto=1&allowautoplay=1`;
+                    return finalUrl;
+                }
+            } catch (e) { }
+            return null;
+        };
+
+        const getVideoPlayer = (videoUrl, posterUrl) => {
+            const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
+            const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
+            const streamEmbedUrl = getStreamEmbedUrl(videoUrl);
+            let html = ''; let isHtml5Video = false; let finalSrc = ''; let isYoutube = false; let isStreamEmbed = false;
+
+            if (youtubeEmbedUrl) {
+                finalSrc = youtubeEmbedUrl; isYoutube = true;
+            } else if (googleDriveEmbedUrl) {
+                finalSrc = googleDriveEmbedUrl;
+            } else if (streamEmbedUrl) {
+                finalSrc = streamEmbedUrl; isStreamEmbed = true;
+            } else {
+                html = `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`;
+                isHtml5Video = true;
+            }
+
+            if (finalSrc) {
+                const srcAttr = isStreamEmbed ? '' : `src="${finalSrc}"`;
+                const dataSrcAttr = isStreamEmbed ? `data-stream-src="${finalSrc}"` : '';
+                const sandboxAttr = isStreamEmbed ? `sandbox="allow-scripts allow-same-origin allow-popups"` : `allow="autoplay; fullscreen"`;
+                const allowAttr = isStreamEmbed ? `allow="autoplay"` : `allow="autoplay; fullscreen"`;
+
+                html = `<iframe id="video-player-iframe" class="w-full h-full" ${srcAttr} title="Video player" frameborder="0" ${allowAttr} allowfullscreen disablepictureinpicture ${isYoutube ? 'data-is-youtube="true"' : ''} ${dataSrcAttr} ${isStreamEmbed ? sandboxAttr : ''}></iframe>`;
+            }
+            return {html, isHtml5Video};
+        };
+
+        const handlePlayVideo = (e) => {
+            e.preventDefault();
+            const overlay = getEl('#video-overlay');
+            if (!overlay) return;
+            overlay.classList.add('fade-out');
+            const videoElement = getEl('#video-player-element');
+            const iframeElement = getEl('#video-player-iframe');
+
+            if (videoElement) {
+                videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
+            } else if (iframeElement) {
+                const streamSrc = iframeElement.dataset.streamSrc;
+                if (streamSrc && !iframeElement.src) {
+                    iframeElement.src = streamSrc;
+                    console.log("[STREAMC] Kích hoạt tải video bằng user gesture.");
+                }
+                const frameSrc = iframeElement.src;
+                if (frameSrc.includes('youtube.com/embed')) {
+                    setTimeout(() => {
+                        const message = JSON.stringify({'event': 'command', 'func': 'playVideo'});
+                        try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {console.error("Lỗi gửi postMessage tới YouTube:", e);}
+                    }, 100);
+                }
+            }
+            setTimeout(() => {overlay.remove();}, 500);
+        };
+
+        const handleGoogleLogin = async () => {
+            if (!auth) return;
+            const errorElement = getEl('#auth-error');
+            try {
+                if (errorElement) {
+                    errorElement.textContent = 'Đang kết nối với Google... Cậu chủ đợi xíu nhé! 🚀';
+                    errorElement.classList.remove('text-red-400');
+                    errorElement.classList.add('text-orange-400');
+                }
+                await setPersistence(auth, browserLocalPersistence);
+
+                try {
+                    await signInWithPopup(auth, new GoogleAuthProvider());
+                    if (window.location.hash === '#login') window.location.hash = '#home';
+                } catch (popupError) {
+                    console.warn("⚠️ Popup bị chặn, Bé Lôi đang tự động chuyển sang Redirect...", popupError);
+                    if (popupError.code === 'auth/popup-blocked' || popupError.message.includes('Cross-Origin')) {
+                        await signInWithRedirect(auth, new GoogleAuthProvider());
+                    } else {
+                        throw popupError; 
+                    }
+                }
+            } catch (error) {
+                console.error("Lỗi đăng nhập Google:", error);
+                if (errorElement) {
+                    errorElement.textContent = `Lỗi Google: ${error.message}`;
+                    errorElement.classList.remove('text-orange-400');
+                    errorElement.classList.add('text-red-400');
+                }
+            }
+        };
+
+        const handleLogout = (e) => {
+            e.preventDefault();
+            if (!auth) return;
+            signOut(auth).catch(error => console.error("Lỗi đăng xuất:", error));
+        };
+
+        const fetchUserLikes = async (shouldRerender = false) => {
+            if (!auth?.currentUser || !db || userId === 'guest' || !userId || !isGoogleAuth(auth.currentUser)) {
+                currentUserLikeDocIds = {};
+                return;
+            }
+            try {
+                const q = query(collection(db, userLikesCollectionPath));
+                onSnapshot(q, (snapshot) => {
+                    const likes = {};
+                    snapshot.forEach(doc => {likes[doc.data().movieId] = doc.id;});
+                    currentUserLikeDocIds = likes;
+                    const hash = window.location.hash;
+                    if (hash.startsWith('#library')) router(false);
+                }, (error) => {console.error("Lỗi khi theo dõi danh sách likes:", error);});
+            } catch (e) {console.error("Lỗi khi tải danh sách likes:", e);}
+        };
+
+        const handleLike = async (e) => {
+            if (!db || !auth?.currentUser) {window.location.hash = '#login'; return;}
+            const button = e.currentTarget;
+            const mangaId = button.dataset.movieId;
+            button.disabled = true;
+            const isLiked = !!currentUserLikeDocIds[mangaId];
+            const mangaDocRef = doc(db, dataCollectionPath, mangaId);
+            try {
+                const batch = writeBatch(db);
+                const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/manga_likes`);
+                let newLikeDocRef = null;
+
+                if (isLiked) {
+                    const likeDocId = currentUserLikeDocIds[mangaId];
+                    if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
+                    batch.delete(doc(userLikesColRef, likeDocId));
+                    batch.update(mangaDocRef, {likeCount: increment(-1)});
+                } else {
+                    newLikeDocRef = doc(userLikesColRef);
+                    batch.set(newLikeDocRef, {movieId: mangaId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
+                    batch.update(mangaDocRef, {likeCount: increment(1)});
+                }
+                await batch.commit();
+                if (isLiked) {delete currentUserLikeDocIds[mangaId];} else {currentUserLikeDocIds[mangaId] = newLikeDocRef.id;}
+            } catch (e) {
+                console.error("[LIKE ERROR] Thao tác Firebase thất bại:", e);
+            } finally {
+                button.disabled = false;
+            }
+        };
+
+        const handleCommentSubmit = async (e) => {
+            e.preventDefault();
+
+            const user = auth.currentUser;
+            if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) {
+                console.error("Người dùng chưa đăng nhập hợp lệ (chỉ chấp nhận Google Auth) để bình luận.");
+                window.location.hash = '#login';
+                return;
+            }
+
+            const input = getEl('#comment-input');
+            const errorEl = getEl('#comment-error');
+            const content = input.value.trim();
+
+            errorEl.classList.add('hidden');
+            if (!content) return;
+
+            if (isCommentProfane(content)) {
+                errorEl.textContent = "Nội dung bình luận chứa từ ngữ thô tục/kích war. Vui lòng chỉnh sửa.";
+                errorEl.classList.remove('hidden'); return;
+            }
+
+            const [path, slugIdParam] = window.location.hash.substring(1).split('/');
+            const mangaIdMatch = slugIdParam?.match(/-([a-zA-Z0-9]+)$/);
+            const mangaId = mangaIdMatch ? mangaIdMatch[1] : null;
+            if (!mangaId) return;
+
+            const commentsColRef = collection(db, dataCollectionPath, mangaId, 'comments');
+
+            try {
+                await addDoc(commentsColRef, {
+                    content: content,
+                    userId: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    photoURL: user.photoURL,
+                    createdAt: serverTimestamp()
+                });
+                input.value = '';
+            } catch (e) {
+                console.error("Lỗi khi gửi bình luận:", e);
+                errorEl.textContent = "Lỗi khi gửi bình luận. Vui lòng kiểm tra Rules hoặc đăng nhập lại.";
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        const globalCommentSubmitHandler = (e) => {
+            if (e.target && e.target.id === 'comment-form') {handleCommentSubmit(e);}
+        };
+
+        const ensureUserProfile = async (user) => {
+            if (!user.uid || !user.email) return;
+            const userDocRef = doc(db, userRoleCollectionPath, user.uid);
+            try {
+                const docSnap = await getDoc(userDocRef);
+                if (!docSnap.exists()) {
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        photoURL: user.photoURL,
+                        role: 'user',
+                        createdAt: serverTimestamp()
+                    }, {merge: true});
+                }
+            } catch (e) {console.error("Lỗi tạo user profile lần đầu:", e);}
+        };
+
+
+        const handleProfileUpdate = async (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            if (!user || !db || user.isAnonymous || !isGoogleAuth(user)) {
+                getEl('#profile-error').textContent = "Bạn cần đăng nhập bằng Google để cập nhật hồ sơ.";
+                getEl('#profile-error').classList.remove('hidden');
+                return;
+            }
+
+            const newName = getEl('#profile-name-input').value.trim();
+            const newAvatarUrl = getEl('#profile-avatar-input').value.trim(); 
+            const errorEl = getEl('#profile-error');
+            errorEl.classList.add('hidden');
+
+            if (!newName || newName.length < 3) {
+                errorEl.textContent = "Tên hiển thị phải dài ít nhất 3 ký tự.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const updateData = {displayName: newName};
+                if (newAvatarUrl) updateData.photoURL = newAvatarUrl;
+
+                await updateProfile(user, updateData);
+
+                const userDocRef = doc(db, userRoleCollectionPath, user.uid);
+                await updateDoc(userDocRef, {
+                    displayName: newName,
+                    photoURL: newAvatarUrl || user.photoURL,
+                    updatedAt: serverTimestamp()
+                });
+
+                getEl('#profile-success').textContent = "Cập nhật hồ sơ thành công! (Ảnh bình luận sẽ đổi ở lần bình luận tới nha)";
+                getEl('#profile-success').classList.remove('hidden');
+                getEl('#profile-success').classList.add('bg-orange-900/50');
+
+                updateAuthStateUI(auth.currentUser);
+                setTimeout(() => {
+                    getEl('#profile-success').classList.add('hidden');
+                    getEl('#profile-success').classList.remove('bg-orange-900/50');
+                }, 4000);
+
+            } catch (e) {
+                console.error("Lỗi khi cập nhật hồ sơ:", e);
+                errorEl.textContent = `Lỗi cập nhật: ${e.message}`;
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        const handleReviewSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const mangaId = form.dataset.movieId;
+            const user = auth.currentUser;
+            const rating = parseInt(getEl('input[name="rating"]:checked')?.value);
+            const content = getEl('#review-content')?.value.trim() || '';
+            const reviewErrorEl = getEl('#review-error');
+
+            reviewErrorEl.classList.add('hidden');
+            if (!rating) {reviewErrorEl.textContent = "Vui lòng chọn số sao đánh giá."; reviewErrorEl.classList.remove('hidden'); return;}
+            if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) {reviewErrorEl.textContent = "Bạn cần Đăng nhập bằng Google để đánh giá."; reviewErrorEl.classList.remove('hidden'); return;}
+
+            const mangaDocRef = doc(db, dataCollectionPath, mangaId);
+            const reviewDocRef = doc(db, dataCollectionPath, mangaId, 'reviews', user.uid);
+
+            try {
+                const batch = writeBatch(db);
+                let oldRating = 0; let isUpdate = !!currentUserReviewCache;
+                if (isUpdate) oldRating = currentUserReviewCache.rating || 0;
+                const ratingDifference = rating - oldRating;
+
+                if (isUpdate) {
+                    batch.update(reviewDocRef, {rating: rating, content: content, updatedAt: serverTimestamp()});
+                } else {
+                    batch.set(reviewDocRef, {
+                        userId: user.uid, rating: rating, content: content,
+                        displayName: user.displayName || user.email.split('@')[0], photoURL: user.photoURL,
+                        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+                    });
+                }
+
+                if (isUpdate) {
+                    batch.update(mangaDocRef, {reviewTotal: increment(ratingDifference)});
+                } else {
+                    batch.update(mangaDocRef, {reviewTotal: increment(rating), reviewCount: increment(1)});
+                }
+
+                await batch.commit();
+            } catch (e) {
+                console.error("[REVIEW ERROR] Lỗi khi gửi đánh giá:", e);
+                reviewErrorEl.textContent = "Lỗi hệ thống khi gửi đánh giá. Vui lòng thử lại.";
+                reviewErrorEl.classList.remove('hidden');
+            }
+        };
+
+        const renderPublicReviewItem = (review) => {
+            const displayName = review.displayName || 'Ẩn danh';
+            const photoURL = review.photoURL || `https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}`;
+            const rating = review.rating || 0;
+            const dateStr = formatCommentDate(review.updatedAt || review.createdAt);
+
+            return `
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-3">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-3">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/40x40/374151/e2e8f0'">
+                            <div>
+                                <p class="text-white font-bold text-sm">${displayName}</p>
+                                <div class="flex text-yellow-400 text-xs">
+                                    ${renderStars(rating)}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">${dateStr}</span>
+                    </div>
+        ${review.content ? `<p class="text-gray-300 text-sm mt-3 border-t border-gray-700 pt-2">${review.content}</p>` : ''}
+                </div>
+    `;
+        };
+
+        const setupPublicReviewsListener = (mangaId) => {
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
+            const reviewsColRef = collection(db, dataCollectionPath, mangaId, 'reviews');
+            const q = query(reviewsColRef, orderBy('updatedAt', 'desc'), limit(COMMENT_LIMIT));
+
+            unsubscribePublicReviewsListener = onSnapshot(q, (snapshot) => {
+                const publicReviewsContainer = getEl('#public-reviews-list');
+                if (!publicReviewsContainer) return;
+                const reviews = [];
+                snapshot.forEach(doc => {reviews.push({id: doc.id, ...doc.data()});});
+                const displayedReviews = reviews.slice(0, REVIEW_DISPLAY_LIMIT);
+
+                if (reviews.length > 0) {
+                    publicReviewsContainer.innerHTML = `
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây (${reviews.length})</h4>
+                        <div class="max-h-96 overflow-y-auto review-scroll-area space-y-3">
+                            ${displayedReviews.map(renderPublicReviewItem).join('')}
+               ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                        </div>
+           `;
+                } else {
+                    publicReviewsContainer.innerHTML = `<p class="text-gray-500 text-sm italic">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>`;
+                }
+            }, (error) => {
+                console.error("Lỗi tải danh sách đánh giá:", error);
+                if (error.code !== 'failed-precondition') {
+                    const publicReviewsContainer = getEl('#public-reviews-list');
+                    if (publicReviewsContainer) publicReviewsContainer.innerHTML = `<p class="text-gray-500 text-sm">Không thể tải đánh giá lúc này.</p>`;
+                }
+            });
+        };
+
+        const setupUserReviewListener = (mangaId) => {
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (!auth?.currentUser || auth.currentUser.isAnonymous) return;
+
+            const user = auth.currentUser;
+            const reviewDocRef = doc(db, dataCollectionPath, mangaId, 'reviews', user.uid);
+
+            unsubscribeReviewListener = onSnapshot(reviewDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserReviewCache = {id: docSnap.id, ...docSnap.data()};
+                } else {
+                    currentUserReviewCache = null;
+                }
+                const manga = globalMangaCache.find(m => m.id === mangaId);
+                if (manga) {setupReviewSection(manga, currentUserReviewCache);}
+            }, (error) => {
+                console.error("Lỗi listener review người dùng:", error);
+                currentUserReviewCache = null;
+                const manga = globalMangaCache.find(m => m.id === mangaId);
+                if (manga) setupReviewSection(manga, null);
+            });
+        };
+
+        const renderStars = (rating) => {
+            const score = parseFloat(rating) || 0;
+            const fullStars = Math.floor(score);
+            const halfStar = score % 1 >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) starsHtml += `<ion-icon name="star" class="text-yellow-400"></ion-icon>`;
+            if (halfStar === 1) starsHtml += `<ion-icon name="star-half" class="text-yellow-400"></ion-icon>`;
+            for (let i = 0; i < emptyStars; i++) starsHtml += `<ion-icon name="star-outline" class="text-gray-500"></ion-icon>`;
+            return starsHtml;
+        };
+
+
+        const renderSubtleRatingHtml = (manga) => {
+            const reviewCount = manga.reviewCount || 0;
+            const reviewTotal = manga.reviewTotal || 0;
+            const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+
+            const ratingDisplay = averageRating.toFixed(1);
+
+            if (reviewCount === 0) {
+                return `<div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md text-gray-400 text-xs">--/5</div>`;
+            }
+
+            return `
+        <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
+            <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
+            <span class="text-white text-xs font-bold rating-score-${manga.id}">${ratingDisplay}</span>
+        </div>
+    `;
+        };
+
+        const renderFormStars = (currentRating) => {
+            let html = '';
+            for (let i = 5; i >= 1; i--) {
+                html += `<input type="radio" id="rating-${i}" name="rating" value="${i}" class="hidden peer" ${currentRating === i ? 'checked' : ''}>
+                    <label for="rating-${i}" class="cursor-pointer text-4xl text-gray-600 peer-hover:text-yellow-400 hover:text-yellow-400 transition-colors duration-200">
+                        <ion-icon name="${currentRating >= i ? 'star' : 'star-outline'}" class="rating-star-icon" data-rating="${i}"></ion-icon>
+    </label>`;
+            }
+            return `<div id="rating-input-area" class="flex flex-row-reverse justify-end space-x-1 space-x-reverse">${html}</div>`;
+        };
+
+        const setupReviewSection = (manga, userReview) => {
+            const formContainer = getEl('#user-review-form-container');
+            if (!formContainer) return;
+            const isCommentAllowed = !!auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser);
+            const user = auth?.currentUser;
+
+            if (userReview) {
+                formContainer.innerHTML = `
+                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-orange-500/50">
+                        <h3 class="text-xl font-bold text-orange-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
+                        <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
+                        <form id="review-form" data-movie-id="${manga.id}">
+                            ${renderFormStars(userReview.rating)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Cập nhật Đánh giá</button>
+                        </form>
+                    </div>
+        `;
+            } else if (isCommentAllowed) {
+                formContainer.innerHTML = `
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá Của Bạn</h3>
+                        <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ truyện này:</p>
+                        <form id="review-form" data-movie-id="${manga.id}">
+                            ${renderFormStars(0)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Gửi Đánh giá</button>
+                        </form>
+                    </div>
+        `;
+            } else {
+                formContainer.innerHTML = `
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl text-center">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá</h3>
+                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá.</p>
+                    </div>
+        `;
+            }
+            getEl('#review-form')?.addEventListener('submit', handleReviewSubmit);
+            const ratingArea = getEl('#rating-input-area');
+            if (ratingArea) {
+                ratingArea.addEventListener('click', (e) => {
+                    const target = e.target.closest('label');
+                    if (target) {
+                        const rating = parseInt(target.getAttribute('for').replace('rating-', ''));
+                        const allLabels = ratingArea.querySelectorAll('label');
+                        allLabels.forEach(label => {
+                            const labelRating = parseInt(label.getAttribute('for').replace('rating-', ''));
+                            const icon = label.querySelector('ion-icon');
+                            if (icon) icon.setAttribute('name', labelRating <= rating ? 'star' : 'star-outline');
+                        });
+                    }
+                });
+            }
+        };
+
+        const MangaCardTemplate = (manga) => {
+            const infoUrl = `#truyen/${createSlug(manga.title)}-${manga.id}`;
+            const statusText = manga.status || 'N/A';
+            const epCount = manga.episodes ? manga.episodes.length : 0;
+            const genres = manga.genre ? manga.genre.split(',').map(g => g.trim()).join(', ') : '';
+
+            const ratingHtml = renderSubtleRatingHtml(manga);
+
+            return `
+                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
+                    <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
+                        <span class="inline-block bg-black/70 text-orange-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
+                            ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
+                        </span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
+        ${epCount > 0 ? `Tập ${epCount}` : 'Chưa có tập'}
+                        </span>
+                    </div>
+                    ${ratingHtml}
+                    <div class="absolute inset-0 z-10">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                            <p class="text-orange-400 text-lg font-bold mb-2 text-center">ĐỌC TRUYỆN</p>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <div class="flex items-center"><ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${manga.id}">${(manga.viewCount || 0).toLocaleString('vi-VN')}</span></div>
+                                <div class="flex items-center ml-3"><ion-icon name="thumbs-up-outline" class="mr-1"></ion-icon> <span class="like-count-${manga.id}">${(manga.likeCount || 0).toLocaleString('vi-VN')}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="${manga.posterUrl}" alt="${manga.title}" loading="lazy" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-white truncate group-hover:text-orange-400 transition-colors z-20 relative">${manga.title}</h3>
+                        <p class="text-sm text-gray-400">${genres}</p>
+                    </div>
+                </a>
+    `;
+        };
+
+        const SearchPageTemplate = (mangaList, title) => `
+            <section>
+                <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                    ${mangaList.length > 0 ? mangaList.map(MangaCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy nội dung phù hợp.</p>'}
+                </div>
+            </section>
+`;
+
+        const SliderSectionTemplate = (mangaList) => {
+            if (!mangaList || mangaList.length === 0) return '';
+
+            const slideItems = mangaList.slice(0, 6).map(manga => {
+                const mangaSlug = createSlug(manga.title);
+                const infoUrl = `#truyen/${mangaSlug}-${manga.id}`;
+                const imageUrl = manga.bannerUrl || manga.posterUrl;
+                const genres = manga.genre ? manga.genre.split(',').slice(0, 3).map(genre => `<span class="glass-card text-gray-200 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : '';
+
+                return `
+            <div class="swiper-slide">
+                <div class="relative h-[60vh] md:h-[75vh] w-full rounded-2xl overflow-hidden group">
+                    <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover transform transition-transform duration-[10s] group-hover:scale-110" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#111827] via-[#111827]/60 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#111827] via-[#111827]/40 to-transparent"></div>
+
+                    <div class="absolute bottom-0 left-0 p-6 md:p-14 max-w-3xl text-white">
+                        <span class="inline-block bg-orange-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(249,115,22,0.5)]">Mới Cập Nhật</span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-3 leading-tight drop-shadow-2xl">${manga.title}</h1>
+                        ${manga.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-orange-400/80 mb-3 drop-shadow-lg">${manga.titleOriginal}</h4>` : ''}
+                        <p class="text-gray-300 text-base md:text-lg mb-6 line-clamp-3 drop-shadow-md">${manga.summary || 'Đang cập nhật nội dung...'}</p>
+                        <div class="flex items-center space-x-4">
+                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3.5 bg-orange-500 text-gray-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
+                                <ion-icon name="play-circle" class="text-2xl mr-2"></ion-icon>
+                                Xem Ngay
+                            </a>
+                            <div class="hidden md:flex space-x-2">${genres}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+            }).join('');
+
+            return `
+        <section class="relative mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+            <div class="swiper hero-swiper rounded-2xl overflow-hidden shadow-2xl">
+                <div class="swiper-wrapper">
+                    ${slideItems}
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev hidden md:flex"></div>
+                <div class="swiper-button-next hidden md:flex"></div>
+            </div>
+        </section>
+    `;
+        };
+
+        const MangaSectionTemplate = (title, mangaList, xemThemLink = "#") => {
+            if (mangaList.length === 0) return '';
+            return `
+                <section class="mb-12">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-white uppercase">${title}</h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-2 gap-y-4 md:gap-4">
+                        ${mangaList.map(MangaCardTemplate).join('')}
+                    </div>
+                    <div class="text-center mt-8">
+                        <a href="${xemThemLink}" class="bg-gray-700 text-gray-300 font-medium px-6 py-3 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors">XEM THÊM</a>
+                    </div>
+                </section>
+    `;
+        };
+
+        const AuthPageTemplate = () => {
+            return `
+                <div class="min-h-[70vh] flex items-center justify-center">
+                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
+                        <h2 class="text-3xl font-bold text-white text-center mb-6">Đăng Nhập</h2>
+                        <p class="text-gray-400 text-center mb-8">Sử dụng tài khoản Google để bình luận và lưu yêu thích.</p>
+                        <div class="space-y-4">
+                            <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                <ion-icon name="logo-google" class="text-xl mr-3 text-red-500"></ion-icon>
+                                Đăng nhập với Google
+                            </button>
+                        </div>
+                        <p id="auth-error" class="text-red-400 text-sm text-center mt-6"></p>
+                    </div>
+                </div>
+    `;
+        };
+
+        const CommentTemplate = (comment) => {
+            const displayName = comment.displayName || comment.email || 'Người dùng ẩn danh';
+            const photoURL = comment.photoURL || `https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}`;
+            return `
+            <div class="flex space-x-3 mb-4">
+                <div class="flex-shrink-0">
+                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
+                </div>
+                <div>
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="font-semibold text-white text-sm">${displayName}</p>
+                        <p class="text-gray-300 text-sm">${comment.content}</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${formatCommentDate(comment.createdAt)}</p>
+                </div>
+            </div>
+    `;
+        };
+
+        const renderProfilePage = (user) => {
+            const displayName = user.displayName || user.email.split('@')[0];
+            const photoURL = user.photoURL || `https://placehold.co/128x128/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}`;
+            const email = user.email || 'Không có';
+            const provider = isGoogleAuth(user) ? 'Google' : 'Admin Custom Token';
+
+            return `
+                <div class="min-h-[70vh] flex items-center justify-center">
+                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg">
+                        <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
+
+                        <div class="flex flex-col items-center mb-8">
+                            <img src="${photoURL}" alt="Avatar" id="live-avatar-preview" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-orange-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-xl font-bold text-white">${displayName}</p>
+                            <p class="text-gray-400 text-sm">${email}</p>
+                            <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
+                        </div>
+
+                        <form id="profile-update-form" class="space-y-4">
+                            <div class="space-y-1">
+                                <label for="profile-name-input" class="block text-sm font-medium text-gray-300">Tên Hiển Thị Mới</label>
+                                <input type="text" id="profile-name-input" value="${displayName}" required minlength="3"
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            </div>
+
+                            <div class="space-y-1 mt-4">
+                                <label for="profile-avatar-input" class="block text-sm font-medium text-gray-300">URL Ảnh Đại Diện (Link ảnh)</label>
+                                <input type="url" id="profile-avatar-input" value="${user.photoURL || ''}" placeholder="Dán link ảnh (VD: https://i.imgur.com/...)"
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    oninput="document.getElementById('live-avatar-preview').src = this.value || '${photoURL}'">
+                                <p class="text-xs text-gray-400 mt-1">Mẹo: Dùng link ảnh để bình luận load nhanh hơn nha!</p>
+                            </div>
+
+                            <div id="profile-success" class="p-3 rounded-lg text-sm text-orange-300 hidden transition-all"></div>
+                            <p id="profile-error" class="text-red-400 text-sm hidden"></p>
+
+                            <button type="submit" class="w-full bg-orange-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors mt-4">
+                                Cập Nhật Hồ Sơ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+    `;
+        };
+
+        const InfoPageTemplate = (manga, episodes, isLiked) => {
+            const firstEpisode = episodes.length > 0 ? episodes[0] : null;
+            const mangaSlug = createSlug(manga.title);
+            const firstEpUrl = firstEpisode ? `#truyen/${mangaSlug}-${manga.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html` : '#';
+            const imageUrl = manga.bannerUrl || manga.posterUrl;
+
+            const reviewCount = manga.reviewCount || 0;
+            const reviewTotal = manga.reviewTotal || 0;
+            const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+            const requiresSignInLink = !!auth?.currentUser && auth.currentUser.isAnonymous;
+
+            return `
+        <section class="text-white">
+            <div class="relative rounded-lg overflow-hidden h-64 md:h-96 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+                <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover opacity-70" loading="lazy" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
+            </div>
+            <div class="container mx-auto px-4 relative -mt-32 md:-mt-48 pb-12">
+                <div class="md:flex md:space-x-8">
+                    <div class="flex-shrink-0 w-48 md:w-64 mx-auto md:mx-0 md:mt-4">
+                        <a href="${firstEpUrl}" class="group block relative rounded-lg shadow-2xl overflow-hidden">
+                            <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <ion-icon name="play-circle-outline" class="text-7xl text-white opacity-90"></ion-icon>
+                            </div>
+                            <img src="${manga.posterUrl}" alt="${manga.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" loading="lazy" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
+                        </a>
+                    </div>
+                    <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-0">${manga.title}</h1>
+                        ${manga.titleOriginal ? `<h4 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-2">${manga.titleOriginal}</h4>` : ''}
+
+                        <div class="flex flex-wrap justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
+                            <div class="flex items-center space-x-1"><ion-icon name="eye-outline" class="text-xl"></ion-icon><span id="view-count">${(manga.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span></div>
+                            <div class="flex items-center space-x-1"><ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon><span id="like-count">${(manga.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span></div>
+                        </div>
+
+                        <div class="flex justify-center md:justify-start items-center space-x-2 text-yellow-400 mb-4">
+                            <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                            <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                            <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                        </div>
+
+                        <div class="flex justify-center md:justify-start space-x-2 mb-4">
+                            ${manga.genre ? manga.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
+                        </div>
+                        <p class="text-gray-300 text-lg mb-6">${manga.summary || 'Không có tóm tắt.'}</p>
+                        <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+                            <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-orange-600 transition-colors w-full md:w-auto">
+                                <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Đọc Truyện
+                            </a>
+
+                            <button id="like-button" data-movie-id="${manga.id}" class="
+                                inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors w-full md:w-auto
+                                ${isLiked ? 'bg-orange-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
+                            ">
+                                <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
+                                <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
+                            </button>
+
+                            ${requiresSignInLink ? `
+                                <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors w-full md:w-auto">
+                                    <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để giữ Likes
+                                </a>
+                            ` : ''}
+                            <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center w-full md:w-auto text-center md:text-left">${manga.status || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <div id="user-review-form-container"></div> 
+                    <div id="public-reviews-list" class="mt-8"></div> 
+                </div>
+
+                <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
+                    ${episodes.length > 0
+                ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
+                        ${episodes.map(ep => `
+                                <a href="#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
+                                    class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors duration-200">
+                                    Tập ${ep.episodeNumber}
+                                </a>
+                            `).join('')}
+                        </div>`
+                : `<p class="text-gray-400">${manga.status === 'sap-chieu' ? 'Sắp ra mắt, chưa có tập.' : 'Chưa có dữ liệu.'}</p>`
+            }
+                </div>
+            </div>
+        </section>
+    `;
+        };
+
+        const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+            const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, manga.posterUrl);
+            const mangaSlug = createSlug(manga.title);
+            const user = auth?.currentUser;
+            const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
+            const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
+
+            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            let previousEpisodeLink = null;
+            if (previousEpisode) {
+                const prevEpId = previousEpisode.id;
+                previousEpisodeLink = `#truyen/${mangaSlug}-${manga.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
+            }
+
+            const previousButton = previousEpisodeLink ? `
+                <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
+                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
+                </a>
+                                ` : `
+                <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
+                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
+                </button>
+                            `;
+
+            const nextButton = nextEpisodeLink ? `
+            <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-orange-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
+                Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
+            </a>
+        ` : `
+            <button disabled class="bg-red-900/80 text-red-200 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 opacity-60 cursor-not-allowed">
+                Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
+            </button>
+        `;
+
+
+            return `
+                <section class="text-white">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div id="video-player-container" class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
+                                ${videoPlayerHtml}
+                                <div id="video-overlay" 
+                                    class="overlay-style absolute inset-0 flex items-center justify-center p-4 z-10" 
+                                    style="background-image: url('anh/bannerxemphim.png'); 
+                                        background-size: cover; background-position: center; background-color: rgba(0, 0, 0, 0.4); background-blend-mode: darken;">
+                                    <div class="text-center p-4 sm:p-8 rounded-xl max-w-xs sm:max-w-md mx-auto">
+                                        <button id="play-video-button" 
+                                            class="play-button-overlay text-gray-900 font-extrabold text-xl sm:text-2xl px-10 py-5 sm:py-6 rounded-full flex items-center justify-center space-x-3 transform transition-all duration-300 shadow-xl hover:scale-105">
+                                            <ion-icon name="play-circle" class="text-3xl sm:text-4xl"></ion-icon>
+                                            <span>ĐỌC TRUYỆN</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-orange-500">
+                                <h1 class="text-3xl font-extrabold text-white mb-1">${manga.title}</h1>
+                                ${manga.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${manga.titleOriginal}</h4>` : ''}
+                                <h2 class="text-xl font-bold text-orange-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <p class="text-gray-400 text-sm mt-2">${manga.genre}</p>
+                                <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
+                                    <div class="flex flex-wrap items-center justify-start space-x-3">
+                                        ${previousButton}
+                                        ${nextButton}
+                                    </div>
+                                    <a href="#truyen/${mangaSlug}-${manga.id}" class="bg-gray-700 text-gray-300 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center md:w-1/2 lg:w-1/3">
+                                        <ion-icon name="information-circle-outline" class="mr-1"></ion-icon> Thông tin truyện
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+                                <h3 class="text-2xl font-bold text-white mb-4">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
+                                ${canComment ? `
+                                    <form id="comment-form" class="mb-6">
+                                        <textarea id="comment-input" class="w-full h-20 p-3 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                                        <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                                        <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Gửi Bình Luận</button>
+                                    </form>
+                                    ` : `
+                                    <div class="p-4 bg-gray-700 rounded-lg text-center mb-6">
+                                        <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+                                    </div>
+                                    `}
+
+                                <div id="comments-list">
+                                    <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                                        ${displayedComments.length > 0
+                ? displayedComments.map(CommentTemplate).join('')
+                : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+            }
+                                            ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-1">
+                            <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${manga.episodes.length} Tập)</h3>
+
+                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
+                                    ${allEpisodes.map(ep => {
+                const epLink = `#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
+                const isActive = ep.episodeNumber === currentEpNumber;
+                return `
+                                            <a href="${epLink}" 
+                                                class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
+                                                ${isActive
+                        ? 'bg-orange-500 text-gray-900 font-bold shadow-md hover:bg-orange-600'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                    }">
+                                                Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
+                                            </a>
+                                                    `;
+            }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                                                `;
+        };
+
+
+        const showError = (message, details = '') => {
+            console.error(message, details);
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
+                        <p class="text-lg mb-2">${message}</p>
+                                                                            ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
+                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-orange-500 text-gray-900 font-bold rounded-lg hover:bg-orange-600 transition-colors">Về Trang Chủ</button>
+                    </div>
+                                                                `;
+            }
+        };
+
+        const showLoading = () => {
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="flex justify-center items-center h-[50vh]">
+                        <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                                                                `;
+            }
+        };
+
+        window.renderInfoPage = async (mangaId) => {
+            if (!db) {showLoading(); return;}
+            if (unsubscribeMangaListener) {unsubscribeMangaListener(); unsubscribeMangaListener = null;}
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
+
+            const mangaDocRef = doc(db, dataCollectionPath, mangaId);
+            let hasRenderedFullPage = false;
+
+            unsubscribeMangaListener = onSnapshot(mangaDocRef, (mangaDocSnap) => {
+                if (!mangaDocSnap.exists()) {
+                    showError("Không tìm thấy dữ liệu này.");
+                    return;
+                }
+
+                const updatedMangaData = {id: mangaDocSnap.id, ...mangaDocSnap.data()};
+                const isLiked = !!currentUserLikeDocIds[mangaId];
+
+                if (!hasRenderedFullPage) {
+                    const episodesList = updatedMangaData.episodes || [];
+                    const episodesWithId = episodesList.map((ep, index) => ({
+                        ...ep,
+                        id: `${mangaId}_${ep.episodeNumber}_${index}`
+                    }));
+
+                    const mangaSlug = createSlug(updatedMangaData.title);
+                    const firstEpUrl = `#truyen/${mangaSlug}-${updatedMangaData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html`;
+
+                    const resumeTime = localStorage.getItem(`_readTime_${episodesWithId[0]?.id}`);
+                    const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
+
+                    getEl('#app').innerHTML = InfoPageTemplate(updatedMangaData, episodesWithId, isLiked);
+
+                    if (hasWatchTime) {
+                        window.showResumeModal(updatedMangaData.title, parseInt(resumeTime)).then(shouldResume => {
+                            let finalUrl = firstEpUrl;
+                            if (shouldResume) {
+                                finalUrl += `?time=${resumeTime}`;
+                            } else {
+                                localStorage.removeItem(`_readTime_${episodesWithId[0]?.id}`);
+                            }
+                            window.location.hash = finalUrl;
+                        });
+                    }
+
+                    getEl('#like-button')?.addEventListener('click', handleLike);
+                    setupPublicReviewsListener(mangaId);
+
+                    if (auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser)) {
+                        setupUserReviewListener(mangaId);
+                    } else {
+                        setupReviewSection(updatedMangaData, null);
+                    }
+
+                    hasRenderedFullPage = true;
+                }
+
+                incrementViewCount(mangaId);
+
+                const likeCountEl = getEl('#like-count');
+                const viewCountEl = getEl('#view-count');
+                const avgRatingContainer = getEl('.text-yellow-400.mb-4');
+
+                if (viewCountEl) viewCountEl.textContent = (updatedMangaData.viewCount || 0).toLocaleString('vi-VN') + " Lượt xem";
+                if (likeCountEl) likeCountEl.textContent = (updatedMangaData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
+
+                if (avgRatingContainer) {
+                    const reviewCount = updatedMangaData.reviewCount || 0;
+                    const reviewTotal = updatedMangaData.reviewTotal || 0;
+                    const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+
+                    avgRatingContainer.innerHTML = `
+                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                                                                            `;
+                }
+
+                const button = getEl('#like-button');
+                const likeButtonText = getEl('#like-button-text');
+                const likeButtonIcon = button?.querySelector('ion-icon');
+
+                if (button) {
+                    button.classList.toggle('bg-orange-600', isLiked);
+                    button.classList.toggle('text-white', isLiked);
+                    button.classList.toggle('font-bold', isLiked);
+                    button.classList.toggle('bg-gray-700', !isLiked);
+                    button.classList.toggle('text-gray-300', !isLiked);
+                    button.classList.toggle('font-medium', !isLiked);
+                    if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
+                    if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
+                }
+
+            }, (error) => {
+                console.error("Lỗi listener dữ liệu:", error);
+                showError("Lỗi khi tải dữ liệu thời gian thực.", error.message);
+            });
+        };
+
+        window.renderWatchPage = async (mangaId, episodeUniqueId) => {
+            if (!db) {showLoading(); return;}
+            if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
+            if (unsubscribeMangaListener) {unsubscribeMangaListener(); unsubscribeMangaListener = null;}
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
+
+            try {
+                let mangaData = globalMangaCache.find(a => a.id === mangaId);
+                if (!mangaData) {
+                    const mangaDocSnap = await getDoc(doc(db, dataCollectionPath, mangaId));
+                    if (mangaDocSnap.exists()) {
+                        mangaData = {id: mangaDocSnap.id, ...mangaDocSnap.data()};
+                    } else {showError("Không tìm thấy dữ liệu."); return;}
+                }
+
+                const episodesList = mangaData.episodes || [];
+                const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
+                const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
+
+                if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số tập."); return;}
+
+                const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
+                if (!episodeData) {showError("Không tìm thấy dữ liệu tập này."); return;}
+
+                const commentsColRef = collection(db, dataCollectionPath, mangaId, 'comments');
+                let commentsList = [];
+                let commentsSnapshot;
+                try {
+                    commentsSnapshot = await getDocs(query(commentsColRef));
+                    commentsSnapshot.forEach(doc => commentsList.push({id: doc.id, ...doc.data()}));
+                    commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                    commentsList = commentsList.slice(0, COMMENT_LIMIT);
+                } catch (e) {console.error("Lỗi khi tải bình luận:", e);}
+
+                const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
+                let nextEpisodeLink = null;
+                if (nextEpisode) {
+                    const nextEpId = `${mangaId}_${nextEpisode.episodeNumber}_${episodesList.indexOf(nextEpisode)}`;
+                    nextEpisodeLink = `#truyen/${createSlug(mangaData.title)}-${mangaId}/tap-${nextEpisode.episodeNumber}-${nextEpId}.html`;
+                }
+
+                const allEpisodesWithId = episodesList.map((ep, index) => ({...ep, id: `${mangaId}_${ep.episodeNumber}_${index}`}));
+
+                getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
+
+                const videoElement = getEl('#video-player-element');
+
+                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                const startTime = parseInt(urlParams.get('time') || localStorage.getItem(`_readTime_${episodeUniqueId}`) || '0');
+
+                if (videoElement && startTime > 0) {
+                    videoElement.currentTime = startTime;
+                }
+
+                if (videoElement) {
+                    // Lưu thời gian xem dở
+                    videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
+
+                    // Sự kiện khi xem hết
+                    videoElement.addEventListener('ended', () => {
+                        // Xóa thời gian xem dở
+                        localStorage.removeItem(`_readTime_${episodeUniqueId}`);
+
+                        // --- BÉ LÔI PHÙ PHÉP TỰ ĐỘNG CHUYỂN TẬP KẾ TIẾP ---
+                        if (nextEpisodeLink) {
+                            console.log("Đã hết! Đang tự động chuyển sang tập tiếp theo...");
+
+                            // Hiện bảng thông báo chuyển tập cho ngầu
+                            const overlay = getEl('#video-overlay');
+                            const container = getEl('#video-player-container');
+
+                            if (!overlay && container) {
+                                // Nếu overlay đã bị xóa lúc bấm Play thì mình tạo lại nè
+                                const newOverlay = document.createElement('div');
+                                newOverlay.id = 'video-overlay';
+                                newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
+                                newOverlay.innerHTML = `
+                        <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.3)] text-center flex flex-col items-center">
+                            <svg class="animate-spin h-12 w-12 text-orange-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
+                        </div>
+                    `;
+                                container.appendChild(newOverlay);
+                            }
+
+                            // Đợi 2 giây rồi mới trượt qua tập mới cho mượt
+                            setTimeout(() => {
+                                window.location.hash = nextEpisodeLink;
+                            }, 2000);
+                        }
+                    });
+                }
+
+                // --- BÉ LÔI CHÈN MÁY NGHE LÉN IFRAME VÀO ĐÂY NÈ ---
+                const iframeElement = getEl('#video-player-iframe');
+                if (iframeElement && nextEpisodeLink) {
+                    if (window.iframeEndedListener) {
+                        window.removeEventListener('message', window.iframeEndedListener);
+                    }
+
+                    window.iframeEndedListener = function (e) {
+                        // --- MÁY GHI ÂM BÉ LÔI: IN RA TẤT CẢ MỌI THỨ IFRAME NÓI ---
+                        console.log("🎧 BÉ LÔI ĐANG NGHE TỪ IFRAME:", e.data);
+
+                        try {
+                            let data = e.data;
+                            if (typeof data === 'string') {
+                                try {data = JSON.parse(data);} catch (err) { }
+                            }
+
+                            // Bé Lôi bổ sung thêm một đống từ khóa dự phòng xem có trúng không
+                            const isEnded =
+                                data === 'ended' ||
+                                data === 'videoEnded' ||
+                                data.event === 'complete' ||
+                                data.event === 'ended' ||
+                                data.message === 'complete' ||
+                                data.action === 'ended' ||
+                                data.status === 'ended' ||
+                                (data.info && data.info === 'ended');
+
+                            if (isEnded) {
+                                console.log("[Hệ thống]: Đã phát hiện kết thúc video. Đang tự động chuyển tập...");
+                                window.removeEventListener('message', window.iframeEndedListener);
+
+                                const container = getEl('#video-player-container');
+                                const existingOverlay = getEl('#video-overlay');
+                                if (!existingOverlay && container) {
+                                    const newOverlay = document.createElement('div');
+                                    newOverlay.id = 'video-overlay';
+                                    newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
+                                    newOverlay.innerHTML = `
+                            <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.3)] text-center flex flex-col items-center">
+                                <svg class="animate-spin h-12 w-12 text-orange-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
+                            </div>
+                        `;
+                                    container.appendChild(newOverlay);
+                                }
+
+                                setTimeout(() => {
+                                    window.location.hash = nextEpisodeLink;
+                                }, 2000);
+                            }
+                        } catch (error) { }
+                    };
+
+                    window.addEventListener('message', window.iframeEndedListener);
+                }
+                // ----------------------------------------------------
+
+                getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
+
+                if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
+
+                setupCommentsListener(mangaId);
+
+            } catch (e) {showError("Lỗi khi tải trang.", e.message);}
+        };
+
+
+        const renderPage = (pageType, param) => {
+            if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
+            if (!db || !isGlobalCacheLoaded) {showLoading(); return;}
+
+            const cache = globalMangaCache; let results = []; let title = '';
+            const HOME_PAGE_LIMIT = 12;
+
+            switch (pageType) {
+                case '#home':
+                    const moiCapNhatList = cache.filter(a => a.status === 'dang-chieu').slice(0, HOME_PAGE_LIMIT);
+                    const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, HOME_PAGE_LIMIT);
+                    const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, HOME_PAGE_LIMIT);
+
+                    // --- BÉ LÔI PHÙ PHÉP SLIDER LẤY TỪ DATABASE ADMIN ---
+                    let slideMangas = [];
+                    if (globalSliderSettings.mode === 'manual' && globalSliderSettings.selectedMangaIds.length > 0) {
+                        // Chế độ thủ công: Lấy đúng thứ tự danh sách ID Admin đã chọn
+                        globalSliderSettings.selectedMangaIds.forEach(id => {
+                            const manga = cache.find(m => m.id === id);
+                            if (manga) slideMangas.push(manga);
+                        });
+                    } else {
+                        if (cache.length > 0) {
+                            const tempCache = [...cache];
+                            for (let i = 0; i < 5 && tempCache.length > 0; i++) {
+                                const randIndex = Math.floor(Math.random() * tempCache.length);
+                                slideMangas.push(tempCache.splice(randIndex, 1)[0]);
+                            }
+                        }
+                    }
+                    // Gắn giao diện Slider ngẫu nhiên và các Section khác
+                    getEl('#app').innerHTML =
+                        SliderSectionTemplate(slideMangas) +
+                        MangaSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') +
+                        MangaSectionTemplate('Sắp Ra Mắt', sapChieuList, '#genre/sap-chieu') +
+                        MangaSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
+
+                    // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
+                    setTimeout(() => {
+                        new Swiper('.hero-swiper', {
+                            effect: 'fade',
+                            fadeEffect: {
+                                crossFade: true
+                            },
+                            speed: 1500, // Phép thuật ở đây ạ: Chuyển cảnh kéo dài 1.5 giây siêu mượt mà như phim!
+                            autoplay: {
+                                delay: 4500, // Đứng hình 4.5s để người xem đọc nội dung
+                                disableOnInteraction: false,
+                                pauseOnMouseEnter: true // Tự động dừng mượt mà khi chủ nhân rê chuột vào
+                            },
+                            pagination: {
+                                el: '.swiper-pagination',
+                                clickable: true,
+                                dynamicBullets: true
+                            },
+                            navigation: {
+                                nextEl: '.swiper-button-next',
+                                prevEl: '.swiper-button-prev'
+                            },
+                            loop: slideMangas.length > 1, // Fix lỗi: Chỉ loop nếu có nhiều hơn 1 phim
+                            grabCursor: true,
+                        });
+                    }, 100);
+                    return;
+
+                case '#gacha':
+                    getEl('#app').innerHTML = GachaPageTemplate();
+
+                    // Khởi tạo và đếm số lượt quay hôm nay
+                    const today = new Date().toDateString();
+                    let lastDate = localStorage.getItem('_mangaGachaDate');
+                    if (lastDate !== today) {
+                        localStorage.setItem('_mangaGachaDate', today);
+                        localStorage.setItem('_mangaGachaPulls', 5);
+                    }
+                    getEl('#gacha-pulls-left').textContent = localStorage.getItem('_mangaGachaPulls');
+
+                    // Gắn sự kiện cho nút Xem Bói
+                    getEl('#fortune-form').addEventListener('submit', window.handleFortuneTelling);
+                    return; // Dừng lại ở đây vì mình tự vẽ HTML rồi
+
+                case '#login':
+                    getEl('#app').innerHTML = AuthPageTemplate();
+                    getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
+                    return;
+                case '#profile':
+                    const user = auth?.currentUser;
+                    if (!user || user.isAnonymous || !isGoogleAuth(user)) {
+                        getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Hồ Sơ</h2><p>Bạn cần <a href="#login" class="text-orange-400 hover:underline">Đăng Nhập bằng Google</a> để xem hồ sơ cá nhân.</p></div>`;
+                        return;
+                    }
+                    getEl('#app').innerHTML = renderProfilePage(user);
+                    getEl('#profile-update-form')?.addEventListener('submit', handleProfileUpdate);
+                    return;
+                case '#search':
+                    title = `Kết quả tìm kiếm cho: "${param}"`;
+                    const lowerCaseTerm = param.toLowerCase();
+                    results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
+                    break;
+                case '#genre':
+                    const filterSlug = param.toLowerCase();
+                    const filterName = GENRE_TRANSLATIONS[param.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
+                    title = `Thể loại: ${filterName}`;
+                    results = cache.filter(m => {
+                        if ((m.formatType && m.formatType.toLowerCase() === filterSlug) || (m.status && m.status.toLowerCase() === filterSlug)) {
+                            return true;
+                        }
+
+
+                        const mangaGenreSlugs = (m.genre || '').split(',').map(g => createSlug(g.trim()));
+                        return mangaGenreSlugs.includes(filterSlug);
+                    });
+                    break;
+                case '#top':
+                    title = `Top ${param ? param.replace(/-/g, ' ') : 'Nội Dung'} (Sắp xếp theo Lượt xem)`;
+                    results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+                    break;
+                case '#library':
+                    if (!auth?.currentUser || auth.currentUser.isAnonymous) {
+                        getEl('#app').innerHTML = `<div class="text-center text-gray-400"><h2 class="text-3xl font-bold text-white mb-6">Thư Viện</h2><p>Bạn cần <a href="#login" class="text-orange-400 hover:underline">Đăng Nhập bằng Google</a> để xem thư viện cá nhân.</p></div>`;
+                        return;
+                    }
+                    title = "Thư Viện (Đã thích)";
+                    const likedMangaIds = Object.keys(currentUserLikeDocIds);
+                    results = cache.filter(m => likedMangaIds.includes(m.id));
+                    break;
+                default:
+                    window.location.hash = '#home';
+                    return;
+            }
+            getEl('#app').innerHTML = SearchPageTemplate(results, title);
+        };
+
+
+
+        const router = (shouldUpdateHash = true) => {
+            if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
+            if (!isAuthInitialised) return;
+
+            const activeHash = window.location.hash || '#home';
+            const pathSegments = activeHash.substring(1).split('/');
+            const primaryHash = '#' + pathSegments[0];
+
+            getAllEl('.nav-active, .mobile-nav-active').forEach(el => el.classList.remove('nav-active', 'mobile-nav-active'));
+
+            const navMap = {'#home': '#home', '#login': '#login', '#library': '#library', '#profile': '#profile', '#gacha': '#gacha'};
+            const groupMap = {'#truyen': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top'};
+            const targetHash = navMap[primaryHash] || groupMap[primaryHash];
+
+            if (targetHash) {
+                const selector = `.nav-link[href="${targetHash}"], .nav-link[data-hash-group="${targetHash}"], .mobile-nav-link[href="${targetHash}"], .mobile-nav-link[data-hash-group="${targetHash}"]`;
+                getAllEl(selector).forEach(el => el.classList.add(el.classList.contains('nav-link') ? 'nav-active' : 'mobile-nav-active'));
+            }
+
+            if (primaryHash !== '#truyen') {
+                if (unsubscribeMangaListener) {unsubscribeMangaListener(); unsubscribeMangaListener = null;}
+                if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+                if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
+            }
+
+            if (primaryHash !== '#truyen' && unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
+
+            if (primaryHash === '#truyen' && pathSegments.length >= 2) {
+                const mangaIdMatch = pathSegments[1].match(/-([a-zA-Z0-9]+)$/);
+                const mId = mangaIdMatch ? mangaIdMatch[1] : null;
+                if (!mId) return showError("Lỗi URL.", "Không tìm thấy ID hợp lệ.");
+
+                if (pathSegments.length === 2) {
+
+                    window.renderInfoPage(mId);
+                } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
+                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/);
+                    const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
+                    if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
+                }
+                return;
+            }
+
+            renderPage(primaryHash, pathSegments[1]);
+        };
+
+        const setupFirebase = async () => {
+            if (!finalConfig.projectId) {setupError = new Error("Lỗi Cấu hình: 'projectId' không được cung cấp."); router(); return;}
+
+            try {
+                app = initializeApp(finalConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                await setPersistence(auth, browserLocalPersistence);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Lỗi đăng nhập bằng Custom Token:", e));
+                }
+
+                // --- BÉ LÔI PHÙ PHÉP: Ép hệ thống phải đón kết quả Google về trước ---
+                try {
+                    await getRedirectResult(auth);
+                } catch (err) {
+                    console.error("Lỗi khi xử lý Redirect Google:", err);
+                }
+
+                onAuthStateChanged(auth, async (user) => {
+                    let needsRerender = false;
+
+                    if (user) {
+                        const oldUserId = userId;
+                        userId = user.uid;
+                        updatePaths(userId);
+
+                        if (user.isAnonymous) {
+                            userEmail = null;
+                            updateAuthStateUI(user);
+                        } else if (isGoogleAuth(user)) {
+                            userEmail = user.email;
+                            await ensureUserProfile(user);
+                            updateAuthStateUI(user);
+                            // Đăng nhập xong mà đang kẹt ở trang login thì đá về sảnh nha!
+                            if (window.location.hash === '#login') window.location.hash = '#home';
+                        } else {
+                            userEmail = user.email || 'Admin User';
+                            updateAuthStateUI(user);
+                            if (window.location.hash === '#login') window.location.hash = '#home';
+                        }
+
+                        if (oldUserId !== userId) {
+                            await fetchUserLikes(true);
+                            needsRerender = true;
+                        }
+
+                    } else {
+                        if (userId !== null) {
+                            userId = null; userEmail = null; updatePaths(null); currentUserLikeDocIds = {}; needsRerender = true;
+                        }
+                        updateAuthStateUI(null);
+
+                        // --- BÉ LÔI DỜI TẠO TÀI KHOẢN ẨN DANH VÀO ĐÂY ---
+                        // Chỉ khi nào chắc chắn Google không trả về, mới tạo account khách
+                        try {
+                            await signInAnonymously(auth);
+                        } catch (e) {
+                            console.error("Lỗi đăng nhập ẩn danh:", e);
+                            updatePaths(null);
+                        }
+                    }
+
+                    if (!isAuthInitialised) {
+                        isAuthInitialised = true;
+                        loadInitialMangaCache();
+                    } else if (needsRerender) {
+                        router();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Lỗi nghiêm trọng khi khởi tạo Firebase SDK:", error);
+                setupError = new Error("Lỗi Khởi tạo Firebase SDK. Chi tiết: " + error.message);
+                if (window.trigger5XXError) {
+                    window.trigger5XXError();
+                } else {
+                    router();
+                }
+            }
+        };
+
+        const loadInitialMangaCache = () => {
+            if (!db || isGlobalCacheLoaded) return;
+
+            try {
+                // 1. NGHE LÉN CẤU HÌNH SLIDER TỪ ADMIN
+                const sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'mangaHeroSlider');
+                onSnapshot(sliderSettingsDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        globalSliderSettings = docSnap.data();
+                    } else {
+                        globalSliderSettings = {mode: 'random', selectedMangaIds: []};
+                    }
+                    // Gọi lại router để vẽ lại trang chủ nếu đang đứng ở trang chủ
+                    if (window.location.hash.startsWith('#home') || window.location.hash === '') {
+                        router(false);
+                    }
+                });
+
+                // 2. NGHE LÉN TOÀN BỘ DỮ LIỆU
+                const q = query(collection(db, dataCollectionPath));
+
+                onSnapshot(q, (snapshot) => {
+                    const wasCacheLoaded = isGlobalCacheLoaded;
+                    isGlobalCacheLoaded = true;
+
+                    const mangaList = [];
+                    snapshot.forEach(doc => {
+                        const data = {id: doc.id, ...doc.data()};
+                        mangaList.push(data);
+
+                        // --- CẬP NHẬT TRỰC TIẾP VÀO DOM CỰC NHẸ BẰNG REQUEST ANIMATION FRAME ---
+                        requestAnimationFrame(() => {
+                            // Cập nhật lượt xem (Chỉ tìm và sửa nếu phần tử thực sự tồn tại trên màn hình)
+                            const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
+                            if (viewEls.length > 0) viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
+
+                            // Cập nhật lượt thích
+                            const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
+                            if (likeEls.length > 0) likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
+
+                            // Cập nhật điểm đánh giá
+                            const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
+                            if (ratingEls.length > 0) {
+                                const reviewCount = data.reviewCount || 0;
+                                const averageRating = reviewCount > 0 ? ((data.reviewTotal || 0) / reviewCount) : 0;
+                                ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
+                            }
+                        });
+                        // ------------------------------------------------------------------------------------------
+                    });
+
+                    // Sắp xếp lại
+                    mangaList.sort((a, b) => {
+                        const timeA = b.lastEpisodeUpdate?.toMillis() || b.createdAt?.toMillis() || 0;
+                        const timeB = a.lastEpisodeUpdate?.toMillis() || a.createdAt?.toMillis() || 0;
+                        return timeA - timeB;
+                    });
+
+                    globalMangaCache = mangaList;
+
+                    // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
+                    if (!wasCacheLoaded) {
+                        router(false);
+                    }
+                }, (error) => {
+                    console.error("Lỗi khi tải danh sách (onSnapshot):", error);
+                    isGlobalCacheLoaded = true;
+                    showError("Lỗi tải dữ liệu.", error.message);
+                });
+            } catch (e) {
+                console.error("Lỗi nghiêm trọng khi gọi collection():", e);
+                setupError = e;
+                router();
+            }
+        };
+
+        const updateAuthStateUI = (user) => {
+            const authButtonDesktop = getEl('#auth-button-desktop');
+            const authButtonMobile = getEl('#auth-button-mobile');
+            if (!authButtonDesktop || !authButtonMobile) return;
+
+            if (!user || user.isAnonymous) {
+                authButtonDesktop.innerHTML = `<a href="#login" class="text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+                authButtonMobile.innerHTML = `<a href="#login" class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Nhập</a>`;
+                return;
+            }
+
+            if (isGoogleAuth(user)) {
+                const displayName = user.displayName || user.email.split('@')[0];
+                const photoURL = user.photoURL || `https://placehold.co/32x32/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}`;
+
+                authButtonDesktop.innerHTML = `
+                    <div class="user-profile-dropdown">
+                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-orange-500 transition-shadow">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                        </button>
+                        <div id="user-dropdown-menu" class="user-dropdown-content">
+                            <div class="p-4 border-b border-gray-600">
+                                <p class="text-white font-bold">${displayName}</p>
+                                <p class="text-gray-400 text-sm truncate">${user.email}</p>
+                            </div>
+                            <a href="#profile" id="profile-link-desktop" class="w-full text-left flex items-center px-4 py-2 text-orange-400 hover:bg-gray-700 hover:text-orange-300 transition-colors">
+                                <ion-icon name="person-circle-outline" class="text-xl mr-2"></ion-icon>
+                                Hồ Sơ
+                            </a>
+                            <button id="logout-button-desktop" class="w-full text-left flex items-center px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
+                                <ion-icon name="log-out-outline" class="text-xl mr-2"></ion-icon>
+                                Đăng Xuất
+                            </button>
+                        </div>
+                    </div>
+        `;
+
+                authButtonMobile.innerHTML = `
+                        <div class="flex items-center mb-3">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-orange-400">${displayName}</span></p>
+                        </div>
+                        <a href="#profile" class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors mb-3">
+                            Hồ Sơ
+                        </a>
+            <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
+
+                getEl('#profile-avatar-btn')?.addEventListener('click', function () {getEl('#user-dropdown-menu')?.classList.toggle('active');});
+                getEl('#logout-button-desktop')?.addEventListener('click', handleLogout);
+                getEl('#logout-button-mobile')?.addEventListener('click', (e) => {handleLogout(e); getEl('#mobile-menu')?.classList.add('hidden');});
+                getEl('#profile-link-desktop')?.addEventListener('click', () => {getEl('#user-dropdown-menu')?.classList.remove('active');});
+            }
+        };
+
+
+        window.addEventListener('hashchange', router);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await setupFirebase();
+            getEl('#resume-modal-yes')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(true);});
+            getEl('#resume-modal-no')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(false);});
+
+            // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
+            // --- 1. Nút mở Menu chính ---
+            getEl('#mobile-menu-button')?.addEventListener('click', () => {
+                getEl('#mobile-menu')?.classList.toggle('menu-open');
+                getEl('#mobile-menu-overlay')?.classList.toggle('menu-open');
+            });
+
+            // Ấn ra ngoài tấm màn thì tự đóng menu mượt mà
+            getEl('#mobile-menu-overlay')?.addEventListener('click', () => {
+                getEl('#mobile-menu')?.classList.remove('menu-open');
+                getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
+            });
+
+            // Khi tìm kiếm xong trên mobile cũng tự trượt menu vào
+            getEl('#search-form-mobile')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const searchTerm = getEl('#search-input-mobile').value.trim();
+                if (searchTerm) window.location.hash = `#search/${encodeURIComponent(searchTerm)}`;
+                getEl('#mobile-menu')?.classList.remove('menu-open');
+                getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
+            });
+
+            // --- 2. Xổ Menu Con mượt mà (Accordion) ---
+            getAllEl('.mobile-dropdown-toggle').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = e.currentTarget.nextElementSibling;
+                    // Thêm/Xóa class is-open để CSS tạo hiệu ứng sổ xuống
+                    target.classList.toggle('is-open');
+                    e.currentTarget.querySelector('.dropdown-icon')?.classList.toggle('rotate-180');
+                });
+            });
+
+            // Ấn vào link thì trượt cất menu đi
+            getAllEl('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', function () {
+                    if (!this.classList.contains('mobile-dropdown-toggle')) {
+                        getEl('#mobile-menu')?.classList.remove('menu-open');
+                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
+                    }
+                });
+            });
+
+            document.body.addEventListener('submit', globalCommentSubmitHandler);
+
+            document.addEventListener('click', function (e) {
+                const userDropdown = getEl('.user-profile-dropdown');
+                const userDropdownMenu = getEl('#user-dropdown-menu');
+                if (userDropdown && userDropdownMenu && !userDropdown.contains(e.target)) {
+                    userDropdownMenu.classList.remove('active');
+                }
+            });
+
+            // --- MAGIC: GỢI Ý TÌM KIẾM TRỰC TIẾP CỦA BÉ LÔI ---
+            const renderSuggestItem = (manga) => {
+                const slug = createSlug(manga.title);
+                const imageUrl = manga.posterUrl || '';
+                return `
+                <a href="#truyen/${slug}-${manga.id}" class="flex items-center p-3 hover:bg-gray-700/50 transition-colors border-b border-gray-700/50 last:border-none group">
+                    <img src="${imageUrl}" class="w-12 h-16 object-cover rounded shadow-md mr-4 border border-gray-600" onerror="this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                    <div class="flex-1 overflow-hidden">
+                        <h4 class="text-sm font-bold text-white truncate group-hover:text-orange-400 transition-colors">${manga.title}</h4>
+                        <p class="text-xs text-gray-400 truncate mt-0.5">${manga.titleOriginal || ''}</p>
+                        <p class="text-xs text-orange-400 font-medium mt-1 flex items-center gap-1">
+                            <ion-icon name="play-circle-outline"></ion-icon>
+                            ${manga.status === 'sap-chieu' ? 'Sắp chiếu' : (manga.episodes ? `Tập ${manga.episodes.length}` : 'Đang cập nhật')}
+                        </p>
+                    </div>
+                </a>
+            `;
+            };
+
+            const setupLiveSearch = (inputId, resultsId) => {
+                const inputEl = getEl(inputId);
+                const resultsEl = getEl(resultsId);
+                if (!inputEl || !resultsEl) return;
+
+                inputEl.addEventListener('input', (e) => {
+                    const term = e.target.value.trim().toLowerCase();
+
+                    if (!term) {
+                        resultsEl.classList.add('hidden');
+                        return;
+                    }
+
+                    const results = globalMangaCache.filter(m =>
+                        m.title.toLowerCase().includes(term) ||
+                        (m.titleOriginal && m.titleOriginal.toLowerCase().includes(term))
+                    ).slice(0, 5);
+
+                    if (results.length > 0) {
+                        resultsEl.innerHTML = results.map(renderSuggestItem).join('') +
+                            `<a href="#search/${encodeURIComponent(term)}" class="block p-3 text-center text-sm text-gray-900 bg-orange-500 hover:bg-orange-400 font-bold transition-colors">
+                            Xem tất cả kết quả...
+                        </a>`;
+                        resultsEl.classList.remove('hidden');
+                    } else {
+                        resultsEl.innerHTML = `<div class="p-5 text-sm text-gray-400 text-center italic flex flex-col items-center">
+                        <ion-icon name="sad-outline" class="text-3xl mb-2 text-gray-500"></ion-icon>
+                        Úi! Không tìm thấy nội dung này ạ 💦
+                    </div>`;
+                        resultsEl.classList.remove('hidden');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!inputEl.contains(e.target) && !resultsEl.contains(e.target)) {
+                        resultsEl.classList.add('hidden');
+                    }
+                });
+
+                // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem phim
+                resultsEl.addEventListener('click', (e) => {
+                    if (e.target.closest('a')) {
+                        resultsEl.classList.add('hidden');
+                        inputEl.value = '';
+                        getEl('#mobile-menu')?.classList.remove('menu-open'); 
+                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open'); 
+                    }
+                });
+            };
+
+            setupLiveSearch('#search-input-desktop', '#search-results-desktop');
+            setupLiveSearch('#search-input-mobile', '#search-results-mobile');
+            // --- KẾT THÚC MAGIC ---
+
+            document.addEventListener('click', function (e) {
+                const userDropdown = getEl('.user-profile-dropdown');
+                const userDropdownMenu = getEl('#user-dropdown-menu');
+                if (userDropdown && userDropdownMenu && !userDropdown.contains(e.target)) {
+                    userDropdownMenu.classList.remove('active');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 12px;
+            background-color: #1a202c;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #fb923c;
+            border-radius: 6px;
+            border: 3px solid #1a202c;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #ea580c;
+        }
+
+        .comments-scroll-area,
+        .schedule-scroll-area,
+        .review-scroll-area {
+            scrollbar-width: thin;
+            scrollbar-color: #fb923c #1a202c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+        }
+
+        #app {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        /* --- BÉ LÔI PHÙ PHÉP DROPDOWN DESKTOP TRƯỢT MƯỢT --- */
+        .dropdown-content {
+            display: grid !important;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #374151;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            border-radius: 0 0 0.5rem 0.5rem;
+            /* Animation properties */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+            pointer-events: none;
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* --------------------------------------------------- */
+
+        .dropdown-content.mega-menu-3-cols-scroll {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem 1rem;
+            padding: 1.5rem;
+            min-width: 600px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .dropdown-content.mega-menu-3-cols-season {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem 1.5rem;
+            padding: 1rem 1.5rem;
+            min-width: 550px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+
+            .dropdown-content.mega-menu-3-cols-scroll,
+            .dropdown-content.mega-menu-3-cols-season {
+                min-width: unset;
+                width: 100vw;
+                left: -1rem;
+            }
+        }
+
+        .dropdown-content a {
+            color: #d1d5db;
+            padding: 0.5rem 0;
+            display: block;
+            white-space: nowrap;
+        }
+
+        .dropdown-content.mega-menu-1-col {
+            min-width: 250px;
+            grid-template-columns: repeat(1, 1fr);
+            padding: 1rem;
+            gap: 0;
+        }
+
+        .dropdown-content.mega-menu-1-col a:hover {
+            background-color: #4b5563;
+        }
+
+        .nav-link.nav-active {
+            color: #fb923c;
+            position: relative;
+        }
+
+        .nav-link.nav-active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #fb923c;
+            border-radius: 2px;
+        }
+
+        .mobile-nav-link.mobile-nav-active {
+            background-color: #374151;
+            color: #fb923c;
+            font-weight: 700;
+        }
+
+        .dropdown-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #like-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .user-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.75rem;
+            background-color: #1f2937;
+            min-width: 250px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            pointer-events: none;
+        }
+
+        .user-dropdown-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .header-right-desktop {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        #search-form-desktop {
+            flex-grow: 1;
+            max-width: 600px;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-input-desktop {
+            width: 100%;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .h-20 .container>div {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .nav-link.header-nav-link {
+            flex-shrink: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .overlay-style {
+            transition: opacity 0.5s ease-in-out;
+            cursor: pointer;
+        }
+
+        .overlay-style.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #video-player-container>* {
+            width: 100%;
+            height: 100%;
+        }
+
+        .play-button-overlay {
+            background-color: rgba(249, 115, 22, 0.5);
+            border: none;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+            animation: pulse-button-new 3s infinite;
+        }
+
+        .play-button-overlay:hover {
+            background-color: rgba(249, 115, 22, 1);
+            animation: none;
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse-button-new {
+            0% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3);
+            }
+        }
+
+        @keyframes bounce-attention {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-3px) scale(1.03);
+                box-shadow: 0 0 20px rgba(249, 115, 22, 0.8);
+            }
+        }
+
+        .btn-next-episode-glow {
+            animation: bounce-attention 2s infinite;
+            border: 1px solid #fb923c;
+        }
+
+        /* ---  MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
+        #mobile-menu {
+            position: fixed;
+            top: 80px;
+            right: 0;
+            width: 65%;
+            max-width: 320px;
+            bottom: 0;
+            background-color: #111827;
+            overflow-y: auto;
+            padding: 1rem;
+            z-index: 40;
+            border-top-left-radius: 1.5rem;
+            border-bottom-left-radius: 1.5rem;
+            box-shadow: -15px 0 30px rgba(0, 0, 0, 0.6);
+            /* Animations */
+            display: block !important;
+            visibility: hidden;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
+        }
+
+        #mobile-menu.menu-open {
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        #mobile-menu-overlay {
+            display: block !important;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+
+        #mobile-menu-overlay.menu-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* --- MENU ACCORDION SỔ XUỐNG BÊN TRONG --- */
+        .mobile-dropdown-content,
+        #genre-mobile-list {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            max-height: 0;
+            /* Chiều cao = 0 để giấu đi */
+            opacity: 0;
+            overflow: hidden;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        @media (min-width: 640px) {
+
+            .mobile-dropdown-content,
+            #genre-mobile-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .mobile-dropdown-content.is-open {
+            max-height: 800px;
+            opacity: 1;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            margin-top: 0.25rem !important;
+        }
+
+        #genre-mobile-list.is-open {
+            max-height: 40vh;
+            opacity: 1;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            margin-top: 0.25rem !important;
+            overflow-y: auto;
+        }
+
+        /* ---  MENU MOBILE LINH HOẠT --- */
+        .mobile-dropdown-content a,
+        .mobile-dropdown-content a.genre-item {
+            background-color: #374151;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 48px;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .mobile-dropdown-content a.genre-item {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+        }
+
+        .mobile-dropdown-content a:hover,
+        .mobile-dropdown-content a.genre-item:hover {
+            background-color: #4b5563;
+        }
+
+        /* --------------------------------------------------------- */
+        /* Hiệu ứng Glassmorphism chuẩn trend */
+        .glass-nav {
+            background: rgba(17, 24, 39, 0.6) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(31, 41, 55, 0.3) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(249, 115, 22, 0.4);
+            box-shadow: 0 10px 40px 0 rgba(249, 115, 22, 0.15);
+        }
+
+        /* Tùy chỉnh màu sắc cho Swiper Slider */
+        .swiper-pagination-bullet-active {
+            background: #fb923c !important;
+        }
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #fb923c !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+            font-size: 24px !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+    <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-orange-400">
+            <h3 class="text-xl font-bold text-orange-400 mb-4">Đọc Tiếp Truyện</h3>
+            <p id="resume-modal-text" class="text-gray-300 mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="resume-modal-yes"
+                    class="bg-orange-500 hover:bg-orange-600 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors">Đọc
+                    tiếp</button>
+                <button id="resume-modal-no"
+                    class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Đọc
+                    từ đầu</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="glass-nav shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center h-full space-x-8">
+                    <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
+                        <img src="../anh/FOX anime.gif" alt="FOXMANGA Logo"
+                            class="w-14 h-14 object-cover rounded-2xl border-2 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
+                        <span class="text-4xl font-extrabold text-white">FOX<span
+                                class="text-orange-500">MANGA</span></span>
+
+                </div>
+
+                <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
+                    <form id="search-form-desktop" class="relative flex-grow flex items-center">
+                        <input id="search-input-desktop" type="text" placeholder="Tìm kiếm nội dung..."
+                            class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-gray-600 transition-all"
+                            autocomplete="off">
+                        <button type="submit"
+                            class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-orange-400 flex items-center justify-center">
+                            <ion-icon name="search-outline"></ion-icon>
+                        </button>
+
+                        <div id="search-results-desktop"
+                            class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[60vh] flex flex-col shadow-2xl overflow-y-auto">
+                        </div>
+                    </form>
+
+                    <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
+                        <a href="#login"
+                            class="text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng
+                            Nhập</a>
+                    </div>
+                </div>
+
+                <div class="lg:hidden flex items-center">
+                    <button id="mobile-menu-button" type="button"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
+                        aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Mở menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
+                <div class="flex space-x-6 items-center">
+                    <a href="#home"
+                        class="nav-link text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang
+                        Chủ</a>
+
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre"
+                            class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Dạng Truyện
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#genre/manga">Manga (Nhật)</a>
+                            <a href="#genre/manhwa">Manhwa (Hàn)</a>
+                            <a href="#genre/manhua">Manhua (Trung)</a>
+                            <a href="#genre/taihen">Taihen (18+)</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <a href="#top" data-hash-group="#top"
+                            class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Xếp Hạng
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#top/ngay">Top Ngày</a>
+                            <a href="#top/tuan">Top Tuần</a>
+                            <a href="#top/thang">Top Tháng</a>
+                            <a href="#top/nam">Top Năm</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre"
+                            class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
+                            Thể Loại
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-3-cols-scroll">
+                            <div class="col-span-full mb-2 border-b border-gray-600 pb-1">
+                                <span class="text-orange-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
+                                <div class="grid grid-cols-3 gap-x-4">
+                                    <a href="#genre/action"
+                                        class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Action
+                                        (Hành động)</a>
+                                    <a href="#genre/romance"
+                                        class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Romance
+                                        (Lãng mạn)</a>
+                                    <a href="#genre/comedy"
+                                        class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Comedy
+                                        (Hài hước)</a>
+                                </div>
+                            </div>
+                            <a href="#genre/adult" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adult</a>
+                            <a href="#genre/adventure" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure (Phiêu lưu)</a>
+                            <a href="#genre/anime" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Anime</a>
+                            <a href="#genre/chuyen-sinh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Chuyển Sinh</a>
+                            <a href="#genre/comedy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comedy (Hài hước)</a>
+                            <a href="#genre/comic" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comic</a>
+                            <a href="#genre/cooking" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cooking</a>
+                            <a href="#genre/co-dai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cổ Đại</a>
+                            <a href="#genre/doujinshi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Doujinshi</a>
+                            <a href="#genre/drama" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama (Kịch tính)</a>
+                            <a href="#genre/dam-my" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Đam Mỹ</a>
+                            <a href="#genre/ecchi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi</a>
+                            <a href="#genre/fantasy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy (Giả tưởng)</a>
+                            <a href="#genre/gender-bender" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Gender Bender</a>
+                            <a href="#genre/harem" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem</a>
+                            <a href="#genre/historical" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical (Lịch sử)</a>
+                            <a href="#genre/horror" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror (Kinh dị)</a>
+                            <a href="#genre/josei" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei</a>
+                            <a href="#genre/live-action" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Live action</a>
+                            <a href="#genre/manga" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manga</a>
+                            <a href="#genre/manhua" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhua</a>
+                            <a href="#genre/manhwa" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhwa</a>
+                            <a href="#genre/martial-arts" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial Arts (Võ thuật)</a>
+                            <a href="#genre/mature" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mature</a>
+                            <a href="#genre/mecha" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha (Robot)</a>
+                            <a href="#genre/mystery" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery (Bí ẩn)</a>
+                            <a href="#genre/ngon-tinh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ngôn Tình</a>
+                            <a href="#genre/one-shot" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">One shot</a>
+                            <a href="#genre/psychological" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological (Tâm lý)</a>
+                            <a href="#genre/romance" class="text-orange-400 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
+                            <a href="#genre/school-life" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">School Life (Học đường)</a>
+                            <a href="#genre/sci-fi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-fi (Viễn tưởng)</a>
+                            <a href="#genre/seinen" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen</a>
+                            <a href="#genre/shoujo" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo</a>
+                            <a href="#genre/shoujo-ai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo Ai</a>
+                            <a href="#genre/shounen" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen</a>
+                            <a href="#genre/shounen-ai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen Ai</a>
+                            <a href="#genre/slice-of-life" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice of Life</a>
+                            <a href="#genre/smut" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Smut</a>
+                            <a href="#genre/soft-yaoi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft Yaoi</a>
+                            <a href="#genre/soft-yuri" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft Yuri</a>
+                            <a href="#genre/sports" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports (Thể thao)</a>
+                            <a href="#genre/supernatural" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural (Siêu nhiên)</a>
+                            <a href="#genre/tap-chi-truyen-tranh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tạp chí truyện tranh</a>
+                            <a href="#genre/thieu-nhi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Thiếu Nhi</a>
+                            <a href="#genre/tragedy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tragedy (Bi kịch)</a>
+                            <a href="#genre/trinh-tham" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Trinh Thám</a>
+                            <a href="#genre/truyen-scan" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện scan</a>
+                            <a href="#genre/truyen-mau" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện Màu</a>
+                            <a href="#genre/viet-nam" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Việt Nam</a>
+                            <a href="#genre/webtoon" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Webtoon</a>
+                            <a href="#genre/xuyen-khong" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Xuyên Không</a>
+                            <a href="#genre/16" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">16+</a>
+                        </div>
+                    </div>
+
+                    <a href="#library"
+                        class="nav-link text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư
+                        Viện</a>
+                    <a href="#gacha"
+                        class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
+                            name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
+                    <div class="h-4 w-px bg-gray-700 mx-2"></div>
+                    <a href="/" class="text-lime-500 hover:text-lime-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(163,230,53,0.5)]">
+                    <ion-icon name="tv-outline" class="mr-1 text-lg"></ion-icon>Về FoxAnime
+                    </a>
+
+                </div>
+            </nav>
+        </div>
+
+    </header>
+
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden" style="top: 80px;">
+    </div>
+
+    <div class="lg:hidden hidden bg-gray-900 border-l border-gray-700" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="#home"
+                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang
+                Chủ</a>
+
+            <div>
+                <button
+                    class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                    data-hash-group="#genre">
+                    <span>Dạng Truyện</span>
+                    <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
+                    <a href="#genre/manga"
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manga (Nhật)</a>
+                    <a href="#genre/manhwa"
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhwa (Hàn)</a>
+                    <a href="#genre/manhua"
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhua (Trung)</a>
+                    <a href="#genre/taihen"
+                        class="block text-red-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Taihen (18+)</a>
+                </div>
+            </div>
+
+
+            <div>
+                <button
+                    class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                    data-hash-group="#genre">
+                    <span>Thể Loại Chi Tiết</span>
+                    <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <div id="genre-mobile-list" class="pl-4 mt-1 hidden">
+                    <a href="#genre/action" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Action (Hành động)</a>
+                    <a href="#genre/adult" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adult</a>
+                    <a href="#genre/adventure" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adventure (Phiêu lưu)</a>
+                    <a href="#genre/anime" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Anime</a>
+                    <a href="#genre/chuyen-sinh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Chuyển Sinh</a>
+                    <a href="#genre/comedy" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Comedy (Hài hước)</a>
+                    <a href="#genre/comic" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Comic</a>
+                    <a href="#genre/cooking" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cooking</a>
+                    <a href="#genre/co-dai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cổ Đại</a>
+                    <a href="#genre/doujinshi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Doujinshi</a>
+                    <a href="#genre/drama" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Drama (Kịch tính)</a>
+                    <a href="#genre/dam-my" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Đam Mỹ</a>
+                    <a href="#genre/ecchi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ecchi</a>
+                    <a href="#genre/fantasy" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Fantasy (Giả tưởng)</a>
+                    <a href="#genre/gender-bender" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Gender Bender</a>
+                    <a href="#genre/harem" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Harem</a>
+                    <a href="#genre/historical" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Historical (Lịch sử)</a>
+                    <a href="#genre/horror" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Horror (Kinh dị)</a>
+                    <a href="#genre/josei" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Josei</a>
+                    <a href="#genre/live-action" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Live action</a>
+                    <a href="#genre/manga" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manga</a>
+                    <a href="#genre/manhua" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhua</a>
+                    <a href="#genre/manhwa" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhwa</a>
+                    <a href="#genre/martial-arts" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Martial Arts (Võ thuật)</a>
+                    <a href="#genre/mature" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mature</a>
+                    <a href="#genre/mecha" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mecha (Robot)</a>
+                    <a href="#genre/mystery" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mystery (Bí ẩn)</a>
+                    <a href="#genre/ngon-tinh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ngôn Tình</a>
+                    <a href="#genre/one-shot" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">One shot</a>
+                    <a href="#genre/psychological" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Psychological (Tâm lý)</a>
+                    <a href="#genre/romance" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Romance (Lãng mạn)</a>
+                    <a href="#genre/school-life" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">School Life (Học đường)</a>
+                    <a href="#genre/sci-fi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sci-fi (Viễn tưởng)</a>
+                    <a href="#genre/seinen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Seinen</a>
+                    <a href="#genre/shoujo" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo</a>
+                    <a href="#genre/shoujo-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo Ai</a>
+                    <a href="#genre/shounen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen</a>
+                    <a href="#genre/shounen-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen Ai</a>
+                    <a href="#genre/slice-of-life" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Slice of Life</a>
+                    <a href="#genre/smut" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Smut</a>
+                    <a href="#genre/soft-yaoi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft Yaoi</a>
+                    <a href="#genre/soft-yuri" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft Yuri</a>
+                    <a href="#genre/sports" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sports (Thể thao)</a>
+                    <a href="#genre/supernatural" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Supernatural (Siêu nhiên)</a>
+                    <a href="#genre/tap-chi-truyen-tranh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tạp chí truyện tranh</a>
+                    <a href="#genre/thieu-nhi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Thiếu Nhi</a>
+                    <a href="#genre/tragedy" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tragedy (Bi kịch)</a>
+                    <a href="#genre/trinh-tham" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Trinh Thám</a>
+                    <a href="#genre/truyen-scan" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện scan</a>
+                    <a href="#genre/truyen-mau" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện Màu</a>
+                    <a href="#genre/viet-nam" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Việt Nam</a>
+                    <a href="#genre/webtoon" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Webtoon</a>
+                    <a href="#genre/xuyen-khong" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Xuyên Không</a>
+                    <a href="#genre/16" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">16+</a>
+                </div>
+            </div>
+
+            <a href="#library"
+                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư
+                Viện</a>
+            <a href="#gacha"
+                class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
+                    name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
+            <a href="/" class="block px-3 py-2 mt-2 bg-gradient-to-r from-lime-500/10 to-transparent border-l-4 border-lime-500 rounded-r-lg text-lime-400 text-base font-extrabold transition-colors">
+                <ion-icon name="tv" class="mr-2"></ion-icon>Về Xem Phim (FoxAnime)
+            </a>
+
+        </div>
+        <div class="px-5 pb-3">
+            <form id="search-form-mobile" class="relative">
+                <input id="search-input-mobile" type="text" placeholder="Tìm kiếm nội dung..."
+                    class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-gray-600 transition-all"
+                    autocomplete="off">
+
+                <div id="search-results-mobile"
+                    class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[50vh] flex flex-col shadow-2xl overflow-y-auto">
+                </div>
+            </form>
+        </div>
+        <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
+            <a href="#login"
+                class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng
+                Nhập</a>
+        </div>
+    </div>
+
+    <main id="app" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen">
+        <div class="flex justify-center items-center h-[50vh]">
+            <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
+        <!-- Hiệu ứng nền trang trí (Background Glow) -->
+        <div
+            class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50">
+        </div>
+        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+            <!-- PHẦN 1: LOGO & NEWSLETTER -->
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-12 gap-8">
+                <!-- Logo -->
+                <div class="flex items-center space-x-4 group cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="absolute inset-0 bg-orange-400 blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-lg">
+                        </div>
+                        <img src="../anh/FOX anime.gif" alt="FOXMANGA Logo"
+                            class="w-16 h-16 object-contain rounded-lg shadow-xl relative z-10">
+                    </div>
+                    <div>
+                        <span class="text-4xl font-extrabold text-white tracking-wide block leading-none">
+                            FOX<span class="text-orange-500">MANGA</span>
+                        </span>
+                        <span class="text-sm text-gray-400 tracking-wider">Thế giới Manga trong tầm tay</span>
+                    </div>
+                </div>
+
+                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE -->
+                <div class="w-full max-w-md flex flex-col items-center">
+                    <form id="newsletter-form"
+                        class="w-full bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-500/30 transition-all shadow-lg relative">
+                        <input type="email" id="email-input" placeholder="Nhập email để nhận thông báo mới..." required
+                            class="bg-transparent border-none outline-none text-white px-5 py-2 w-full placeholder-gray-400 text-sm focus:ring-0">
+                        <button type="submit" id="submit-btn"
+                            class="bg-orange-500 hover:bg-orange-400 text-gray-950 font-bold py-2.5 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm shadow-md">
+                            Đăng ký
+                        </button>
+                    </form>
+                    <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
+                </div>
+
+                <script type="module">
+                    import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+                    import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc",
+                        authDomain: "foxanime-e77d4.firebaseapp.com",
+                        projectId: "foxanime-e77d4",
+                        storageBucket: "foxanime-e77d4.firebasestorage.app",
+                        messagingSenderId: "1025177423292",
+                        appId: "1:1025177423292:web:14c200fbc905e79b3c6fb9"
+                    };
+
+                    const app = initializeApp(firebaseConfig, "FoxNewsletter");
+                    const firestoreDB = getFirestore(app);
+
+                    const form = document.getElementById('newsletter-form');
+                    const msg = document.getElementById('newsletter-msg');
+                    const emailInput = document.getElementById('email-input');
+                    const submitBtn = document.getElementById('submit-btn');
+
+                    form.addEventListener('submit', async function (e) {
+                        e.preventDefault();
+
+                        const emailValue = emailInput.value.trim();
+                        submitBtn.textContent = 'Đang lưu...';
+                        submitBtn.disabled = true;
+
+                        try {
+                            await addDoc(collection(firestoreDB, "subscribers"), {
+                                email: emailValue,
+                                subscribedAt: serverTimestamp()
+                            });
+
+                            msg.style.color = '#00e676';
+                            msg.textContent = '🎉 Đăng ký thành công! Cảm ơn cậu đã đồng hành nhé!';
+                            form.reset();
+                        } catch (error) {
+                            console.error("Lỗi òi:", error);
+                            msg.style.color = '#e94560';
+                            msg.textContent = '❌ Ối chà, hệ thống đang bận xíu, cậu thử lại sau nha!';
+                        } finally {
+                            submitBtn.textContent = 'Đăng ký';
+                            submitBtn.disabled = false;
+                            setTimeout(() => {msg.textContent = '';}, 5000);
+                        }
+                    });
+                </script>
+            </div>
+
+            <!-- PHẦN DONATE -->
+            <div
+                class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-orange-500/20 to-purple-500/20 border border-orange-500/30 relative overflow-hidden group">
+                <div
+                    class="absolute inset-0 bg-[url('anh/foxanimedonate.jpg')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500 mix-blend-overlay">
+                </div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <img src="../anh/foxanimedonate.jpg" alt="DONATE Logo"
+                            class="w-20 h-20 object-cover rounded-full shadow-lg ring-4 ring-orange-500/50 animate-pulse">
+                        <div>
+                            <h3
+                                class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-white">
+                                DONATE NGAY TẠI ĐÂY!</h3>
+                            <p class="text-gray-300 text-sm mt-1">Ủng hộ chúng mình để có thêm động lực phát
+                                triển nhé! ♡</p>
+                        </div>
+                    </div>
+                    <a href="donate.html"
+                        class="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-full shadow-lg shadow-orange-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                        <!-- FIX LỖI SVG PATH -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                        Ủng hộ ngay
+                    </a>
+                </div>
+            </div>
+
+            <!-- PHẦN 2: CÁC NHÓM CỘNG ĐỒNG (GRID) -->
+            <div class="mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider text-center lg:text-left">Tham
+                Gia Cộng đồng của chúng tôi</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+
+                <!-- FoxAnime - Fandom -->
+                <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank"
+                    class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
+                        alt="Fandom"
+                        class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Fandom</div>
+                        <div class="text-xs text-gray-400">Group Facebook</div>
+                    </div>
+                </a>
+
+                <!-- FoxStudioLive -->
+                <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank"
+                    class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
+                        alt="Live"
+                        class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">FoxStudioLive</div>
+                        <div class="text-xs text-gray-400">Kênh YouTube</div>
+                    </div>
+                </a>
+
+                <!-- Discord -->
+                <a href="https://discord.gg/89UxfT4V" target="_blank"
+                    class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
+                        alt="Discord"
+                        class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Discord Server</div>
+                        <div class="text-xs text-gray-400">Tham gia ngay!</div>
+                    </div>
+                </a>
+
+                <!-- Liên hệ -->
+                <a href="mailto:haistrem6792@gmail.com"
+                    class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
+                    <img src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
+                        alt="Contact"
+                        class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Liên hệ Quảng Cáo</div>
+                        <div class="text-xs text-gray-400 truncate w-32">foxstudio299@...</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- PHẦN 3: BOTTOM FOOTER (Socials & Copyright) -->
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+
+                <!-- Social Icons -->
+                <div class="flex space-x-4">
+                    <!-- Facebook -->
+                    <a href="#"
+                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="#"
+                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                    </a>
+
+                    <!-- YouTube -->
+                    <a href="#"
+                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                        </svg>
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="#"
+                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white border border-transparent hover:border-gray-600 transition-all transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.16c0 3.13-2.47 5.67-5.59 5.67h-.1c-2.91-.18-5.32-2.48-5.53-5.38-.2-2.73 1.69-5.18 4.34-5.63.13-.02.26-.03.39-.03v4.19c-.33 0-.66.07-.97.2-.67.29-1.07 1-1.07 1.77 0 1.09.89 1.98 1.98 1.98 1.09 0 1.98-.89 1.98-1.98v-15.03z" />
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Copyright & Legal -->
+                <div class="text-center md:text-right">
+                    <div class="text-gray-500 text-sm mb-2">
+                        <a href="/terms.html" class="hover:text-orange-400 transition-colors">Điều khoản sử dụng</a>
+                        <span class="mx-2">•</span>
+                        <a href="/privacy.html" class="hover:text-orange-400 transition-colors">Chính sách bảo mật</a>
+                        <span class="mx-2">•</span>
+                        <a href="/dmca.html" class="hover:text-orange-400 transition-colors">DMCA</a>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        &copy; 2025. Bản quyền thuộc về <span class="text-orange-400 font-bold">Foxstudio.co.Ltd</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('✨ Hệ thống phòng ngự Offline đã kích hoạt thành công! Phạm vi:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('💦 Ôi không, gọi cô người máy dậy thất bại rồi:', error);
+                });
+        });
+    }
+</script>
+
+</html>

@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../anh/foxanimelogo.jpg">
+    <title>ADMIN NII-CHAN FOXMANGA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        const RELOAD_INTERVAL = 15000;
+
+        function checkTailwindLoadAndShowFallback() {
+            let isTailwindLoaded = false;
+            try {
+                const testEl = document.createElement('div');
+                testEl.className = 'opacity-100'; 
+                testEl.style.display = 'none';
+                document.body.appendChild(testEl);
+                
+                const computedStyle = window.getComputedStyle(testEl);
+                isTailwindLoaded = computedStyle.opacity === '1'; 
+                document.body.removeChild(testEl);
+            } catch (e) {
+                 console.error("Lỗi khi kiểm tra Tailwind:", e);
+            }
+
+            if (!isTailwindLoaded) {
+                const overlay = document.getElementById('cdn-failure-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+                const mainAdminView = document.getElementById('admin-main-view');
+                const authPage = document.getElementById('auth-page');
+                const loadingOverlay = document.getElementById('loading-overlay');
+                
+                if (mainAdminView) mainAdminView.style.display = 'none'; 
+                if (authPage) authPage.style.display = 'none';
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
+                
+                setTimeout(() => {
+                    location.reload();
+                }, RELOAD_INTERVAL);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            setTimeout(checkTailwindLoadAndShowFallback, 300); 
+        });
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a; /* Đổi màu nền tối hơn cho hợp theme Cam */
+            color: #e5e7eb;
+            min-height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #f97316; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
+        
+        .neon-glow {
+            text-shadow: 0 0 5px #f97316, 0 0 10px #f97316;
+        }
+        .panel-border {
+            border: 2px solid #f97316;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.2), 0 0 20px rgba(249, 115, 22, 0.1);
+        }
+        .anime-button {
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+            position: relative;
+        }
+        .anime-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.5);
+        }
+        .anime-button:active {
+             transform: scale(0.95);
+        }
+        /* MANGA CARD STYLES MODIFIED FOR ADMIN BADGE */
+        .manga-card-anime {
+            transition: all 0.3s ease-in-out;
+            border-left: 5px solid transparent;
+            position: relative; 
+            overflow: hidden;
+        }
+        .manga-card-anime:hover {
+            transform: translateX(5px);
+            border-left-color: #f97316;
+        }
+        .admin-badge-corner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1f2937 0%, #f97316 100%);
+            color: white;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-bottom-left-radius: 10px;
+            border-left: 1px solid #f97316;
+            border-bottom: 1px solid #f97316;
+            z-index: 10;
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .genre-tag {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .genre-tag:hover {
+            border-color: #f97316;
+        }
+        .genre-tag.selected {
+            background-color: #f97316;
+            color: #fff;
+            font-weight: 700;
+            border-color: #ea580c;
+        }
+        .custom-file-input::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+        .custom-file-input::before {
+            content: 'Chọn tệp (Max 700KB)';
+            display: inline-block;
+            background: #1f2937;
+            border: 1px solid #f97316;
+            border-radius: 5px;
+            padding: 5px 8px;
+            outline: none;
+            white-space: nowrap;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #f97316;
+        }
+        .custom-file-input:hover::before {
+            background: #f97316;
+            color: #fff;
+        }
+        
+        .form-input {
+            @apply transition duration-150 ease-in-out shadow-sm appearance-none border border-[#f97316] rounded w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-[#f97316];
+            background-color: #1f2937; 
+            color: #ffffff !important;
+        }
+
+        textarea.form-input {
+            background-color: #1f2937;
+            color: #ffffff !important;
+        }
+        
+        .form-input option {
+            color: #ffffff; 
+            background-color: #1f2937;
+        }
+        
+        .schedule-grid-container {
+             display: grid; 
+             grid-template-columns: 1fr;
+             gap: 1.5rem;
+             width: 100%;
+        }
+        @media (min-width: 700px) {
+            .schedule-grid-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1100px) {
+            .schedule-grid-container { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        .chapter-list-scroll {
+            max-height: 130px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .chapter-list-scroll::-webkit-scrollbar { width: 5px; }
+        .chapter-list-scroll::-webkit-scrollbar-thumb { background: #f97316; border-radius: 3px; }
+        
+        .filter-bar-container {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #f97316;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .pagination-btn {
+            background: #0a0a0a;
+            border: 1px solid #f97316;
+            color: #f97316;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #f97316;
+            color: #fff;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: gray;
+            color: gray;
+        }
+
+        
+        .error-container {
+            width: 100%;
+            max-width: 750px; 
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #1f2937;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.2), 0 0 20px rgba(249, 115, 22, 0.1);
+            border: 2px solid #f97316;
+        }
+        
+        .error-content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+        @media (min-width: 600px) {
+             .error-content-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .error-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f97316;
+            margin-bottom: 20px;
+            grid-column: 1 / -1; 
+        }
+        .error-header h1 {
+            color: #f97316;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 0 5px #f97316, 0 0 10px rgba(249, 115, 22, 0.5);
+        }
+        .error-header p {
+            font-size: 1rem;
+            color: #e5e7eb;
+            margin-top: 5px;
+        }
+
+        .error-card {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: left; 
+        }
+        .error-card h3 {
+            color: #f97316;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f97316;
+            padding-bottom: 5px;
+        }
+        .error-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .error-card ul li {
+            font-size: 0.95rem;
+            color: #e5e7eb;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .error-card ul li::before {
+            content: "•";
+            color: #ea580c;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .action-link {
+            display: inline-block;
+            background-color: #f97316; 
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+        .action-link:hover {
+            background-color: #ea580c;
+        }
+        
+        .right-column {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             justify-content: flex-start;
+             gap: 15px;
+             padding: 10px;
+             background: #0a0a0a;
+             border-radius: 8px;
+             border: 1px dashed #f97316;
+        }
+        @media (max-width: 599px) {
+            .right-column {
+                display: none; 
+            }
+        }
+        
+        .komiko-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto;
+            border: 3px solid #ea580c;
+        }
+        
+        .apology-text {
+            color: #f97316;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            grid-column: 1 / -1; 
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .contact-info a {
+            color: #f97316;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .contact-info a:hover {
+            color: #ea580c;
+            text-decoration: underline;
+        }
+        
+        .custom-dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-300 hidden opacity-0">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-[#f97316] mb-4 neon-glow"></i>
+            <p class="text-white text-lg">Đang kết nối Database Manga... Xin chờ Senpai!
+            </p>
+        </div>
+    </div>
+    
+    <div id="auth-page" class="min-h-screen flex items-center justify-center">
+        <div class="bg-[#1f2937] p-8 rounded-xl shadow-2xl w-full max-w-md panel-border">
+            <h2 class="text-3xl font-bold text-[#f97316] text-center mb-6 neon-glow">ADMIN FOXMANGA</h2>
+            <p class="text-center text-gray-400 text-sm mb-4">
+                Đăng nhập bằng tài khoản Admin đã được tạo.
+            </p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-gray-200 text-sm font-bold mb-2" for="login-email">Email</label>
+                    <input class="form-input" id="login-email" type="email" placeholder="admin@foxmanga.com" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-200 text-sm font-bold mb-2" for="login-password">Password</label>
+                    <input class="form-input" id="login-password" type="password" placeholder="••••••••" required>
+                </div>
+                <p id="auth-error-message" class="text-red-400 text-sm text-center mb-4"></p>
+                <button type="submit" class="anime-button w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f97316] mb-4">
+                    LOGIN (Enter World)
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
+        <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="../anh/foxanimelogo.jpg" 
+                     alt="FoxManga Logo" 
+                     class="w-16 h-16 object-contain rounded-full border-2 border-[#f97316] shadow-lg"
+                     onerror="this.onerror=null;this.src='https://placehold.co/64x64/f97316/ffffff?text=FX';" 
+                />
+                <div>
+                    <h1 class="text-4xl font-extrabold text-[#f97316] neon-glow mb-2">BẢNG ĐIỀU KHIỂN FOXMANGA</h1>
+                    <p class="text-gray-400">Quản lý Truyện tranh và Tài khoản Admin.</p>
+                    <div id="auth-status" class="mt-2 text-sm text-orange-400"></div>
+                </div>
+            </div>
+            <div id="admin-profile-header" class="hidden items-center space-x-4 bg-[#1f2937] p-3 rounded-lg panel-border">
+                <img id="admin-avatar-header" src="https://placehold.co/40x40/f97316/ffffff?text=AD" alt="Admin Avatar" class="w-10 h-10 rounded-full border-2 border-[#f97316] object-cover">
+                <div>
+                    <span id="admin-display-name-header" class="font-bold text-[#f97316] block"></span>
+                    <a href="#profile" class="text-xs text-orange-400 hover:underline transition">Chỉnh sửa Profile</a>
+                </div>
+                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-4">
+                    <i class="fas fa-sign-out-alt text-lg" title="Đăng Xuất"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="flex space-x-4 mb-8 border-b border-gray-700">
+            <button id="nav-dashboard" data-hash="#dashboard" class="py-2 px-4 font-semibold hover:text-[#f97316] transition border-b-4 border-transparent text-[#f97316]">DASHBOARD</button>
+            <button id="nav-schedule" data-hash="#schedule" class="py-2 px-4 font-semibold hover:text-[#f97316] transition border-b-4 border-transparent">LỊCH RA CHAP</button>
+            <button id="nav-profile" data-hash="#profile" class="py-2 px-4 font-semibold hover:text-[#f97316] transition border-b-4 border-transparent">TÀI KHOẢN ADMIN</button>
+        </div>
+
+        <main id="main-content" class="min-h-[70vh]">
+        </main>
+    </div>
+
+    <!-- START: BULK IMPORT MODAL -->
+    <div id="bulk-import-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-4xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">
+                <i class="fas fa-file-import mr-2"></i>  SPMODE IMPORT MANGA (Thêm hàng loạt)
+            </h3>
+            
+            <div class="mb-4 bg-[#0a0a0a] p-4 rounded text-sm text-gray-300 border-l-4 border-[#f97316]">
+                <p class="font-bold text-[#f97316] mb-2"><i class="fas fa-info-circle"></i> Hướng dẫn & Cơ chế Tự Sửa Lỗi:</p>
+                <p>Chức năng này cho phép bạn thêm nhiều Truyện cùng lúc bằng dữ liệu JSON.</p>
+                <ul class="list-disc ml-4 mt-2 text-xs text-gray-400">
+                    <li>Nếu bạn dùng nút FETCH, hệ thống sẽ cố gắng **tự động ánh xạ** dữ liệu API về đúng định dạng của FOXMANGA.</li>
+                    <li>Nếu một trường bị thiếu (ví dụ: `totalEpisodes`), nó sẽ được đặt giá trị mặc định (ví dụ: 0).</li>
+                    <li>Bạn **phải** cung cấp `title` hợp lệ.</li>
+                </ul>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[#f97316] text-sm font-bold mb-2">Nhập URL API (Trả về JSON):</label>
+                <div class="flex gap-2">
+                    <input id="bulk-url-input" class="form-input" type="url" placeholder="https://api.example.com/mangas.json (hoặc embed link)">
+                    <button onclick="fetchBulkFromUrl()" class="anime-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        FETCH
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[#f97316] text-sm font-bold mb-2">Hoặc Dán Dữ Liệu JSON (Mảng []):</label>
+                <textarea id="bulk-json-input" class="form-input h-48 font-mono text-xs" placeholder='[
+    {
+        "title": "Tên Truyện (*)",
+        "titleOriginal": "Original Name",
+        "genre": "Action, Comedy",
+        "posterUrl": "https://...",
+        "summary": "Nội dung...",
+        "status": "dang-ra",
+        "totalEpisodes": 120,
+        "formatType": "manga"
+    },
+    ...
+]'></textarea>
+            </div>
+
+            <div id="bulk-status" class="mb-4 text-sm font-bold min-h-[20px]"></div>
+
+            <div class="flex items-center justify-between">
+                <button onclick="processBulkImport()" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-6 rounded-lg">
+                    <i class="fas fa-magic mr-2"></i> BẮT ĐẦU IMPORT & SỬA LỖI
+                </button>
+                <button type="button" onclick="hideModal('bulk-import-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END: BULK IMPORT MODAL -->
+
+    <div id="add-manga-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">CREATE NEW MANGA CARD</h3>
+            <form id="add-manga-form">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-title">Tên Truyện Tiếng Việt (*)</label>
+                        <input class="form-input" id="manga-title" type="text" placeholder="Solo Leveling" required>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-title-original">Tên Gốc (JP/KR/CN)</label>
+                        <input class="form-input" id="manga-title-original" type="text" placeholder="Na Honja Man Level Up">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-formatType">Dạng Truyện (*)</label>
+                        <select id="manga-formatType" class="form-input">
+                            <option value="manga">Manga (Nhật Bản)</option>
+                            <option value="manhwa">Manhwa (Hàn Quốc)</option>
+                            <option value="manhua">Manhua (Trung Quốc)</option>
+                            <option value="taihen">Taihen (18+)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-totalEpisodes">Tổng số Chapter</label>
+                        <input class="form-input" id="manga-totalEpisodes" type="number" min="0" placeholder="0 = ??">
+                        <p class="text-xs text-gray-400 mt-1">Nhập 0 nếu là '??' (Đang cập nhật)</p>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-status">Trạng thái (*)</label>
+                        <select id="manga-status" class="form-input">
+                            <option value="dang-ra">Đang tiến hành (Đang ra)</option>
+                            <option value="hoan-thanh">Hoàn thành (Full)</option>
+                            <option value="sap-ra">Sắp ra mắt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-airingDay">Lịch ra chap mới</label>
+                        <select id="manga-airingDay" class="form-input">
+                            <option value="Không có">Không có</option>
+                            <option value="Thứ 2">Thứ 2</option>
+                            <option value="Thứ 3">Thứ 3</option>
+                            <option value="Thứ 4">Thứ 4</option>
+                            <option value="Thứ 5">Thứ 5</option>
+                            <option value="Thứ 6">Thứ 6</option>
+                            <option value="Thứ 7">Thứ 7</option>
+                            <option value="Chủ Nhật">Chủ Nhật</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2">Thể loại (*) <span class="text-xs text-gray-400">(Chọn ít nhất 1)</span></label>
+                    <div id="genre-tag-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#0a0a0a] border border-[#f97316] rounded-lg max-h-[200px] overflow-y-auto">
+                        <!-- GENRE LIST WILL BE RENDERED BY JS -->
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2">URL Ảnh Poster (*)</label>
+                    <input class="form-input" id="manga-poster" type="url" placeholder="https://example.com/poster.jpg">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-poster-file">HOẶC Tải tệp lên (*)</label>
+                    <input class="custom-file-input text-gray-400" id="manga-poster-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="poster-upload-status" class="text-xs text-[#f97316] mt-2"></p>
+                    <p class="text-xs text-orange-400 italic">Lưu ý: File phải nhỏ hơn 700KB để tránh lỗi database.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-banner">URL Ảnh Banner (Ngang, 1200x600)</label>
+                    <input class="form-input" id="manga-banner" type="url" placeholder="https://example.com/banner.jpg">
+                    <p class="text-xs text-gray-400 mt-1">Dùng cho Hero/Backdrop. Nếu bỏ trống, sẽ dùng ảnh Poster.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-banner-file">HOẶC Tải tệp Banner lên</label>
+                    <input class="custom-file-input text-gray-400" id="manga-banner-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="banner-upload-status" class="text-xs text-[#f97316] mt-2"></p>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="manga-summary">Tóm tắt Truyện</label>
+                    <textarea class="form-input h-24" id="manga-summary" placeholder="Mô tả tóm tắt nội dung..."></textarea>
+                </div>
+                
+                <div id="manga-form-message" class="text-red-400 text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f97316]">
+                        <i class="fas fa-save mr-2"></i> SAVE MANGA (Quest Complete)
+                    </button>
+                    <button type="button" onclick="hideModal('add-manga-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Exit)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="edit-manga-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">EDIT MANGA CARD</h3>
+            <form id="edit-manga-form">
+                <input type="hidden" id="edit-manga-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-title">Tên Truyện Tiếng Việt (*)</label>
+                        <input class="form-input" id="edit-manga-title" type="text" required>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-title-original">Tên Gốc (JP/KR/CN)</label>
+                        <input class="form-input" id="edit-manga-title-original" type="text">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-formatType">Dạng Truyện (*)</label>
+                        <select id="edit-manga-formatType" class="form-input">
+                            <option value="manga">Manga (Nhật Bản)</option>
+                            <option value="manhwa">Manhwa (Hàn Quốc)</option>
+                            <option value="manhua">Manhua (Trung Quốc)</option>
+                            <option value="taihen">Taihen (18+)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-totalEpisodes">Tổng số Chapter</label>
+                        <input class="form-input" id="edit-manga-totalEpisodes" type="number" min="0" placeholder="0 = ??">
+                        <p class="text-xs text-gray-400 mt-1">Nhập 0 nếu là '??' (Đang cập nhật)</p>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-status">Trạng thái (*)</label>
+                        <select id="edit-manga-status" class="form-input">
+                            <option value="dang-ra">Đang tiến hành (Đang ra)</option>
+                            <option value="hoan-thanh">Hoàn thành (Full)</option>
+                            <option value="sap-ra">Sắp ra mắt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-airingDay">Lịch ra chap mới</label>
+                        <select id="edit-manga-airingDay" class="form-input">
+                            <option value="Không có">Không có</option>
+                            <option value="Thứ 2">Thứ 2</option>
+                            <option value="Thứ 3">Thứ 3</option>
+                            <option value="Thứ 4">Thứ 4</option>
+                            <option value="Thứ 5">Thứ 5</option>
+                            <option value="Thứ 6">Thứ 6</option>
+                            <option value="Thứ 7">Thứ 7</option>
+                            <option value="Chủ Nhật">Chủ Nhật</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2">Thể loại (*)</label>
+                    <div id="edit-genre-tag-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#0a0a0a] border border-[#f97316] rounded-lg max-h-[200px] overflow-y-auto">
+                         <!-- GENRE LIST WILL BE RENDERED BY JS -->
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2">URL Ảnh Poster (*)</label>
+                    <input class="form-input" id="edit-manga-poster" type="url" placeholder="https://example.com/poster.jpg">
+                    <p class="text-xs text-gray-400 mt-2">Lưu ý: Nếu ảnh cũ là Base64, trường này sẽ trống. Tải tệp mới hoặc dán URL mới sẽ ghi đè ảnh cũ.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-poster-file">HOẶC Tải tệp mới để thay thế (*)</label>
+                    <input class="custom-file-input text-gray-400" id="edit-manga-poster-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="edit-poster-upload-status" class="text-xs text-[#f97316] mt-2"></p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-banner">URL Ảnh Banner (Ngang, 1200x600)</label>
+                    <input class="form-input" id="edit-manga-banner" type="url" placeholder="https://example.com/banner.jpg">
+                    <p class="text-xs text-gray-400 mt-1">Dùng cho Hero/Backdrop. Nếu bỏ trống, sẽ dùng ảnh Poster.</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-banner-file">HOẶC Tải tệp Banner mới</label>
+                    <input class="custom-file-input text-gray-400" id="edit-manga-banner-file" type="file" accept="image/png, image/jpeg, image/webp">
+                    <p id="edit-banner-upload-status" class="text-xs text-[#f97316] mt-2"></p>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-manga-summary">Tóm tắt Truyện</label>
+                    <textarea class="form-input h-24" id="edit-manga-summary"></textarea>
+                </div>
+                
+                <div id="edit-manga-form-message" class="text-red-400 text-sm mb-4"></div>
+                
+                <!-- NEW: Thêm nút xóa tất cả tập truyện -->
+                <div class="mb-4 pt-4 border-t border-[#f97316]">
+                    <button type="button" id="delete-all-chapters-btn" class="anime-button bg-red-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm w-full">
+                        <i class="fas fa-trash-alt mr-2"></i> DELETE ALL CHAPTERS
+                    </button>
+                    <p class="text-xs text-red-400 mt-1 text-center">CẢNH BÁO: Thao tác này sẽ xóa toàn bộ danh sách chapter của Truyện này!</p>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="edit-manga-submit-btn" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f97316]">
+                        UPDATE MANGA (Save Changes)
+                    </button>
+                    <button type="button" onclick="hideModal('edit-manga-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="add-chapter-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">ADD NEW CHAPTER</h3>
+            <h4 class="text-lg text-[#f97316] mb-4">Target: <span id="chapter-manga-title" class="text-white"></span></h4>
+            <form id="add-chapter-form">
+                <input type="hidden" id="chapter-manga-id">
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="chapter-number">Số Chapter (*)</label>
+                    <input class="form-input" id="chapter-number" type="number" min="1" placeholder="Ví dụ: 1, 2, 3...">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="chapter-title">Tên Chapter (*)</label>
+                    <input class="form-input" id="chapter-title" type="text" placeholder="Ví dụ: Khởi đầu mới">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="chapter-url">Danh sách Link Ảnh (Mỗi ảnh 1 dòng) (*)</label>
+                    <textarea class="form-input h-32 text-xs font-mono" id="chapter-url" placeholder="https://link-anh-1.jpg&#10;https://link-anh-2.jpg"></textarea>
+                </div>
+                
+                <div id="chapter-form-message" class="text-red-400 text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="add-chapter-submit-btn" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f97316]">
+                        ADD CHAPTER (Commit Data)
+                    </button>
+                    <button type="button" onclick="hideModal('add-chapter-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- START: BULK ADD CHAPTERS MODAL (New Feature) -->
+    <div id="bulk-add-chapter-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">
+                <i class="fas fa-stream mr-2"></i> BULK ADD CHAPTERS (Thêm hàng loạt)
+            </h3>
+            <h4 class="text-lg text-[#f97316] mb-4">Target: <span id="bulk-chapter-manga-title" class="text-white font-semibold"></span></h4>
+            
+            <form id="bulk-add-chapter-form">
+                <input type="hidden" id="bulk-chapter-manga-id">
+
+                <div class="mb-4 bg-[#0a0a0a] p-3 rounded text-sm border-l-4 border-orange-500">
+                    <p class="font-bold text-orange-400 mb-2"><i class="fas fa-info-circle"></i> Hướng dẫn (Cho Crawler/API):</p>
+                    <p>Dán danh sách link dữ liệu vào ô bên dưới. **Mỗi link sẽ là 1 Chapter mới.**</p>
+                    <p>Tên chapter mặc định sẽ là **Chapter [Số]**.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-orange-400 text-sm font-bold mb-2" for="bulk-chapter-start-number">Bắt đầu từ chapter số (*)</label>
+                    <input class="form-input" id="bulk-chapter-start-number" type="number" min="1" placeholder="Ví dụ: 1 hoặc chapter cuối + 1">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-orange-400 text-sm font-bold mb-2" for="bulk-chapter-urls">Danh sách Link Chapter (1 link/dòng)</label>
+                    <textarea class="form-input h-32 font-mono text-xs" id="bulk-chapter-urls" placeholder="https://link-chap-1.com/api&#10;https://link-chap-2.com/api&#10;..."></textarea>
+                    <p id="bulk-chapter-warning" class="text-xs text-yellow-400 mt-1"></p> 
+                </div>
+                
+                <div id="bulk-chapter-form-message" class="text-red-400 text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="bulk-add-chapter-submit-btn" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400">
+                        <i class="fas fa-magic mr-2"></i> XỬ LÝ VÀ THÊM NGAY
+                    </button>
+                    <button type="button" onclick="hideModal('bulk-add-chapter-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Đóng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- END: BULK ADD CHAPTERS MODAL -->
+    
+    <div id="edit-chapter-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+            <h3 class="text-2xl font-bold mb-4 text-[#f97316] border-b border-[#ea580c] pb-2">EDIT CHAPTER</h3>
+            <h4 class="text-lg text-[#f97316] mb-4">Target: <span id="edit-chapter-manga-title" class="text-white"></span></h4>
+            <form id="edit-chapter-form">
+                <input type="hidden" id="edit-chapter-manga-id">
+                <input type="hidden" id="edit-chapter-number-original"> 
+                
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-chapter-number">Số Chapter (*)</label>
+                    <input class="form-input" id="edit-chapter-number" type="number" min="1" placeholder="Ví dụ: 1">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-chapter-title">Tên Chapter (*)</label>
+                    <input class="form-input" id="edit-chapter-title" type="text" placeholder="Ví dụ: Khởi đầu mới">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-[#f97316] text-sm font-bold mb-2" for="edit-chapter-url">Danh sách Link Ảnh (Mỗi ảnh 1 dòng) (*)</label>
+                    <textarea class="form-input h-32 text-xs font-mono" id="edit-chapter-url" placeholder="https://link-anh-1.jpg&#10;https://link-anh-2.jpg"></textarea>
+                </div>
+                
+                <div id="edit-chapter-form-message" class="text-red-400 text-sm mb-4"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="edit-chapter-submit-btn" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f97316]">
+                        UPDATE CHAPTER (Save Changes)
+                    </button>
+                    <button type="button" onclick="hideModal('edit-chapter-modal')" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Hủy (Abort)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div id="confirm-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-[#1f2937] p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl panel-border text-center">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-2xl font-bold text-white mb-4">XÁC NHẬN HÀNH ĐỘNG</h3>
+            <p id="confirm-modal-text" class="text-gray-300 mb-6">Bạn có chắc chắn muốn xóa mục này?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-modal-yes" class="anime-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Xác nhận
+                </button>
+                <button id="confirm-modal-no" class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            signOut,
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            updatePassword,
+            setPersistence,
+            browserSessionPersistence, 
+            reload
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        import { 
+            getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, 
+            onSnapshot, collection, query, getDocs, 
+            serverTimestamp, setLogLevel, writeBatch, increment 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        setLogLevel('error'); 
+
+        const $ = (id) => document.getElementById(id); 
+        
+        const COLORS = {
+            SUCCESS: '#f97316',
+            ERROR: '#ef4444',
+        };
+        
+        const MAX_AVATAR_SIZE_BYTES = 0.5 * 1024 * 1024;
+        const MAX_POSTER_SIZE_BYTES = 0.8 * 1024 * 1024;
+        
+        const FIREBASE_DEFAULT_CONFIG = {
+            "apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", 
+            "authDomain": "foxanime-e77d4.firebaseapp.com",
+            "projectId": "foxanime-e77d4", 
+            "storageBucket": "foxanime-e77d4.firebasestorage.app",
+            "messagingSenderId": "1025177423292", 
+            "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
+
+        let app, db, auth;
+        let userId = null;
+        let userEmail = null;
+        
+        // --- BÉ LÔI ĐỔI TÊN BIẾN VÀ ĐƯỜNG DẪN DATABASE THÀNH MANGAS Ở ĐÂY NÈ ---
+        let mangasCollectionRef = null; 
+        
+        let adminProfilesCollectionRef = null; 
+        let userProfileDocRef = null;
+        
+        // BIẾN MỚI CỦA BÉ LÔI CHO HERO SLIDER MANGA NÈ
+        let sliderSettingsDocRef = null;
+        let currentSliderSettings = { mode: 'random', selectedMangaIds: [] };
+        
+        let currentUserProfile = {};
+        let globalAdminMangaCache = [];
+        let unsubscribeMangaListener = null;
+        let adminProfileMap = {}; 
+        
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filterState = {
+            title: '',
+            genre: '',
+            creator: ''
+        };
+        
+        const ALL_GENRES = [
+            "Action", "Adult", "Adventure", "Anime", "Chuyển Sinh", "Comedy", "Comic", "Cooking", "Cổ Đại", "Doujinshi", 
+            "Drama", "Đam Mỹ", "Ecchi", "Fantasy", "Gender Bender", "Harem", "Historical", "Horror", "Josei", "Live action", 
+            "Manga", "Manhua", "Manhwa", "Martial Arts", "Mature", "Mecha", "Mystery", "Ngôn Tình", "One shot", "Psychological", 
+            "Romance", "School Life", "Sci-fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Smut", 
+            "Soft Yaoi", "Soft Yuri", "Sports", "Supernatural", "Tạp chí truyện tranh", "Thiếu Nhi", "Tragedy", "Trinh Thám", 
+            "Truyện scan", "Truyện Màu", "Việt Nam", "Webtoon", "Xuyên Không", "16+"
+        ];
+
+        const GENRE_TRANSLATIONS = {
+            "Action": "Hành động", "Adventure": "Phiêu lưu", "Comedy": "Hài hước", "Drama": "Kịch tính",
+            "Fantasy": "Giả tưởng", "Historical": "Lịch sử", "Horror": "Kinh dị", "Martial Arts": "Võ thuật",
+            "Mecha": "Robot", "Mystery": "Bí ẩn", "Psychological": "Tâm lý", "Romance": "Lãng mạn",
+            "School Life": "Học đường", "Sci-fi": "Viễn tưởng", "Sports": "Thể thao", "Supernatural": "Siêu nhiên",
+            "Tragedy": "Bi kịch"
+        };
+
+
+        let resolveConfirm;
+
+        window.showConfirmModal = (text) => {
+            $('confirm-modal-text').textContent = text;
+            showModal('confirm-modal');
+            return new Promise(resolve => {
+                resolveConfirm = resolve;
+            });
+        };
+
+        $('confirm-modal-yes').addEventListener('click', () => {
+            hideModal('confirm-modal');
+            resolveConfirm(true);
+        });
+
+        $('confirm-modal-no').addEventListener('click', () => {
+            hideModal('confirm-modal');
+            resolveConfirm(false);
+        });
+
+        window.showModal = (id) => { $(id).classList.remove('hidden'); $(id).classList.add('flex'); };
+        window.hideModal = (id) => { $(id).classList.add('hidden'); $(id).classList.remove('flex'); };
+        
+        const showLoading = (isLoading) => {
+            const overlay = $('loading-overlay');
+            overlay.classList.toggle('hidden', !isLoading);
+            overlay.classList.toggle('flex', isLoading);
+            overlay.classList.toggle('opacity-0', !isLoading);
+            overlay.classList.toggle('opacity-100', isLoading);
+        };
+
+        const updateAuthStatusHeader = (message, isError = false) => {
+             const authStatusEl = $('auth-status');
+             if (authStatusEl) {
+                 authStatusEl.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle text-red-400' : 'fa-check-circle text-orange-400'} mr-1"></i> ${message}`;
+             }
+        };
+
+        const updateProfileHeader = () => {
+            const headerEl = $('admin-profile-header');
+            const displayNameEl = $('admin-display-name-header');
+            const avatarEl = $('admin-avatar-header');
+
+            const displayName = currentUserProfile.displayName || (userEmail ? userEmail.split('@')[0] : 'Admin-san');
+            displayNameEl.textContent = displayName;
+            
+            const avatarSrc = currentUserProfile.avatarBase64 || currentUserProfile.avatarUrl || 
+                `https://placehold.co/40x40/f97316/ffffff?text=${displayName.charAt(0).toUpperCase()}`;
+            avatarEl.src = avatarSrc;
+
+            headerEl.classList.toggle('hidden', !userId);
+            headerEl.classList.toggle('flex', !!userId);
+            $('auth-page').classList.toggle('hidden', !!userId);
+            $('admin-main-view').classList.toggle('hidden', !userId);
+        };
+        
+        
+        const readFileAsBase64 = (file, maxSizeInBytes) => {
+            return new Promise((resolve, reject) => {
+                if (file.size > maxSizeInBytes) {
+                    const limitMB = (maxSizeInBytes / 1024 / 1024).toFixed(1);
+                    reject(new Error(`Kích thước file quá lớn (File của bạn: ${(file.size/1024/1024).toFixed(2)}MB). Tối đa cho phép là ${limitMB}MB do giới hạn Firestore.`));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+        
+        const getAdminPreviewUrl = (videoUrl) => {
+            // Với truyện tranh, videoUrl là danh sách link ảnh, lấy link đầu tiên làm preview
+            try {
+                if(videoUrl) {
+                    const firstLink = videoUrl.split('\n')[0].trim();
+                    if(firstLink.startsWith('http')) return firstLink;
+                }
+            } catch (e) {
+            }
+            return videoUrl;
+        };
+        
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const email = e.target['login-email'].value;
+            const password = e.target['login-password'].value;
+            const errorEl = $('auth-error-message');
+            errorEl.textContent = '';
+            
+            try {
+                showLoading(true);
+                await setPersistence(auth, browserSessionPersistence);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const adminDocRef = doc(adminProfilesCollectionRef, user.uid);
+                let adminDoc = await getDoc(adminDocRef);
+                
+                let role = 'user';
+                
+                if (adminDoc.exists()) {
+                    role = adminDoc.data().role;
+                } else {
+                    const newProfileData = {
+                        email: user.email,
+                        role: 'admin', 
+                        displayName: user.email.split('@')[0],
+                        createdAt: serverTimestamp()
+                    };
+                    await setDoc(adminDocRef, newProfileData); 
+                    adminDoc = await getDoc(adminDocRef);
+                    role = 'admin'; 
+                }
+                
+                if (role !== "admin") {
+                    errorEl.textContent = `LỖI PHÂN QUYỀN: Role hiện tại là '${role}'. Bạn phải có role 'admin' để truy cập. Vui lòng kiểm tra Collection adminProfiles.`;
+                    await signOut(auth);
+                    return;
+                }
+
+            } catch (error) {
+                console.error("Login attempt failed:", error.code, error.message);
+                let errorMessage = 'Login Error: Sai email hoặc mật khẩu hoặc tài khoản chưa được cấp quyền Admin.';
+                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = 'Lỗi đăng nhập: Sai email hoặc mật khẩu.';
+                }
+                errorEl.textContent = errorMessage;
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async () => {
+            const confirmed = await window.showConfirmModal("Bạn có chắc chắn muốn đăng xuất khỏi Bảng Điều Khiển Admin?");
+            if (confirmed) {
+                 await signOut(auth);
+                 window.location.hash = '#dashboard';
+            }
+        };
+        
+        
+        const handleSaveProfile = async (e) => {
+            e.preventDefault();
+            const displayName = $('profile-display-name').value.trim();
+            const avatarFile = $('profile-avatar-file').files[0];
+            const messageEl = $('profile-message');
+            messageEl.textContent = '';
+
+            if (!userProfileDocRef || !userId) { messageEl.textContent = 'Lỗi hệ thống: User ID không hợp lệ.'; return; }
+
+            try {
+                let avatarBase64 = currentUserProfile.avatarBase64 || null;
+
+                if (avatarFile) {
+                    messageEl.textContent = 'Đang xử lý và tải ảnh lên...';
+                    messageEl.style.color = COLORS.SUCCESS;
+                    avatarBase64 = await readFileAsBase64(avatarFile, MAX_AVATAR_SIZE_BYTES);
+                }
+                
+                const profileData = {
+                    displayName: displayName || userEmail.split('@')[0],
+                    avatarBase64: avatarBase64, 
+                    updatedAt: serverTimestamp()
+                };
+                
+                await setDoc(userProfileDocRef, profileData, { merge: true });
+                await setDoc(doc(adminProfilesCollectionRef, userId), { displayName: profileData.displayName }, { merge: true });
+
+                messageEl.textContent = 'SUCCESS! Đã lưu profile Admin.';
+                messageEl.className = 'text-sm mb-4 text-[#f97316]'; 
+                
+            } catch (error) {
+                console.error("Lỗi khi lưu profile:", error);
+                messageEl.textContent = 'FATAL ERROR: Lỗi khi lưu profile: ' + error.message;
+                messageEl.className = 'text-sm mb-4 text-red-400'; 
+            }
+        };
+
+        const handleCreateAdmin = async (e) => {
+            e.preventDefault();
+            const email = $('newAdminEmail').value;
+            const password = $('newAdminPass').value;
+            const msgEl = $('create-admin-msg');
+            
+            if (password.length < 6) { msgEl.textContent = 'Lỗi: Mật khẩu phải có ít nhất 6 ký tự.'; msgEl.style.color = COLORS.ERROR; return; }
+            
+            msgEl.textContent = 'Đang tạo...';
+            msgEl.style.color = COLORS.SUCCESS;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
+                
+                await setDoc(doc(adminProfilesCollectionRef, newUser.uid), {
+                    email: newUser.email,
+                    role: 'admin', 
+                    displayName: newUser.email.split('@')[0],
+                    createdAt: serverTimestamp()
+                });
+
+                msgEl.textContent = `Tạo thành công admin: ${email}. Hãy lưu mật khẩu!`;
+                msgEl.style.color = COLORS.SUCCESS;
+                
+                $('create-admin-form').reset();
+                
+            } catch (error) {
+                console.error("Lỗi khi tạo Admin mới:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                     msgEl.textContent = `Lỗi: Email ${email} đã được sử dụng.`;
+                } else {
+                     msgEl.textContent = `Lỗi: ${error.message}`;
+                }
+                msgEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const handleChangePassword = async (e) => {
+            e.preventDefault();
+            const newPass = $('newPass').value;
+            const confirmNewPass = $('confirmNewPass').value;
+            const msgEl = $('change-pass-msg');
+
+            if (newPass !== confirmNewPass) { msgEl.innerText = "Mật khẩu xác nhận không khớp!"; msgEl.style.color = COLORS.ERROR; return; }
+            if (newPass.length < 6) { msgEl.innerText = "Mật khẩu phải có ít nhất 6 ký tự."; msgEl.style.color = COLORS.ERROR; return; }
+            
+            msgEl.innerText = 'Đang đổi mật khẩu...';
+            msgEl.style.color = COLORS.SUCCESS;
+
+            try {
+                await updatePassword(auth.currentUser, newPass);
+                
+                msgEl.innerText = "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.";
+                msgEl.style.color = COLORS.SUCCESS;
+                await signOut(auth); 
+                
+            } catch (error) {
+                console.error("Lỗi đổi mật khẩu:", error);
+                msgEl.innerText = `Lỗi: ${error.message}`;
+                if (error.code === 'auth/requires-recent-login') {
+                    msgEl.innerText = "Lỗi: Phiên đăng nhập quá cũ. Vui lòng đăng xuất, đăng nhập lại trước khi đổi mật khẩu.";
+                }
+                msgEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const sanitizeMangaData = (manga, userId) => {
+            if (!manga.title || typeof manga.title !== 'string' || manga.title.trim() === '') {
+                throw new Error("Manga object is missing a valid 'title'.");
+            }
+            
+            const validFormats = ['manga', 'manhwa', 'manhua', 'taihen'];
+            const validStatuses = ['dang-ra', 'hoan-thanh', 'sap-ra'];
+
+            const sanitized = {
+                title: manga.title.trim(),
+                titleOriginal: (manga.titleOriginal || '').toString().trim(),
+                summary: (manga.summary || '').toString().trim(),
+                posterUrl: (manga.posterUrl || '').toString().trim(),
+                bannerUrl: (manga.bannerUrl || '').toString().trim(),
+                airingDay: manga.airingDay || 'Không có',
+
+                formatType: validFormats.includes(manga.formatType) ? manga.formatType : 'manga',
+                status: validStatuses.includes(manga.status) ? manga.status : 'dang-ra',
+
+                genre: Array.isArray(manga.genre) ? manga.genre.join(', ') : (manga.genre || '').toString().trim(),
+
+                totalEpisodes: parseInt(manga.totalEpisodes) || 0,
+                viewCount: parseInt(manga.viewCount) || 0,
+                likeCount: parseInt(manga.likeCount) || 0,
+                reviewCount: parseInt(manga.reviewCount) || 0,
+                reviewTotal: parseInt(manga.reviewTotal) || 0,
+
+                episodes: [],
+                createdAt: serverTimestamp(),
+                updatedBy: userId,
+                lastEpisodeUpdate: serverTimestamp(),
+                isNotified: false
+            };
+
+            return sanitized;
+        };
+
+        const mapApiToSchema = (rawManga) => {
+            const data = rawManga.manga || rawManga.movie || rawManga;
+
+            if (!data || !data.name) {
+                return rawManga; 
+            }
+            
+            const currentEpisodeText = data.current_episode || '';
+            let status = 'dang-ra';
+            if (currentEpisodeText.includes('Hoàn tất') || currentEpisodeText.includes('Trọn bộ') || currentEpisodeText.includes('Full')) {
+                status = 'hoan-thanh';
+            } else if (data.status === 'Sắp ra' || data.status === 'Sắp chiếu') { 
+                status = 'sap-ra';
+            }
+            
+            let genres = [];
+            if (data.category && data.category['2'] && data.category['2'].list) {
+                genres = data.category['2'].list.map(g => (g.name || g.title).trim());
+            } else if (data.category && Array.isArray(data.category)) {
+                 genres = data.category.map(g => (typeof g === 'string' ? g : g.name || g.title)).filter(Boolean);
+            }
+            
+            let mangaData = {
+                title: data.name || data.original_name || 'Unknown Title',
+                titleOriginal: data.original_name || '',
+                summary: data.description || data.content || '',
+                
+                posterUrl: data.thumb_url || data.poster_url || '',
+                bannerUrl: data.cover_url || data.banner_url || data.thumb_url || '',
+                
+                status: status,
+                
+                genre: genres.join(', '),
+                
+                totalEpisodes: parseInt(data.total_episodes) || 0,
+
+                formatType: 'manga',
+                airingDay: 'Không có', 
+                episodes: [], 
+            };
+            
+            return mangaData;
+        };
+
+
+        window.fetchBulkFromUrl = async () => {
+            const url = $('bulk-url-input').value.trim();
+            const statusEl = $('bulk-status');
+            
+            if (!url) {
+                statusEl.textContent = 'Vui lòng nhập URL!';
+                statusEl.style.color = COLORS.ERROR;
+                return;
+            }
+            
+            statusEl.textContent = 'Đang tải dữ liệu từ URL...';
+            statusEl.style.color = COLORS.SUCCESS;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok, status: ' + response.status);
+                
+                const data = await response.json();
+                
+                let mangasToConvert = [];
+                if (Array.isArray(data)) {
+                    mangasToConvert = data;
+                } else if (data && data.manga && typeof data.manga === 'object') {
+                    mangasToConvert = [data]; 
+                } else if (data && data.movie && typeof data.movie === 'object') {
+                    mangasToConvert = [data]; 
+                } else if (data && data.data && Array.isArray(data.data)) {
+                    mangasToConvert = data.data;
+                } else if (data && typeof data === 'object') {
+                    mangasToConvert = [data]; 
+                } else {
+                    throw new Error("Không thể nhận dạng cấu trúc JSON API trả về.");
+                }
+                
+                const convertedMangas = mangasToConvert.map(rawManga => mapApiToSchema(rawManga));
+                
+                $('bulk-json-input').value = JSON.stringify(convertedMangas, null, 4);
+                
+                statusEl.textContent = `Đã tải thành công và tự động ánh xạ! Tìm thấy ${convertedMangas.length} mục. Vui lòng kiểm tra JSON bên dưới trước khi IMPORT.`;
+                statusEl.style.color = COLORS.SUCCESS;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                statusEl.textContent = `Lỗi khi tải hoặc ánh xạ từ URL: ${error.message}`;
+                statusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        window.processBulkImport = async () => {
+            const jsonText = $('bulk-json-input').value.trim();
+            const statusEl = $('bulk-status');
+            
+            if (!jsonText) {
+                statusEl.textContent = 'Vui lòng nhập JSON!';
+                statusEl.style.color = COLORS.ERROR;
+                return;
+            }
+            
+            try {
+                const rawData = JSON.parse(jsonText);
+                const mangasToProcess = Array.isArray(rawData) ? rawData : [rawData];
+                
+                statusEl.textContent = `Đang xử lý và sửa lỗi ${mangasToProcess.length} truyện...`;
+                statusEl.style.color = COLORS.SUCCESS;
+                
+                const batch = writeBatch(db);
+                let successCount = 0;
+                let failCount = 0;
+                
+                for (const rawManga of mangasToProcess) {
+                    try {
+                        const sanitizedManga = sanitizeMangaData(rawManga, userId);
+                        
+                        const newDocRef = doc(mangasCollectionRef);
+                        batch.set(newDocRef, sanitizedManga);
+                        successCount++;
+                    } catch (error) {
+                        console.error("Lỗi Sanitization cho 1 mục:", rawManga, error.message);
+                        failCount++;
+                    }
+                }
+                
+                await batch.commit();
+                
+                statusEl.textContent = `SUCCESS! Đã thêm thành công ${successCount} truyện (có ${failCount} mục bị lỗi không thể thêm).`;
+                statusEl.style.color = failCount > 0 ? COLORS.ERROR : COLORS.SUCCESS;
+                
+                $('bulk-json-input').value = '';
+                setTimeout(() => hideModal('bulk-import-modal'), 3000);
+                
+            } catch (error) {
+                console.error("Lỗi Import:", error);
+                statusEl.textContent = `Lỗi JSON hoặc Database: ${error.message}`;
+                statusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        // THÊM HÀM CHO HERO SLIDER NÈ CẬU CHỦ!!! 🎀
+        window.changeSliderMode = (mode) => {
+            currentSliderSettings.mode = mode;
+            $('manual-slider-controls').classList.toggle('hidden', mode === 'random');
+        };
+
+        window.handleSliderSearch = (term) => {
+            const resultsEl = $('slider-search-results');
+            if (!term.trim()) { resultsEl.classList.add('hidden'); return; }
+            
+            const results = globalAdminMangaCache.filter(m => 
+                m.title.toLowerCase().includes(term.toLowerCase())
+            ).slice(0, 5);
+
+            if (results.length > 0) {
+                resultsEl.innerHTML = results.map(m => `
+                    <div class="p-2 hover:bg-[#f97316] hover:text-white cursor-pointer flex items-center gap-2 border-b border-[#ea580c] last:border-0" 
+                         onclick="window.addMangaToSlider('${m.id}')">
+                        <img src="${m.posterUrl}" class="w-8 h-12 object-cover rounded">
+                        <span class="truncate text-sm font-medium">${m.title}</span>
+                    </div>
+                `).join('');
+                resultsEl.classList.remove('hidden');
+            } else {
+                resultsEl.innerHTML = '<div class="p-2 text-sm text-gray-400 italic">Không tìm thấy truyện.</div>';
+                resultsEl.classList.remove('hidden');
+            }
+        };
+
+        window.addMangaToSlider = (mangaId) => {
+            $('slider-search-input').value = '';
+            $('slider-search-results').classList.add('hidden');
+            
+            if (currentSliderSettings.selectedMangaIds.includes(mangaId)) {
+                window.showConfirmModal("Truyện này đã có trong Slider rồi ạ!");
+                return;
+            }
+            if (currentSliderSettings.selectedMangaIds.length >= 6) {
+                window.showConfirmModal("Đã đạt giới hạn 6 truyện! Vui lòng xóa bớt trước khi thêm.");
+                return;
+            }
+            currentSliderSettings.selectedMangaIds.push(mangaId);
+            window.renderSelectedSliderMoviesUI();
+        };
+
+        window.removeMangaFromSlider = (mangaId) => {
+            currentSliderSettings.selectedMangaIds = currentSliderSettings.selectedMangaIds.filter(id => id !== mangaId);
+            window.renderSelectedSliderMoviesUI();
+        };
+
+        window.renderSelectedSliderMoviesUI = () => {
+            const container = $('slider-selected-list');
+            if(!container) return;
+            
+            if (currentSliderSettings.selectedMangaIds.length === 0) {
+                container.innerHTML = '<p class="col-span-full text-sm text-gray-400 italic">Chưa chọn truyện nào.</p>';
+                return;
+            }
+
+            container.innerHTML = currentSliderSettings.selectedMangaIds.map(id => {
+                const manga = globalAdminMangaCache.find(m => m.id === id);
+                if (!manga) return '';
+                return `
+                    <div class="relative bg-[#1f2937] rounded-lg border border-[#f97316] p-2 flex flex-col items-center group">
+                        <img src="${manga.posterUrl}" class="w-full h-32 object-cover rounded mb-2">
+                        <span class="text-xs text-center font-bold text-white truncate w-full">${manga.title}</span>
+                        <button onclick="window.removeMangaFromSlider('${id}')" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-800 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.saveSliderSettings = async () => {
+            try {
+                if (currentSliderSettings.mode === 'manual' && currentSliderSettings.selectedMangaIds.length === 0) {
+                    $('slider-msg').innerHTML = '<span class="text-red-400">Vui lòng chọn ít nhất 1 truyện cho chế độ thủ công!</span>';
+                    return;
+                }
+                
+                $('slider-msg').innerHTML = '<span class="text-yellow-400">Đang lưu...</span>';
+                await setDoc(sliderSettingsDocRef, {
+                    mode: currentSliderSettings.mode,
+                    selectedMangaIds: currentSliderSettings.selectedMangaIds,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: userId
+                });
+                $('slider-msg').innerHTML = '<span class="text-[#f97316]">Đã lưu cấu hình Slider thành công! 🎉</span>';
+                setTimeout(() => $('slider-msg').innerHTML = '', 3000);
+            } catch (error) {
+                console.error("Lỗi lưu slider:", error);
+                $('slider-msg').innerHTML = `<span class="text-red-400">Lỗi: ${error.message}</span>`;
+            }
+        };
+
+        const extractMangaData = (prefix = '') => {
+            const containerId = prefix === 'edit-' ? 'edit-genre-tag-container' : 'genre-tag-container';
+            const selectedTags = document.querySelectorAll(`#${containerId} .genre-tag.selected`);
+            
+            return {
+                title: $(`${prefix}manga-title`).value.trim(),
+                titleOriginal: $(`${prefix}manga-title-original`).value.trim(),
+                summary: $(`${prefix}manga-summary`).value.trim(),
+                genres: Array.from(selectedTags).map(tag => tag.dataset.genre),
+                formatType: $(`${prefix}manga-formatType`).value,
+                totalEpisodes: parseInt($(`${prefix}manga-totalEpisodes`).value) || 0,
+                status: $(`${prefix}manga-status`).value,
+                airingDay: $(`${prefix}manga-airingDay`).value,
+                posterUrlInput: $(`${prefix}manga-poster`).value.trim(),
+                posterFileInput: $(`${prefix}manga-poster-file`).files?.[0],
+                bannerUrlInput: $(`${prefix}manga-banner`).value.trim(),
+                bannerFileInput: $(`${prefix}manga-banner-file`).files?.[0]
+            };
+        };
+
+        const handleAddManga = async (e) => {
+            e.preventDefault();
+            const data = extractMangaData();
+            const messageEl = $('manga-form-message');
+            const posterStatusEl = $('poster-upload-status');
+            const bannerStatusEl = $('banner-upload-status');
+
+            messageEl.textContent = posterStatusEl.textContent = bannerStatusEl.textContent = '';
+            
+            if (!data.title || data.genres.length === 0 || (!data.posterUrlInput && !data.posterFileInput)) {
+                messageEl.textContent = 'WARNING! Vui lòng điền Tên Truyện, chọn ít nhất 1 Thể Loại, và cung cấp URL hoặc Tệp Poster.';
+                return;
+            }
+            if (!mangasCollectionRef || !userId) {
+                messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.';
+                return;
+            }
+            
+            try {
+                let finalPosterUrl = data.posterUrlInput;
+                let finalBannerUrl = data.bannerUrlInput;
+                
+                if (data.posterFileInput) {
+                    posterStatusEl.textContent = 'Đang xử lý ảnh (Base64)...';
+                    posterStatusEl.style.color = COLORS.SUCCESS;
+                    finalPosterUrl = await readFileAsBase64(data.posterFileInput, MAX_POSTER_SIZE_BYTES); 
+                    posterStatusEl.textContent = 'Tệp Base64 đã sẵn sàng!';
+                }
+                
+                if (data.bannerFileInput) {
+                    bannerStatusEl.textContent = 'Đang xử lý banner (Base64)...';
+                    bannerStatusEl.style.color = COLORS.SUCCESS;
+                    finalBannerUrl = await readFileAsBase64(data.bannerFileInput, MAX_POSTER_SIZE_BYTES); 
+                    bannerStatusEl.textContent = 'Banner Base64 đã sẵn sàng!';
+                }
+
+                const newDocRef = doc(mangasCollectionRef); 
+                await setDoc(newDocRef, {
+                    title: data.title,
+                    titleOriginal: data.titleOriginal || '', 
+                    genre: data.genres.join(', '), 
+                    posterUrl: finalPosterUrl, 
+                    bannerUrl: finalBannerUrl, 
+                    summary: data.summary,
+                    viewCount: 0,
+                    likeCount: 0,
+                    reviewCount: 0, 
+                    reviewTotal: 0, 
+                    episodes: [], 
+                    createdAt: serverTimestamp(),
+                    updatedBy: userId,
+                    formatType: data.formatType,
+                    totalEpisodes: data.totalEpisodes,
+                    status: data.status,
+                    airingDay: data.airingDay,
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
+                });
+
+                $('add-manga-form').reset();
+                posterStatusEl.textContent = bannerStatusEl.textContent = '';
+                document.querySelectorAll('#genre-tag-container .genre-tag.selected').forEach(tag => tag.classList.remove('selected'));
+                hideModal('add-manga-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi thêm truyện mới:", error);
+                messageEl.textContent = 'FATAL ERROR: ' + error.message;
+                posterStatusEl.textContent = 'Lỗi xử lý ảnh.';
+                posterStatusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        const handleEditManga = async (e) => {
+            e.preventDefault();
+            const mangaId = $('edit-manga-id').value;
+            const data = extractMangaData('edit-');
+            const messageEl = $('edit-manga-form-message');
+            const posterStatusEl = $('edit-poster-upload-status');
+            const bannerStatusEl = $('edit-banner-upload-status');
+
+            messageEl.textContent = posterStatusEl.textContent = bannerStatusEl.textContent = '';
+            
+            if (!mangaId) { messageEl.textContent = 'FATAL ERROR: Không tìm thấy Manga ID.'; return; }
+            if (!data.title || data.genres.length === 0) { messageEl.textContent = 'WARNING! Vui lòng điền Tên Truyện và chọn ít nhất 1 Thể Loại.'; return; }
+            
+            let isPosterUpdated = false;
+            let finalPosterUrl = data.posterUrlInput;
+            let isBannerUpdated = false;
+            let finalBannerUrl = data.bannerUrlInput;
+
+            try {
+                if (data.posterFileInput) {
+                    isPosterUpdated = true;
+                    posterStatusEl.textContent = 'Đang xử lý ảnh mới (Base64)...';
+                    posterStatusEl.style.color = COLORS.SUCCESS;
+                    finalPosterUrl = await readFileAsBase64(data.posterFileInput, MAX_POSTER_SIZE_BYTES);
+                    posterStatusEl.textContent = 'Tệp Base64 mới đã sẵn sàng!';
+                } else if (data.posterUrlInput) {
+                     isPosterUpdated = true;
+                }
+
+                if (data.bannerFileInput) {
+                    isBannerUpdated = true;
+                    bannerStatusEl.textContent = 'Đang xử lý banner mới (Base64)...';
+                    bannerStatusEl.style.color = COLORS.SUCCESS;
+                    finalBannerUrl = await readFileAsBase64(data.bannerFileInput, MAX_POSTER_SIZE_BYTES);
+                    bannerStatusEl.textContent = 'Banner Base64 mới đã sẵn sàng!';
+                } else if (data.bannerUrlInput) {
+                    isBannerUpdated = true;
+                }
+                
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                
+                const oldDoc = await getDoc(mangaDocRef);
+                const oldData = oldDoc.data();
+
+                const updateData = {
+                    title: data.title,
+                    titleOriginal: data.titleOriginal || '',
+                    genre: data.genres.join(', '),
+                    summary: data.summary,
+                    updatedBy: userId,
+                    formatType: data.formatType,
+                    totalEpisodes: data.totalEpisodes,
+                    status: data.status,
+                    airingDay: data.airingDay
+                };
+                
+                if (oldData && oldData.reviewCount === undefined) {
+                    updateData.reviewCount = 0;
+                    updateData.reviewTotal = 0;
+                }
+                
+                if (isPosterUpdated) { updateData.posterUrl = finalPosterUrl; }
+                if (isBannerUpdated) { updateData.bannerUrl = finalBannerUrl; }
+
+                await updateDoc(mangaDocRef, updateData);
+
+                $('edit-manga-form').reset();
+                posterStatusEl.textContent = bannerStatusEl.textContent = ''; 
+                document.querySelectorAll('#edit-genre-tag-container .genre-tag.selected').forEach(tag => tag.classList.remove('selected'));
+                
+                hideModal('edit-manga-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi cập nhật truyện:", error);
+                messageEl.textContent = 'FATAL ERROR: ' + error.message;
+                posterStatusEl.textContent = 'Lỗi xử lý ảnh.';
+                posterStatusEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        window.handleFixLegacyData = async () => {
+            const confirmed = await window.showConfirmModal("Bạn có chắc muốn quét và sửa dữ liệu Review cho TẤT CẢ truyện không? (Chỉ cần chạy 1 lần)");
+            if (!confirmed) return;
+            
+            const msgEl = $('fix-legacy-status');
+            if (msgEl) msgEl.textContent = "Đang quét dữ liệu... Vui lòng đợi...";
+            
+            try {
+                const q = query(mangasCollectionRef);
+                const querySnapshot = await getDocs(q);
+                const batch = writeBatch(db);
+                let updateCount = 0;
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.reviewCount === undefined || data.reviewTotal === undefined) {
+                        const docRef = doc(mangasCollectionRef, docSnap.id);
+                        batch.update(docRef, {
+                            reviewCount: data.reviewCount || 0,
+                            reviewTotal: data.reviewTotal || 0
+                        });
+                        updateCount++;
+                    }
+                });
+                
+                if (updateCount > 0) {
+                    await batch.commit();
+                    alert(`Đã sửa dữ liệu cho ${updateCount} truyện cũ thành công!`);
+                } else {
+                    alert("Dữ liệu tất cả truyện đều đã chuẩn. Không cần sửa gì thêm.");
+                }
+                if (msgEl) msgEl.textContent = "";
+                
+            } catch (error) {
+                console.error("Lỗi khi sửa dữ liệu cũ:", error);
+                alert("Lỗi: " + error.message);
+            }
+        };
+        
+        window.handleDeleteAllChapters = async (mangaId, mangaTitle) => {
+            const confirmed = await window.showConfirmModal(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA TOÀN BỘ Chapter của "${mangaTitle}" không?`);
+            if (!confirmed) return;
+
+            try {
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                
+                await updateDoc(mangaDocRef, { 
+                    episodes: [], 
+                    lastEpisodeUpdate: serverTimestamp() 
+                });
+                
+                window.showConfirmModal(`SUCCESS: Đã xóa toàn bộ chapter của "${mangaTitle}".`);
+                hideModal('edit-manga-modal');
+                
+            } catch (error) {
+                console.error("Lỗi khi xóa tất cả chapter:", error);
+                window.showConfirmModal('LỖI: Không thể xóa. Vui lòng kiểm tra lại quyền truy cập.');
+            }
+        };
+
+
+        const handleAddChapter = async (e) => {
+            e.preventDefault();
+            const mangaId = $('chapter-manga-id').value;
+            const episodeNumber = parseInt($('chapter-number').value);
+            const title = $('chapter-title').value.trim();
+            const videoUrl = $('chapter-url').value.trim();
+            const messageEl = $('chapter-form-message');
+
+            if (isNaN(episodeNumber) || !title || !videoUrl || episodeNumber < 1) {
+                messageEl.textContent = 'INVALID INPUT! Vui lòng điền thông tin chapter hợp lệ.';
+                return;
+            }
+            messageEl.textContent = '';
+            
+            if (!mangasCollectionRef || !userId) { messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.'; return; }
+
+            try {
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                const mangaSnap = await getDoc(mangaDocRef);
+                const existingEpisodes = mangaSnap.data()?.episodes || [];
+                
+                if (existingEpisodes.some(ep => ep.episodeNumber === episodeNumber)) {
+                    messageEl.textContent = `LỖI: Số chapter ${episodeNumber} đã tồn tại trong truyện này.`;
+                    return;
+                }
+                
+                const newEpisode = { episodeNumber, title, videoUrl, addedAt: new Date().toISOString() }; 
+                
+                existingEpisodes.push(newEpisode);
+                existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+                await updateDoc(mangaDocRef, { 
+                    episodes: existingEpisodes,
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
+                });
+                
+                $('add-chapter-form').reset();
+                hideModal('add-chapter-modal');
+            } catch (error) {
+                console.error("Lỗi khi thêm chapter mới:", error);
+                messageEl.textContent = 'CHAPTER ADD ERROR: Lỗi hệ thống khi lưu chapter: ' + error.message;
+            }
+        };
+
+        const MAX_EPISODES_PER_COMMIT = 500; 
+
+        const handleBulkAddChapters = async (e) => {
+            e.preventDefault();
+            const mangaId = $('bulk-chapter-manga-id').value;
+            const startNumber = parseInt($('bulk-chapter-start-number').value);
+            const urlsText = $('bulk-chapter-urls').value.trim();
+            const messageEl = $('bulk-chapter-form-message');
+
+            messageEl.textContent = '';
+            messageEl.style.color = COLORS.ERROR; 
+
+            const urls = urlsText.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+            const urlCount = urls.length;
+
+            if (isNaN(startNumber) || startNumber < 1 || urlCount === 0) {
+                messageEl.textContent = 'INVALID INPUT! Vui lòng điền Số chapter bắt đầu hợp lệ (>= 1) và cung cấp danh sách link.';
+                return;
+            }
+            if (!mangasCollectionRef || !userId) { 
+                messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.'; 
+                return; 
+            }
+            
+            if (urlCount > 1000) { 
+                 const confirmed = await window.showConfirmModal(`WARNING: Bạn đang cố gắng thêm ${urlCount} chapter. Điều này có thể gây ra lỗi Timeout hoặc Lỗi Kích thước Document. Bạn có muốn tiếp tục không? (Khuyến nghị: < 500 chapter/lần)`);
+                 if (!confirmed) {
+                    messageEl.textContent = 'Đã hủy thao tác Bulk Add.';
+                    messageEl.style.color = COLORS.SUCCESS;
+                    return;
+                 }
+            }
+
+            try {
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                const mangaSnap = await getDoc(mangaDocRef);
+                let existingEpisodes = mangaSnap.data()?.episodes || [];
+                
+                let episodeNumber = startNumber;
+                const newEpisodes = [];
+                let conflictingUrls = 0;
+                let conflictingNumbers = 0;
+                
+                const existingNumbers = new Set(existingEpisodes.map(ep => ep.episodeNumber));
+                const existingUrls = new Set(existingEpisodes.map(ep => ep.videoUrl));
+
+                messageEl.textContent = `Đang xử lý ${urlCount} link...`;
+                messageEl.style.color = COLORS.SUCCESS;
+                
+                for (const url of urls) {
+                    if (existingUrls.has(url)) {
+                        conflictingUrls++;
+                        continue; 
+                    }
+                    if (existingNumbers.has(episodeNumber)) {
+                        conflictingNumbers++;
+                        while(existingNumbers.has(episodeNumber)) {
+                            episodeNumber++;
+                        }
+                    }
+                    
+                    const newEpisode = { 
+                        episodeNumber: episodeNumber, 
+                        title: `Chapter ${episodeNumber}`, 
+                        videoUrl: url, 
+                        addedAt: new Date().toISOString() 
+                    }; 
+                    
+                    newEpisodes.push(newEpisode);
+                    episodeNumber++;
+                }
+
+                if (newEpisodes.length === 0) {
+                     messageEl.textContent = 'LỖI: Không có chapter hợp lệ nào để thêm. Có thể tất cả đều bị trùng dữ liệu hoặc số chapter bị xung đột.';
+                     messageEl.style.color = COLORS.ERROR;
+                     return;
+                }
+
+                existingEpisodes = [...existingEpisodes, ...newEpisodes];
+                existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+                await updateDoc(mangaDocRef, { 
+                    episodes: existingEpisodes,
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
+                });
+                
+                let warning = '';
+                if (conflictingUrls > 0) {
+                    warning += `Lưu ý: Đã bỏ qua ${conflictingUrls} chapter bị trùng dữ liệu. `;
+                }
+                if (conflictingNumbers > 0) {
+                    warning += `Lưu ý: Đã tự động điều chỉnh số chapter bắt đầu (tăng lên) để tránh ${conflictingNumbers} chapter bị trùng số.`;
+                }
+                
+                messageEl.textContent = `SUCCESS! Đã thêm thành công ${newEpisodes.length} chapter. ${warning}`;
+                messageEl.style.color = COLORS.SUCCESS;
+
+                $('bulk-add-chapter-form').reset();
+                setTimeout(() => hideModal('bulk-add-chapter-modal'), 1500);
+
+            } catch (error) {
+                console.error("Lỗi khi thêm chapter hàng loạt:", error);
+                messageEl.textContent = 'BULK ADD ERROR: Lỗi hệ thống khi lưu chapter: ' + error.message;
+                messageEl.style.color = COLORS.ERROR;
+            }
+        };
+
+        window.showBulkAddChapterModal = (mangaId, mangaTitle) => {
+            const manga = globalAdminMangaCache.find(m => m.id === mangaId);
+            const lastEpisodeNumber = manga?.episodes?.length || 0;
+
+            $('bulk-chapter-manga-id').value = mangaId;
+            $('bulk-chapter-manga-title').textContent = mangaTitle || '[Không có tên]';
+            $('bulk-chapter-form-message').textContent = '';
+            $('bulk-chapter-urls').value = '';
+            $('bulk-chapter-warning').textContent = 'Khuyến nghị: Mỗi lần thêm tối đa 500 link để đảm bảo ổn định.';
+
+            
+            $('bulk-chapter-start-number').value = lastEpisodeNumber + 1;
+            
+            const urlsTextarea = $('bulk-chapter-urls');
+            const warningEl = $('bulk-chapter-warning');
+
+            const updateWarning = () => {
+                const urls = urlsTextarea.value.trim().split('\n').map(url => url.trim()).filter(url => url.length > 0);
+                const count = urls.length;
+                
+                if (count === 0) {
+                    warningEl.textContent = 'Khuyến nghị: Mỗi lần thêm tối đa 500 link để đảm bảo ổn định.';
+                    warningEl.classList.remove('text-red-500');
+                    warningEl.classList.add('text-yellow-400');
+                } else if (count > MAX_EPISODES_PER_COMMIT) {
+                    warningEl.textContent = `⚠️ CẢNH BÁO: Bạn đang nhập ${count} link. Số lượng lớn có thể gây lỗi Timeout. Khuyến nghị: < 500.`;
+                    warningEl.classList.add('text-red-500');
+                    warningEl.classList.remove('text-yellow-400');
+                } else {
+                    warningEl.textContent = `Đã nhập ${count} link. Sẵn sàng xử lý.`;
+                    warningEl.classList.remove('text-red-500');
+                    warningEl.classList.add('text-yellow-400');
+                }
+            };
+            
+            urlsTextarea.oninput = updateWarning;
+            
+            showModal('bulk-add-chapter-modal');
+        };
+
+
+        const handleEditChapter = async (e) => {
+            e.preventDefault();
+            const mangaId = $('edit-chapter-manga-id').value;
+            const originalEpisodeNumber = parseInt($('edit-chapter-number-original').value);
+            
+            const newEpisodeNumber = parseInt($('edit-chapter-number').value);
+            const newTitle = $('edit-chapter-title').value.trim();
+            const newVideoUrl = $('edit-chapter-url').value.trim();
+            const messageEl = $('edit-chapter-form-message');
+
+            if (isNaN(newEpisodeNumber) || !newTitle || !newVideoUrl || newEpisodeNumber < 1) {
+                messageEl.textContent = 'INVALID INPUT! Vui lòng điền thông tin hợp lệ.';
+                return;
+            }
+            messageEl.textContent = '';
+            
+            try {
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                const mangaSnap = await getDoc(mangaDocRef);
+                const mangaData = mangaSnap.data();
+                let episodes = mangaData.episodes || [];
+                
+                if (newEpisodeNumber !== originalEpisodeNumber && episodes.some(ep => ep.episodeNumber === newEpisodeNumber)) {
+                    messageEl.textContent = `LỖI: Số chapter ${newEpisodeNumber} đã tồn tại.`;
+                    return;
+                }
+
+                const episodeIndex = episodes.findIndex(ep => ep.episodeNumber === originalEpisodeNumber);
+                if (episodeIndex === -1) {
+                    messageEl.textContent = 'LỖI HỆ THỐNG: Không tìm thấy chapter gốc để cập nhật.';
+                    return;
+                }
+                
+                episodes[episodeIndex] = { 
+                    ...(episodes[episodeIndex] || {}), 
+                    episodeNumber: newEpisodeNumber, 
+                    title: newTitle, 
+                    videoUrl: newVideoUrl,
+                    updatedAt: new Date().toISOString() 
+                };
+                
+                episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+                await updateDoc(mangaDocRef, { 
+                    episodes: episodes,
+                    lastEpisodeUpdate: serverTimestamp() 
+                });
+                
+                $('edit-chapter-form').reset();
+                hideModal('edit-chapter-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi cập nhật chapter:", error);
+                messageEl.textContent = 'CHAPTER UPDATE ERROR: ' + error.message;
+            }
+        };
+
+        window.handleDeleteManga = async (mangaId, mangaTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc chắn muốn xóa TOÀN BỘ truyện "${mangaTitle}"?`);
+            if (confirmed) {
+                try {
+                    await deleteDoc(doc(mangasCollectionRef, mangaId));
+                } catch (error) { console.error("Lỗi khi xóa truyện:", error); }
+            }
+        };
+        window.handleDeleteChapter = async (mangaId, episodeNumber, episodeTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc muốn xóa CHAPTER ${episodeNumber} ("${episodeTitle}")?`);
+            if (!confirmed) return;
+            
+            try {
+                const mangaDocRef = doc(mangasCollectionRef, mangaId);
+                const mangaSnap = await getDoc(mangaDocRef);
+                const episodes = mangaSnap.data()?.episodes || [];
+                
+                const updatedEpisodes = episodes.filter(ep => ep.episodeNumber !== episodeNumber);
+                
+                await updateDoc(mangaDocRef, { episodes: updatedEpisodes });
+                
+            } catch (error) {
+                console.error("Lỗi khi xóa chapter:", error);
+            }
+        };
+
+        
+        const router = () => {
+            const hash = window.location.hash.substring(1) || 'dashboard';
+            
+            document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
+                btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? '#f97316' : 'transparent';
+                btn.style.color = btn.dataset.hash === `#${hash}` ? '#f97316' : '#e5e7eb';
+            });
+            
+            if (!userId) {
+                if (hash !== 'login') window.location.hash = '#login';
+                $('main-content').innerHTML = ''; 
+                return;
+            }
+
+            switch (hash) {
+                case 'dashboard':
+                    renderAdminDashboard();
+                    break;
+                case 'profile':
+                    renderProfilePage();
+                    break;
+                case 'schedule':
+                    renderSchedulePage();
+                    break;
+                case 'login':
+                    window.location.hash = '#dashboard'; 
+                    break;
+                default:
+                    window.location.hash = '#dashboard';
+            }
+        };
+
+        const initFirebase = async () => {
+            try {
+                if (!getApps().length) {
+                    app = initializeApp(finalConfig);
+                } else {
+                    app = getApps()[0];
+                }
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                await setPersistence(auth, browserSessionPersistence);
+
+                adminProfilesCollectionRef = collection(db, 'artifacts', appId, 'adminProfiles');
+
+                // Lắng nghe cấu hình Hero Slider
+                sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'mangaHeroSlider');
+                onSnapshot(sliderSettingsDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentSliderSettings = docSnap.data();
+                    } else {
+                        currentSliderSettings = { mode: 'random', selectedMangaIds: [] };
+                    }
+                    if (window.location.hash === '' || window.location.hash === '#dashboard') {
+                        const manualControls = $('manual-slider-controls');
+                        if(manualControls) {
+                            window.renderSelectedSliderMoviesUI();
+                        }
+                    }
+                });
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && !user.isAnonymous) {
+                        
+                        try {
+                            const adminDocRef = doc(adminProfilesCollectionRef, user.uid);
+                            const adminDocSnap = await getDoc(adminDocRef);
+                            const role = adminDocSnap.exists() ? adminDocSnap.data().role : 'user';
+                            
+                            if (role !== 'admin') {
+                                await signOut(auth);
+                                updateAuthStatusHeader('QUYỀN BỊ THU HỒI: Bạn không có quyền Admin.', true);
+                                return;
+                            }
+                        } catch (error) {
+                             console.error("Lỗi khi kiểm tra role trong onAuthStateChanged:", error);
+                             await signOut(auth);
+                             updateAuthStatusHeader('Lỗi hệ thống: Không thể xác minh quyền Admin.', true);
+                             return;
+                        }
+
+
+                        userId = user.uid;
+                        userEmail = user.email;
+                        
+                        mangasCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'mangas');
+                        
+                        userProfileDocRef = doc(adminProfilesCollectionRef, userId); 
+                        
+                        try {
+                            onSnapshot(userProfileDocRef, (docSnap) => {
+                                currentUserProfile = docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : {};
+                                updateProfileHeader();
+                            }, (error) => { 
+                                console.error("Lỗi tải profile:", error.message); 
+                                currentUserProfile = {}; 
+                                updateProfileHeader(); 
+                            });
+                            
+                            onSnapshot(adminProfilesCollectionRef, (snapshot) => {
+                                adminProfileMap = {};
+                                snapshot.forEach(doc => {
+                                    adminProfileMap[doc.id] = doc.data().displayName || doc.data().email;
+                                });
+                                renderDashboardDynamicContent(); 
+                            });
+                            
+                        } catch (e) {
+                             console.error("Lỗi nghiêm trọng khi gắn listener profile:", e);
+                        }
+                        
+                        updateAuthStatusHeader(`Đã đăng nhập: ${userEmail}`, false);
+                        loadMovies(); 
+                        router(); 
+
+                    } else {
+                        userId = userEmail = mangasCollectionRef = null;
+                        currentUserProfile = {};
+                        globalAdminMangaCache = [];
+                        updateProfileHeader();
+                        updateAuthStatusHeader('Vui lòng Đăng nhập Admin.');
+                        if (unsubscribeMangaListener) {
+                            unsubscribeMangaListener();
+                            unsubscribeMangaListener = null;
+                        }
+                        router();
+                    }
+                    showLoading(false);
+                });
+
+            } catch (error) {
+                console.error("Lỗi khởi tạo Firebase:", error);
+                updateAuthStatusHeader(`Cấu hình Firebase không hợp lệ. Chi tiết: ${error.message}`, true); 
+                showLoading(false);
+            }
+        };
+
+        const loadMovies = () => {
+            if (!mangasCollectionRef || unsubscribeMangaListener) return;
+            
+            try {
+                const q = query(mangasCollectionRef);
+                
+                unsubscribeMangaListener = onSnapshot(q, (snapshot) => {
+                    const mangas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    mangas.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                    
+                    globalAdminMangaCache = mangas;
+                    
+                    const hash = window.location.hash.substring(1) || 'dashboard';
+                    if (hash === 'dashboard') {
+                         renderAdminDashboard(); 
+                         renderDashboardDynamicContent(); 
+                    } else if (hash === 'schedule') {
+                         renderSchedulePage();
+                    }
+                    
+                }, (error) => {
+                    console.error("Lỗi khi tải danh sách truyện (onSnapshot):", error);
+                    if (window.location.hash.substring(1) === 'dashboard') {
+                        $('main-content').innerHTML = '<p class="text-red-400 font-bold text-center py-8">Lỗi tải dữ liệu. Vui lòng kiểm tra Quy tắc Bảo mật Firestore và quyền truy cập vào Mangas.</p>';
+                    }
+                });
+            } catch (e) {
+                 console.error("Lỗi thiết lập listener truyện:", e);
+            }
+        };
+
+        const getFilteredAndPaginatedMovies = () => {
+            let result = globalAdminMangaCache.filter(manga => {
+                const matchTitle = (manga.title || '').toLowerCase().includes(filterState.title.toLowerCase());
+                const matchGenre = filterState.genre === '' || (manga.genre || '').includes(filterState.genre);
+                
+                const creatorName = adminProfileMap[manga.updatedBy] || '';
+                const matchCreator = (creatorName.toLowerCase().includes(filterState.creator.toLowerCase())) || 
+                                     ((manga.updatedBy || '').includes(filterState.creator));
+                                     
+                return matchTitle && matchGenre && matchCreator;
+            });
+
+            const totalPages = Math.ceil(result.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages > 0 ? totalPages : 1; 
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = result.slice(start, start + itemsPerPage);
+
+            return { data: paginated, total: result.length, totalPages };
+        };
+        
+        window.handleFilterChange = (key, value) => {
+            filterState[key] = value;
+            currentPage = 1; 
+            renderDashboardDynamicContent(); 
+        };
+
+        window.changePage = (delta) => {
+            currentPage += delta;
+            renderDashboardDynamicContent(); 
+        };
+
+        window.toggleGenreDropdown = (targetId, event) => {
+             const dropdown = $(targetId);
+             const isHidden = dropdown.classList.contains('hidden');
+             document.querySelectorAll('.custom-dropdown-menu').forEach(d => {
+                 if (d.id !== targetId) d.classList.add('hidden');
+             });
+             
+             if (isHidden) {
+                dropdown.classList.remove('hidden');
+             } else {
+                 dropdown.classList.add('hidden');
+             }
+        };
+        
+        const renderDashboardDynamicContent = () => {
+            const container = $('dynamic-dashboard-content'); 
+            if (!container) return; 
+
+            const { data, total, totalPages } = getFilteredAndPaginatedMovies();
+            const mangaListHtml = renderMovieListContent(data);
+            
+            container.innerHTML = `
+                
+                <div id="movie-list" class="space-y-4">${mangaListHtml}</div>
+                
+                <div class="mt-6 flex justify-center items-center space-x-4">
+                    <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(-1)">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </button>
+                    <span class="text-[#f97316] font-bold">Page ${currentPage} / ${totalPages || 1}</span>
+                    <button class="pagination-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+            
+            const totalMoviesDisplay = $('stat-total-movies-display');
+            if (totalMoviesDisplay) totalMoviesDisplay.textContent = total;
+            
+            container.querySelectorAll('.add-episode-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showAddChapterModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+
+             container.querySelectorAll('.bulk-add-episode-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showBulkAddChapterModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+
+            container.querySelectorAll('.edit-movie-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.showEditMovieModal(this.getAttribute('data-movie-id'));
+                });
+            });
+            
+        };
+
+        const renderAdminDashboard = () => {
+            const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : (GENRE_TRANSLATIONS[filterState.genre] ? `${filterState.genre} (${GENRE_TRANSLATIONS[filterState.genre]})` : filterState.genre);
+            
+            const genreTagListHtml = ALL_GENRES.map(g => {
+                const vietnameseName = GENRE_TRANSLATIONS[g] || g;
+                return `
+                <button type="button" 
+                        onclick="handleFilterChange('genre', '${g}')" 
+                        class="genre-tag ${filterState.genre === g ? 'selected' : ''}">
+                    ${g} <span class="text-xs text-gray-400 ml-1">(${vietnameseName})</span>
+                </button>
+            `}).join('');
+            
+            const totalMoviesCache = globalAdminMangaCache.length;
+            const totalEpisodes = globalAdminMangaCache.reduce((acc, manga) => acc + (manga.episodes?.length || 0), 0);
+            
+            const sliderManagementHtml = `
+                <div class="bg-[#111827] p-5 rounded-xl border-2 border-[#f97316] mb-6 shadow-[0_0_15px_rgba(249,115,22,0.15)] relative overflow-visible z-20">
+                    <div class="absolute -top-3 left-4 bg-[#f97316] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-md">
+                        <i class="fas fa-images mr-1"></i> Quản Lý Hero Slider
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 mb-4 mt-2">
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="random" ${currentSliderSettings.mode === 'random' ? 'checked' : ''} onchange="window.changeSliderMode('random')" class="form-radio text-[#f97316] focus:ring-[#f97316] w-4 h-4">
+                            <span class="font-medium text-sm">Tự động Random (5 Truyện)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="manual" ${currentSliderSettings.mode === 'manual' ? 'checked' : ''} onchange="window.changeSliderMode('manual')" class="form-radio text-[#ea580c] focus:ring-[#ea580c] w-4 h-4">
+                            <span class="font-medium text-sm text-[#ea580c]">Chọn tay (Max 6 Truyện)</span>
+                        </label>
+                    </div>
+
+                    <div id="manual-slider-controls" class="${currentSliderSettings.mode === 'random' ? 'hidden' : 'block'} transition-all bg-[#1f2937] p-4 rounded-lg border border-[#f97316]">
+                        <!-- Search & Add -->
+                        <div class="flex space-x-2 mb-4 relative z-30">
+                            <div class="relative flex-grow">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="slider-search-input" placeholder="Gõ tên truyện để thêm vào Slider..." class="form-input text-sm w-full pl-10 h-10" oninput="window.handleSliderSearch(this.value)">
+                            </div>
+                            <div id="slider-search-results" class="absolute top-full left-0 w-full mt-1 bg-[#0a0a0a] border border-[#f97316] rounded-lg shadow-2xl z-50 hidden max-h-48 overflow-y-auto"></div>
+                        </div>
+                        
+                        <!-- Selected List -->
+                        <div id="slider-selected-list" class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-2">
+                            <!-- Rendered via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 border-t border-gray-700 pt-4">
+                        <p id="slider-msg" class="text-sm font-bold"></p>
+                        <button onclick="window.saveSliderSettings()" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-6 rounded-lg shadow-md flex items-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> LƯU CẤU HÌNH SLIDER
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            $('main-content').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-[#1f2937] p-6 rounded-xl shadow-lg panel-border">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-semibold text-[#f97316]">DANH SÁCH TRUYỆN (<span id="stat-total-movies-display">${getFilteredAndPaginatedMovies().total}</span>)</h2>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="#schedule" class="anime-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-sm">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Lịch Ra Chap
+                                </a>
+                                <button onclick="showModal('add-manga-modal')" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-plus mr-2"></i> Thêm Truyện
+                                </button>
+                                <button onclick="showModal('bulk-import-modal')" class="anime-button bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-file-import mr-2"></i> Import Truyện
+                                </button>
+                                
+                                <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-xs">
+                                    <i class="fas fa-wrench mr-2"></i> FIX DATA
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="fix-legacy-status" class="text-[#f97316] font-bold mb-2"></div>
+                        
+                        ${sliderManagementHtml}
+
+                        <div class="filter-bar-container">
+                            <div class="flex-grow">
+                                <input type="text" id="filter-title-input" placeholder="🔍 Tìm tên truyện..." class="form-input h-10 text-sm" 
+                                       value="${filterState.title}" oninput="handleFilterChange('title', this.value)">
+                            </div>
+                            
+                            <div class="relative w-full sm:w-auto">
+                                <button type="button" id="genre-filter-button"
+                                        onclick="window.toggleGenreDropdown('genre-filter-dropdown', event)" 
+                                        class="anime-button bg-[#0a0a0a] hover:bg-[#1f2937] border border-[#f97316] text-[#f97316] text-sm font-semibold py-2 px-3 rounded-lg w-full sm:w-64 flex items-center justify-between text-left">
+                                    <span class="truncate">${selectedGenreName}</span>
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </button>
+                                
+                                <div id="genre-filter-dropdown" 
+                                     class="custom-dropdown-menu absolute bg-[#1f2937] p-2 rounded-lg shadow-xl hidden w-full sm:w-96">
+                                    <button type="button" 
+                                            onclick="handleFilterChange('genre', '')" 
+                                            class="genre-tag w-full mb-2 ${filterState.genre === '' ? 'selected' : ''}">
+                                        -- Tất cả thể loại --
+                                    </button>
+                                    <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                                        ${genreTagListHtml}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                             <div class="flex-grow sm:flex-grow-0">
+                                <input type="text" id="filter-creator-input" placeholder="👤 Tên Admin..." class="form-input h-10 text-sm" 
+                                       value="${filterState.creator}" oninput="handleFilterChange('creator', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div id="dynamic-dashboard-content">
+                            <p class="text-center text-gray-400 py-8">Đang tải danh sách truyện...</p>
+                        </div>
+                        
+                    </div>
+
+                    <div class="lg:col-span-1">
+                        <div id="admin-info" class="bg-[#1f2937] p-6 rounded-xl shadow-lg panel-border sticky top-8">
+                            <h2 class="text-xl font-semibold text-[#f97316] mb-4">THỐNG KÊ (STATS)</h2>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-[#111827] p-4 rounded-lg border border-[#f97316]">
+                                    <p class="text-sm text-gray-400">TỔNG TRUYỆN</p>
+                                    <p class="text-3xl font-bold text-[#f97316]">${totalMoviesCache}</p>
+                                </div>
+                                <div class="bg-[#111827] p-4 rounded-lg border border-[#f97316]">
+                                    <p class="text-sm text-gray-400">TỔNG CHAPS</p>
+                                    <p id="stat-total-episodes" class="text-3xl font-bold text-orange-400">${totalEpisodes}</p>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-xl font-semibold text-[#f97316] mb-4">HỆ THỐNG INFO</h2>
+                            <div class="space-y-3 text-sm text-gray-200">
+                                <p><strong>App ID:</strong> <span id="display-app-id" class="break-all text-blue-400">${appId}</span></p>
+                                <p><strong>User ID:</strong> <span id="display-user-id" class="break-all text-[#f97316]">${userId || 'CHƯA ĐĂNG NHẬP'}</span></p>
+                                <p class="pt-2 border-t border-gray-700 text-xs">Database Location: <code class="bg-gray-800 p-1 rounded text-yellow-400 break-all">/artifacts/{appId}/public/data/mangas</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            window.renderSelectedSliderMoviesUI(); 
+            
+            document.addEventListener('click', function(event) {
+                 const dropdown = $('genre-filter-dropdown');
+                 const dropdownButton = $('genre-filter-button');
+                 
+                 if (dropdown && !dropdown.classList.contains('hidden')) {
+                     const isClickInsideButton = event.target.closest('#genre-filter-button');
+                     const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
+                     
+                     if (!isClickInsideButton && !isClickInsideDropdown) {
+                         dropdown.classList.add('hidden');
+                     }
+                 }
+
+                 const sliderSearchResults = $('slider-search-results');
+                 const sliderSearchInput = $('slider-search-input');
+                 if (sliderSearchResults && !sliderSearchResults.classList.contains('hidden')) {
+                     const isClickInsideInput = event.target.closest('#slider-search-input');
+                     const isClickInsideResults = event.target.closest('#slider-search-results');
+                     if (!isClickInsideInput && !isClickInsideResults) {
+                         sliderSearchResults.classList.add('hidden');
+                     }
+                 }
+            });
+            
+            renderDashboardDynamicContent();
+        };
+        
+        const renderProfilePage = () => {
+            const profile = currentUserProfile;
+             $('main-content').innerHTML = `
+                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card bg-[#1f2937] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-orange-400 mb-6 border-b border-gray-700 pb-2">CHỈNH SỬA PROFILE</h2>
+                        <div class="flex items-center space-x-4 mb-8">
+                            <img id="profile-avatar-preview" src="${profile.avatarBase64 || `https://placehold.co/80x80/f97316/ffffff?text=${(profile.displayName || (userEmail ? userEmail.charAt(0) : 'AD')).toUpperCase()}`}" alt="Admin Avatar" class="w-20 h-20 rounded-full border-4 border-[#f97316] object-cover">
+                            <div>
+                                <p class="text-2xl font-bold text-[#f97316]">${profile.displayName || userEmail}</p>
+                                <p class="text-sm text-gray-400">Email: ${userEmail}</p>
+                            </div>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="mb-4">
+                                <label class="block text-gray-200 text-sm font-bold mb-2" for="profile-display-name">Tên Hiển Thị</label>
+                                <input class="form-input" id="profile-display-name" type="text" placeholder="Ví dụ: Sensei, Dev-chan" value="${profile.displayName || ''}">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-gray-200 text-sm font-bold mb-2" for="profile-avatar-file">Ảnh Đại Diện (Max 0.5MB)</label>
+                                <input class="shadow border border-[#f97316] rounded w-full py-2 px-3 bg-[#0a0a0a] text-white leading-tight focus:outline-none focus:ring-2 focus:ring-orange-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500/20 file:text-[#f97316]" 
+                                       id="profile-avatar-file" type="file" accept="image/png, image/jpeg">
+                                <p class="text-xs text-gray-500 mt-2">Ảnh được lưu dưới dạng Base64 trong Firestore.</p>
+                            </div>
+                            
+                            <p id="profile-message" class="text-[#f97316] text-sm mb-4"></p>
+
+                            <button type="submit" class="anime-button bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 w-full">
+                                <i class="fas fa-save mr-2"></i> LƯU PROFILE
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="card bg-[#1f2937] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-[#f97316] mb-6 border-b border-gray-700 pb-2">QUẢN LÝ TÀI KHOẢN</h2>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-gray-200 mb-3">Đổi Mật khẩu Của Bạn</h3>
+                            <form id="changePasswordForm">
+                                <label class="block text-gray-200 text-sm font-bold mb-2">Mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="newPass" required placeholder="Nhập mật khẩu mới (min 6 ký tự)">
+                                <label class="block text-gray-200 text-sm font-bold mb-2">Xác nhận mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="confirmNewPass" required placeholder="Xác nhận mật khẩu">
+                                <p id="change-pass-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-key mr-2"></i> ĐỔI MẬT KHẨU
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <hr class="border-t border-gray-700 my-6">
+                        <div class="pt-2">
+                            <h3 class="text-xl font-bold text-gray-200 mb-3">Tạo Tài Khoản Admin Mới</h3>
+                            <form id="create-admin-form">
+                                <label class="block text-gray-200 text-sm font-bold mb-2">Email Admin Mới:</label>
+                                <input class="form-input" type="email" id="newAdminEmail" placeholder="ví dụ: sub@admin.com" required>
+                                <label class="block text-gray-200 text-sm font-bold mb-2">Mật khẩu:</label>
+                                <input class="form-input" type="password" id="newAdminPass" placeholder="Ít nhất 6 ký tự" required>
+                                <p id="create-admin-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-user-plus mr-2"></i> TẠO TÀI KHOẢN
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('profile-avatar-file')?.addEventListener('change', (e) => {
+                 const file = e.target.files[0];
+                 if (file) {
+                     const reader = new FileReader();
+                     reader.onload = (e) => {
+                         $('profile-avatar-preview').src = e.target.result;
+                     };
+                     reader.readAsDataURL(file);
+                 }
+            });
+            $('profile-form')?.addEventListener('submit', handleSaveProfile);
+            $('create-admin-form')?.addEventListener('submit', handleCreateAdmin);
+            $('changePasswordForm')?.addEventListener('submit', handleChangePassword);
+        };
+
+        const renderSchedulePage = () => {
+            const slots = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật", "Không có"];
+            
+            const scheduleMap = {};
+            slots.forEach(s => scheduleMap[s] = []);
+
+            globalAdminMangaCache.filter(m => m.status !== 'hoan-thanh' && m.status !== 'tron-bo').forEach(m => {
+                let day = m.airingDay || "Không có";
+                if (!slots.includes(day)) day = "Không có";
+                scheduleMap[day].push(m);
+            });
+
+            const gridHtml = slots.map(day => {
+                const mangas = scheduleMap[day];
+                const hasMovies = mangas.length > 0;
+                
+                return `
+                    <div class="bg-[#0a0a0a] rounded-xl border border-[#f97316] overflow-hidden flex flex-col h-full min-h-[200px] shadow-lg hover:shadow-orange-500/20 transition duration-300">
+                        <div class="bg-[#1f2937] py-3 text-center border-b border-[#f97316]">
+                            <h3 class="text-orange-400 font-bold text-lg uppercase">${day}</h3>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col ${hasMovies ? 'justify-start' : 'justify-center'} custom-scrollbar overflow-y-auto max-h-[350px]">
+                            ${hasMovies ? mangas.map(m => `
+                                <div class="flex gap-3 items-center bg-[#111827] p-2 rounded mb-2 hover:bg-[#1f2937] border border-transparent hover:border-[#f97316] cursor-pointer group transition" onclick="window.showEditMovieModal('${m.id}')">
+                                    <img src="${m.posterUrl}" class="w-12 h-16 object-cover rounded border border-gray-800 group-hover:border-[#f97316]" onerror="this.src='https://placehold.co/48x64'">
+                                    <div class="min-w-0 overflow-hidden">
+                                        <p class="text-sm font-bold text-gray-200 truncate group-hover:text-[#f97316] transition">${m.title}</p>
+                                        <p class="text-xs text-gray-500">Chap ${(m.episodes||[]).length}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500 text-sm italic text-center">Chưa có truyện nào.</p>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $('main-content').innerHTML = `
+                <div class="bg-[#1f2937] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
+                    <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+                        <h2 class="text-2xl font-bold text-[#f97316] neon-glow">LỊCH RA CHAP TRONG TUẦN</h2>
+                        <button onclick="location.hash='#dashboard'" class="bg-[#4b5563] hover:bg-[#374151] text-white text-sm font-bold py-2 px-6 rounded-lg flex items-center transition shadow-lg">
+                            <i class="fas fa-arrow-left mr-2"></i> Quay lại Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="schedule-grid-container">
+                        ${gridHtml}
+                    </div>
+                </div>
+            `;
+        };
+        
+        const renderEpisodeList = (episodes, mangaId) => {
+            if (!episodes || episodes.length === 0) {
+                return '<p class="text-gray-500 italic text-sm">Chưa có chapter nào. (No Data)</p>';
+            }
+            episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
+            
+            const listItems = episodes.map(ep => {
+                const title = ep.title || 'Không có tên';
+                const safeTitle = title.replace(/'/g, "\\'"); 
+                const previewUrl = getAdminPreviewUrl(ep.videoUrl); 
+                return `
+                <li class="flex items-center justify-between p-2 border-b border-gray-700 last:border-b-0 text-sm">
+                    <div class="flex-grow truncate">
+                        <span class="font-medium text-[#f97316]">Chap ${ep.episodeNumber || 'N/A'}:</span>
+                        <span class="mx-2 text-white">${title}</span>
+                    </div>
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="${previewUrl}" target="_blank" class="text-xs text-orange-400 hover:text-orange-200 transition duration-150" title="Link Ảnh Đầu Tiên (Preview)">
+                            <i class="fas fa-external-link-alt"></i> LINK
+                        </a>
+                        <button onclick="window.showEditEpisodeModal('${mangaId}', ${ep.episodeNumber})" class="text-yellow-400 hover:text-yellow-300 ml-3" title="Sửa chapter">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="window.handleDeleteChapter('${mangaId}', ${ep.episodeNumber}, '${safeTitle}')" class="text-red-500 hover:text-red-700 ml-2" title="Xóa chapter">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `}).join('');
+
+            return `<ul class="divide-y divide-gray-800 chapter-list-scroll">${listItems}</ul>`;
+        };
+        
+        const renderMovieListContent = (mangas) => {
+            if (mangas.length === 0) {
+                return '<p class="text-center text-orange-400 font-bold py-8" id="no-movies-message">Chưa có truyện nào (hoặc không khớp bộ lọc).</p>';
+            }
+            
+            return mangas.map(manga => {
+                const titleHtml = manga.titleOriginal 
+                    ? `<h3 class="text-xl font-bold text-gray-200 mb-1">${manga.title}</h3><h4 class="text-sm font-normal text-gray-400 -mt-1 mb-1">${manga.titleOriginal}</h4>`
+                    : `<h3 class="text-xl font-bold text-gray-200 mb-1">${manga.title}</h3>`;
+                const posterSrc = manga.posterUrl || 'https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';
+                const episodeCount = manga.episodes ? manga.episodes.length : 0;
+                const totalEpisodes = manga.totalEpisodes || 0;
+                const episodeText = totalEpisodes > 0 ? `${episodeCount} / ${totalEpisodes} chap` : `Chap ${episodeCount}`;
+
+                const creatorName = adminProfileMap[manga.updatedBy] ? 
+                    `<div class="admin-badge-corner">Admin: ${adminProfileMap[manga.updatedBy]}</div>` : '';
+
+                return `
+                    <div class="manga-card-anime bg-[#111827] p-4 rounded-xl shadow-md border border-gray-700 transition duration-300 hover:border-[#f97316]">
+                        ${creatorName} 
+                        
+                        <div class="flex items-start space-x-4">
+                            <img src="${posterSrc}" onerror="this.onerror=null;this.src='https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';" 
+                                 class="w-20 h-30 object-cover rounded-lg shadow-lg flex-shrink-0 border-2 border-orange-500" alt="Poster ${manga.title}">
+                            
+                            <div class="flex-grow">
+                                ${titleHtml}
+                                <p class="text-sm text-[#f97316] mb-2 italic">Genre: ${manga.genre || 'N/A'}</p>
+                                <p class="text-gray-300 text-sm line-clamp-2">${manga.summary || 'Không có tóm tắt.'}</p>
+                                
+                                <div class="mt-3 flex flex-wrap gap-2 items-center">
+                                    ${getStatusBadge(manga.status)}
+                                    <span class="bg-[#1f2937] text-[#f97316] text-xs font-semibold py-1 px-3 rounded-full border border-[#f97316]">Views: ${manga.viewCount || 0}</span>
+                                    
+                                    <div class="ml-auto flex space-x-2 mt-2 sm:mt-0">
+                                        <!-- Nút Thêm Tập Đơn -->
+                                        <button data-movie-id="${manga.id}" data-movie-title="${manga.title}" class="add-episode-btn anime-button bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-bolt mr-1"></i> CHAP LẺ
+                                        </button>
+                                        <!-- Nút Thêm Tập Hàng Loạt -->
+                                        <button data-movie-id="${manga.id}" data-movie-title="${manga.title}" class="bulk-add-episode-btn anime-button bg-orange-700 hover:bg-orange-800 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-stream mr-1"></i> CHAP BULK
+                                        </button>
+                                        
+                                        <button data-movie-id="${manga.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-edit mr-1"></i> EDIT
+                                        </button>
+                                        
+                                        <button onclick="window.handleDeleteManga('${manga.id}', '${manga.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-skull-crossbones mr-1"></i> DELETE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-gray-700">
+                            <h4 class="text-lg font-semibold text-[#f97316] mb-2">CHAPTER LIST (${episodeText})</h4>
+                            ${renderEpisodeList(manga.episodes, manga.id)} 
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        const getStatusBadge = (statusKey) => {
+            switch(statusKey) {
+                case 'dang-ra': return '<span class="bg-[#ea580c] text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Đang Tiến Hành</span>';
+                case 'hoan-thanh': return '<span class="bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Hoàn Thành</span>';
+                case 'sap-ra': return '<span class="bg-yellow-500 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Sắp Ra Mắt</span>';
+                default: return `<span class="bg-gray-700 text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">${statusKey || 'N/A'}</span>`;
+            }
+        };
+
+        window.showAddEpisodeModal = (mangaId, mangaTitle) => {
+            $('chapter-manga-id').value = mangaId;
+            $('chapter-manga-title').textContent = mangaTitle || '[Không có tên]';
+            $('chapter-form-message').textContent = '';
+            $('add-chapter-form').reset();
+            $('chapter-manga-id').value = mangaId;
+
+            showModal('add-chapter-modal');
+        };
+
+        window.showEditMovieModal = async (mangaId) => {
+            if (!mangasCollectionRef) return;
+            const manga = globalAdminMangaCache.find(m => m.id === mangaId);
+            if (!manga) {
+                 window.showConfirmModal("Lỗi: Không tìm thấy truyện trong cache. Vui lòng tải lại trang.");
+                 return;
+            }
+            
+            $('edit-manga-id').value = mangaId;
+            $('edit-manga-title').value = manga.title || '';
+            $('edit-manga-title-original').value = manga.titleOriginal || '';
+            $('edit-manga-summary').value = manga.summary || '';
+            
+            $('edit-manga-formatType').value = manga.formatType || 'manga';
+            $('edit-manga-totalEpisodes').value = manga.totalEpisodes || 0;
+            $('edit-manga-status').value = manga.status || 'dang-ra';
+            $('edit-manga-airingDay').value = manga.airingDay || 'Không có';
+
+            const isPosterBase64 = manga.posterUrl && manga.posterUrl.startsWith('data:image');
+            $('edit-poster-upload-status').textContent = isPosterBase64 ? 'Truyện đang dùng ảnh Base64. Tải tệp mới hoặc dán URL sẽ ghi đè.' : '';
+            $('edit-manga-poster').value = isPosterBase64 ? '' : manga.posterUrl || '';
+            
+            const isBannerBase64 = manga.bannerUrl && manga.bannerUrl.startsWith('data:image');
+            $('edit-banner-upload-status').textContent = isBannerBase64 ? 'Truyện đang dùng banner Base64. Tải tệp mới/dán URL sẽ ghi đè.' : '';
+            $('edit-manga-banner').value = isBannerBase64 ? '' : manga.bannerUrl || '';
+            
+            const savedGenres = (manga.genre || '').split(',').map(g => g.trim());
+            document.querySelectorAll('#edit-genre-tag-container .genre-tag').forEach(tag => {
+                tag.classList.toggle('selected', savedGenres.includes(tag.dataset.genre));
+            });
+            
+            const deleteAllBtn = $('delete-all-chapters-btn');
+            if (deleteAllBtn) {
+                deleteAllBtn.onclick = () => window.handleDeleteAllChapters(mangaId, manga.title);
+            }
+            
+            showModal('edit-manga-modal');
+        };
+
+        window.showEditEpisodeModal = (mangaId, episodeNumber) => {
+            const manga = globalAdminMangaCache.find(m => m.id === mangaId);
+            const episodeToEdit = (manga?.episodes || []).find(ep => ep.episodeNumber === episodeNumber);
+
+            if (!episodeToEdit) {
+                 window.showConfirmModal("Lỗi: Không tìm thấy chapter để sửa.");
+                 return;
+            }
+            
+            $('edit-chapter-manga-id').value = mangaId;
+            $('edit-chapter-manga-title').textContent = manga.title;
+            $('edit-chapter-number-original').value = episodeToEdit.episodeNumber; 
+            $('edit-chapter-number').value = episodeToEdit.episodeNumber;
+            $('edit-chapter-title').value = episodeToEdit.title;
+            $('edit-chapter-url').value = episodeToEdit.videoUrl;
+            $('edit-chapter-form-message').textContent = '';
+            
+            showModal('edit-chapter-modal');
+        };
+
+        const setupModalFormListeners = () => {
+            const genreContainers = document.querySelectorAll('#genre-tag-container, #edit-genre-tag-container');
+            
+            const genreButtonsHtml = ALL_GENRES.map(g => {
+                const vietnameseName = GENRE_TRANSLATIONS[g] || g;
+                return `<button type="button" class="genre-tag" data-genre="${g}">${g} <br><span class="text-[10px] text-gray-400 font-normal ml-1">(${vietnameseName})</span></button>`;
+            }).join('');
+            
+            genreContainers.forEach(container => {
+                container.innerHTML = genreButtonsHtml;
+                container.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.genre-tag');
+                    if (btn) {
+                        btn.classList.toggle('selected');
+                    }
+                });
+            });
+
+            $('add-manga-form')?.addEventListener('submit', handleAddManga);
+            $('edit-manga-form')?.addEventListener('submit', handleEditManga);
+            $('add-chapter-form')?.addEventListener('submit', handleAddChapter);
+            $('edit-chapter-form')?.addEventListener('submit', handleEditChapter);
+            $('bulk-add-chapter-form')?.addEventListener('submit', handleBulkAddChapters);
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            
+            $('nav-dashboard')?.addEventListener('click', () => window.location.hash = '#dashboard');
+            $('nav-schedule')?.addEventListener('click', () => window.location.hash = '#schedule');
+            $('nav-profile')?.addEventListener('click', () => window.location.hash = '#profile');
+            
+            $('login-form')?.addEventListener('submit', handleLogin);
+            
+            setupModalFormListeners(); 
+            
+            window.addEventListener('hashchange', router);
+        });
+        
+    </script>
+</body>
+</html>
