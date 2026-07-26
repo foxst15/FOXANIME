@@ -1195,6 +1195,7 @@
             }
         };
 
+        // --- BÉ LÔI ĐÃ XÓA SẠCH TÀN DƯ "BẢNG ĐỌC TIẾP" Ở TRANG INFO NÈ ---
         window.renderInfoPage = async (mangaId) => {
             if (!db) {showLoading(); return;}
             if (unsubscribeMangaListener) {unsubscribeMangaListener(); unsubscribeMangaListener = null;}
@@ -1220,25 +1221,8 @@
                         id: `${mangaId}_${ep.episodeNumber}_${index}`
                     }));
 
-                    const mangaSlug = createSlug(updatedMangaData.title);
-                    const firstEpUrl = `#truyen/${mangaSlug}-${updatedMangaData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html`;
-
-                    const resumeTime = localStorage.getItem(`_readTime_${episodesWithId[0]?.id}`);
-                    const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
-
+                    // Chỉ render giao diện, không còn cái bảng hỏi Đọc Tiếp phiền phức nữa!
                     getEl('#app').innerHTML = InfoPageTemplate(updatedMangaData, episodesWithId, isLiked);
-
-                    if (hasWatchTime) {
-                        window.showResumeModal(updatedMangaData.title, parseInt(resumeTime)).then(shouldResume => {
-                            let finalUrl = firstEpUrl;
-                            if (shouldResume) {
-                                finalUrl += `?time=${resumeTime}`;
-                            } else {
-                                localStorage.removeItem(`_readTime_${episodesWithId[0]?.id}`);
-                            }
-                            window.location.hash = finalUrl;
-                        });
-                    }
 
                     getEl('#like-button')?.addEventListener('click', handleLike);
                     setupPublicReviewsListener(mangaId);
@@ -1270,7 +1254,7 @@
                         <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
                         <div class="flex text-2xl">${renderStars(averageRating)}</div>
                         <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
-                                                                            `;
+                    `;
                 }
 
                 const button = getEl('#like-button');
