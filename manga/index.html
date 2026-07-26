@@ -411,6 +411,7 @@
             } catch (e) {console.error("Lỗi khi tải danh sách likes:", e);}
         };
 
+        // --- BÉ LÔI FIX LỖI NÚT LIKE BỊ LAG NHỊP NÈ ---
         const handleLike = async (e) => {
             if (!db || !auth?.currentUser) {window.location.hash = '#login'; return;}
             const button = e.currentTarget;
@@ -418,6 +419,7 @@
             button.disabled = true;
             const isLiked = !!currentUserLikeDocIds[mangaId];
             const mangaDocRef = doc(db, dataCollectionPath, mangaId);
+            
             try {
                 const batch = writeBatch(db);
                 const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/manga_likes`);
@@ -428,13 +430,33 @@
                     if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
                     batch.delete(doc(userLikesColRef, likeDocId));
                     batch.update(mangaDocRef, {likeCount: increment(-1)});
+                    
+                    // Xóa luôn ID trong cache trước khi đợi server để UI không bị lag
+                    delete currentUserLikeDocIds[mangaId];
                 } else {
                     newLikeDocRef = doc(userLikesColRef);
                     batch.set(newLikeDocRef, {movieId: mangaId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
                     batch.update(mangaDocRef, {likeCount: increment(1)});
+                    
+                    // Lưu luôn ID vào cache trước khi đợi server
+                    currentUserLikeDocIds[mangaId] = newLikeDocRef.id;
                 }
+                
+                // ÉP GIAO DIỆN NÚT ĐỔI MÀU NGAY LẬP TỨC KHÔNG CẦN CHỜ
+                const newIsLiked = !isLiked;
+                const likeButtonText = getEl('#like-button-text');
+                const likeButtonIcon = button.querySelector('ion-icon');
+                
+                button.classList.toggle('bg-orange-600', newIsLiked);
+                button.classList.toggle('text-white', newIsLiked);
+                button.classList.toggle('font-bold', newIsLiked);
+                button.classList.toggle('bg-gray-700', !newIsLiked);
+                button.classList.toggle('text-gray-300', !newIsLiked);
+                button.classList.toggle('font-medium', !newIsLiked);
+                if (likeButtonText) likeButtonText.textContent = newIsLiked ? 'Đã thích' : 'Thích';
+                if (likeButtonIcon) likeButtonIcon.setAttribute('name', newIsLiked ? 'thumbs-up' : 'thumbs-up-outline');
+
                 await batch.commit();
-                if (isLiked) {delete currentUserLikeDocIds[mangaId];} else {currentUserLikeDocIds[mangaId] = newLikeDocRef.id;}
             } catch (e) {
                 console.error("[LIKE ERROR] Thao tác Firebase thất bại:", e);
             } finally {
@@ -885,7 +907,7 @@
         </section>
     `;
         };
-        
+
         const MangaSectionTemplate = (title, mangaList, xemThemLink = "#") => {
             if (mangaList.length === 0) return '';
             return `
@@ -2310,6 +2332,20 @@
         .swiper-button-prev::after {
             font-size: 24px !important;
             font-weight: bold;
+        }
+
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
         }
     </style>
 </head>
