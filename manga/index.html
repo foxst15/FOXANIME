@@ -118,7 +118,6 @@
         const getEl = (selector) => document.querySelector(selector);
         const getAllEl = (selector) => document.querySelectorAll(selector);
 
-        // --- BÉ LÔI ĐÃ TÁCH BIẾN VÀ ĐƯỜNG DẪN DATABASE THÀNH MANGA Ở ĐÂY NÈ ---
         const updatePaths = (currentUserId) => {
             if (!appId && appId !== '') {console.error("FATAL: appId is not defined. Path creation failed."); setupError = new Error("Lỗi Cấu hình: appId không hợp lệ."); return;}
             const safeUserId = currentUserId || 'guest';
@@ -162,9 +161,7 @@
 
         window.showResumeModal = (mangaTitle, time) => {
             const modal = getEl('#resume-modal');
-            const minutes = Math.floor(time / 60);
-            const seconds = Math.floor(time % 60);
-            getEl('#resume-modal-text').textContent = `Bạn đã đọc "${mangaTitle}" đến ${minutes} phút ${seconds} giây. Bạn có muốn xem tiếp không?`;
+            getEl('#resume-modal-text').textContent = `Lần trước bạn đang đọc "${mangaTitle}" dang dở. Bạn có muốn đọc tiếp không?`;
             modal.classList.remove('hidden'); modal.classList.add('flex');
             return new Promise(resolve => {resolveResumeModal = resolve;});
         };
@@ -173,9 +170,8 @@
             modal.classList.add('hidden'); modal.classList.remove('flex'); resolveResumeModal = null;
         };
 
-        // --- TÁCH LOCAL STORAGE KHỎI ANIME ---
         const saveWatchTime = (episodeId, time) => {
-            if (episodeId && time >= 5 && (Date.now() - parseInt(localStorage.getItem(`_lastReadSave_${episodeId}`) || '0') > 30000)) {
+            if (episodeId && time >= 1 && (Date.now() - parseInt(localStorage.getItem(`_lastReadSave_${episodeId}`) || '0') > 30000)) {
                 localStorage.setItem(`_readTime_${episodeId}`, time);
                 localStorage.setItem(`_lastReadSave_${episodeId}`, Date.now());
             }
@@ -194,7 +190,7 @@
             if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return {name: "Ma Kết", genre: "Drama", fortune: "Sâu sắc và lắng đọng. Những bộ truyện Kịch tính (Drama) sẽ chạm đến cảm xúc của bạn."};
             if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return {name: "Bảo Bình", genre: "Sci-Fi", fortune: "Hướng về tương lai. Khoa học viễn tưởng (Sci-Fi) chính là chân ái!"};
             if ((m == 2 && d >= 19) || (m == 3 && d <= 20)) return {name: "Song Ngư", genre: "Magic", fortune: "Tâm hồn mộng mơ. Thể loại Phép thuật (Magic) sẽ mang lại điều kỳ diệu cho bạn!"};
-            return {name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ Harem xem sao!"};
+            return {name: "Bí Ẩn", genre: "Harem", fortune: "Vũ trụ đang gửi tín hiệu lạ... Hãy thử một bộ truyện Harem xem sao!"};
         };
 
         window.handleGachaPull = (amount) => {
@@ -357,93 +353,6 @@
                     }
                 } catch (e) {console.error("Lỗi khi tăng lượt xem:", e);}
             }
-        };
-
-        const getYoutubeEmbedUrl = (url) => {
-            const OFFICIAL_ORIGIN = 'https://foxanime.vercel.app';
-            try {
-                const urlObj = new URL(url);
-                const videoId = urlObj.searchParams.get('v') || (urlObj.hostname === 'youtu.be' ? urlObj.pathname.substring(1) : null);
-                if (videoId) {return `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1&origin=${OFFICIAL_ORIGIN}&modestbranding=1&autoplay=1`;}
-            } catch (e) { }
-            return null;
-        };
-
-        const getGoogleDriveEmbedUrl = (url) => {
-            try {
-                const urlObj = new URL(url);
-                let fileId = '';
-                if (urlObj.pathname.startsWith('/file/d/')) {fileId = urlObj.pathname.split('/')[3];}
-                else if (urlObj.pathname.startsWith('/uc')) {fileId = urlObj.searchParams.get('id');}
-                if (fileId) {return `https://drive.google.com/file/d/${fileId}/preview`;}
-            } catch (e) { }
-            return null;
-        };
-
-        const getStreamEmbedUrl = (url) => {
-            try {
-                const urlObj = new URL(url);
-                if (urlObj.hostname.includes('streamc.xyz')) {
-                    let finalUrl = url.includes('?') ? `${url}&autoplay=1&auto=1&allowautoplay=1` : `${url}?autoplay=1&auto=1&allowautoplay=1`;
-                    return finalUrl;
-                }
-            } catch (e) { }
-            return null;
-        };
-
-        const getVideoPlayer = (videoUrl, posterUrl) => {
-            const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
-            const googleDriveEmbedUrl = getGoogleDriveEmbedUrl(videoUrl);
-            const streamEmbedUrl = getStreamEmbedUrl(videoUrl);
-            let html = ''; let isHtml5Video = false; let finalSrc = ''; let isYoutube = false; let isStreamEmbed = false;
-
-            if (youtubeEmbedUrl) {
-                finalSrc = youtubeEmbedUrl; isYoutube = true;
-            } else if (googleDriveEmbedUrl) {
-                finalSrc = googleDriveEmbedUrl;
-            } else if (streamEmbedUrl) {
-                finalSrc = streamEmbedUrl; isStreamEmbed = true;
-            } else {
-                html = `<video id="video-player-element" controls class="w-full h-full" src="${videoUrl}" poster="${posterUrl}" playsinline disablepictureinpicture controlsList="nodownload nofullscreen">Trình duyệt của bạn không hỗ trợ thẻ video.</video>`;
-                isHtml5Video = true;
-            }
-
-            if (finalSrc) {
-                const srcAttr = isStreamEmbed ? '' : `src="${finalSrc}"`;
-                const dataSrcAttr = isStreamEmbed ? `data-stream-src="${finalSrc}"` : '';
-                const sandboxAttr = isStreamEmbed ? `sandbox="allow-scripts allow-same-origin allow-popups"` : `allow="autoplay; fullscreen"`;
-                const allowAttr = isStreamEmbed ? `allow="autoplay"` : `allow="autoplay; fullscreen"`;
-
-                html = `<iframe id="video-player-iframe" class="w-full h-full" ${srcAttr} title="Video player" frameborder="0" ${allowAttr} allowfullscreen disablepictureinpicture ${isYoutube ? 'data-is-youtube="true"' : ''} ${dataSrcAttr} ${isStreamEmbed ? sandboxAttr : ''}></iframe>`;
-            }
-            return {html, isHtml5Video};
-        };
-
-        const handlePlayVideo = (e) => {
-            e.preventDefault();
-            const overlay = getEl('#video-overlay');
-            if (!overlay) return;
-            overlay.classList.add('fade-out');
-            const videoElement = getEl('#video-player-element');
-            const iframeElement = getEl('#video-player-iframe');
-
-            if (videoElement) {
-                videoElement.play().catch(e => console.error("Lỗi tự động phát video HTML5:", e));
-            } else if (iframeElement) {
-                const streamSrc = iframeElement.dataset.streamSrc;
-                if (streamSrc && !iframeElement.src) {
-                    iframeElement.src = streamSrc;
-                    console.log("[STREAMC] Kích hoạt tải video bằng user gesture.");
-                }
-                const frameSrc = iframeElement.src;
-                if (frameSrc.includes('youtube.com/embed')) {
-                    setTimeout(() => {
-                        const message = JSON.stringify({'event': 'command', 'func': 'playVideo'});
-                        try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {console.error("Lỗi gửi postMessage tới YouTube:", e);}
-                    }, 100);
-                }
-            }
-            setTimeout(() => {overlay.remove();}, 500);
         };
 
         const handleGoogleLogin = async () => {
@@ -880,7 +789,7 @@
 
         const MangaCardTemplate = (manga) => {
             const infoUrl = `#truyen/${createSlug(manga.title)}-${manga.id}`;
-            const statusText = manga.status || 'N/A';
+            const statusText = manga.status || 'dang-ra';
             const epCount = manga.episodes ? manga.episodes.length : 0;
             const genres = manga.genre ? manga.genre.split(',').map(g => g.trim()).join(', ') : '';
 
@@ -890,11 +799,11 @@
                 <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
                     <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
                         <span class="inline-block bg-black/70 text-orange-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
-                            ${statusText === 'sap-chieu' ? 'Sắp chiếu' : (statusText === 'dang-chieu' ? 'Đang Chiếu' : 'Full')}
+                            ${statusText === 'sap-ra' ? 'Sắp ra' : (statusText === 'dang-ra' ? 'Đang ra' : 'Full')}
                         </span>
                         <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
                         <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
-        ${epCount > 0 ? `Tập ${epCount}` : 'Chưa có tập'}
+        ${epCount > 0 ? `Chap ${epCount}` : 'Chưa có chap'}
                         </span>
                     </div>
                     ${ratingHtml}
@@ -1154,11 +1063,11 @@
                         ${episodes.map(ep => `
                                 <a href="#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
                                     class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors duration-200">
-                                    Tập ${ep.episodeNumber}
+                                    Chap ${ep.episodeNumber}
                                 </a>
                             `).join('')}
                         </div>`
-                : `<p class="text-gray-400">${manga.status === 'sap-chieu' ? 'Sắp ra mắt, chưa có tập.' : 'Chưa có dữ liệu.'}</p>`
+                : `<p class="text-gray-400">${manga.status === 'sap-ra' ? 'Sắp ra mắt, chưa có chap.' : 'Chưa có dữ liệu.'}</p>`
             }
                 </div>
             </div>
@@ -1167,7 +1076,6 @@
         };
 
         const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
-            const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, manga.posterUrl);
             const mangaSlug = createSlug(manga.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
@@ -1180,114 +1088,87 @@
                 previousEpisodeLink = `#truyen/${mangaSlug}-${manga.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
             }
 
+            // Xử lý danh sách link ảnh (Mỗi link 1 dòng)
+            let imagesHtml = '<p class="text-center text-gray-500 py-20 text-lg">Chapter này chưa có ảnh. Admin đang cập nhật nha!</p>';
+            if (episode.videoUrl) {
+                const urls = episode.videoUrl.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+                if (urls.length > 0) {
+                    imagesHtml = urls.map(url => `<img src="${url}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`).join('');
+                }
+            }
+
             const previousButton = previousEpisodeLink ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
-                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
-                </a>
-                                ` : `
+                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Chap ${currentEpNumber - 1}
+                </a>` : `
                 <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
-                    <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
-                </button>
-                            `;
+                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Đầu Truyện
+                </button>`;
 
             const nextButton = nextEpisodeLink ? `
-            <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-orange-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
-                Tập ${currentEpNumber + 1} <ion-icon name="arrow-forward-circle" class="text-xl ml-2"></ion-icon>
-            </a>
-        ` : `
-            <button disabled class="bg-red-900/80 text-red-200 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 opacity-60 cursor-not-allowed">
-                Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
-            </button>
-        `;
-
+                <a href="${nextEpisodeLink}" class="bg-orange-500 text-gray-900 text-sm font-bold px-6 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                    Chap ${currentEpNumber + 1} <ion-icon name="arrow-forward-outline" class="text-lg ml-2"></ion-icon>
+                </a>` : `
+                <button disabled class="bg-gray-800 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 cursor-not-allowed">
+                    Hết Truyện <ion-icon name="lock-closed" class="text-lg ml-2"></ion-icon>
+                </button>`;
 
             return `
-                <section class="text-white">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2">
-                            <div id="video-player-container" class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
-                                ${videoPlayerHtml}
-                                <div id="video-overlay" 
-                                    class="overlay-style absolute inset-0 flex items-center justify-center p-4 z-10" 
-                                    style="background-image: url('anh/bannerxemphim.png'); 
-                                        background-size: cover; background-position: center; background-color: rgba(0, 0, 0, 0.4); background-blend-mode: darken;">
-                                    <div class="text-center p-4 sm:p-8 rounded-xl max-w-xs sm:max-w-md mx-auto">
-                                        <button id="play-video-button" 
-                                            class="play-button-overlay text-gray-900 font-extrabold text-xl sm:text-2xl px-10 py-5 sm:py-6 rounded-full flex items-center justify-center space-x-3 transform transition-all duration-300 shadow-xl hover:scale-105">
-                                            <ion-icon name="play-circle" class="text-3xl sm:text-4xl"></ion-icon>
-                                            <span>ĐỌC TRUYỆN</span>
-                                        </button>
-                                    </div>
-                                </div>
+                <section class="text-white pb-12">
+                    <!-- Thanh điều hướng Chapter -->
+                    <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
+                        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                            <div class="flex-1 text-center md:text-left min-w-0">
+                                <h1 class="text-base md:text-lg font-bold text-orange-500 truncate"><a href="#truyen/${mangaSlug}-${manga.id}" class="hover:underline">${manga.title}</a></h1>
+                                <p class="text-xs md:text-sm text-gray-400">Chapter ${currentEpNumber} ${episode.title && !episode.title.includes('Chapter') && !episode.title.includes('Tập') ? `- ${episode.title}` : ''}</p>
                             </div>
-
-                            <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-orange-500">
-                                <h1 class="text-3xl font-extrabold text-white mb-1">${manga.title}</h1>
-                                ${manga.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${manga.titleOriginal}</h4>` : ''}
-                                <h2 class="text-xl font-bold text-orange-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
-                                <p class="text-gray-400 text-sm mt-2">${manga.genre}</p>
-                                <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
-                                    <div class="flex flex-wrap items-center justify-start space-x-3">
-                                        ${previousButton}
-                                        ${nextButton}
-                                    </div>
-                                    <a href="#truyen/${mangaSlug}-${manga.id}" class="bg-gray-700 text-gray-300 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center md:w-1/2 lg:w-1/3">
-                                        <ion-icon name="information-circle-outline" class="mr-1"></ion-icon> Thông tin truyện
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="mt-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-                                <h3 class="text-2xl font-bold text-white mb-4">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
-                                ${canComment ? `
-                                    <form id="comment-form" class="mb-6">
-                                        <textarea id="comment-input" class="w-full h-20 p-3 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
-                                        <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                                        <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Gửi Bình Luận</button>
-                                    </form>
-                                    ` : `
-                                    <div class="p-4 bg-gray-700 rounded-lg text-center mb-6">
-                                        <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
-                                    </div>
-                                    `}
-
-                                <div id="comments-list">
-                                    <div class="max-h-96 overflow-y-auto comments-scroll-area">
-                                        ${displayedComments.length > 0
-                ? displayedComments.map(CommentTemplate).join('')
-                : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
-            }
-                                            ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
-                                    </div>
-                                </div>
+                            <div class="flex items-center gap-2 w-full md:w-auto justify-center">
+                                ${previousButton}
+                                ${nextButton}
                             </div>
                         </div>
+                    </div>
 
-                        <div class="lg:col-span-1">
-                            <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${manga.episodes.length} Tập)</h3>
+                    <!-- Khung Đọc Truyện Webtoon Style -->
+                    <div id="manga-reader-container" class="w-full bg-[#0a0a0a] min-h-[70vh] flex flex-col items-center pt-2 shadow-inner">
+                        ${imagesHtml}
+                    </div>
 
-                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
-                                    ${allEpisodes.map(ep => {
-                const epLink = `#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
-                const isActive = ep.episodeNumber === currentEpNumber;
-                return `
-                                            <a href="${epLink}" 
-                                                class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
-                                                ${isActive
-                        ? 'bg-orange-500 text-gray-900 font-bold shadow-md hover:bg-orange-600'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                    }">
-                                                Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
-                                            </a>
-                                                    `;
-            }).join('')}
+                    <!-- Điều hướng dưới cùng -->
+                    <div class="container mx-auto mt-8 flex justify-center gap-4 px-4">
+                        ${previousButton}
+                        ${nextButton}
+                    </div>
+
+                    <!-- Khu vực bình luận -->
+                    <div class="container mx-auto max-w-4xl mt-12 p-6 bg-gray-800 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
+                        ${canComment ? `
+                            <form id="comment-form" class="mb-6">
+                                <textarea id="comment-input" class="w-full h-24 p-4 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                                <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                                <div class="flex justify-end mt-2">
+                                    <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors shadow-md">Gửi Bình Luận</button>
                                 </div>
+                            </form>
+                            ` : `
+                            <div class="p-4 bg-gray-700 rounded-xl text-center mb-6">
+                                <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+                            </div>
+                            `}
+
+                        <div id="comments-list">
+                            <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
+                                ${displayedComments.length > 0
+                                    ? displayedComments.map(CommentTemplate).join('')
+                                    : '<p class="text-gray-500 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                                }
+                                ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn.</p>` : ''}
                             </div>
                         </div>
                     </div>
                 </section>
-                                                `;
+            `;
         };
 
 
@@ -1432,17 +1313,17 @@
                     const mangaDocSnap = await getDoc(doc(db, dataCollectionPath, mangaId));
                     if (mangaDocSnap.exists()) {
                         mangaData = {id: mangaDocSnap.id, ...mangaDocSnap.data()};
-                    } else {showError("Không tìm thấy dữ liệu."); return;}
+                    } else {showError("Không tìm thấy dữ liệu truyện."); return;}
                 }
 
                 const episodesList = mangaData.episodes || [];
                 const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
                 const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
 
-                if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số tập."); return;}
+                if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số chapter."); return;}
 
                 const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
-                if (!episodeData) {showError("Không tìm thấy dữ liệu tập này."); return;}
+                if (!episodeData) {showError("Không tìm thấy dữ liệu chapter này."); return;}
 
                 const commentsColRef = collection(db, dataCollectionPath, mangaId, 'comments');
                 let commentsList = [];
@@ -1463,125 +1344,18 @@
 
                 const allEpisodesWithId = episodesList.map((ep, index) => ({...ep, id: `${mangaId}_${ep.episodeNumber}_${index}`}));
 
+                // Render HTML Khung đọc truyện
                 getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
 
-                const videoElement = getEl('#video-player-element');
-
-                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-                const startTime = parseInt(urlParams.get('time') || localStorage.getItem(`_readTime_${episodeUniqueId}`) || '0');
-
-                if (videoElement && startTime > 0) {
-                    videoElement.currentTime = startTime;
-                }
-
-                if (videoElement) {
-                    // Lưu thời gian xem dở
-                    videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
-
-                    // Sự kiện khi xem hết
-                    videoElement.addEventListener('ended', () => {
-                        // Xóa thời gian xem dở
-                        localStorage.removeItem(`_readTime_${episodeUniqueId}`);
-
-                        // --- BÉ LÔI PHÙ PHÉP TỰ ĐỘNG CHUYỂN TẬP KẾ TIẾP ---
-                        if (nextEpisodeLink) {
-                            console.log("Đã hết! Đang tự động chuyển sang tập tiếp theo...");
-
-                            // Hiện bảng thông báo chuyển tập cho ngầu
-                            const overlay = getEl('#video-overlay');
-                            const container = getEl('#video-player-container');
-
-                            if (!overlay && container) {
-                                // Nếu overlay đã bị xóa lúc bấm Play thì mình tạo lại nè
-                                const newOverlay = document.createElement('div');
-                                newOverlay.id = 'video-overlay';
-                                newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
-                                newOverlay.innerHTML = `
-                        <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.3)] text-center flex flex-col items-center">
-                            <svg class="animate-spin h-12 w-12 text-orange-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
-                        </div>
-                    `;
-                                container.appendChild(newOverlay);
-                            }
-
-                            // Đợi 2 giây rồi mới trượt qua tập mới cho mượt
-                            setTimeout(() => {
-                                window.location.hash = nextEpisodeLink;
-                            }, 2000);
-                        }
-                    });
-                }
-
-                // --- BÉ LÔI CHÈN MÁY NGHE LÉN IFRAME VÀO ĐÂY NÈ ---
-                const iframeElement = getEl('#video-player-iframe');
-                if (iframeElement && nextEpisodeLink) {
-                    if (window.iframeEndedListener) {
-                        window.removeEventListener('message', window.iframeEndedListener);
-                    }
-
-                    window.iframeEndedListener = function (e) {
-                        // --- MÁY GHI ÂM BÉ LÔI: IN RA TẤT CẢ MỌI THỨ IFRAME NÓI ---
-                        console.log("🎧 BÉ LÔI ĐANG NGHE TỪ IFRAME:", e.data);
-
-                        try {
-                            let data = e.data;
-                            if (typeof data === 'string') {
-                                try {data = JSON.parse(data);} catch (err) { }
-                            }
-
-                            // Bé Lôi bổ sung thêm một đống từ khóa dự phòng xem có trúng không
-                            const isEnded =
-                                data === 'ended' ||
-                                data === 'videoEnded' ||
-                                data.event === 'complete' ||
-                                data.event === 'ended' ||
-                                data.message === 'complete' ||
-                                data.action === 'ended' ||
-                                data.status === 'ended' ||
-                                (data.info && data.info === 'ended');
-
-                            if (isEnded) {
-                                console.log("[Hệ thống]: Đã phát hiện kết thúc video. Đang tự động chuyển tập...");
-                                window.removeEventListener('message', window.iframeEndedListener);
-
-                                const container = getEl('#video-player-container');
-                                const existingOverlay = getEl('#video-overlay');
-                                if (!existingOverlay && container) {
-                                    const newOverlay = document.createElement('div');
-                                    newOverlay.id = 'video-overlay';
-                                    newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
-                                    newOverlay.innerHTML = `
-                            <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.3)] text-center flex flex-col items-center">
-                                <svg class="animate-spin h-12 w-12 text-orange-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
-                            </div>
-                        `;
-                                    container.appendChild(newOverlay);
-                                }
-
-                                setTimeout(() => {
-                                    window.location.hash = nextEpisodeLink;
-                                }, 2000);
-                            }
-                        } catch (error) { }
-                    };
-
-                    window.addEventListener('message', window.iframeEndedListener);
-                }
-                // ----------------------------------------------------
-
-                getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
+                // Lưu lịch sử đọc: Cứ click vào là lưu lại chapter này
+                saveWatchTime(episodeUniqueId, 1); 
 
                 if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
 
                 setupCommentsListener(mangaId);
+
+                // Tự động cuộn lên đầu trang để bắt đầu đọc
+                window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (e) {showError("Lỗi khi tải trang.", e.message);}
         };
@@ -1596,9 +1370,9 @@
 
             switch (pageType) {
                 case '#home':
-                    const moiCapNhatList = cache.filter(a => a.status === 'dang-chieu').slice(0, HOME_PAGE_LIMIT);
-                    const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, HOME_PAGE_LIMIT);
-                    const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, HOME_PAGE_LIMIT);
+                    const moiCapNhatList = cache.filter(a => a.status === 'dang-ra').slice(0, HOME_PAGE_LIMIT);
+                    const sapChieuList = cache.filter(a => a.status === 'sap-ra').slice(0, HOME_PAGE_LIMIT);
+                    const deCuList = cache.filter(a => a.status === 'hoan-thanh').slice(0, HOME_PAGE_LIMIT);
 
                     // --- BÉ LÔI PHÙ PHÉP SLIDER LẤY TỪ DATABASE ADMIN ---
                     let slideMangas = [];
@@ -1620,9 +1394,9 @@
                     // Gắn giao diện Slider ngẫu nhiên và các Section khác
                     getEl('#app').innerHTML =
                         SliderSectionTemplate(slideMangas) +
-                        MangaSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') +
-                        MangaSectionTemplate('Sắp Ra Mắt', sapChieuList, '#genre/sap-chieu') +
-                        MangaSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
+                        MangaSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-ra') +
+                        MangaSectionTemplate('Sắp Ra Mắt', sapChieuList, '#genre/sap-ra') +
+                        MangaSectionTemplate('Đã Hoàn Thành', deCuList, '#genre/hoan-thanh');
 
                     // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
                     setTimeout(() => {
@@ -1782,7 +1556,6 @@
                     await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Lỗi đăng nhập bằng Custom Token:", e));
                 }
 
-                // --- BÉ LÔI PHÙ PHÉP: Ép hệ thống phải đón kết quả Google về trước ---
                 try {
                     await getRedirectResult(auth);
                 } catch (err) {
@@ -1804,7 +1577,6 @@
                             userEmail = user.email;
                             await ensureUserProfile(user);
                             updateAuthStateUI(user);
-                            // Đăng nhập xong mà đang kẹt ở trang login thì đá về sảnh nha!
                             if (window.location.hash === '#login') window.location.hash = '#home';
                         } else {
                             userEmail = user.email || 'Admin User';
@@ -1823,8 +1595,6 @@
                         }
                         updateAuthStateUI(null);
 
-                        // --- BÉ LÔI DỜI TẠO TÀI KHOẢN ẨN DANH VÀO ĐÂY ---
-                        // Chỉ khi nào chắc chắn Google không trả về, mới tạo account khách
                         try {
                             await signInAnonymously(auth);
                         } catch (e) {
@@ -1864,7 +1634,6 @@
                     } else {
                         globalSliderSettings = {mode: 'random', selectedMangaIds: []};
                     }
-                    // Gọi lại router để vẽ lại trang chủ nếu đang đứng ở trang chủ
                     if (window.location.hash.startsWith('#home') || window.location.hash === '') {
                         router(false);
                     }
@@ -1884,15 +1653,12 @@
 
                         // --- CẬP NHẬT TRỰC TIẾP VÀO DOM CỰC NHẸ BẰNG REQUEST ANIMATION FRAME ---
                         requestAnimationFrame(() => {
-                            // Cập nhật lượt xem (Chỉ tìm và sửa nếu phần tử thực sự tồn tại trên màn hình)
                             const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
                             if (viewEls.length > 0) viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
 
-                            // Cập nhật lượt thích
                             const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
                             if (likeEls.length > 0) likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
 
-                            // Cập nhật điểm đánh giá
                             const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
                             if (ratingEls.length > 0) {
                                 const reviewCount = data.reviewCount || 0;
@@ -1900,7 +1666,6 @@
                                 ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
                             }
                         });
-                        // ------------------------------------------------------------------------------------------
                     });
 
                     // Sắp xếp lại
@@ -1912,7 +1677,6 @@
 
                     globalMangaCache = mangaList;
 
-                    // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
                     if (!wasCacheLoaded) {
                         router(false);
                     }
@@ -2055,7 +1819,7 @@
                         <p class="text-xs text-gray-400 truncate mt-0.5">${manga.titleOriginal || ''}</p>
                         <p class="text-xs text-orange-400 font-medium mt-1 flex items-center gap-1">
                             <ion-icon name="play-circle-outline"></ion-icon>
-                            ${manga.status === 'sap-chieu' ? 'Sắp chiếu' : (manga.episodes ? `Tập ${manga.episodes.length}` : 'Đang cập nhật')}
+                            ${manga.status === 'sap-ra' ? 'Sắp ra mắt' : (manga.episodes ? `Chap ${manga.episodes.length}` : 'Đang cập nhật')}
                         </p>
                     </div>
                 </a>
@@ -2101,7 +1865,7 @@
                     }
                 });
 
-                // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem phim
+                // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem truyện
                 resultsEl.addEventListener('click', (e) => {
                     if (e.target.closest('a')) {
                         resultsEl.classList.add('hidden');
@@ -2574,7 +2338,7 @@
                             class="w-14 h-14 object-cover rounded-2xl border-2 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
                         <span class="text-4xl font-extrabold text-white">FOX<span
                                 class="text-orange-500">MANGA</span></span>
-
+                    </a>
                 </div>
 
                 <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
@@ -2714,7 +2478,7 @@
                             <a href="#genre/ngon-tinh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ngôn Tình</a>
                             <a href="#genre/one-shot" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">One shot</a>
                             <a href="#genre/psychological" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological (Tâm lý)</a>
-                            <a href="#genre/romance" class="text-orange-400 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
+                            <a href="#genre/romance" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
                             <a href="#genre/school-life" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">School Life (Học đường)</a>
                             <a href="#genre/sci-fi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-fi (Viễn tưởng)</a>
                             <a href="#genre/seinen" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen</a>
@@ -3152,5 +2916,4 @@
         });
     }
 </script>
-
 </html>
