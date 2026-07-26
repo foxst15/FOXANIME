@@ -1977,8 +1977,8 @@
                 for (const line of rawLines) {
                     let currentUrl = line;
                     let currentChapNum = autoEpisodeNumber;
+                    let currentTitle = null; 
 
-                    // --- BÉ LÔI NHẬN DIỆN ĐỊNH DẠNG "1|https://...|" CỦA OTRUYEN NÈ ---
                     if (line.includes('|')) {
                         const parts = line.split('|').map(p => p.trim());
                         const parsedNum = parseInt(parts[0]);
@@ -1986,9 +1986,16 @@
                         if (!isNaN(parsedNum) && parts[1] && parts[1].startsWith('http')) {
                             currentChapNum = parsedNum;
                             currentUrl = parts[1];
+                            // Nếu có phần thứ 3 thì lấy làm tên Chapter
+                            if (parts.length >= 3 && parts[2]) {
+                                currentTitle = parts[2];
+                            }
                         } else if (parts[0].startsWith('http')) {
-                            // Backup lỡ OTruyen đổi định dạng link đứng trước
+                            // Backup lỡ đổi định dạng link đứng trước
                             currentUrl = parts[0];
+                            if (parts.length >= 2 && parts[1]) {
+                                currentTitle = parts[1];
+                            }
                         }
                     }
 
@@ -2007,14 +2014,14 @@
 
                     const newEpisode = {
                         episodeNumber: currentChapNum,
-                        title: `Chapter ${currentChapNum}`,
+                        // BÉ LÔI ƯU TIÊN LẤY TÊN TỰ ĐỊNH NGHĨA, NẾU KHÔNG CÓ MỚI DÙNG MẶC ĐỊNH
+                        title: currentTitle ? currentTitle : `Chapter ${currentChapNum}`,
                         videoUrl: currentUrl,
                         addedAt: new Date().toISOString()
                     };
-
-                    newEpisodes.push(newEpisode);
                     
                     // Thêm liền vào Set để các dòng bên dưới không bị trùng số với dòng vừa thêm
+                    newEpisodes.push(newEpisode);
                     existingNumbers.add(currentChapNum);
                     existingUrls.add(currentUrl);
                     
