@@ -167,7 +167,8 @@
         };
         window.hideResumeModal = () => {
             const modal = getEl('#resume-modal');
-            modal.classList.add('hidden'); modal.classList.remove('flex'); resolveResumeModal = null;
+            modal.classList.add('hidden'); modal.classList.remove('flex'); 
+            // ĐÃ XÓA DÒNG GÂY LỖI NULL TYPEERROR Ở ĐÂY NHA CẬU CHỦ!
         };
 
         const saveWatchTime = (episodeId, time) => {
@@ -1075,7 +1076,7 @@
     `;
         };
 
-        const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+       const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, imagesList) => {
             const mangaSlug = createSlug(manga.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
@@ -1088,13 +1089,10 @@
                 previousEpisodeLink = `#truyen/${mangaSlug}-${manga.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
             }
 
-            // Xử lý danh sách link ảnh (Mỗi link 1 dòng)
-            let imagesHtml = '<p class="text-center text-gray-500 py-20 text-lg">Chapter này chưa có ảnh. Admin đang cập nhật nha!</p>';
-            if (episode.videoUrl) {
-                const urls = episode.videoUrl.split('\n').map(u => u.trim()).filter(u => u.length > 0);
-                if (urls.length > 0) {
-                    imagesHtml = urls.map(url => `<img src="${url}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`).join('');
-                }
+            // XỬ LÝ RENDER DANH SÁCH ẢNH TỪ MẢNG imagesList
+            let imagesHtml = '<p class="text-center text-gray-500 py-20 text-lg"><i class="fas fa-spinner fa-spin text-orange-500 text-3xl mb-4"></i><br>Đang tải ảnh hoặc Chapter này chưa có dữ liệu...</p>';
+            if (imagesList && imagesList.length > 0) {
+                imagesHtml = imagesList.map(url => `<img src="${url}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`).join('');
             }
 
             const previousButton = previousEpisodeLink ? `
@@ -1115,7 +1113,6 @@
 
             return `
                 <section class="text-white pb-12">
-                    <!-- Thanh điều hướng Chapter -->
                     <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
                         <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
                             <div class="flex-1 text-center md:text-left min-w-0">
@@ -1129,18 +1126,15 @@
                         </div>
                     </div>
 
-                    <!-- Khung Đọc Truyện Webtoon Style -->
                     <div id="manga-reader-container" class="w-full bg-[#0a0a0a] min-h-[70vh] flex flex-col items-center pt-2 shadow-inner">
                         ${imagesHtml}
                     </div>
 
-                    <!-- Điều hướng dưới cùng -->
                     <div class="container mx-auto mt-8 flex justify-center gap-4 px-4">
                         ${previousButton}
                         ${nextButton}
                     </div>
 
-                    <!-- Khu vực bình luận -->
                     <div class="container mx-auto max-w-4xl mt-12 p-6 bg-gray-800 rounded-2xl shadow-xl">
                         <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
                         ${canComment ? `
@@ -1325,6 +1319,29 @@
                 const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
                 if (!episodeData) {showError("Không tìm thấy dữ liệu chapter này."); return;}
 
+                // --- BÉ LÔI TỰ ĐỘNG FETCH API NẾU PHÁT HIỆN LINK CỦA OTRUYEN ---
+                let finalImages = [];
+                if (episodeData.videoUrl) {
+                    const urls = episodeData.videoUrl.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+                    
+                    if (urls.length === 1 && urls[0].includes('otruyencdn.com')) {
+                        try {
+                            const res = await fetch(urls[0]);
+                            const apiData = await res.json();
+                            if (apiData.status === 'success' && apiData.data && apiData.data.item) {
+                                const domain = apiData.data.domain_cdn;
+                                const path = apiData.data.item.chapter_path;
+                                finalImages = apiData.data.item.chapter_image.map(img => `${domain}/${path}/${img.image_file}`);
+                            }
+                        } catch (e) {
+                            console.error("Lỗi lấy API truyện:", e);
+                        }
+                    } else {
+                        // Nếu là mảng link ảnh dán tay thì giữ nguyên
+                        finalImages = urls;
+                    }
+                }
+
                 const commentsColRef = collection(db, dataCollectionPath, mangaId, 'comments');
                 let commentsList = [];
                 let commentsSnapshot;
@@ -1344,17 +1361,15 @@
 
                 const allEpisodesWithId = episodesList.map((ep, index) => ({...ep, id: `${mangaId}_${ep.episodeNumber}_${index}`}));
 
-                // Render HTML Khung đọc truyện
-                getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
+                // Render giao diện và nhét list ảnh vào
+                getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink, finalImages);
 
-                // Lưu lịch sử đọc: Cứ click vào là lưu lại chapter này
                 saveWatchTime(episodeUniqueId, 1); 
 
                 if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
 
                 setupCommentsListener(mangaId);
 
-                // Tự động cuộn lên đầu trang để bắt đầu đọc
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (e) {showError("Lỗi khi tải trang.", e.message);}
@@ -1751,9 +1766,8 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await setupFirebase();
-            getEl('#resume-modal-yes')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(true);});
-            getEl('#resume-modal-no')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(false);});
-
+            getEl('#resume-modal-yes')?.addEventListener('click', () => { if(resolveResumeModal) resolveResumeModal(true); window.hideResumeModal(); });
+            getEl('#resume-modal-no')?.addEventListener('click', () => { if(resolveResumeModal) resolveResumeModal(false); window.hideResumeModal(); });
             // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
             // --- 1. Nút mở Menu chính ---
             getEl('#mobile-menu-button')?.addEventListener('click', () => {
