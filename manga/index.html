@@ -855,7 +855,10 @@
                         <span class="inline-block bg-orange-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(249,115,22,0.5)]">Mới Cập Nhật</span>
                         <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-3 leading-tight drop-shadow-2xl">${manga.title}</h1>
                         ${manga.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-orange-400/80 mb-3 drop-shadow-lg">${manga.titleOriginal}</h4>` : ''}
-                        <p class="text-gray-300 text-base md:text-lg mb-6 line-clamp-3 drop-shadow-md">${manga.summary || 'Đang cập nhật nội dung...'}</p>
+                        
+                        <!-- BÉ LÔI ĐÃ FIX CHỖ NÀY THÀNH LINE-CLAMP-2 ĐỂ HIỆN 2 DÒNG NÈ -->
+                        <p class="text-gray-300 text-base md:text-lg mb-6 line-clamp-2 drop-shadow-md">${manga.summary || 'Đang cập nhật nội dung...'}</p>
+                        
                         <div class="flex items-center space-x-4">
                             <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3.5 bg-orange-500 text-gray-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
                                 <ion-icon name="play-circle" class="text-2xl mr-2"></ion-icon>
@@ -1025,7 +1028,7 @@
                             <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
                         </div>
 
-                        <div class="flex justify-center md:justify-start space-x-2 mb-4">
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
                             ${manga.genre ? manga.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
                         </div>
                         <p class="text-gray-300 text-lg mb-6">${manga.summary || 'Không có tóm tắt.'}</p>
