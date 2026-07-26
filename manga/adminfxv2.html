@@ -736,6 +736,7 @@
                             <option value="manhwa">Manhwa (Hàn Quốc)</option>
                             <option value="manhua">Manhua (Trung Quốc)</option>
                             <option value="taihen">Taihen (18+)</option>
+                            <option value="khac">Khác (Other)</option>
                         </select>
                     </div>
                     <div>
@@ -1424,7 +1425,7 @@
             // LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG TRUYỆN  ---
             let detectedFormat = 'manga'; // Mặc định vẫn là Manga
             const genresCheck = genres.map(g => g.toLowerCase());
-            
+
             if (genresCheck.some(g => g.includes('manhwa') || g.includes('hàn quốc'))) {
                 detectedFormat = 'manhwa';
             } else if (genresCheck.some(g => g.includes('manhua') || g.includes('trung quốc'))) {
