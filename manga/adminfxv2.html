@@ -615,6 +615,7 @@
                             <option value="manhwa">Manhwa (Hàn Quốc)</option>
                             <option value="manhua">Manhua (Trung Quốc)</option>
                             <option value="taihen">Taihen (18+)</option>
+                            <option value="khac">Khác (Other)</option>
                         </select>
                     </div>
                     <div>
@@ -1339,7 +1340,7 @@
                 throw new Error("Manga object is missing a valid 'title'.");
             }
 
-            const validFormats = ['manga', 'manhwa', 'manhua', 'taihen'];
+            const validFormats = ['manga', 'manhwa', 'manhua', 'taihen', 'khac'];
             const validStatuses = ['dang-ra', 'hoan-thanh', 'sap-ra'];
 
             const sanitized = {
@@ -1420,7 +1421,7 @@
                 rawBanner = `${domainImage}/uploads/comics/${rawBanner}`.replace(/([^:]\/)\/+/g, "$1");
             }
 
-            // --- BÉ LÔI THÊM LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG TRUYỆN NÈ ---
+            // LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG TRUYỆN  ---
             let detectedFormat = 'manga'; // Mặc định vẫn là Manga
             const genresCheck = genres.map(g => g.toLowerCase());
             
@@ -1430,8 +1431,10 @@
                 detectedFormat = 'manhua';
             } else if (genresCheck.some(g => g.includes('18+') || g.includes('adult') || g.includes('smut') || g.includes('taihen'))) {
                 detectedFormat = 'taihen';
+            } else if (genresCheck.some(g => g.includes('comic') || g.includes('việt nam') || g.includes('khác'))) {
+                // Nhận diện truyện từ các quốc gia khác hoặc comic Âu Mỹ, VN gộp chung vào "Khác"
+                detectedFormat = 'khac';
             }
-
             // 4. Đóng gói thành chuẩn dữ liệu của FoxManga
             let mangaData = {
                 title: data.name || data.original_name || 'Unknown Title',
@@ -1977,7 +1980,7 @@
                 for (const line of rawLines) {
                     let currentUrl = line;
                     let currentChapNum = autoEpisodeNumber;
-                    let currentTitle = null; 
+                    let currentTitle = null;
 
                     if (line.includes('|')) {
                         const parts = line.split('|').map(p => p.trim());
@@ -2003,7 +2006,7 @@
                         conflictingUrls++;
                         continue;
                     }
-                    
+
                     if (existingNumbers.has(currentChapNum)) {
                         conflictingNumbers++;
                         // Dịch số lên nếu bị trùng để không đè mất chap cũ
@@ -2019,12 +2022,12 @@
                         videoUrl: currentUrl,
                         addedAt: new Date().toISOString()
                     };
-                    
+
                     // Thêm liền vào Set để các dòng bên dưới không bị trùng số với dòng vừa thêm
                     newEpisodes.push(newEpisode);
                     existingNumbers.add(currentChapNum);
                     existingUrls.add(currentUrl);
-                    
+
                     autoEpisodeNumber = currentChapNum + 1;
                 }
 
