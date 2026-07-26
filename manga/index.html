@@ -1398,16 +1398,17 @@
             const cache = globalMangaCache; let results = []; let title = '';
             const HOME_PAGE_LIMIT = 12;
 
+            // --- BÉ LÔI FIX LỖI: Tạo một biến an toàn, nếu param bị undefined thì thành chuỗi rỗng ---
+            const safeParam = param || '';
+
             switch (pageType) {
                 case '#home':
                     const moiCapNhatList = cache.filter(a => a.status === 'dang-ra').slice(0, HOME_PAGE_LIMIT);
                     const sapChieuList = cache.filter(a => a.status === 'sap-ra').slice(0, HOME_PAGE_LIMIT);
                     const deCuList = cache.filter(a => a.status === 'hoan-thanh').slice(0, HOME_PAGE_LIMIT);
 
-                    // --- BÉ LÔI PHÙ PHÉP SLIDER LẤY TỪ DATABASE ADMIN ---
                     let slideMangas = [];
                     if (globalSliderSettings.mode === 'manual' && globalSliderSettings.selectedMangaIds.length > 0) {
-                        // Chế độ thủ công: Lấy đúng thứ tự danh sách ID Admin đã chọn
                         globalSliderSettings.selectedMangaIds.forEach(id => {
                             const manga = cache.find(m => m.id === id);
                             if (manga) slideMangas.push(manga);
@@ -1421,36 +1422,21 @@
                             }
                         }
                     }
-                    // Gắn giao diện Slider ngẫu nhiên và các Section khác
                     getEl('#app').innerHTML =
                         SliderSectionTemplate(slideMangas) +
                         MangaSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-ra') +
                         MangaSectionTemplate('Sắp Ra Mắt', sapChieuList, '#genre/sap-ra') +
                         MangaSectionTemplate('Đã Hoàn Thành', deCuList, '#genre/hoan-thanh');
 
-                    // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
                     setTimeout(() => {
                         new Swiper('.hero-swiper', {
                             effect: 'fade',
-                            fadeEffect: {
-                                crossFade: true
-                            },
-                            speed: 1500, // Phép thuật ở đây ạ: Chuyển cảnh kéo dài 1.5 giây siêu mượt mà như phim!
-                            autoplay: {
-                                delay: 4500, // Đứng hình 4.5s để người xem đọc nội dung
-                                disableOnInteraction: false,
-                                pauseOnMouseEnter: true // Tự động dừng mượt mà khi chủ nhân rê chuột vào
-                            },
-                            pagination: {
-                                el: '.swiper-pagination',
-                                clickable: true,
-                                dynamicBullets: true
-                            },
-                            navigation: {
-                                nextEl: '.swiper-button-next',
-                                prevEl: '.swiper-button-prev'
-                            },
-                            loop: slideMangas.length > 1, // Fix lỗi: Chỉ loop nếu có nhiều hơn 1 phim
+                            fadeEffect: { crossFade: true },
+                            speed: 1500,
+                            autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
+                            pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+                            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                            loop: slideMangas.length > 1,
                             grabCursor: true,
                         });
                     }, 100);
@@ -1458,8 +1444,6 @@
 
                 case '#gacha':
                     getEl('#app').innerHTML = GachaPageTemplate();
-
-                    // Khởi tạo và đếm số lượt quay hôm nay
                     const today = new Date().toDateString();
                     let lastDate = localStorage.getItem('_mangaGachaDate');
                     if (lastDate !== today) {
@@ -1467,10 +1451,8 @@
                         localStorage.setItem('_mangaGachaPulls', 5);
                     }
                     getEl('#gacha-pulls-left').textContent = localStorage.getItem('_mangaGachaPulls');
-
-                    // Gắn sự kiện cho nút Xem Bói
                     getEl('#fortune-form').addEventListener('submit', window.handleFortuneTelling);
-                    return; // Dừng lại ở đây vì mình tự vẽ HTML rồi
+                    return;
 
                 case '#login':
                     getEl('#app').innerHTML = AuthPageTemplate();
@@ -1486,26 +1468,35 @@
                     getEl('#profile-update-form')?.addEventListener('submit', handleProfileUpdate);
                     return;
                 case '#search':
-                    title = `Kết quả tìm kiếm cho: "${param}"`;
-                    const lowerCaseTerm = param.toLowerCase();
-                    results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
+                    // --- BÉ LÔI ĐÃ DÙNG safeParam ĐỂ AN TOÀN ---
+                    if (!safeParam) {
+                        title = `Vui lòng nhập từ khóa tìm kiếm...`;
+                        results = [];
+                    } else {
+                        title = `Kết quả tìm kiếm cho: "${safeParam}"`;
+                        const lowerCaseTerm = safeParam.toLowerCase();
+                        results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
+                    }
                     break;
                 case '#genre':
-                    const filterSlug = param.toLowerCase();
-                    const filterName = GENRE_TRANSLATIONS[param.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
+                    // --- BÉ LÔI ĐÁ VỀ HOME NẾU KHÔNG CÓ THỂ LOẠI ---
+                    if (!safeParam) {
+                        window.location.hash = '#home';
+                        return;
+                    }
+                    const filterSlug = safeParam.toLowerCase();
+                    const filterName = GENRE_TRANSLATIONS[safeParam.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
                     title = `Thể loại: ${filterName}`;
                     results = cache.filter(m => {
                         if ((m.formatType && m.formatType.toLowerCase() === filterSlug) || (m.status && m.status.toLowerCase() === filterSlug)) {
                             return true;
                         }
-
-
                         const mangaGenreSlugs = (m.genre || '').split(',').map(g => createSlug(g.trim()));
                         return mangaGenreSlugs.includes(filterSlug);
                     });
                     break;
                 case '#top':
-                    title = `Top ${param ? param.replace(/-/g, ' ') : 'Nội Dung'} (Sắp xếp theo Lượt xem)`;
+                    title = `Top ${safeParam ? safeParam.replace(/-/g, ' ') : 'Nội Dung'} (Sắp xếp theo Lượt xem)`;
                     results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
                     break;
                 case '#library':
@@ -1523,7 +1514,6 @@
             }
             getEl('#app').innerHTML = SearchPageTemplate(results, title);
         };
-
 
 
         const router = (shouldUpdateHash = true) => {
