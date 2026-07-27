@@ -2216,7 +2216,37 @@
                     messageEl.style.color = COLORS.ERROR;
                     return;
                 }
+                // Cập nhật mảng episode và sort
+                existingEpisodes = [...existingEpisodes, ...newEpisodes];
+                existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
 
+                await updateDoc(movieDocRef, { 
+                    episodes: existingEpisodes,
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false
+                });
+                
+                let warning = '';
+                if (conflictingUrls > 0) {
+                    warning += `Lưu ý: Đã bỏ qua ${conflictingUrls} link bị trùng URL. `;
+                }
+                if (conflictingNumbers > 0) {
+                    warning += `Lưu ý: Đã tự động điều chỉnh số tập bắt đầu (tăng lên) để tránh ${conflictingNumbers} tập bị trùng số.`;
+                }
+                
+                messageEl.textContent = `SUCCESS! Đã thêm thành công ${newEpisodes.length} tập phim. ${warning}`;
+                messageEl.style.color = COLORS.SUCCESS;
+
+                $('bulk-add-episode-form').reset();
+                setTimeout(() => hideModal('bulk-add-episode-modal'), 1500);
+
+            } catch (error) {
+                console.error("Lỗi khi thêm tập phim hàng loạt:", error);
+                messageEl.textContent = 'BULK ADD ERROR: Lỗi hệ thống khi lưu tập phim: ' + error.message;
+                messageEl.style.color = COLORS.ERROR;
+            }
+        };
+            
                 window.showBulkAddEpisodeModal = (movieId, movieTitle) => {
                     const movie = globalAdminMoviesCache.find(m => m.id === movieId);
                     const lastEpisodeNumber = movie?.episodes?.length || 0;
