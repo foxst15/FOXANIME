@@ -1113,7 +1113,7 @@
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            cconst sortedEps = [...allEpisodes].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
+            const sortedEps = [...allEpisodes].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
             const currIdx = sortedEps.findIndex(ep => parseFloat(ep.episodeNumber) === currentEpNumber);
             const previousEpisode = currIdx > 0 ? sortedEps[currIdx - 1] : null;
             let previousEpisodeLink = null;
