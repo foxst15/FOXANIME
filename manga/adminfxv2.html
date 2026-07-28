@@ -980,11 +980,17 @@
             </div>
 
             <div class="flex items-center justify-between mt-4">
-                <button id="btn-start-scrape" onclick="startOTruyenScrape()"
-                    class="anime-button bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-6 rounded-lg shadow-[0_0_10px_rgba(147,51,234,0.5)]">
-                    <i class="fas fa-play mr-2"></i> BẮT ĐẦU CÀO
-                </button>
-                <button type="button" onclick="hideModal('otruyen-scrape-modal')"
+                <div>
+                    <button id="btn-start-scrape" onclick="startOTruyenScrape()"
+                        class="anime-button bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-lg shadow-[0_0_10px_rgba(147,51,234,0.5)]">
+                        <i class="fas fa-play mr-2"></i> BẮT ĐẦU CÀO
+                    </button>
+                    <button id="btn-stop-scrape" onclick="stopOTruyenScrape()"
+                        class="anime-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hidden ml-2">
+                        <i class="fas fa-stop mr-2"></i> DỪNG LẠI
+                    </button>
+                </div>
+                <button type="button" onclick="stopOTruyenScrape(); hideModal('otruyen-scrape-modal')"
                     class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
                     Đóng
                 </button>
@@ -2251,13 +2257,41 @@
             }
         };
 
-        // --- BẮT ĐẦU: THẦN CHÚ CÀO DỮ LIỆU OTRUYEN CỦA BÉ LÔI ---
+        // --- BẮT ĐẦU: THẦN CHÚ CÀO DỮ LIỆU (CÓ PHANH KHẨN CẤP) ---
+        window.isScrapingOTruyen = false; // Biến cờ hiệu để dừng
+
+        window.stopOTruyenScrape = () => {
+            if (window.isScrapingOTruyen) {
+                window.isScrapingOTruyen = false; // Hạ cờ xuống!
+                const logEl = $('scrape-log-container');
+                if (logEl) {
+                    logEl.innerHTML += `<div class="text-yellow-400 mb-1 border-b border-gray-800 pb-1">⚠️ [HỆ THỐNG] Đã nhận lệnh DỪNG KHẨN CẤP từ Chủ nhân! Đang ngắt tiến trình...</div>`;
+                    logEl.scrollTop = logEl.scrollHeight;
+                }
+            }
+        };
+
+        // --- BẮT ĐẦU: THẦN CHÚ CÀO DỮ LIỆU (CÓ CHỐNG TRÙNG LẶP & PHANH KHẨN CẤP) ---
+        window.isScrapingOTruyen = false;
+
+        window.stopOTruyenScrape = () => {
+            if (window.isScrapingOTruyen) {
+                window.isScrapingOTruyen = false;
+                const logEl = $('scrape-log-container');
+                if (logEl) {
+                    logEl.innerHTML += `<div class="text-yellow-400 mb-1 border-b border-gray-800 pb-1">⚠️ [HỆ THỐNG] Đã nhận lệnh DỪNG KHẨN CẤP từ Chủ nhân! Đang ngắt tiến trình...</div>`;
+                    logEl.scrollTop = logEl.scrollHeight;
+                }
+            }
+        };
+
         window.startOTruyenScrape = async () => {
             const startPage = parseInt($('scrape-start-page').value) || 1;
             const endPage = parseInt($('scrape-end-page').value) || 1;
             const fetchChapters = $('scrape-fetch-chapters').checked;
             const logEl = $('scrape-log-container');
-            const btn = $('btn-start-scrape');
+            const btnStart = $('btn-start-scrape');
+            const btnStop = $('btn-stop-scrape');
 
             if (startPage > endPage) {
                 alert("Lỗi: Trang bắt đầu không được lớn hơn trang kết thúc ạ!");
@@ -2265,18 +2299,21 @@
             }
 
             const log = (msg, type = 'info') => {
-                const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-gray-300');
+                const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : (type === 'warning' ? 'text-yellow-400' : 'text-gray-300'));
                 const time = new Date().toLocaleTimeString('vi-VN');
                 logEl.innerHTML += `<div class="${color} mb-1 border-b border-gray-800 pb-1">[${time}] ${msg}</div>`;
-                logEl.scrollTop = logEl.scrollHeight; // Tự động cuộn xuống cuối
+                logEl.scrollTop = logEl.scrollHeight;
             };
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> ĐANG CÀO...';
+            window.isScrapingOTruyen = true;
+            btnStart.classList.add('hidden');
+            btnStop.classList.remove('hidden');
             logEl.innerHTML = '';
             log('Bắt đầu khởi động cỗ máy cào dữ liệu...', 'success');
 
             for (let page = startPage; page <= endPage; page++) {
+                if (!window.isScrapingOTruyen) break;
+
                 log(`Đang lấy danh sách truyện hoàn thành - Trang ${page}...`);
                 try {
                     const res = await fetch(`https://otruyenapi.com/v1/api/danh-sach/hoan-thanh?page=${page}`);
@@ -2291,9 +2328,19 @@
                     log(`Tìm thấy ${items.length} truyện ở trang ${page}. Bắt đầu cào chi tiết...`);
 
                     for (const item of items) {
+                        if (!window.isScrapingOTruyen) break;
+
+                        // 🌟 MẮT THẦN BÉ LÔI: KIỂM TRA TRÙNG LẶP TRƯỚC KHI CÀO CHI TIẾT
+                        const mangaNameLower = item.name.toLowerCase().trim();
+                        const isExist = globalAdminMangaCache.some(m => m.title.toLowerCase().trim() === mangaNameLower);
+
+                        if (isExist) {
+                            log(`⏭️ Bỏ qua: Truyện "${item.name}" đã tồn tại trong Database!`, 'warning');
+                            continue; // Chuyển sang truyện tiếp theo ngay và luôn!
+                        }
+
                         log(`Đang lấy thông tin truyện: ${item.name}...`);
 
-                        // 1. Gọi API lấy thông tin chi tiết truyện
                         const detailRes = await fetch(`https://otruyenapi.com/v1/api/truyen-tranh/${item.slug}`);
                         const detailJson = await detailRes.json();
 
@@ -2302,13 +2349,11 @@
                         const mangaData = detailJson.data.item;
                         const domainImage = detailJson.data.domain_cdn || "https://img.otruyenapi.com";
 
-                        // 2. Map dữ liệu Thể loại
                         let genres = [];
                         if (mangaData.category && Array.isArray(mangaData.category)) {
                             genres = mangaData.category.map(c => c.name);
                         }
 
-                        // Nhận diện dạng truyện tự động
                         let detectedFormat = 'manga';
                         const genresStr = genres.join(', ').toLowerCase();
                         if (genresStr.includes('manhwa') || genresStr.includes('hàn quốc')) detectedFormat = 'manhwa';
@@ -2316,20 +2361,18 @@
                         else if (genresStr.includes('18+') || genresStr.includes('adult') || genresStr.includes('taihen')) detectedFormat = 'taihen';
                         else if (genresStr.includes('comic') || genresStr.includes('việt nam')) detectedFormat = 'khac';
 
-                        // Map ảnh Poster
                         let posterUrl = mangaData.thumb_url;
                         if (posterUrl && !posterUrl.startsWith('http')) {
                             posterUrl = `${domainImage}/uploads/comics/${posterUrl}`;
                         }
 
-                        // 3. Chuẩn bị Object để lưu vào Firebase
                         const newManga = {
                             title: mangaData.name || 'Unknown',
                             titleOriginal: mangaData.origin_name && mangaData.origin_name.length > 0 ? mangaData.origin_name[0] : '',
-                            summary: (mangaData.content || '').replace(/<[^>]*>?/gm, ''), // Xóa các thẻ HTML dư thừa
+                            summary: (mangaData.content || '').replace(/<[^>]*>?/gm, ''),
                             posterUrl: posterUrl,
                             bannerUrl: posterUrl,
-                            status: 'hoan-thanh', // Ép cứng vì đang lấy từ list hoàn thành
+                            status: 'hoan-thanh',
                             formatType: detectedFormat,
                             genre: genres.join(', ') || 'Khác',
                             totalEpisodes: 0,
@@ -2345,15 +2388,14 @@
                             isNotified: false
                         };
 
-                        // 4. Có cào chi tiết từng Chapter không?
-                        if (fetchChapters && mangaData.episodes && mangaData.episodes.length > 0) {
-                            const chaptersList = mangaData.episodes[0].server_data;
+                        if (fetchChapters && mangaData.chapters && mangaData.chapters.length > 0) {
+                            const chaptersList = mangaData.chapters[0].server_data;
                             newManga.totalEpisodes = chaptersList.length;
-                            log(`Đang cào ${chaptersList.length} chapters của "${item.name}"... Quá trình này sẽ hơi lâu 💦`);
+                            log(`Đang cào ${chaptersList.length} chapters của "${item.name}"...`);
 
                             for (const chap of chaptersList) {
+                                if (!window.isScrapingOTruyen) break;
                                 try {
-                                    // Phải gọi thêm API phụ của từng chương để lấy link ảnh
                                     const chapRes = await fetch(chap.chapter_api_data);
                                     const chapJson = await chapRes.json();
 
@@ -2361,7 +2403,6 @@
                                         const path = chapJson.data.item.chapter_path;
                                         const chapDomain = chapJson.data.domain_cdn;
 
-                                        // Nối URL ảnh lại
                                         const images = chapJson.data.item.chapter_image.map(img =>
                                             `${chapDomain}/${path}/${img.image_file}`
                                         );
@@ -2369,22 +2410,21 @@
                                         newManga.episodes.push({
                                             episodeNumber: parseFloat(chap.chapter_name) || newManga.episodes.length + 1,
                                             title: `Chapter ${chap.chapter_name}`,
-                                            videoUrl: images.join('\n'), // Xuống dòng chuẩn cấu trúc FoxManga
+                                            videoUrl: images.join('\n'),
                                             addedAt: new Date().toISOString()
                                         });
                                     }
-                                    // Thần chú tạm dừng (0.5s) để server OTruyen không block IP
                                     await new Promise(r => setTimeout(r, 500));
                                 } catch (e) {
                                     log(`Lỗi khi lấy dữ liệu Chap ${chap.chapter_name}: ${e.message}`, 'error');
                                 }
                             }
                         } else {
-                            // Nếu không cào chapter thì chỉ đếm tổng số
-                            newManga.totalEpisodes = mangaData.episodes && mangaData.episodes[0] ? mangaData.episodes[0].server_data.length : 0;
+                            newManga.totalEpisodes = mangaData.chapters && mangaData.chapters[0] ? mangaData.chapters[0].server_data.length : 0;
                         }
 
-                        // 5. Lưu vào Database
+                        if (!window.isScrapingOTruyen) break;
+
                         try {
                             await addDoc(mangasCollectionRef, newManga);
                             log(`✅ Đã đẩy thành công lên Database: ${item.name}`, 'success');
@@ -2392,7 +2432,6 @@
                             log(`Lỗi lưu vào DB (${item.name}): ${dbErr.message}`, 'error');
                         }
 
-                        // Thần chú tạm dừng 1s trước khi sang truyện tiếp theo
                         await new Promise(r => setTimeout(r, 1000));
                     }
                 } catch (e) {
@@ -2400,11 +2439,97 @@
                 }
             }
 
-            log('🎉 TADA! Nhiệm vụ hoàn tất thưa Chủ nhân!', 'success');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-play mr-2"></i> BẮT ĐẦU CÀO';
+            if (window.isScrapingOTruyen) {
+                log('🎉 TADA! Nhiệm vụ hoàn tất thưa Chủ nhân!', 'success');
+            } else {
+                log('🛑 Đã ngắt điện an toàn theo lệnh Chủ nhân!', 'error');
+            }
+
+            window.isScrapingOTruyen = false;
+            btnStart.classList.remove('hidden');
+            btnStop.classList.add('hidden');
         };
         // --- KẾT THÚC THẦN CHÚ ---
+
+        // 1. Dọn dẹp trang hiện tại
+        window.handleDeleteCurrentPage = async () => {
+            const {data} = getFilteredAndPaginatedMovies();
+            if (!data || data.length === 0) {
+                alert("Trang hiện tại không có truyện nào để xóa ạ!");
+                return;
+            }
+
+            const confirmed = await window.showConfirmModal(`Chủ nhân có chắc chắn muốn xóa ${data.length} truyện ở trang ${currentPage} này không? (Không thể hoàn tác)`);
+            if (!confirmed) return;
+
+            try {
+                // Hiển thị vòng xoay chờ
+                const overlay = $('loading-overlay');
+                if (overlay) {overlay.classList.remove('hidden'); overlay.classList.add('flex');}
+
+                const batch = writeBatch(db);
+                data.forEach(manga => {
+                    const docRef = doc(mangasCollectionRef, manga.id);
+                    batch.delete(docRef);
+                });
+
+                await batch.commit(); // Thi triển phép thuật!
+
+                if (overlay) {overlay.classList.add('hidden'); overlay.classList.remove('flex');}
+                alert(`Bé Lôi đã quét sạch sẽ ${data.length} truyện trên trang này rồi ạ! ✨`);
+
+            } catch (error) {
+                const overlay = $('loading-overlay');
+                if (overlay) {overlay.classList.add('hidden'); overlay.classList.remove('flex');}
+                console.error("Lỗi xóa trang:", error);
+                alert("Ối! Có lỗi xảy ra khi dọn dẹp: " + error.message);
+            }
+        };
+
+        // 2. Kích hoạt nút tự hủy (Xóa sạch toàn bộ) 💣
+        window.handleDeleteAllMangas = async () => {
+            if (globalAdminMangaCache.length === 0) {
+                alert("Kho truyện đang trống trơn rồi Chủ nhân ơi!");
+                return;
+            }
+
+            const confirmed1 = await window.showConfirmModal(`CẢNH BÁO ĐỎ 🚨: Chủ nhân có chắc muốn XÓA SẠCH BÁCH ${globalAdminMangaCache.length} TRUYỆN không? Hành động này cực kỳ nguy hiểm!`);
+            if (!confirmed1) return;
+
+            // Yêu cầu xác nhận lần 2 cho chắc cú!
+            const confirmed2 = confirm(`Hỏi lại lần cuối nè! Chủ nhân ấn OK là Bé Lôi xóa sạch không chừa lại một trang truyện nào đâu nha! (T_T)`);
+            if (!confirmed2) return;
+
+            try {
+                const overlay = $('loading-overlay');
+                if (overlay) {overlay.classList.remove('hidden'); overlay.classList.add('flex');}
+
+                // Firestore giới hạn mỗi mẻ (batch) chỉ được xóa 500 mục, nên Bé Lôi sẽ chia nhỏ ra để xóa nha!
+                let chunks = [];
+                for (let i = 0; i < globalAdminMangaCache.length; i += 500) {
+                    chunks.push(globalAdminMangaCache.slice(i, i + 500));
+                }
+
+                for (const chunk of chunks) {
+                    const batch = writeBatch(db);
+                    chunk.forEach(manga => {
+                        const docRef = doc(mangasCollectionRef, manga.id);
+                        batch.delete(docRef);
+                    });
+                    await batch.commit(); // Gửi lệnh hủy diệt
+                }
+
+                if (overlay) {overlay.classList.add('hidden'); overlay.classList.remove('flex');}
+                alert("Tadaaa! Bé Lôi đã dùng đại ma pháp dọn sạch không còn một hạt bụi nào trong kho truyện rồi ạ! 🧹✨");
+
+            } catch (error) {
+                const overlay = $('loading-overlay');
+                if (overlay) {overlay.classList.add('hidden'); overlay.classList.remove('flex');}
+                console.error("Lỗi xóa tất cả:", error);
+                alert("Lỗi dọn dẹp: " + error.message);
+            }
+        };
+        // --- KẾT THÚC: PHÉP THUẬT DỌN DẸP ---
 
 
         const router = () => {
@@ -2749,6 +2874,22 @@
                                 <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-xs">
                                     <i class="fas fa-wrench mr-2"></i> FIX DATA
                                 </button>
+
+                                <!-- BẮT ĐẦU: NÚT XÓA NHANH BÉ LÔI MỚI THÊM NÈ 🧹 -->
+                            <div class="relative group">
+                                <button class="anime-button bg-red-700 hover:bg-red-800 text-white py-2 px-4 rounded-lg text-sm shadow-md flex items-center">
+                                    <i class="fas fa-trash-alt mr-1"></i> Xóa Nhanh
+                                </button>
+                                <div class="absolute right-0 mt-1 w-48 bg-[#1f2937] border border-red-500 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                    <button onclick="window.handleDeleteCurrentPage()" class="w-full text-left px-4 py-3 text-sm text-white hover:bg-red-600 rounded-t-lg transition border-b border-gray-700">
+                                        🗑️ Xóa Trang Hiện Tại
+                                    </button>
+                                    <button onclick="window.handleDeleteAllMangas()" class="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-700 hover:text-white rounded-b-lg font-bold transition">
+                                        💣 XÓA TẤT CẢ SẠCH SẼ
+                                    </button>
+                                </div>
+                            </div>
+
                             </div>
                         </div>
                         
