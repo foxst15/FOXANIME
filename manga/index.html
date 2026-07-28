@@ -78,7 +78,7 @@
         const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
-        
+
         let app, db, auth;
         let userId = null; let userEmail = null; let dataCollectionPath, userLikesCollectionPath, userRoleCollectionPath;
         let isAuthInitialised = false; let globalMangaCache = []; let unsubscribeCommentsListener = null;
@@ -89,11 +89,11 @@
         const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
 
         const ALL_GENRES = [
-            "Action", "Adult", "Adventure", "Anime", "Chuyển Sinh", "Comedy", "Comic", "Cooking", "Cổ Đại", "Doujinshi", 
-            "Drama", "Đam Mỹ", "Ecchi", "Fantasy", "Gender Bender", "Harem", "Historical", "Horror", "Josei", "Live action", 
-            "Manga", "Manhua", "Manhwa", "Martial Arts", "Mature", "Mecha", "Mystery", "Ngôn Tình", "One shot", "Psychological", 
-            "Romance", "School Life", "Sci-fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Smut", 
-            "Soft Yaoi", "Soft Yuri", "Sports", "Supernatural", "Tạp chí truyện tranh", "Thiếu Nhi", "Tragedy", "Trinh Thám", 
+            "Action", "Adult", "Adventure", "Anime", "Chuyển Sinh", "Comedy", "Comic", "Cooking", "Cổ Đại", "Doujinshi",
+            "Drama", "Đam Mỹ", "Ecchi", "Fantasy", "Gender Bender", "Harem", "Historical", "Horror", "Josei", "Live action",
+            "Manga", "Manhua", "Manhwa", "Martial Arts", "Mature", "Mecha", "Mystery", "Ngôn Tình", "One shot", "Psychological",
+            "Romance", "School Life", "Sci-fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Smut",
+            "Soft Yaoi", "Soft Yuri", "Sports", "Supernatural", "Tạp chí truyện tranh", "Thiếu Nhi", "Tragedy", "Trinh Thám",
             "Truyện scan", "Truyện Màu", "Việt Nam", "Webtoon", "Xuyên Không", "16+"
         ];
 
@@ -167,7 +167,7 @@
         };
         window.hideResumeModal = () => {
             const modal = getEl('#resume-modal');
-            modal.classList.add('hidden'); modal.classList.remove('flex'); 
+            modal.classList.add('hidden'); modal.classList.remove('flex');
             // ĐÃ XÓA DÒNG GÂY LỖI NULL TYPEERROR Ở ĐÂY NHA CẬU CHỦ!
         };
 
@@ -375,7 +375,7 @@
                     if (popupError.code === 'auth/popup-blocked' || popupError.message.includes('Cross-Origin')) {
                         await signInWithRedirect(auth, new GoogleAuthProvider());
                     } else {
-                        throw popupError; 
+                        throw popupError;
                     }
                 }
             } catch (error) {
@@ -419,7 +419,7 @@
             button.disabled = true;
             const isLiked = !!currentUserLikeDocIds[mangaId];
             const mangaDocRef = doc(db, dataCollectionPath, mangaId);
-            
+
             try {
                 const batch = writeBatch(db);
                 const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/manga_likes`);
@@ -430,23 +430,23 @@
                     if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
                     batch.delete(doc(userLikesColRef, likeDocId));
                     batch.update(mangaDocRef, {likeCount: increment(-1)});
-                    
+
                     // Xóa luôn ID trong cache trước khi đợi server để UI không bị lag
                     delete currentUserLikeDocIds[mangaId];
                 } else {
                     newLikeDocRef = doc(userLikesColRef);
                     batch.set(newLikeDocRef, {movieId: mangaId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
                     batch.update(mangaDocRef, {likeCount: increment(1)});
-                    
+
                     // Lưu luôn ID vào cache trước khi đợi server
                     currentUserLikeDocIds[mangaId] = newLikeDocRef.id;
                 }
-                
+
                 // ÉP GIAO DIỆN NÚT ĐỔI MÀU NGAY LẬP TỨC KHÔNG CẦN CHỜ
                 const newIsLiked = !isLiked;
                 const likeButtonText = getEl('#like-button-text');
                 const likeButtonIcon = button.querySelector('ion-icon');
-                
+
                 button.classList.toggle('bg-orange-600', newIsLiked);
                 button.classList.toggle('text-white', newIsLiked);
                 button.classList.toggle('font-bold', newIsLiked);
@@ -542,7 +542,7 @@
             }
 
             const newName = getEl('#profile-name-input').value.trim();
-            const newAvatarUrl = getEl('#profile-avatar-input').value.trim(); 
+            const newAvatarUrl = getEl('#profile-avatar-input').value.trim();
             const errorEl = getEl('#profile-error');
             errorEl.classList.add('hidden');
 
@@ -857,7 +857,7 @@
             </section>
 `;
 
-       
+
         const SliderSectionTemplate = (mangaList) => {
             if (!mangaList || mangaList.length === 0) return '';
 
@@ -1091,7 +1091,7 @@
                 <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
                     <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
                     ${episodes.length > 0
-                ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
+                    ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
                         ${episodes.map(ep => `
                                 <a href="#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
                                     class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors duration-200">
@@ -1099,21 +1099,23 @@
                                 </a>
                             `).join('')}
                         </div>`
-                : `<p class="text-gray-400">${manga.status === 'sap-ra' ? 'Sắp ra mắt, chưa có chap.' : 'Chưa có dữ liệu.'}</p>`
-            }
+                    : `<p class="text-gray-400">${manga.status === 'sap-ra' ? 'Sắp ra mắt, chưa có chap.' : 'Chưa có dữ liệu.'}</p>`
+                }
                 </div>
             </div>
         </section>
     `;
         };
 
-       const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, imagesList) => {
+        const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, imagesList) => {
             const mangaSlug = createSlug(manga.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            cconst sortedEps = [...allEpisodes].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
+            const currIdx = sortedEps.findIndex(ep => parseFloat(ep.episodeNumber) === currentEpNumber);
+            const previousEpisode = currIdx > 0 ? sortedEps[currIdx - 1] : null;
             let previousEpisodeLink = null;
             if (previousEpisode) {
                 const prevEpId = previousEpisode.id;
@@ -1185,9 +1187,9 @@
                         <div id="comments-list">
                             <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
                                 ${displayedComments.length > 0
-                                    ? displayedComments.map(CommentTemplate).join('')
-                                    : '<p class="text-gray-500 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
-                                }
+                    ? displayedComments.map(CommentTemplate).join('')
+                    : '<p class="text-gray-500 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
+                }
                                 ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn.</p>` : ''}
                             </div>
                         </div>
@@ -1326,8 +1328,8 @@
                 }
 
                 const episodesList = mangaData.episodes || [];
-                const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
-                const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
+                const episodeMatch = episodeUniqueId.match(/_([\d.]+)_(\d+)$/);
+                const episodeNumber = episodeMatch ? parseFloat(episodeMatch[1]) : NaN;
 
                 if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số chapter."); return;}
 
@@ -1338,7 +1340,7 @@
                 let finalImages = [];
                 if (episodeData.videoUrl) {
                     const urls = episodeData.videoUrl.split('\n').map(u => u.trim()).filter(u => u.length > 0);
-                    
+
                     if (urls.length === 1 && urls[0].includes('otruyencdn.com')) {
                         try {
                             const res = await fetch(urls[0]);
@@ -1367,7 +1369,9 @@
                     commentsList = commentsList.slice(0, COMMENT_LIMIT);
                 } catch (e) {console.error("Lỗi khi tải bình luận:", e);}
 
-                const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
+                const sortedList = [...episodesList].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
+                const currIdx = sortedList.findIndex(ep => parseFloat(ep.episodeNumber) === episodeNumber);
+                const nextEpisode = (currIdx !== -1 && currIdx < sortedList.length - 1) ? sortedList[currIdx + 1] : null;
                 let nextEpisodeLink = null;
                 if (nextEpisode) {
                     const nextEpId = `${mangaId}_${nextEpisode.episodeNumber}_${episodesList.indexOf(nextEpisode)}`;
@@ -1379,13 +1383,13 @@
                 // Render giao diện và nhét list ảnh vào
                 getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink, finalImages);
 
-                saveWatchTime(episodeUniqueId, 1); 
+                saveWatchTime(episodeUniqueId, 1);
 
                 if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
 
                 setupCommentsListener(mangaId);
 
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({top: 0, behavior: 'smooth'});
 
             } catch (e) {showError("Lỗi khi tải trang.", e.message);}
         };
@@ -1431,11 +1435,11 @@
                     setTimeout(() => {
                         new Swiper('.hero-swiper', {
                             effect: 'fade',
-                            fadeEffect: { crossFade: true },
+                            fadeEffect: {crossFade: true},
                             speed: 1500,
-                            autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
-                            pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
-                            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                            autoplay: {delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true},
+                            pagination: {el: '.swiper-pagination', clickable: true, dynamicBullets: true},
+                            navigation: {nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev'},
                             loop: slideMangas.length > 1,
                             grabCursor: true,
                         });
@@ -1552,7 +1556,7 @@
 
                     window.renderInfoPage(mId);
                 } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
-                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/);
+                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_.]+)\.html$/);
                     const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
                     if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
                 }
@@ -1771,8 +1775,8 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await setupFirebase();
-            getEl('#resume-modal-yes')?.addEventListener('click', () => { if(resolveResumeModal) resolveResumeModal(true); window.hideResumeModal(); });
-            getEl('#resume-modal-no')?.addEventListener('click', () => { if(resolveResumeModal) resolveResumeModal(false); window.hideResumeModal(); });
+            getEl('#resume-modal-yes')?.addEventListener('click', () => {if (resolveResumeModal) resolveResumeModal(true); window.hideResumeModal();});
+            getEl('#resume-modal-no')?.addEventListener('click', () => {if (resolveResumeModal) resolveResumeModal(false); window.hideResumeModal();});
             // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
             // --- 1. Nút mở Menu chính ---
             getEl('#mobile-menu-button')?.addEventListener('click', () => {
@@ -1889,8 +1893,8 @@
                     if (e.target.closest('a')) {
                         resultsEl.classList.add('hidden');
                         inputEl.value = '';
-                        getEl('#mobile-menu')?.classList.remove('menu-open'); 
-                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open'); 
+                        getEl('#mobile-menu')?.classList.remove('menu-open');
+                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
                     }
                 });
             };
@@ -2482,59 +2486,147 @@
                                         (Hài hước)</a>
                                 </div>
                             </div>
-                            <a href="#genre/adult" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adult</a>
-                            <a href="#genre/adventure" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure (Phiêu lưu)</a>
-                            <a href="#genre/anime" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Anime</a>
-                            <a href="#genre/chuyen-sinh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Chuyển Sinh</a>
-                            <a href="#genre/comedy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comedy (Hài hước)</a>
-                            <a href="#genre/comic" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comic</a>
-                            <a href="#genre/cooking" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cooking</a>
-                            <a href="#genre/co-dai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cổ Đại</a>
-                            <a href="#genre/doujinshi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Doujinshi</a>
-                            <a href="#genre/drama" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama (Kịch tính)</a>
-                            <a href="#genre/dam-my" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Đam Mỹ</a>
-                            <a href="#genre/ecchi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi</a>
-                            <a href="#genre/fantasy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy (Giả tưởng)</a>
-                            <a href="#genre/gender-bender" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Gender Bender</a>
-                            <a href="#genre/harem" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem</a>
-                            <a href="#genre/historical" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical (Lịch sử)</a>
-                            <a href="#genre/horror" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror (Kinh dị)</a>
-                            <a href="#genre/josei" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei</a>
-                            <a href="#genre/live-action" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Live action</a>
-                            <a href="#genre/manga" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manga</a>
-                            <a href="#genre/manhua" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhua</a>
-                            <a href="#genre/manhwa" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhwa</a>
-                            <a href="#genre/martial-arts" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial Arts (Võ thuật)</a>
-                            <a href="#genre/mature" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mature</a>
-                            <a href="#genre/mecha" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha (Robot)</a>
-                            <a href="#genre/mystery" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery (Bí ẩn)</a>
-                            <a href="#genre/ngon-tinh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ngôn Tình</a>
-                            <a href="#genre/one-shot" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">One shot</a>
-                            <a href="#genre/psychological" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological (Tâm lý)</a>
-                            <a href="#genre/romance" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance (Lãng mạn)</a>
-                            <a href="#genre/school-life" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">School Life (Học đường)</a>
-                            <a href="#genre/sci-fi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-fi (Viễn tưởng)</a>
-                            <a href="#genre/seinen" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen</a>
-                            <a href="#genre/shoujo" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo</a>
-                            <a href="#genre/shoujo-ai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo Ai</a>
-                            <a href="#genre/shounen" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen</a>
-                            <a href="#genre/shounen-ai" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen Ai</a>
-                            <a href="#genre/slice-of-life" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice of Life</a>
-                            <a href="#genre/smut" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Smut</a>
-                            <a href="#genre/soft-yaoi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft Yaoi</a>
-                            <a href="#genre/soft-yuri" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft Yuri</a>
-                            <a href="#genre/sports" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports (Thể thao)</a>
-                            <a href="#genre/supernatural" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural (Siêu nhiên)</a>
-                            <a href="#genre/tap-chi-truyen-tranh" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tạp chí truyện tranh</a>
-                            <a href="#genre/thieu-nhi" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Thiếu Nhi</a>
-                            <a href="#genre/tragedy" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tragedy (Bi kịch)</a>
-                            <a href="#genre/trinh-tham" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Trinh Thám</a>
-                            <a href="#genre/truyen-scan" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện scan</a>
-                            <a href="#genre/truyen-mau" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện Màu</a>
-                            <a href="#genre/viet-nam" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Việt Nam</a>
-                            <a href="#genre/webtoon" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Webtoon</a>
-                            <a href="#genre/xuyen-khong" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Xuyên Không</a>
-                            <a href="#genre/16" class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">16+</a>
+                            <a href="#genre/adult"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adult</a>
+                            <a href="#genre/adventure"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure
+                                (Phiêu lưu)</a>
+                            <a href="#genre/anime"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Anime</a>
+                            <a href="#genre/chuyen-sinh"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Chuyển
+                                Sinh</a>
+                            <a href="#genre/comedy"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comedy
+                                (Hài hước)</a>
+                            <a href="#genre/comic"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comic</a>
+                            <a href="#genre/cooking"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cooking</a>
+                            <a href="#genre/co-dai"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cổ
+                                Đại</a>
+                            <a href="#genre/doujinshi"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Doujinshi</a>
+                            <a href="#genre/drama"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama
+                                (Kịch tính)</a>
+                            <a href="#genre/dam-my"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Đam
+                                Mỹ</a>
+                            <a href="#genre/ecchi"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi</a>
+                            <a href="#genre/fantasy"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy
+                                (Giả tưởng)</a>
+                            <a href="#genre/gender-bender"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Gender
+                                Bender</a>
+                            <a href="#genre/harem"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem</a>
+                            <a href="#genre/historical"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical
+                                (Lịch sử)</a>
+                            <a href="#genre/horror"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror
+                                (Kinh dị)</a>
+                            <a href="#genre/josei"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei</a>
+                            <a href="#genre/live-action"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Live
+                                action</a>
+                            <a href="#genre/manga"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manga</a>
+                            <a href="#genre/manhua"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhua</a>
+                            <a href="#genre/manhwa"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhwa</a>
+                            <a href="#genre/martial-arts"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial
+                                Arts (Võ thuật)</a>
+                            <a href="#genre/mature"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mature</a>
+                            <a href="#genre/mecha"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha
+                                (Robot)</a>
+                            <a href="#genre/mystery"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery
+                                (Bí ẩn)</a>
+                            <a href="#genre/ngon-tinh"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ngôn
+                                Tình</a>
+                            <a href="#genre/one-shot"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">One
+                                shot</a>
+                            <a href="#genre/psychological"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological
+                                (Tâm lý)</a>
+                            <a href="#genre/romance"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance
+                                (Lãng mạn)</a>
+                            <a href="#genre/school-life"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">School
+                                Life (Học đường)</a>
+                            <a href="#genre/sci-fi"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-fi
+                                (Viễn tưởng)</a>
+                            <a href="#genre/seinen"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen</a>
+                            <a href="#genre/shoujo"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo</a>
+                            <a href="#genre/shoujo-ai"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo
+                                Ai</a>
+                            <a href="#genre/shounen"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen</a>
+                            <a href="#genre/shounen-ai"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen
+                                Ai</a>
+                            <a href="#genre/slice-of-life"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice
+                                of Life</a>
+                            <a href="#genre/smut"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Smut</a>
+                            <a href="#genre/soft-yaoi"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft
+                                Yaoi</a>
+                            <a href="#genre/soft-yuri"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft
+                                Yuri</a>
+                            <a href="#genre/sports"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports
+                                (Thể thao)</a>
+                            <a href="#genre/supernatural"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural
+                                (Siêu nhiên)</a>
+                            <a href="#genre/tap-chi-truyen-tranh"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tạp
+                                chí truyện tranh</a>
+                            <a href="#genre/thieu-nhi"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Thiếu
+                                Nhi</a>
+                            <a href="#genre/tragedy"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tragedy
+                                (Bi kịch)</a>
+                            <a href="#genre/trinh-tham"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Trinh
+                                Thám</a>
+                            <a href="#genre/truyen-scan"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện
+                                scan</a>
+                            <a href="#genre/truyen-mau"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện
+                                Màu</a>
+                            <a href="#genre/viet-nam"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Việt
+                                Nam</a>
+                            <a href="#genre/webtoon"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Webtoon</a>
+                            <a href="#genre/xuyen-khong"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Xuyên
+                                Không</a>
+                            <a href="#genre/16"
+                                class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">16+</a>
                         </div>
                     </div>
 
@@ -2545,8 +2637,9 @@
                         class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
                             name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
                     <div class="h-4 w-px bg-gray-700 mx-2"></div>
-                    <a href="/" class="text-lime-500 hover:text-lime-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(163,230,53,0.5)]">
-                    <ion-icon name="tv-outline" class="mr-1 text-lg"></ion-icon>Về FoxAnime
+                    <a href="/"
+                        class="text-lime-500 hover:text-lime-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(163,230,53,0.5)]">
+                        <ion-icon name="tv-outline" class="mr-1 text-lg"></ion-icon>Về FoxAnime
                     </a>
 
                 </div>
@@ -2577,13 +2670,17 @@
                 </button>
                 <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
                     <a href="#genre/manga"
-                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manga (Nhật)</a>
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manga
+                        (Nhật)</a>
                     <a href="#genre/manhwa"
-                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhwa (Hàn)</a>
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhwa
+                        (Hàn)</a>
                     <a href="#genre/manhua"
-                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhua (Trung)</a>
+                        class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhua
+                        (Trung)</a>
                     <a href="#genre/taihen"
-                        class="block text-red-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Taihen (18+)</a>
+                        class="block text-red-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Taihen
+                        (18+)</a>
                 </div>
             </div>
 
@@ -2600,60 +2697,145 @@
                     </svg>
                 </button>
                 <div id="genre-mobile-list" class="pl-4 mt-1 hidden">
-                    <a href="#genre/action" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Action (Hành động)</a>
-                    <a href="#genre/adult" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adult</a>
-                    <a href="#genre/adventure" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adventure (Phiêu lưu)</a>
-                    <a href="#genre/anime" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Anime</a>
-                    <a href="#genre/chuyen-sinh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Chuyển Sinh</a>
-                    <a href="#genre/comedy" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Comedy (Hài hước)</a>
-                    <a href="#genre/comic" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Comic</a>
-                    <a href="#genre/cooking" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cooking</a>
-                    <a href="#genre/co-dai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cổ Đại</a>
-                    <a href="#genre/doujinshi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Doujinshi</a>
-                    <a href="#genre/drama" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Drama (Kịch tính)</a>
-                    <a href="#genre/dam-my" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Đam Mỹ</a>
-                    <a href="#genre/ecchi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ecchi</a>
-                    <a href="#genre/fantasy" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Fantasy (Giả tưởng)</a>
-                    <a href="#genre/gender-bender" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Gender Bender</a>
-                    <a href="#genre/harem" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Harem</a>
-                    <a href="#genre/historical" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Historical (Lịch sử)</a>
-                    <a href="#genre/horror" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Horror (Kinh dị)</a>
-                    <a href="#genre/josei" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Josei</a>
-                    <a href="#genre/live-action" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Live action</a>
-                    <a href="#genre/manga" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manga</a>
-                    <a href="#genre/manhua" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhua</a>
-                    <a href="#genre/manhwa" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhwa</a>
-                    <a href="#genre/martial-arts" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Martial Arts (Võ thuật)</a>
-                    <a href="#genre/mature" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mature</a>
-                    <a href="#genre/mecha" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mecha (Robot)</a>
-                    <a href="#genre/mystery" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mystery (Bí ẩn)</a>
-                    <a href="#genre/ngon-tinh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ngôn Tình</a>
-                    <a href="#genre/one-shot" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">One shot</a>
-                    <a href="#genre/psychological" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Psychological (Tâm lý)</a>
-                    <a href="#genre/romance" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Romance (Lãng mạn)</a>
-                    <a href="#genre/school-life" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">School Life (Học đường)</a>
-                    <a href="#genre/sci-fi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sci-fi (Viễn tưởng)</a>
-                    <a href="#genre/seinen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Seinen</a>
-                    <a href="#genre/shoujo" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo</a>
-                    <a href="#genre/shoujo-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo Ai</a>
-                    <a href="#genre/shounen" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen</a>
-                    <a href="#genre/shounen-ai" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen Ai</a>
-                    <a href="#genre/slice-of-life" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Slice of Life</a>
-                    <a href="#genre/smut" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Smut</a>
-                    <a href="#genre/soft-yaoi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft Yaoi</a>
-                    <a href="#genre/soft-yuri" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft Yuri</a>
-                    <a href="#genre/sports" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sports (Thể thao)</a>
-                    <a href="#genre/supernatural" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Supernatural (Siêu nhiên)</a>
-                    <a href="#genre/tap-chi-truyen-tranh" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tạp chí truyện tranh</a>
-                    <a href="#genre/thieu-nhi" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Thiếu Nhi</a>
-                    <a href="#genre/tragedy" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tragedy (Bi kịch)</a>
-                    <a href="#genre/trinh-tham" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Trinh Thám</a>
-                    <a href="#genre/truyen-scan" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện scan</a>
-                    <a href="#genre/truyen-mau" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện Màu</a>
-                    <a href="#genre/viet-nam" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Việt Nam</a>
-                    <a href="#genre/webtoon" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Webtoon</a>
-                    <a href="#genre/xuyen-khong" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Xuyên Không</a>
-                    <a href="#genre/16" class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">16+</a>
+                    <a href="#genre/action" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Action
+                        (Hành động)</a>
+                    <a href="#genre/adult"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adult</a>
+                    <a href="#genre/adventure"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adventure
+                        (Phiêu lưu)</a>
+                    <a href="#genre/anime"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Anime</a>
+                    <a href="#genre/chuyen-sinh"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Chuyển
+                        Sinh</a>
+                    <a href="#genre/comedy" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Comedy
+                        (Hài hước)</a>
+                    <a href="#genre/comic"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Comic</a>
+                    <a href="#genre/cooking"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cooking</a>
+                    <a href="#genre/co-dai"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cổ Đại</a>
+                    <a href="#genre/doujinshi"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Doujinshi</a>
+                    <a href="#genre/drama"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Drama (Kịch
+                        tính)</a>
+                    <a href="#genre/dam-my"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Đam Mỹ</a>
+                    <a href="#genre/ecchi"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ecchi</a>
+                    <a href="#genre/fantasy"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Fantasy
+                        (Giả tưởng)</a>
+                    <a href="#genre/gender-bender"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Gender
+                        Bender</a>
+                    <a href="#genre/harem"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Harem</a>
+                    <a href="#genre/historical"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Historical
+                        (Lịch sử)</a>
+                    <a href="#genre/horror"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Horror
+                        (Kinh dị)</a>
+                    <a href="#genre/josei"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Josei</a>
+                    <a href="#genre/live-action"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Live
+                        action</a>
+                    <a href="#genre/manga"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manga</a>
+                    <a href="#genre/manhua"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhua</a>
+                    <a href="#genre/manhwa"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhwa</a>
+                    <a href="#genre/martial-arts"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Martial
+                        Arts (Võ thuật)</a>
+                    <a href="#genre/mature"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mature</a>
+                    <a href="#genre/mecha"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mecha
+                        (Robot)</a>
+                    <a href="#genre/mystery"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mystery (Bí
+                        ẩn)</a>
+                    <a href="#genre/ngon-tinh"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ngôn
+                        Tình</a>
+                    <a href="#genre/one-shot"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">One
+                        shot</a>
+                    <a href="#genre/psychological"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Psychological
+                        (Tâm lý)</a>
+                    <a href="#genre/romance"
+                        class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Romance (Lãng mạn)</a>
+                    <a href="#genre/school-life"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">School Life
+                        (Học đường)</a>
+                    <a href="#genre/sci-fi"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sci-fi
+                        (Viễn tưởng)</a>
+                    <a href="#genre/seinen"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Seinen</a>
+                    <a href="#genre/shoujo"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo</a>
+                    <a href="#genre/shoujo-ai"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo
+                        Ai</a>
+                    <a href="#genre/shounen"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen</a>
+                    <a href="#genre/shounen-ai"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen
+                        Ai</a>
+                    <a href="#genre/slice-of-life"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Slice of
+                        Life</a>
+                    <a href="#genre/smut"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Smut</a>
+                    <a href="#genre/soft-yaoi"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft
+                        Yaoi</a>
+                    <a href="#genre/soft-yuri"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft
+                        Yuri</a>
+                    <a href="#genre/sports"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sports (Thể
+                        thao)</a>
+                    <a href="#genre/supernatural"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Supernatural
+                        (Siêu nhiên)</a>
+                    <a href="#genre/tap-chi-truyen-tranh"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tạp chí
+                        truyện tranh</a>
+                    <a href="#genre/thieu-nhi"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Thiếu
+                        Nhi</a>
+                    <a href="#genre/tragedy"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tragedy (Bi
+                        kịch)</a>
+                    <a href="#genre/trinh-tham"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Trinh
+                        Thám</a>
+                    <a href="#genre/truyen-scan"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện
+                        scan</a>
+                    <a href="#genre/truyen-mau"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện
+                        Màu</a>
+                    <a href="#genre/viet-nam"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Việt
+                        Nam</a>
+                    <a href="#genre/webtoon"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Webtoon</a>
+                    <a href="#genre/xuyen-khong"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Xuyên
+                        Không</a>
+                    <a href="#genre/16"
+                        class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">16+</a>
                 </div>
             </div>
 
@@ -2663,7 +2845,8 @@
             <a href="#gacha"
                 class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
                     name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
-            <a href="/" class="block px-3 py-2 mt-2 bg-gradient-to-r from-lime-500/10 to-transparent border-l-4 border-lime-500 rounded-r-lg text-lime-400 text-base font-extrabold transition-colors">
+            <a href="/"
+                class="block px-3 py-2 mt-2 bg-gradient-to-r from-lime-500/10 to-transparent border-l-4 border-lime-500 rounded-r-lg text-lime-400 text-base font-extrabold transition-colors">
                 <ion-icon name="tv" class="mr-2"></ion-icon>Về Xem Phim (FoxAnime)
             </a>
 
@@ -2704,7 +2887,8 @@
         <div
             class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50">
         </div>
-        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none">
+        </div>
         <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
         </div>
 
@@ -2922,9 +3106,11 @@
                 <!-- Copyright & Legal -->
                 <div class="text-center md:text-right">
                     <div class="text-gray-500 text-sm mb-2">
-                        <a href="/manga/terms1.html" class="hover:text-orange-400 transition-colors">Điều khoản sử dụng</a>
+                        <a href="/manga/terms1.html" class="hover:text-orange-400 transition-colors">Điều khoản sử
+                            dụng</a>
                         <span class="mx-2">•</span>
-                        <a href="/manga/privacy1.html" class="hover:text-orange-400 transition-colors">Chính sách bảo mật</a>
+                        <a href="/manga/privacy1.html" class="hover:text-orange-400 transition-colors">Chính sách bảo
+                            mật</a>
                         <span class="mx-2">•</span>
                         <a href="/manga/dmca1.html" class="hover:text-orange-400 transition-colors">DMCA</a>
                     </div>
@@ -2949,4 +3135,5 @@
         });
     }
 </script>
+
 </html>
