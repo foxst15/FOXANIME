@@ -1115,7 +1115,11 @@
 
             const sortedEps = [...allEpisodes].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
             const currIdx = sortedEps.findIndex(ep => parseFloat(ep.episodeNumber) === currentEpNumber);
+            
+            // Tìm đúng tên của chap trước và chap sau
             const previousEpisode = currIdx > 0 ? sortedEps[currIdx - 1] : null;
+            const nextEpisodeObj = (currIdx !== -1 && currIdx < sortedEps.length - 1) ? sortedEps[currIdx + 1] : null;
+
             let previousEpisodeLink = null;
             if (previousEpisode) {
                 const prevEpId = previousEpisode.id;
@@ -1128,22 +1132,23 @@
                 imagesHtml = imagesList.map(url => `<img src="${url}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`).join('');
             }
 
-            const previousButton = previousEpisodeLink ? `
+            // Hiển thị chuẩn xác số tập trên nút bấm
+            const previousButton = previousEpisodeLink && previousEpisode ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
-                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Chap ${currentEpNumber - 1}
+                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Chap ${previousEpisode.episodeNumber}
                 </a>` : `
                 <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
                     <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Đầu Truyện
                 </button>`;
 
-            const nextButton = nextEpisodeLink ? `
+            const nextButton = nextEpisodeLink && nextEpisodeObj ? `
                 <a href="${nextEpisodeLink}" class="bg-orange-500 text-gray-900 text-sm font-bold px-6 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-                    Chap ${currentEpNumber + 1} <ion-icon name="arrow-forward-outline" class="text-lg ml-2"></ion-icon>
+                    Chap ${nextEpisodeObj.episodeNumber} <ion-icon name="arrow-forward-outline" class="text-lg ml-2"></ion-icon>
                 </a>` : `
                 <button disabled class="bg-gray-800 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 cursor-not-allowed">
                     Hết Truyện <ion-icon name="lock-closed" class="text-lg ml-2"></ion-icon>
                 </button>`;
-
+                
             return `
                 <section class="text-white pb-12">
                     <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
