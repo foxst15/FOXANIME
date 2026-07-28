@@ -934,6 +934,65 @@
     </div>
     <!-- END: BULK ADD CHAPTERS MODAL -->
 
+    <!-- START: OTRUYEN SCRAPE MODAL (BÉ LÔI ĐẶC CHẾ) -->
+    <div id="otruyen-scrape-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-90 hidden items-center justify-center z-50">
+        <div
+            class="bg-[#1f2937] p-6 rounded-xl w-full max-w-2xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4 text-purple-400 border-b border-purple-600 pb-2">
+                <i class="fas fa-spider mr-2"></i> AUTO SCRAPE OTRUYEN
+            </h3>
+
+            <div class="mb-4 bg-[#0a0a0a] p-4 rounded text-sm text-gray-300 border-l-4 border-purple-500">
+                <p class="font-bold text-purple-400 mb-2"><i class="fas fa-info-circle"></i> Hướng dẫn:</p>
+                <p>- Chức năng này sẽ tự động lấy danh sách truyện <b>Đã Hoàn Thành</b> từ OTruyen.</p>
+                <p>- Vui lòng cào từng trang một để tránh bị OTruyen khóa IP (Rate Limit).</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-purple-400 text-sm font-bold mb-2">Từ Trang số:</label>
+                    <input class="form-input" id="scrape-start-page" type="number" min="1" value="1">
+                </div>
+                <div>
+                    <label class="block text-purple-400 text-sm font-bold mb-2">Đến Trang số:</label>
+                    <input class="form-input" id="scrape-end-page" type="number" min="1" value="1">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label
+                    class="flex items-center space-x-2 cursor-pointer text-white bg-[#0a0a0a] p-3 rounded border border-gray-700">
+                    <input type="checkbox" id="scrape-fetch-chapters"
+                        class="form-checkbox text-purple-500 w-5 h-5 rounded">
+                    <span class="font-medium text-sm">Cào luôn danh sách Chương & Link Ảnh (Cảnh báo: RẤT CHẬM 🐌, nhưng
+                        sẽ có đầy đủ ảnh)</span>
+                </label>
+            </div>
+
+            <!-- Khung hiển thị Log -->
+            <div class="mb-4">
+                <label class="block text-gray-400 text-xs font-bold mb-1">Terminal Output:</label>
+                <div id="scrape-log-container"
+                    class="bg-black p-3 rounded border border-gray-700 h-48 overflow-y-auto font-mono text-[11px] text-gray-300">
+                    Sẵn sàng nhận lệnh từ Chủ nhân...
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-4">
+                <button id="btn-start-scrape" onclick="startOTruyenScrape()"
+                    class="anime-button bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-6 rounded-lg shadow-[0_0_10px_rgba(147,51,234,0.5)]">
+                    <i class="fas fa-play mr-2"></i> BẮT ĐẦU CÀO
+                </button>
+                <button type="button" onclick="hideModal('otruyen-scrape-modal')"
+                    class="anime-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END: OTRUYEN SCRAPE MODAL -->
+
     <div id="edit-chapter-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
         <div class="bg-[#1f2937] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
@@ -2192,6 +2251,161 @@
             }
         };
 
+        // --- BẮT ĐẦU: THẦN CHÚ CÀO DỮ LIỆU OTRUYEN CỦA BÉ LÔI ---
+        window.startOTruyenScrape = async () => {
+            const startPage = parseInt($('scrape-start-page').value) || 1;
+            const endPage = parseInt($('scrape-end-page').value) || 1;
+            const fetchChapters = $('scrape-fetch-chapters').checked;
+            const logEl = $('scrape-log-container');
+            const btn = $('btn-start-scrape');
+
+            if (startPage > endPage) {
+                alert("Lỗi: Trang bắt đầu không được lớn hơn trang kết thúc ạ!");
+                return;
+            }
+
+            const log = (msg, type = 'info') => {
+                const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-gray-300');
+                const time = new Date().toLocaleTimeString('vi-VN');
+                logEl.innerHTML += `<div class="${color} mb-1 border-b border-gray-800 pb-1">[${time}] ${msg}</div>`;
+                logEl.scrollTop = logEl.scrollHeight; // Tự động cuộn xuống cuối
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> ĐANG CÀO...';
+            logEl.innerHTML = '';
+            log('Bắt đầu khởi động cỗ máy cào dữ liệu...', 'success');
+
+            for (let page = startPage; page <= endPage; page++) {
+                log(`Đang lấy danh sách truyện hoàn thành - Trang ${page}...`);
+                try {
+                    const res = await fetch(`https://otruyenapi.com/v1/api/danh-sach/hoan-thanh?page=${page}`);
+                    const json = await res.json();
+
+                    if (json.status !== 'success') {
+                        log(`Lỗi lấy trang ${page}: Server OTruyen từ chối.`, 'error');
+                        continue;
+                    }
+
+                    const items = json.data.items;
+                    log(`Tìm thấy ${items.length} truyện ở trang ${page}. Bắt đầu cào chi tiết...`);
+
+                    for (const item of items) {
+                        log(`Đang lấy thông tin truyện: ${item.name}...`);
+
+                        // 1. Gọi API lấy thông tin chi tiết truyện
+                        const detailRes = await fetch(`https://otruyenapi.com/v1/api/truyen-tranh/${item.slug}`);
+                        const detailJson = await detailRes.json();
+
+                        if (detailJson.status !== 'success') continue;
+
+                        const mangaData = detailJson.data.item;
+                        const domainImage = detailJson.data.domain_cdn || "https://img.otruyenapi.com";
+
+                        // 2. Map dữ liệu Thể loại
+                        let genres = [];
+                        if (mangaData.category && Array.isArray(mangaData.category)) {
+                            genres = mangaData.category.map(c => c.name);
+                        }
+
+                        // Nhận diện dạng truyện tự động
+                        let detectedFormat = 'manga';
+                        const genresStr = genres.join(', ').toLowerCase();
+                        if (genresStr.includes('manhwa') || genresStr.includes('hàn quốc')) detectedFormat = 'manhwa';
+                        else if (genresStr.includes('manhua') || genresStr.includes('trung quốc')) detectedFormat = 'manhua';
+                        else if (genresStr.includes('18+') || genresStr.includes('adult') || genresStr.includes('taihen')) detectedFormat = 'taihen';
+                        else if (genresStr.includes('comic') || genresStr.includes('việt nam')) detectedFormat = 'khac';
+
+                        // Map ảnh Poster
+                        let posterUrl = mangaData.thumb_url;
+                        if (posterUrl && !posterUrl.startsWith('http')) {
+                            posterUrl = `${domainImage}/uploads/comics/${posterUrl}`;
+                        }
+
+                        // 3. Chuẩn bị Object để lưu vào Firebase
+                        const newManga = {
+                            title: mangaData.name || 'Unknown',
+                            titleOriginal: mangaData.origin_name && mangaData.origin_name.length > 0 ? mangaData.origin_name[0] : '',
+                            summary: (mangaData.content || '').replace(/<[^>]*>?/gm, ''), // Xóa các thẻ HTML dư thừa
+                            posterUrl: posterUrl,
+                            bannerUrl: posterUrl,
+                            status: 'hoan-thanh', // Ép cứng vì đang lấy từ list hoàn thành
+                            formatType: detectedFormat,
+                            genre: genres.join(', ') || 'Khác',
+                            totalEpisodes: 0,
+                            viewCount: 0,
+                            likeCount: 0,
+                            reviewCount: 0,
+                            reviewTotal: 0,
+                            episodes: [],
+                            createdAt: serverTimestamp(),
+                            updatedBy: userId,
+                            lastEpisodeUpdate: serverTimestamp(),
+                            airingDay: 'Không có',
+                            isNotified: false
+                        };
+
+                        // 4. Có cào chi tiết từng Chapter không?
+                        if (fetchChapters && mangaData.episodes && mangaData.episodes.length > 0) {
+                            const chaptersList = mangaData.episodes[0].server_data;
+                            newManga.totalEpisodes = chaptersList.length;
+                            log(`Đang cào ${chaptersList.length} chapters của "${item.name}"... Quá trình này sẽ hơi lâu 💦`);
+
+                            for (const chap of chaptersList) {
+                                try {
+                                    // Phải gọi thêm API phụ của từng chương để lấy link ảnh
+                                    const chapRes = await fetch(chap.chapter_api_data);
+                                    const chapJson = await chapRes.json();
+
+                                    if (chapJson.status === 'success') {
+                                        const path = chapJson.data.item.chapter_path;
+                                        const chapDomain = chapJson.data.domain_cdn;
+
+                                        // Nối URL ảnh lại
+                                        const images = chapJson.data.item.chapter_image.map(img =>
+                                            `${chapDomain}/${path}/${img.image_file}`
+                                        );
+
+                                        newManga.episodes.push({
+                                            episodeNumber: parseFloat(chap.chapter_name) || newManga.episodes.length + 1,
+                                            title: `Chapter ${chap.chapter_name}`,
+                                            videoUrl: images.join('\n'), // Xuống dòng chuẩn cấu trúc FoxManga
+                                            addedAt: new Date().toISOString()
+                                        });
+                                    }
+                                    // Thần chú tạm dừng (0.5s) để server OTruyen không block IP
+                                    await new Promise(r => setTimeout(r, 500));
+                                } catch (e) {
+                                    log(`Lỗi khi lấy dữ liệu Chap ${chap.chapter_name}: ${e.message}`, 'error');
+                                }
+                            }
+                        } else {
+                            // Nếu không cào chapter thì chỉ đếm tổng số
+                            newManga.totalEpisodes = mangaData.episodes && mangaData.episodes[0] ? mangaData.episodes[0].server_data.length : 0;
+                        }
+
+                        // 5. Lưu vào Database
+                        try {
+                            await addDoc(mangasCollectionRef, newManga);
+                            log(`✅ Đã đẩy thành công lên Database: ${item.name}`, 'success');
+                        } catch (dbErr) {
+                            log(`Lỗi lưu vào DB (${item.name}): ${dbErr.message}`, 'error');
+                        }
+
+                        // Thần chú tạm dừng 1s trước khi sang truyện tiếp theo
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
+                } catch (e) {
+                    log(`Lỗi nghiêm trọng khi xử lý trang ${page}: ${e.message}`, 'error');
+                }
+            }
+
+            log('🎉 TADA! Nhiệm vụ hoàn tất thưa Chủ nhân!', 'success');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play mr-2"></i> BẮT ĐẦU CÀO';
+        };
+        // --- KẾT THÚC THẦN CHÚ ---
+
 
         const router = () => {
             const hash = window.location.hash.substring(1) || 'dashboard';
@@ -2526,6 +2740,10 @@
                                 </button>
                                 <button onclick="showModal('bulk-import-modal')" class="anime-button bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
                                     <i class="fas fa-file-import mr-2"></i> Import Truyện
+                                </button>
+
+                                <button onclick="showModal('otruyen-scrape-modal')" class="anime-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-spider mr-2"></i> Auto OTruyen
                                 </button>
                                 
                                 <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-xs">
