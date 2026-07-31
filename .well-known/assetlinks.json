@@ -1,1 +1,9 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "top.foxanime.twa",
+        "sha256_cert_fingerprints": ["8E:00:1F:1C:E9:08:3D:F3:CE:92:AB:2E:B1:EB:AE:DA:05:49:48:9A:83:8B:E0:A7:40:C7:29:3D:C4:7B:90:52"]
+      }
+    }]
 
