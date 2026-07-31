@@ -9,19 +9,19 @@
     "theme_color": "#111827",
     "description": "Nền tảng xem anime trực tuyến miễn phí, chất lượng cao HD.",
     "icons": [
-        {
-            "src": "/icon-192.png?v=2",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icon-512.png?v=2",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ],
+    {
+      "src": "https://foxanime.top/icon-192-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://foxanime.top/icon-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
     "screenshots": [
         {
             "src": "/anh/homeanime.png",
