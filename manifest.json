@@ -1,11 +1,13 @@
 {
-  "name": "FoxAnime - Xem Phim Anime Vietsub",
+  "id": "/?source=pwa",
+  "name": "FOXANIME - Xem Anime Miễn Phí",
   "short_name": "FoxAnime",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#ff6b00",
-  "description": "Trang xem phim Anime Vietsub chất lượng cao FoxAnime.",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "description": "Nền tảng xem anime trực tuyến miễn phí, chất lượng cao HD.",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -15,7 +17,16 @@
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/anh/bannerxemphim.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
