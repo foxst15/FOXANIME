@@ -3,7 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "top.foxanime.twa",
-        "sha256_cert_fingerprints": ["8E:00:1F:1C:E9:08:3D:F3:CE:92:AB:2E:B1:EB:AE:DA:05:49:48:9A:83:8B:E0:A7:40:C7:29:3D:C4:7B:90:52"]
+        "sha256_cert_fingerprints": ["19:81:DB:D6:E0:A0:8C:9F:D0:B2:D9:34:EC:16:DD:33:A4:EE:1E:AB:50:CF:16:02:74:95:D9:E4:D1:9B:E8:C1"]
       }
     }]
-
