@@ -10,13 +10,13 @@
   "description": "Nền tảng xem anime trực tuyến miễn phí, chất lượng cao HD.",
   "icons": [
     {
-      "src": "https://foxanime.top/icon-192-v2.png",
+      "src": "/anh/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://foxanime.top/icon-512-v2.png",
+      "src": "/anh/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
