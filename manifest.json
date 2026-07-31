@@ -1,39 +1,39 @@
 {
-    "id": "/?source=pwa",
-    "name": "FOXANIME - Xem Anime Miễn Phí",
-    "short_name": "FoxAnime",
-    "start_url": "/",
-    "display": "standalone",
-    "orientation": "portrait",
-    "background_color": "#111827",
-    "theme_color": "#111827",
-    "description": "Nền tảng xem anime trực tuyến miễn phí, chất lượng cao HD.",
-    "icons": [
+  "id": "/?source=pwa",
+  "name": "FOXANIME - Xem Anime Miễn Phí",
+  "short_name": "FoxAnime",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "description": "Nền tảng xem anime trực tuyến miễn phí, chất lượng cao HD.",
+  "icons": [
     {
       "src": "https://foxanime.top/icon-192-v2.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "https://foxanime.top/icon-512-v2.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
-    "screenshots": [
-        {
-            "src": "/anh/homeanime.png",
-            "sizes": "1911x979",
-            "type": "image/png",
-            "form_factor": "wide"
-        },
-        {
-            "src": "/anh/homemanga.png",
-            "sizes": "1917x978",
-            "type": "image/png",
-            "form_factor": "wide"
-        }
-    ]
+  "screenshots": [
+    {
+      "src": "/anh/homeanime.png",
+      "sizes": "1911x979",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/anh/homemanga.png",
+      "sizes": "1917x978",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
 }
