@@ -9,5 +9,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/__/auth/:path*",
+      "destination": "https://foxanime-e77d4.firebaseapp.com/__/auth/:path*"
+    }
   ]
 }
