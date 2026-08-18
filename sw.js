@@ -1,5 +1,5 @@
-// Tên của bộ nhớ đệm (Sau này cậu chủ update web thì đổi tên này thành v2, v3 nha)
-const CACHE_NAME = 'foxanime-offline-v1';
+// Tên của bộ nhớ đệm (Bé Lôi đổi thành v2 để cô người máy cập nhật luật mới nha)
+const CACHE_NAME = 'foxanime-offline-v2';
 
 // Danh sách "lương thực" cô người máy cần giấu vào kho để xài lúc mất mạng
 const urlsToCache = [
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
     );
 });
 
-// Sự kiện 2: Dọn dẹp rác cũ (Nếu cậu chủ update phiên bản mới)
+// Sự kiện 2: Dọn dẹp rác cũ (Nếu cậu chủ update phiên bản mới)
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
@@ -39,6 +39,13 @@ self.addEventListener('activate', event => {
 
 // Sự kiện 3: Gác cổng! Bắt tất cả các luồng tải dữ liệu
 self.addEventListener('fetch', event => {
+    // --- LUẬT VIP CỦA BÉ LÔI NÈ ---
+    // Nhận diện đường dẫn xác thực của Firebase và thả cho đi thẳng, không đụng vào!
+    if (event.request.url.includes('/__/auth/')) {
+        return; 
+    }
+    // -----------------------------
+
     event.respondWith(
         // Cố gắng chạy ra ngoài Internet lấy dữ liệu như bình thường...
         fetch(event.request).catch(() => {
