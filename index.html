@@ -2182,6 +2182,35 @@
                     }
                 });
 
+                // Tự động xoay ngang màn hình khi bật toàn màn hình (Fullscreen)
+                const handleFullscreenRotation = async () => {
+                    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+
+                    if (isFullscreen) {
+                        try {
+                            if (screen.orientation && screen.orientation.lock) {
+                                await screen.orientation.lock('landscape');
+                            }
+                        } catch (err) {
+                            // Trình duyệt không hỗ trợ hoặc bị chặn, bỏ qua lỗi
+                        }
+                    } else {
+                        try {
+                            if (screen.orientation && screen.orientation.unlock) {
+                                screen.orientation.unlock();
+                            }
+                        } catch (err) {
+                            // Bỏ qua lỗi
+                        }
+                    }
+                };
+
+                // Lắng nghe sự kiện toàn màn hình trên các trình duyệt
+                document.addEventListener('fullscreenchange', handleFullscreenRotation);
+                document.addEventListener('webkitfullscreenchange', handleFullscreenRotation);
+                document.addEventListener('mozfullscreenchange', handleFullscreenRotation);
+                document.addEventListener('MSFullscreenChange', handleFullscreenRotation);
+
                 document.addEventListener('click', (e) => {
                     if (!inputEl.contains(e.target) && !resultsEl.contains(e.target)) {
                         resultsEl.classList.add('hidden');
