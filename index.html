@@ -90,6 +90,7 @@
         let currentUserLikeDocIds = {}; let setupError = null; let isGlobalCacheLoaded = false;
         let resolveResumeModal; let unsubscribeMovieListener = null; let currentUserReviewCache = null;
         let unsubscribeReviewListener = null; let unsubscribePublicReviewsListener = null;
+        let unsubscribeLikesListener = null;
         let globalSliderSettings = {mode: 'random', selectedMovieIds: []};
         const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
 
@@ -140,9 +141,13 @@
 
         const isCommentProfane = (content) => {
             const normalizedContent = content.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/[^a-z0-9\s]/g, "");
+            const contentNoSpace = normalizedContent.replace(/\s+/g, ''); 
+            
             for (const word of BANNED_WORDS) {
-                const normalizedBannedWord = word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd');
-                if (normalizedContent.includes(normalizedBannedWord.replace(/\s+/g, '')) || content.toLowerCase().includes(word.toLowerCase())) return true;
+                const normalizedBannedWord = word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/\s+/g, '');
+                if (contentNoSpace.includes(normalizedBannedWord) || content.toLowerCase().includes(word.toLowerCase())) {
+                    return true;
+                }
             }
             return false;
         };
@@ -501,21 +506,31 @@
         };
 
         const fetchUserLikes = async (shouldRerender = false) => {
-            // BÉ LÔI FIX: Thêm isGoogleAuth(auth.currentUser) để chặn tài khoản Khách gọi API này
+            // Dọn dẹp luồng theo dõi cũ (nếu có) trước khi chạy cái mới hoặc khi đăng xuất
+            if (unsubscribeLikesListener) {
+                unsubscribeLikesListener();
+                unsubscribeLikesListener = null;
+            }
+
             if (!auth?.currentUser || !db || userId === 'guest' || !userId || !isGoogleAuth(auth.currentUser)) {
                 currentUserLikeDocIds = {};
                 return;
             }
+            
             try {
                 const q = query(collection(db, userLikesCollectionPath));
-                onSnapshot(q, (snapshot) => {
+                unsubscribeLikesListener = onSnapshot(q, (snapshot) => {
                     const likes = {};
                     snapshot.forEach(doc => {likes[doc.data().movieId] = doc.id;});
                     currentUserLikeDocIds = likes;
                     const hash = window.location.hash;
                     if (hash.startsWith('#library')) router(false);
-                }, (error) => {console.error("Lỗi khi theo dõi danh sách likes:", error);});
-            } catch (e) {console.error("Lỗi khi tải danh sách likes:", e);}
+                }, (error) => {
+                    // Xử lý ngầm khi lỗi mạng hoặc lỗi quyền, không cần hiển thị sến súa
+                });
+            } catch (e) {
+               // Bỏ qua lỗi
+            }
         };
 
         const handleLike = async (e) => {
@@ -1766,20 +1781,19 @@
                     getEl('#profile-update-form')?.addEventListener('submit', handleProfileUpdate);
                     return;
                 case '#search':
-                    title = `Kết quả tìm kiếm cho: "${param}"`;
-                    const lowerCaseTerm = param.toLowerCase();
+                    const lowerCaseTerm = (param || '').toLowerCase();
+                    title = `Kết quả tìm kiếm cho: "${param || ''}"`;
                     results = cache.filter(m => m.title.toLowerCase().includes(lowerCaseTerm) || (m.titleOriginal && m.titleOriginal.toLowerCase().includes(lowerCaseTerm)));
                     break;
                 case '#genre':
-                    const filterSlug = param.toLowerCase();
-                    const filterName = GENRE_TRANSLATIONS[param.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
-                    title = `Thể loại: ${filterName}`;
+                    const filterSlug = (param || '').toLowerCase();
+                    const filterName = GENRE_TRANSLATIONS[(param || '').split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
+                    title = filterSlug ? `Thể loại: ${filterName}` : 'Tất cả Thể Loại';
                     results = cache.filter(m => {
+                        if (!filterSlug) return true; // Nếu không có param thì hiện tất cả
                         if ((m.formatType && m.formatType.toLowerCase() === filterSlug) || (m.status && m.status.toLowerCase() === filterSlug)) {
                             return true;
                         }
-
-
                         const movieGenreSlugs = (m.genre || '').split(',').map(g => createSlug(g.trim()));
                         return movieGenreSlugs.includes(filterSlug);
                     });
@@ -1789,8 +1803,9 @@
                     results = [...cache].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
                     break;
                 case '#season':
-                    title = `Anime ${param ? decodeURIComponent(param).replace(/-/g, ' ') : 'Mùa (Mới nhất)'}`;
-                    results = cache.filter(m => m.season && m.season.toLowerCase() === param.toLowerCase());
+                    title = `Anime ${param ? decodeURIComponent(param).replace(/-/g, ' ') : 'Mùa'}`;
+                    const targetSeason = (param || '').toLowerCase();
+                    results = cache.filter(m => !targetSeason || (m.season && m.season.toLowerCase() === targetSeason));
                     break;
                 case '#library':
                     if (!auth?.currentUser || auth.currentUser.isAnonymous) {
@@ -2029,8 +2044,8 @@
                 return;
             }
 
-            if (isGoogleAuth(user)) {
-                const displayName = user.displayName || user.email.split('@')[0];
+            if (user && !user.isAnonymous) {
+                const displayName = user.displayName || user.email?.split('@')[0] || 'Admin';
                 const photoURL = user.photoURL || `https://placehold.co/32x32/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
 
                 authButtonDesktop.innerHTML = `
@@ -2077,10 +2092,14 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await setupFirebase();
-            getEl('#resume-modal-yes')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(true);});
-            getEl('#resume-modal-no')?.addEventListener('click', () => {window.hideResumeModal(); resolveResumeModal(false);});
-
-            // --- BÉ LÔI SỬA CHỖ NÀY: Mở/Đóng menu kèm màn mờ ---
+            getEl('#resume-modal-yes')?.addEventListener('click', () => {
+                if (typeof resolveResumeModal === 'function') resolveResumeModal(true);
+                window.hideResumeModal(); 
+            });
+            getEl('#resume-modal-no')?.addEventListener('click', () => {
+                if (typeof resolveResumeModal === 'function') resolveResumeModal(false);
+                window.hideResumeModal(); 
+            });
             // --- 1. Nút mở Menu chính ---
             getEl('#mobile-menu-button')?.addEventListener('click', () => {
                 getEl('#mobile-menu')?.classList.toggle('menu-open');
