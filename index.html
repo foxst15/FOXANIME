@@ -475,18 +475,18 @@
                 }
                 await setPersistence(auth, browserLocalPersistence);
 
-                // --- BÉ LÔI PHÙ PHÉP HYBRID: THỬ POPUP TRƯỚC, NẾU BỊ CHẶN THÌ CHẠY REDIRECT ---
+                
                 try {
                     await signInWithPopup(auth, new GoogleAuthProvider());
                     if (window.location.hash === '#login') window.location.hash = '#home';
                 } catch (popupError) {
                     console.warn("⚠️ Popup bị chặn, Bé Lôi đang tự động chuyển sang Redirect...", popupError);
 
-                    // Nếu trình duyệt (hoặc Vercel/Iframe) bướng bỉnh chặn Popup, lách luật qua Redirect
+                    
                     if (popupError.code === 'auth/popup-blocked' || popupError.message.includes('Cross-Origin')) {
                         await signInWithRedirect(auth, new GoogleAuthProvider());
                     } else {
-                        throw popupError; // Báo lỗi thực sự nếu không phải lỗi chặn cửa sổ
+                        throw popupError; 
                     }
                 }
             } catch (error) {
@@ -506,7 +506,7 @@
         };
 
         const fetchUserLikes = async (shouldRerender = false) => {
-            // Dọn dẹp luồng theo dõi cũ (nếu có) trước khi chạy cái mới hoặc khi đăng xuất
+            
             if (unsubscribeLikesListener) {
                 unsubscribeLikesListener();
                 unsubscribeLikesListener = null;
@@ -526,10 +526,10 @@
                     const hash = window.location.hash;
                     if (hash.startsWith('#library')) router(false);
                 }, (error) => {
-                    // Xử lý ngầm khi lỗi mạng hoặc lỗi quyền, không cần hiển thị sến súa
+                    
                 });
             } catch (e) {
-               // Bỏ qua lỗi
+              
             }
         };
 
@@ -538,8 +538,29 @@
             const button = e.currentTarget;
             const movieId = button.dataset.movieId;
             button.disabled = true;
+
             const isLiked = !!currentUserLikeDocIds[movieId];
             const movieDocRef = doc(db, dataCollectionPath, movieId);
+
+            
+            const likeButtonText = button.querySelector('#like-button-text') || button.querySelector('span');
+            const likeButtonIcon = button.querySelector('ion-icon');
+
+            if (isLiked) {
+                
+                button.classList.remove('bg-lime-600', 'text-white', 'font-bold');
+                button.classList.add('bg-gray-700', 'text-gray-300', 'font-medium');
+                if (likeButtonText) likeButtonText.textContent = 'Thích';
+                if (likeButtonIcon) likeButtonIcon.setAttribute('name', 'thumbs-up-outline');
+            } else {
+                
+                button.classList.remove('bg-gray-700', 'text-gray-300', 'font-medium');
+                button.classList.add('bg-lime-600', 'text-white', 'font-bold');
+                if (likeButtonText) likeButtonText.textContent = 'Đã thích';
+                if (likeButtonIcon) likeButtonIcon.setAttribute('name', 'thumbs-up');
+            }
+            // -------------------------------------------------------------------
+
             try {
                 const batch = writeBatch(db);
                 const userLikesColRef = collection(db, `artifacts/${appId}/users/${userId}/likes`);
@@ -547,18 +568,25 @@
 
                 if (isLiked) {
                     const likeDocId = currentUserLikeDocIds[movieId];
-                    if (!likeDocId) throw new Error("Không tìm thấy Like ID trong cache.");
-                    batch.delete(doc(userLikesColRef, likeDocId));
+                    
+                    delete currentUserLikeDocIds[movieId]; 
+                    if (likeDocId) {
+                        batch.delete(doc(userLikesColRef, likeDocId));
+                    }
                     batch.update(movieDocRef, {likeCount: increment(-1)});
                 } else {
                     newLikeDocRef = doc(userLikesColRef);
+                    
+                    currentUserLikeDocIds[movieId] = newLikeDocRef.id; 
                     batch.set(newLikeDocRef, {movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
                     batch.update(movieDocRef, {likeCount: increment(1)});
                 }
+                
+                
                 await batch.commit();
-                if (isLiked) {delete currentUserLikeDocIds[movieId];} else {currentUserLikeDocIds[movieId] = newLikeDocRef.id;}
             } catch (e) {
-                console.error("[LIKE ERROR] Thao tác Firebase thất bại:", e);
+                
+                console.error("[Hệ thống] Thao tác Like thất bại:", e);
             } finally {
                 button.disabled = false;
             }
