@@ -1192,20 +1192,36 @@
                     </div>
 
                     <div class="container mx-auto max-w-4xl mt-12 p-6 bg-gray-800 rounded-2xl shadow-xl">
-                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
-                        ${canComment ? `
-                            <form id="comment-form" class="mb-6">
-                                <textarea id="comment-input" class="w-full h-24 p-4 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
-                                <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                                <div class="flex justify-end mt-2">
-                                    <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors shadow-md">Gửi Bình Luận</button>
-                                </div>
-                            </form>
-                            ` : `
-                            <div class="p-4 bg-gray-700 rounded-xl text-center mb-6">
-                                <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
-                            </div>
-                            `}
+    <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
+    ${canComment ? `
+        <form id="comment-form" class="mb-6">
+            <!-- Ô NHẬP BÌNH LUẬN KÈM NÚT STICKER -->
+            <div class="relative">
+                <textarea id="comment-input" class="w-full h-24 p-4 pr-12 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                
+                <!-- NÚT BẤM MẶT CƯỜI -->
+                <button type="button" id="toggle-sticker-btn" class="absolute bottom-4 right-4 text-2xl text-gray-400 hover:text-orange-400 transition-colors">
+                    <ion-icon name="happy-outline"></ion-icon>
+                </button>
+
+                <!-- BẢNG POPUP CHỌN STICKER -->
+                <div id="sticker-picker-popup" class="hidden absolute bottom-full mb-2 right-0 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-3 w-80 z-50">
+                    <div class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1" id="sticker-grid-container">
+                        <!-- Sticker được nhét tự động ở đây -->
+                    </div>
+                </div>
+            </div>
+
+            <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
+            <div class="flex justify-end mt-2">
+                <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors shadow-md">Gửi Bình Luận</button>
+            </div>
+        </form>
+        ` : `
+        <div class="p-4 bg-gray-700 rounded-xl text-center mb-6">
+            <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+        </div>
+        `}
 
                         <div id="comments-list">
                             <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
@@ -1406,13 +1422,14 @@
                 // Render giao diện và nhét list ảnh vào
                 getEl('#app').innerHTML = WatchPageTemplate(mangaData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink, finalImages);
 
+                // Đổ sticker vào khung chọn
                 const stickerContainer = document.getElementById('sticker-grid-container');
                 if (stickerContainer) {
-                    stickerContainer.innerHTML = GIF_ICONS.map((gif, index) => `
-            <button type="button" class="sticker-select-btn hover:bg-gray-700 p-1.5 rounded-lg transition-all flex items-center justify-center bg-gray-900/50 border border-gray-700/50" data-url="${gif}">
-                <img src="${gif}" class="w-12 h-12 object-contain rounded" loading="lazy" onerror="this.src='https://placehold.co/48x48/1f2937/d1d5db?text=Err'">
-            </button>
-        `).join('');
+                    stickerContainer.innerHTML = GIF_ICONS.map((gif) => `
+        <button type="button" class="sticker-select-btn hover:bg-gray-700 p-1.5 rounded-lg transition-all flex items-center justify-center bg-gray-900/50 border border-gray-700/50" data-url="${gif}">
+            <img src="${gif}" class="w-12 h-12 object-contain rounded" loading="lazy" onerror="this.src='https://placehold.co/48x48/1f2937/d1d5db?text=Err'">
+        </button>
+    `).join('');
                 }
 
                 const toggleBtn = document.getElementById('toggle-sticker-btn');
@@ -1931,10 +1948,26 @@
                 });
 
                 document.addEventListener('click', (e) => {
-                    if (!inputEl.contains(e.target) && !resultsEl.contains(e.target)) {
-                        resultsEl.classList.add('hidden');
-                    }
-                });
+    const stickerBtn = e.target.closest('.sticker-select-btn');
+    if (stickerBtn) {
+        const url = stickerBtn.getAttribute('data-url');
+        const inputArea = document.getElementById('comment-input');
+        
+        if (inputArea) {
+            const start = inputArea.selectionStart;
+            const end = inputArea.selectionEnd;
+            const text = inputArea.value;
+            const insertion = ` <img src="${url}" class="inline-block w-16 h-16 object-contain mx-1 align-middle"> `;
+            
+            inputArea.value = text.substring(0, start) + insertion + text.substring(end);
+            inputArea.focus();
+            inputArea.selectionStart = inputArea.selectionEnd = start + insertion.length;
+        }
+        
+        const popup = document.getElementById('sticker-picker-popup');
+        if (popup) popup.classList.add('hidden');
+    }
+});
 
                 // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem truyện
                 resultsEl.addEventListener('click', (e) => {
