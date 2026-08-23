@@ -968,9 +968,24 @@
         };
 
         
+        
         const formatCommentContent = (text) => {
             let safeText = escapeHtml(text || "");
-            return safeText.replace(/\[gif:(.+?)\]/g, '<img src="$1" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">');
+            
+            
+            safeText = safeText.replace(/\[gif:(https?:\/\/[^\]]+)\]/g, '<img src="$1" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">');
+            
+            
+            safeText = safeText.replace(/\[sticker:(\d+)\]/g, (match, indexStr) => {
+                const index = parseInt(indexStr);
+                
+                if (GIF_ICONS[index]) {
+                    return `<img src="${GIF_ICONS[index]}" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">`;
+                }
+                return match; 
+            });
+            
+            return safeText;
         };
 
         window.showResumeModal = (movieTitle, time) => {
