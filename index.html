@@ -1599,7 +1599,7 @@
                         </div>
                         <span class="text-xs text-gray-500">${dateStr}</span>
                     </div>
-        ${review.content ? `<p class="text-gray-300 text-sm mt-3 border-t border-gray-700 pt-2">${review.content}</p>` : ''}
+        ${review.content ? `<p class="text-gray-300 text-sm mt-3 border-t border-gray-700 pt-2 whitespace-pre-wrap">${formatCommentContent(review.content)}</p>` : ''}
                 </div>
     `;
         };
@@ -1711,29 +1711,35 @@
 
             if (userReview) {
                 formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-lime-500/50">
-                        <h3 class="text-xl font-bold text-lime-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
-                        <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
-                        <form id="review-form" data-movie-id="${movie.id}">
-                            ${renderFormStars(userReview.rating)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
-                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Cập nhật Đánh giá</button>
-                        </form>
-                    </div>
+                   <div class="relative my-4">
+                                <textarea id="review-content" class="w-full h-24 px-4 py-2 pr-12 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500" placeholder="Chia sẻ thêm cảm nhận của bạn (có thể kèm sticker nè)...">${userReview.content || ''}</textarea>
+                                <button type="button" id="toggle-review-gif-btn" class="absolute right-3 top-3 text-gray-400 hover:text-lime-400 transition-colors">
+                                    <ion-icon name="happy" class="text-2xl"></ion-icon>
+                                </button>
+                                <div id="review-gif-picker-popup" class="hidden absolute right-0 bottom-full mb-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl p-3 w-64 max-h-48 overflow-y-auto z-50">
+                                    <div class="grid grid-cols-4 gap-2">
+                                        ${GIF_ICONS.map((gif, index) => `
+                                            <img src="${gif}" referrerpolicy="no-referrer" class="review-gif-item w-12 h-12 object-contain cursor-pointer hover:bg-gray-700 rounded p-1 transition-colors" data-sticker-index="${index}" loading="lazy">
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
         `;
             } else if (isCommentAllowed) {
                 formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl">
-                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá Của Bạn</h3>
-                        <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ phim này:</p>
-                        <form id="review-form" data-movie-id="${movie.id}">
-                            ${renderFormStars(0)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
-                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-lime-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors">Gửi Đánh giá</button>
-                        </form>
-                    </div>
+                    <div class="relative my-4">
+                                <textarea id="review-content" class="w-full h-24 px-4 py-2 pr-12 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500" placeholder="Chia sẻ thêm cảm nhận của bạn (có thể kèm sticker nè)..."></textarea>
+                                <button type="button" id="toggle-review-gif-btn" class="absolute right-3 top-3 text-gray-400 hover:text-lime-400 transition-colors">
+                                    <ion-icon name="happy" class="text-2xl"></ion-icon>
+                                </button>
+                                <div id="review-gif-picker-popup" class="hidden absolute right-0 bottom-full mb-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl p-3 w-64 max-h-48 overflow-y-auto z-50">
+                                    <div class="grid grid-cols-4 gap-2">
+                                        ${GIF_ICONS.map((gif, index) => `
+                                            <img src="${gif}" referrerpolicy="no-referrer" class="review-gif-item w-12 h-12 object-contain cursor-pointer hover:bg-gray-700 rounded p-1 transition-colors" data-sticker-index="${index}" loading="lazy">
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
         `;
             } else {
                 formContainer.innerHTML = `
@@ -1761,6 +1767,35 @@
             }
         };
 
+            const toggleReviewGifBtn = getEl('#toggle-review-gif-btn');
+            const reviewGifPopup = getEl('#review-gif-picker-popup');
+            const reviewInput = getEl('#review-content');
+
+            if (toggleReviewGifBtn && reviewGifPopup && reviewInput) {
+                toggleReviewGifBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    reviewGifPopup.classList.toggle('hidden');
+                });
+
+                document.removeEventListener('click', window.reviewPopupOutsideClickHandler);
+                window.reviewPopupOutsideClickHandler = (e) => {
+                    if (!reviewGifPopup.contains(e.target) && !toggleReviewGifBtn.contains(e.target)) {
+                        reviewGifPopup.classList.add('hidden');
+                    }
+                };
+                document.addEventListener('click', window.reviewPopupOutsideClickHandler);
+
+                const reviewGifItems = document.querySelectorAll('.review-gif-item');
+                reviewGifItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-sticker-index');
+                        reviewInput.value += ` [sticker:${index}] `;
+                        reviewInput.focus();
+                        reviewGifPopup.classList.add('hidden');
+                    });
+                });
+            }
+            
         const MovieCardTemplate = (movie) => {
             const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
             const statusText = movie.status || 'N/A';
