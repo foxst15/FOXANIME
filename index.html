@@ -1765,8 +1765,6 @@
                     }
                 });
             }
-        };
-
             const toggleReviewGifBtn = getEl('#toggle-review-gif-btn');
             const reviewGifPopup = getEl('#review-gif-picker-popup');
             const reviewInput = getEl('#review-content');
@@ -1795,6 +1793,7 @@
                     });
                 });
             }
+        }; 
             
         const MovieCardTemplate = (movie) => {
             const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
