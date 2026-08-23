@@ -74,7 +74,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script type="module">
 
-        import { GIF_ICONS } from './icons.js?v=4';
+        import {GIF_ICONS} from './icons.js?v=4';
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -1121,7 +1121,7 @@
 
             const sortedEps = [...allEpisodes].sort((a, b) => parseFloat(a.episodeNumber) - parseFloat(b.episodeNumber));
             const currIdx = sortedEps.findIndex(ep => parseFloat(ep.episodeNumber) === currentEpNumber);
-            
+
             // Tìm đúng tên của chap trước và chap sau
             const previousEpisode = currIdx > 0 ? sortedEps[currIdx - 1] : null;
             const nextEpisodeObj = (currIdx !== -1 && currIdx < sortedEps.length - 1) ? sortedEps[currIdx + 1] : null;
@@ -1154,7 +1154,7 @@
                 <button disabled class="bg-gray-800 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 cursor-not-allowed">
                     Hết Truyện <ion-icon name="lock-closed" class="text-lg ml-2"></ion-icon>
                 </button>`;
-                
+
             return `
                 <section class="text-white pb-12">
                     <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
@@ -1354,7 +1354,8 @@
 
                     if (urls.length === 1 && urls[0].includes('otruyencdn.com')) {
                         try {
-                            const res = await fetch(urls[0]);
+                            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(urls[0]);
+                            const res = await fetch(proxyUrl);
                             const apiData = await res.json();
                             if (apiData.status === 'success' && apiData.data && apiData.data.item) {
                                 const domain = apiData.data.domain_cdn;
