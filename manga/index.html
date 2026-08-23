@@ -74,7 +74,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script type="module">
 
-        import {GIF_ICONS} from './icons.js?v=4';
+
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -823,8 +823,8 @@
             const genres = manga.genre ? manga.genre.split(',').map(g => g.trim()).join(', ') : '';
 
             const ratingHtml = renderSubtleRatingHtml(manga);
-
-            return `
+            return
+             `
                 <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
                     <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
                         <span class="inline-block bg-black/70 text-orange-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
