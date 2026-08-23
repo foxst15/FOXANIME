@@ -2,58 +2,38 @@
 <html lang="vi" class="dark">
 
 <head>
-       
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "FoxManga",
-      "alternateName": ["Fox Manga", "FoxManga Vietsub" , "foxmanga"],
-      "url": "https://foxmanga.top/"
-    }
-    </script>
-       
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "FoxManga",
+      "alternateName": ["Fox Manga", "FoxManga Vietsub" , "foxmanga"],
+      "url": "https://foxmanga.top/"
+    }
+    </script>
     <meta name="google-site-verification" content="q11Z8-9RJYhX14rqOGPUbVU2FynPJgPa8_3kMC34J4A" />
-       
     <meta property="og:site_name" content="FoxManga" />
 
-       
-    <meta name="description"        
+    <meta name="description"
         content="FOXMANGA - Nền tảng đọc truyện trực tuyến miễn phí, chất lượng cao HD, cập nhật mới nhất cực nhanh." />
-       
-    <meta property="og:description"        
+    <meta property="og:description"
         content="FOXMANGA - Nền tảng đọc truyện trực tuyến miễn phí, chất lượng cao HD, cập nhật mới nhất cực nhanh." />
 
-       
     <meta charset="UTF-8">
-       
     <link rel="manifest" href="/manifest.json">
-       
     <meta name="theme-color" content="#111827">
-       
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-       
+    <link rel="stylesheet" href="https://cdn.jsdelivrnet/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-       
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-       
     <link rel="dns-prefetch" href="https://unpkg.com">
-       
     <link rel="dns-prefetch" href="https://www.gstatic.com">
-       
     <link rel="icon" type="image/png" href="../anh/foxanimelogo.jpg">
-       
     <link rel="preconnect" href="https://foxanime.top/__/auth/">
-       
     <link rel="preconnect" href="https://foxanime-e77d4.firebaseapp.com" crossorigin>
-       
     <link rel="dns-prefetch" href="https://foxanime-e77d4.firebaseapp.com">
-        <title>FOXMANGA - Đọc Truyện Miễn Phí</title>
-       
+    <title>FOXMANGA - Đọc Truyện Miễn Phí</title>
     <script src="https://cdn.tailwindcss.com"></script>
-       
     <script>
         const RELOAD_INTERVAL = 15000;
         window.trigger5XXError = function () {
@@ -87,17 +67,11 @@
         window.addEventListener('load', () => {setTimeout(checkTailwindLoadAndShowFallback, 300);});
     </script>
 
-       
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-       
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-       
     <link rel="preconnect" href="https://fonts.googleapis.com">
-       
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-       
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-       
     <script type="module">
 
         import {GIF_ICONS} from './icons.js?v=4';
@@ -278,68 +252,68 @@
             getEl('#gacha-msg').innerHTML = '';
 
             getEl('#fortune-results').innerHTML = `
-        <div class="bg-gray-800/80 p-8 rounded-2xl border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)] mt-8 text-center animate-fade-in">
-            <div class="text-6xl mb-4">🔮</div>
-            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-3">Cung ${zodiac.name}</h3>
-            <p class="text-gray-300 text-lg italic mb-6 px-4">"${zodiac.fortune}"</p>
-            <h4 class="text-orange-400 font-bold mb-6 uppercase tracking-wider border-b border-gray-600 inline-block pb-2">Đề xuất truyện ${zodiac.genre} dành cho bạn:</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-left">
-                ${recommended.map(MangaCardTemplate).join('')}
-            </div>
-        </div>
-    `;
+        <div class="bg-gray-800/80 p-8 rounded-2xl border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)] mt-8 text-center animate-fade-in">
+            <div class="text-6xl mb-4">🔮</div>
+            <h3 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-3">Cung ${zodiac.name}</h3>
+            <p class="text-gray-300 text-lg italic mb-6 px-4">"${zodiac.fortune}"</p>
+            <h4 class="text-orange-400 font-bold mb-6 uppercase tracking-wider border-b border-gray-600 inline-block pb-2">Đề xuất truyện ${zodiac.genre} dành cho bạn:</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-left">
+                ${recommended.map(MangaCardTemplate).join('')}
+            </div>
+        </div>
+    `;
         };
 
         const GachaPageTemplate = () => {
             return `
-        <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 mb-4 drop-shadow-lg uppercase tracking-wide">🌟 Góc Nhân Phẩm 🌟</h2>
-                <p class="text-gray-400 text-lg">Thử vận may hôm nay hoặc để hệ thống chọn truyện giúp bạn nhé!</p>
-            </div>
+        <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 mb-4 drop-shadow-lg uppercase tracking-wide">🌟 Góc Nhân Phẩm 🌟</h2>
+                <p class="text-gray-400 text-lg">Thử vận may hôm nay hoặc để hệ thống chọn truyện giúp bạn nhé!</p>
+            </div>
 
-            <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <!-- BOX GACHA -->
-                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(249,115,22,0.15)] border border-orange-500/30 flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
-                    <img src="../anh/FOXManga.gif" class="w-24 h-24 rounded-full border-4 border-orange-400 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.6)] animate-bounce object-cover">
-                    <h3 class="text-2xl font-bold text-white mb-2">Gacha Truyện Ngẫu Nhiên</h3>
-                    <p class="text-gray-300 mb-6 text-center">Hôm nay bạn còn <span id="gacha-pulls-left" class="text-3xl font-black text-orange-400 mx-1 drop-shadow-md">5</span> lượt</p>
-                    
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full">
-                        <button onclick="window.handleGachaPull(1)" class="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-gray-500 hover:border-orange-400">
-                            Quay x1 <ion-icon name="ticket-outline" class="ml-1"></ion-icon>
-                        </button>
-                        <button onclick="window.handleGachaPull(5)" class="flex-1 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-                            Quay x5 VIP <ion-icon name="sparkles" class="ml-1 text-yellow-300"></ion-icon>
-                        </button>
-                    </div>
-                    <div id="gacha-msg" class="mt-5 h-6 text-sm font-semibold tracking-wide"></div>
-                </div>
+            <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <!-- BOX GACHA -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(249,115,22,0.15)] border border-orange-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
+                    <img src="../anh/FOXManga.gif" class="w-24 h-24 rounded-full border-4 border-orange-400 mb-6 shadow-[0_0_15px_rgba(249,115,22,0.6)] animate-bounce object-cover">
+                    <h3 class="text-2xl font-bold text-white mb-2">Gacha Truyện Ngẫu Nhiên</h3>
+                    <p class="text-gray-300 mb-6 text-center">Hôm nay bạn còn <span id="gacha-pulls-left" class="text-3xl font-black text-orange-400 mx-1 drop-shadow-md">5</span> lượt</p>
+                    
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full">
+                        <button onclick="window.handleGachaPull(1)" class="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-gray-500 hover:border-orange-400">
+                            Quay x1 <ion-icon name="ticket-outline" class="ml-1"></ion-icon>
+                        </button>
+                        <button onclick="window.handleGachaPull(5)" class="flex-1 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                            Quay x5 VIP <ion-icon name="sparkles" class="ml-1 text-yellow-300"></ion-icon>
+                        </button>
+                    </div>
+                    <div id="gacha-msg" class="mt-5 h-6 text-sm font-semibold tracking-wide"></div>
+                </div>
 
-                <!-- BOX BÓI TOÁN -->
-                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(168,85,247,0.15)] border border-purple-500/30 flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-                    <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">🔮</div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Đề Xuất Theo Cung Hoàng Đạo</h3>
-                    <p class="text-gray-300 mb-6 text-center">Nhập ngày sinh để hệ thống đề xuất thể loại phù hợp với bạn hôm nay!</p>
-                    
-                    <form id="fortune-form" class="w-full flex flex-col space-y-4 relative z-10">
-                        <input type="date" id="dob-input" required class="w-full px-5 py-3.5 bg-gray-900 border-2 border-purple-500/50 rounded-xl text-white focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 text-center font-bold tracking-widest cursor-pointer">
-                        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                            Xem Đề Xuất <ion-icon name="star-half-outline" class="ml-1"></ion-icon>
-                        </button>
-                    </form>
-                </div>
-            </div>
+                <!-- BOX BÓI TOÁN -->
+                <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(168,85,247,0.15)] border border-purple-500/30 flex flex-col items-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+                    <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">🔮</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Đề Xuất Theo Cung Hoàng Đạo</h3>
+                    <p class="text-gray-300 mb-6 text-center">Nhập ngày sinh để hệ thống đề xuất thể loại phù hợp với bạn hôm nay!</p>
+                    
+                    <form id="fortune-form" class="w-full flex flex-col space-y-4 relative z-10">
+                        <input type="date" id="dob-input" required class="w-full px-5 py-3.5 bg-gray-900 border-2 border-purple-500/50 rounded-xl text-white focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 text-center font-bold tracking-widest cursor-pointer">
+                        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                            Xem Đề Xuất <ion-icon name="star-half-outline" class="ml-1"></ion-icon>
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-            <!-- KẾT QUẢ -->
-            <div class="w-full max-w-7xl">
-                <div id="gacha-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
-                <div id="fortune-results" class="w-full"></div>
-            </div>
-        </section>
-    `;
+            <!-- KẾT QUẢ -->
+            <div class="w-full max-w-7xl">
+                <div id="gacha-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+                <div id="fortune-results" class="w-full"></div>
+            </div>
+        </section>
+    `;
         };
 
         const setupCommentsListener = (mangaId) => {
@@ -359,14 +333,14 @@
                 if (commentCountElement) commentCountElement.textContent = updatedComments.length;
                 if (commentsListElement) {
                     commentsListElement.innerHTML = `
-                <div class="max-h-96 overflow-y-auto comments-scroll-area">
-                    ${displayedComments.length > 0
+                <div class="max-h-96 overflow-y-auto comments-scroll-area">
+                    ${displayedComments.length > 0
                             ? displayedComments.map(CommentTemplate).join('')
                             : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
                         }
-                    ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
-                </div>
-            `;
+                    ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                </div>
+            `;
                 }
             }, (error) => {
                 console.error("Lỗi listener bình luận:", error);
@@ -667,22 +641,22 @@
             const dateStr = formatCommentDate(review.updatedAt || review.createdAt);
 
             return `
-                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-3">
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center space-x-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/40x40/374151/e2e8f0'">
-                            <div>
-                                <p class="text-white font-bold text-sm">${displayName}</p>
-                                <div class="flex text-yellow-400 text-xs">
-                                    ${renderStars(rating)}
-                                </div>
-                            </div>
-                        </div>
-                        <span class="text-xs text-gray-500">${dateStr}</span>
-                    </div>
-        ${review.content ? `<p class="text-gray-300 text-sm mt-3 border-t border-gray-700 pt-2">${review.content}</p>` : ''}
-                </div>
-    `;
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-3">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-3">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/40x40/374151/e2e8f0'">
+                            <div>
+                                <p class="text-white font-bold text-sm">${displayName}</p>
+                                <div class="flex text-yellow-400 text-xs">
+                                    ${renderStars(rating)}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">${dateStr}</span>
+                    </div>
+        ${review.content ? `<p class="text-gray-300 text-sm mt-3 border-t border-gray-700 pt-2">${review.content}</p>` : ''}
+                </div>
+    `;
         };
 
         const setupPublicReviewsListener = (mangaId) => {
@@ -699,12 +673,12 @@
 
                 if (reviews.length > 0) {
                     publicReviewsContainer.innerHTML = `
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây (${reviews.length})</h4>
-                        <div class="max-h-96 overflow-y-auto review-scroll-area space-y-3">
-                            ${displayedReviews.map(renderPublicReviewItem).join('')}
-               ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn để tối ưu hiệu suất.</p>` : ''}
-                        </div>
-           `;
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Đánh giá gần đây (${reviews.length})</h4>
+                        <div class="max-h-96 overflow-y-auto review-scroll-area space-y-3">
+                            ${displayedReviews.map(renderPublicReviewItem).join('')}
+               ${reviews.length > REVIEW_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${reviews.length - REVIEW_DISPLAY_LIMIT} đánh giá cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                        </div>
+           `;
                 } else {
                     publicReviewsContainer.innerHTML = `<p class="text-gray-500 text-sm italic">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>`;
                 }
@@ -766,20 +740,20 @@
             }
 
             return `
-        <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
-            <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
-            <span class="text-white text-xs font-bold rating-score-${manga.id}">${ratingDisplay}</span>
-        </div>
-    `;
+        <div class="absolute top-2 left-2 z-10 bg-black/70 rounded-full px-2 py-1 shadow-md flex items-center space-x-1">
+            <ion-icon name="star" class="text-yellow-400 text-xs"></ion-icon>
+            <span class="text-white text-xs font-bold rating-score-${manga.id}">${ratingDisplay}</span>
+        </div>
+    `;
         };
 
         const renderFormStars = (currentRating) => {
             let html = '';
             for (let i = 5; i >= 1; i--) {
                 html += `<input type="radio" id="rating-${i}" name="rating" value="${i}" class="hidden peer" ${currentRating === i ? 'checked' : ''}>
-                    <label for="rating-${i}" class="cursor-pointer text-4xl text-gray-600 peer-hover:text-yellow-400 hover:text-yellow-400 transition-colors duration-200">
-                        <ion-icon name="${currentRating >= i ? 'star' : 'star-outline'}" class="rating-star-icon" data-rating="${i}"></ion-icon>
-    </label>`;
+                    <label for="rating-${i}" class="cursor-pointer text-4xl text-gray-600 peer-hover:text-yellow-400 hover:text-yellow-400 transition-colors duration-200">
+                        <ion-icon name="${currentRating >= i ? 'star' : 'star-outline'}" class="rating-star-icon" data-rating="${i}"></ion-icon>
+    </label>`;
             }
             return `<div id="rating-input-area" class="flex flex-row-reverse justify-end space-x-1 space-x-reverse">${html}</div>`;
         };
@@ -792,37 +766,37 @@
 
             if (userReview) {
                 formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-orange-500/50">
-                        <h3 class="text-xl font-bold text-orange-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
-                        <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
-                        <form id="review-form" data-movie-id="${manga.id}">
-                            ${renderFormStars(userReview.rating)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
-                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Cập nhật Đánh giá</button>
-                        </form>
-                    </div>
-        `;
+                    <div class="p-6 bg-gray-700 rounded-lg shadow-inner border border-orange-500/50">
+                        <h3 class="text-xl font-bold text-orange-400 mb-4">${userReview.rating} Sao - Đánh giá của bạn</h3>
+                        <p class="text-sm text-gray-400 mb-4">Đánh giá gần nhất vào: ${formatCommentDate(userReview.updatedAt || userReview.createdAt)}</p>
+                        <form id="review-form" data-movie-id="${manga.id}">
+                            ${renderFormStars(userReview.rating)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)...">${userReview.content || ''}</textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Cập nhật Đánh giá</button>
+                        </form>
+                    </div>
+        `;
             } else if (isCommentAllowed) {
                 formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl">
-                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá Của Bạn</h3>
-                        <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ truyện này:</p>
-                        <form id="review-form" data-movie-id="${manga.id}">
-                            ${renderFormStars(0)}
-                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
-                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Gửi Đánh giá</button>
-                        </form>
-                    </div>
-        `;
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá Của Bạn</h3>
+                        <p class="text-gray-400 mb-4">Hãy chia sẻ cảm nhận của bạn về bộ truyện này:</p>
+                        <form id="review-form" data-movie-id="${manga.id}">
+                            ${renderFormStars(0)}
+                            <textarea id="review-content" class="w-full h-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 my-4" placeholder="Chia sẻ thêm cảm nhận của bạn (tùy chọn)..."></textarea>
+                            <p id="review-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                            <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">Gửi Đánh giá</button>
+                        </form>
+                    </div>
+        `;
             } else {
                 formContainer.innerHTML = `
-                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl text-center">
-                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá</h3>
-                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá.</p>
-                    </div>
-        `;
+                    <div class="p-6 bg-gray-800 rounded-lg shadow-xl text-center">
+                        <h3 class="text-2xl font-bold text-white mb-4">Đánh Giá</h3>
+                        <p class="text-gray-400">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để gửi đánh giá.</p>
+                    </div>
+        `;
             }
             getEl('#review-form')?.addEventListener('submit', handleReviewSubmit);
             const ratingArea = getEl('#rating-input-area');
@@ -851,42 +825,42 @@
             const ratingHtml = renderSubtleRatingHtml(manga);
 
             return `
-                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
-                    <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
-                        <span class="inline-block bg-black/70 text-orange-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
-                            ${statusText === 'sap-ra' ? 'Sắp ra' : (statusText === 'dang-ra' ? 'Đang ra' : 'Full')}
-                        </span>
-                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
-                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
-        ${epCount > 0 ? `Chap ${epCount}` : 'Chưa có chap'}
-                        </span>
-                    </div>
-                    ${ratingHtml}
-                    <div class="absolute inset-0 z-10">
-                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-                            <p class="text-orange-400 text-lg font-bold mb-2 text-center">ĐỌC TRUYỆN</p>
-                            <div class="flex items-center text-sm text-gray-300">
-                                <div class="flex items-center"><ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${manga.id}">${(manga.viewCount || 0).toLocaleString('vi-VN')}</span></div>
-                                <div class="flex items-center ml-3"><ion-icon name="thumbs-up-outline" class="mr-1"></ion-icon> <span class="like-count-${manga.id}">${(manga.likeCount || 0).toLocaleString('vi-VN')}</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <img src="${manga.posterUrl}" alt="${manga.title}" loading="lazy" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-white truncate group-hover:text-orange-400 transition-colors z-20 relative">${manga.title}</h3>
-                        <p class="text-sm text-gray-400">${genres}</p>
-                    </div>
-                </a>
-    `;
+                <a href="${infoUrl}" class="group block relative overflow-hidden rounded-xl glass-card transition-all duration-300 ease-in-out hover:-translate-y-2">
+                    <div class="absolute top-2 right-2 z-10 flex flex-col space-y-1 items-end">
+                        <span class="inline-block bg-black/70 text-orange-400 text-xs font-bold px-2 py-1 rounded-md uppercase">
+                            ${statusText === 'sap-ra' ? 'Sắp ra' : (statusText === 'dang-ra' ? 'Đang ra' : 'Full')}
+                        </span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">HD</span>
+                        <span class="inline-block bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
+        ${epCount > 0 ? `Chap ${epCount}` : 'Chưa có chap'}
+                        </span>
+                    </div>
+                    ${ratingHtml}
+                    <div class="absolute inset-0 z-10">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                            <p class="text-orange-400 text-lg font-bold mb-2 text-center">ĐỌC TRUYỆN</p>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <div class="flex items-center"><ion-icon name="eye-outline" class="mr-1"></ion-icon> <span class="view-count-${manga.id}">${(manga.viewCount || 0).toLocaleString('vi-VN')}</span></div>
+                                <div class="flex items-center ml-3"><ion-icon name="thumbs-up-outline" class="mr-1"></ion-icon> <span class="like-count-${manga.id}">${(manga.likeCount || 0).toLocaleString('vi-VN')}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="${manga.posterUrl}" alt="${manga.title}" loading="lazy" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-white truncate group-hover:text-orange-400 transition-colors z-20 relative">${manga.title}</h3>
+                        <p class="text-sm text-gray-400">${genres}</p>
+                    </div>
+                </a>
+    `;
         };
 
         const SearchPageTemplate = (mangaList, title) => `
-            <section>
-                <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-                    ${mangaList.length > 0 ? mangaList.map(MangaCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy nội dung phù hợp.</p>'}
-                </div>
-            </section>
+            <section>
+                <h2 class="text-3xl font-bold text-white mb-6">${title}</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                    ${mangaList.length > 0 ? mangaList.map(MangaCardTemplate).join('') : '<p class="text-gray-400 col-span-full">Không tìm thấy nội dung phù hợp.</p>'}
+                </div>
+            </section>
 `;
 
 
@@ -904,100 +878,100 @@
                 const cleanSummary = (manga.summary || 'Đang cập nhật nội dung...').replace(/<[^>]*>?/gm, '').replace(/\n/g, ' ').trim();
 
                 return `
-            <div class="swiper-slide">
-                <div class="relative h-[60vh] md:h-[75vh] w-full rounded-2xl overflow-hidden group">
-                    <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover transform transition-transform duration-[10s] group-hover:scale-110" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#111827] via-[#111827]/60 to-transparent"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#111827] via-[#111827]/40 to-transparent"></div>
+            <div class="swiper-slide">
+                <div class="relative h-[60vh] md:h-[75vh] w-full rounded-2xl overflow-hidden group">
+                    <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover transform transition-transform duration-[10s] group-hover:scale-110" onerror="this.src='https://placehold.co/1200x600/1a202c/e2e8f0?text=Hero'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#111827] via-[#111827]/60 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#111827] via-[#111827]/40 to-transparent"></div>
 
-                    <div class="absolute bottom-0 left-0 p-6 md:p-14 max-w-3xl text-white">
-                        <span class="inline-block bg-orange-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(249,115,22,0.5)]">Mới Cập Nhật</span>
-                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight drop-shadow-2xl">${manga.title}</h1>
-                        ${manga.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-orange-400/80 mb-4 drop-shadow-lg">${manga.titleOriginal}</h4>` : '<div class="mb-4"></div>'}
-                        
-                        <!-- CẮT TÓM TẮT 2 DÒNG -->
-                        <p class="text-gray-300 text-base md:text-lg mb-6 drop-shadow-md" style="display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; white-space: normal !important;">${cleanSummary}</p>
-                        
-                        <!-- BÉ LÔI ĐÃ GỠ LỆNH "HIDDEN" VÀ THÊM "FLEX-WRAP" ĐỂ TỰ RỚT DÒNG TRÊN ĐIỆN THOẠI -->
-                        <div class="flex flex-wrap items-center gap-3">
-                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-6 md:px-8 py-3 bg-orange-500 text-gray-900 text-base md:text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
-                                <ion-icon name="play-circle" class="text-xl md:text-2xl mr-2"></ion-icon>
-                                Xem Ngay
-                            </a>
-                            <div class="flex flex-wrap gap-2">${genres}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+                    <div class="absolute bottom-0 left-0 p-6 md:p-14 max-w-3xl text-white">
+                        <span class="inline-block bg-orange-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(249,115,22,0.5)]">Mới Cập Nhật</span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-2 leading-tight drop-shadow-2xl">${manga.title}</h1>
+                        ${manga.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-orange-400/80 mb-4 drop-shadow-lg">${manga.titleOriginal}</h4>` : '<div class="mb-4"></div>'}
+                        
+                        <!-- CẮT TÓM TẮT 2 DÒNG -->
+                        <p class="text-gray-300 text-base md:text-lg mb-6 drop-shadow-md" style="display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; white-space: normal !important;">${cleanSummary}</p>
+                        
+                        <!-- BÉ LÔI ĐÃ GỠ LỆNH "HIDDEN" VÀ THÊM "FLEX-WRAP" ĐỂ TỰ RỚT DÒNG TRÊN ĐIỆN THOẠI -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a href="${infoUrl}" class="inline-flex items-center justify-center px-6 md:px-8 py-3 bg-orange-500 text-gray-900 text-base md:text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:bg-orange-400 hover:scale-105 transition-all duration-300">
+                                <ion-icon name="play-circle" class="text-xl md:text-2xl mr-2"></ion-icon>
+                                Xem Ngay
+                            </a>
+                            <div class="flex flex-wrap gap-2">${genres}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
             }).join('');
 
             return `
-        <section class="relative mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-            <div class="swiper hero-swiper rounded-2xl overflow-hidden shadow-2xl">
-                <div class="swiper-wrapper">
-                    ${slideItems}
-                </div>
-                <div class="swiper-pagination"></div>
-                <div class="swiper-button-prev hidden md:flex"></div>
-                <div class="swiper-button-next hidden md:flex"></div>
-            </div>
-        </section>
-    `;
+        <section class="relative mb-12 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+            <div class="swiper hero-swiper rounded-2xl overflow-hidden shadow-2xl">
+                <div class="swiper-wrapper">
+                    ${slideItems}
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev hidden md:flex"></div>
+                <div class="swiper-button-next hidden md:flex"></div>
+            </div>
+        </section>
+    `;
         };
 
         const MangaSectionTemplate = (title, mangaList, xemThemLink = "#") => {
             if (mangaList.length === 0) return '';
             return `
-                <section class="mb-12">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                        <h2 class="text-3xl font-bold text-white uppercase">${title}</h2>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-2 gap-y-4 md:gap-4">
-                        ${mangaList.map(MangaCardTemplate).join('')}
-                    </div>
-                    <div class="text-center mt-8">
-                        <a href="${xemThemLink}" class="bg-gray-700 text-gray-300 font-medium px-6 py-3 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors">XEM THÊM</a>
-                    </div>
-                </section>
-    `;
+                <section class="mb-12">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-white uppercase">${title}</h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-2 gap-y-4 md:gap-4">
+                        ${mangaList.map(MangaCardTemplate).join('')}
+                    </div>
+                    <div class="text-center mt-8">
+                        <a href="${xemThemLink}" class="bg-gray-700 text-gray-300 font-medium px-6 py-3 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors">XEM THÊM</a>
+                    </div>
+                </section>
+    `;
         };
 
         const AuthPageTemplate = () => {
             return `
-                <div class="min-h-[70vh] flex items-center justify-center">
-                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
-                        <h2 class="text-3xl font-bold text-white text-center mb-6">Đăng Nhập</h2>
-                        <p class="text-gray-400 text-center mb-8">Sử dụng tài khoản Google để bình luận và lưu yêu thích.</p>
-                        <div class="space-y-4">
-                            <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
-                                <ion-icon name="logo-google" class="text-xl mr-3 text-red-500"></ion-icon>
-                                Đăng nhập với Google
-                            </button>
-                        </div>
-                        <p id="auth-error" class="text-red-400 text-sm text-center mt-6"></p>
-                    </div>
-                </div>
-    `;
+                <div class="min-h-[70vh] flex items-center justify-center">
+                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
+                        <h2 class="text-3xl font-bold text-white text-center mb-6">Đăng Nhập</h2>
+                        <p class="text-gray-400 text-center mb-8">Sử dụng tài khoản Google để bình luận và lưu yêu thích.</p>
+                        <div class="space-y-4">
+                            <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                <ion-icon name="logo-google" class="text-xl mr-3 text-red-500"></ion-icon>
+                                Đăng nhập với Google
+                            </button>
+                        </div>
+                        <p id="auth-error" class="text-red-400 text-sm text-center mt-6"></p>
+                    </div>
+                </div>
+    `;
         };
 
         const CommentTemplate = (comment) => {
             const displayName = comment.displayName || comment.email || 'Người dùng ẩn danh';
             const photoURL = comment.photoURL || `https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}`;
             return `
-            <div class="flex space-x-3 mb-4">
-                <div class="flex-shrink-0">
-                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
-                </div>
-                <div>
-                    <div class="bg-gray-700 p-3 rounded-lg">
-                        <p class="font-semibold text-white text-sm">${displayName}</p>
-                        <p class="text-gray-300 text-sm">${comment.content}</p>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">${formatCommentDate(comment.createdAt)}</p>
-                </div>
-            </div>
-    `;
+            <div class="flex space-x-3 mb-4">
+                <div class="flex-shrink-0">
+                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
+                </div>
+                <div>
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="font-semibold text-white text-sm">${displayName}</p>
+                        <p class="text-gray-300 text-sm">${comment.content}</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${formatCommentDate(comment.createdAt)}</p>
+                </div>
+            </div>
+    `;
         };
 
         const renderProfilePage = (user) => {
@@ -1007,42 +981,42 @@
             const provider = isGoogleAuth(user) ? 'Google' : 'Admin Custom Token';
 
             return `
-                <div class="min-h-[70vh] flex items-center justify-center">
-                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg">
-                        <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
+                <div class="min-h-[70vh] flex items-center justify-center">
+                    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg">
+                        <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
 
-                        <div class="flex flex-col items-center mb-8">
-                            <img src="${photoURL}" alt="Avatar" id="live-avatar-preview" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-orange-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                            <p class="text-xl font-bold text-white">${displayName}</p>
-                            <p class="text-gray-400 text-sm">${email}</p>
-                            <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
-                        </div>
+                        <div class="flex flex-col items-center mb-8">
+                            <img src="${photoURL}" alt="Avatar" id="live-avatar-preview" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-orange-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-xl font-bold text-white">${displayName}</p>
+                            <p class="text-gray-400 text-sm">${email}</p>
+                            <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
+                        </div>
 
-                        <form id="profile-update-form" class="space-y-4">
-                            <div class="space-y-1">
-                                <label for="profile-name-input" class="block text-sm font-medium text-gray-300">Tên Hiển Thị Mới</label>
-                                <input type="text" id="profile-name-input" value="${displayName}" required minlength="3"
-                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-                            </div>
+                        <form id="profile-update-form" class="space-y-4">
+                            <div class="space-y-1">
+                                <label for="profile-name-input" class="block text-sm font-medium text-gray-300">Tên Hiển Thị Mới</label>
+                                <input type="text" id="profile-name-input" value="${displayName}" required minlength="3"
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            </div>
 
-                            <div class="space-y-1 mt-4">
-                                <label for="profile-avatar-input" class="block text-sm font-medium text-gray-300">URL Ảnh Đại Diện (Link ảnh)</label>
-                                <input type="url" id="profile-avatar-input" value="${user.photoURL || ''}" placeholder="Dán link ảnh (VD: https://i.imgur.com/...)"
-                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    oninput="document.getElementById('live-avatar-preview').src = this.value || '${photoURL}'">
-                                <p class="text-xs text-gray-400 mt-1">Mẹo: Dùng link ảnh để bình luận load nhanh hơn nha!</p>
-                            </div>
+                            <div class="space-y-1 mt-4">
+                                <label for="profile-avatar-input" class="block text-sm font-medium text-gray-300">URL Ảnh Đại Diện (Link ảnh)</label>
+                                <input type="url" id="profile-avatar-input" value="${user.photoURL || ''}" placeholder="Dán link ảnh (VD: https://i.imgur.com/...)"
+                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    oninput="document.getElementById('live-avatar-preview').src = this.value || '${photoURL}'">
+                                <p class="text-xs text-gray-400 mt-1">Mẹo: Dùng link ảnh để bình luận load nhanh hơn nha!</p>
+                            </div>
 
-                            <div id="profile-success" class="p-3 rounded-lg text-sm text-orange-300 hidden transition-all"></div>
-                            <p id="profile-error" class="text-red-400 text-sm hidden"></p>
+                            <div id="profile-success" class="p-3 rounded-lg text-sm text-orange-300 hidden transition-all"></div>
+                            <p id="profile-error" class="text-red-400 text-sm hidden"></p>
 
-                            <button type="submit" class="w-full bg-orange-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors mt-4">
-                                Cập Nhật Hồ Sơ
-                            </button>
-                        </form>
-                    </div>
-                </div>
-    `;
+                            <button type="submit" class="w-full bg-orange-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors mt-4">
+                                Cập Nhật Hồ Sơ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+    `;
         };
 
         const InfoPageTemplate = (manga, episodes, isLiked) => {
@@ -1057,86 +1031,86 @@
             const requiresSignInLink = !!auth?.currentUser && auth.currentUser.isAnonymous;
 
             return `
-        <section class="text-white">
-            <div class="relative rounded-lg overflow-hidden h-64 md:h-96 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
-                <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover opacity-70" loading="lazy" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
-            </div>
-            <div class="container mx-auto px-4 relative -mt-32 md:-mt-48 pb-12">
-                <div class="md:flex md:space-x-8">
-                    <div class="flex-shrink-0 w-48 md:w-64 mx-auto md:mx-0 md:mt-4">
-                        <a href="${firstEpUrl}" class="group block relative rounded-lg shadow-2xl overflow-hidden">
-                            <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                <ion-icon name="play-circle-outline" class="text-7xl text-white opacity-90"></ion-icon>
-                            </div>
-                            <img src="${manga.posterUrl}" alt="${manga.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" loading="lazy" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
-                        </a>
-                    </div>
-                    <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
-                        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-0">${manga.title}</h1>
-                        ${manga.titleOriginal ? `<h4 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-2">${manga.titleOriginal}</h4>` : ''}
+        <section class="text-white">
+            <div class="relative rounded-lg overflow-hidden h-64 md:h-96 -mt-8 md:-mt-12 -mx-4 md:-mx-12">
+                <img src="${imageUrl}" alt="${manga.title} backdrop" class="w-full h-full object-cover opacity-70" loading="lazy" onerror="this.src='https://placehold.co/1200x400/1a202c/e2e8f0?text=Backdrop'">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent"></div>
+            </div>
+            <div class="container mx-auto px-4 relative -mt-32 md:-mt-48 pb-12">
+                <div class="md:flex md:space-x-8">
+                    <div class="flex-shrink-0 w-48 md:w-64 mx-auto md:mx-0 md:mt-4">
+                        <a href="${firstEpUrl}" class="group block relative rounded-lg shadow-2xl overflow-hidden">
+                            <div class="absolute inset-0 z-10 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <ion-icon name="play-circle-outline" class="text-7xl text-white opacity-90"></ion-icon>
+                            </div>
+                            <img src="${manga.posterUrl}" alt="${manga.title} poster" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-110" loading="lazy" onerror="this.src='https://placehold.co/400x600/1a202c/e2e8f0?text=${manga.title.replace(/\s/g, '+')}'">
+                        </a>
+                    </div>
+                    <div class="flex-1 mt-6 md:mt-4 text-center md:text-left">
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-0">${manga.title}</h1>
+                        ${manga.titleOriginal ? `<h4 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-2">${manga.titleOriginal}</h4>` : ''}
 
-                        <div class="flex flex-wrap justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
-                            <div class="flex items-center space-x-1"><ion-icon name="eye-outline" class="text-xl"></ion-icon><span id="view-count">${(manga.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span></div>
-                            <div class="flex items-center space-x-1"><ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon><span id="like-count">${(manga.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span></div>
-                        </div>
+                        <div class="flex flex-wrap justify-center md:justify-start items-center space-x-4 text-gray-400 mb-4">
+                            <div class="flex items-center space-x-1"><ion-icon name="eye-outline" class="text-xl"></ion-icon><span id="view-count">${(manga.viewCount || 0).toLocaleString('vi-VN')} Lượt xem</span></div>
+                            <div class="flex items-center space-x-1"><ion-icon name="thumbs-up-outline" class="text-xl"></ion-icon><span id="like-count">${(manga.likeCount || 0).toLocaleString('vi-VN')} Lượt thích</span></div>
+                        </div>
 
-                        <div class="flex justify-center md:justify-start items-center space-x-2 text-yellow-400 mb-4">
-                            <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
-                            <div class="flex text-2xl">${renderStars(averageRating)}</div>
-                            <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
-                        </div>
+                        <div class="flex justify-center md:justify-start items-center space-x-2 text-yellow-400 mb-4">
+                            <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                            <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                            <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                        </div>
 
-                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                            ${manga.genre ? manga.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
-                        </div>
-                        <p class="text-gray-300 text-lg mb-6">${manga.summary || 'Không có tóm tắt.'}</p>
-                        <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-                            <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-orange-600 transition-colors w-full md:w-auto">
-                                <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Đọc Truyện
-                            </a>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                            ${manga.genre ? manga.genre.split(',').map(genre => `<span class="bg-gray-700 text-gray-300 text-xs font-medium px-3 py-1 rounded-full">${genre.trim()}</span>`).join('') : ''}
+                        </div>
+                        <p class="text-gray-300 text-lg mb-6">${manga.summary || 'Không có tóm tắt.'}</p>
+                        <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+                            <a href="${firstEpUrl}" class="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-gray-900 text-lg font-bold rounded-lg shadow-lg hover:bg-orange-600 transition-colors w-full md:w-auto">
+                                <ion-icon name="play-circle-outline" class="text-2xl mr-2"></ion-icon>Đọc Truyện
+                            </a>
 
-                            <button id="like-button" data-movie-id="${manga.id}" class="
-                                inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors w-full md:w-auto
-                                ${isLiked ? 'bg-orange-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
-                            ">
-                                <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
-                                <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
-                            </button>
+                            <button id="like-button" data-movie-id="${manga.id}" class="
+                                inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-lg transition-colors w-full md:w-auto
+                                ${isLiked ? 'bg-orange-600 text-white font-bold' : 'bg-gray-700 text-gray-300 font-medium hover:bg-gray-600'}
+                            ">
+                                <ion-icon name="${isLiked ? 'thumbs-up' : 'thumbs-up-outline'}" class="text-2xl mr-2"></ion-icon>
+                                <span id="like-button-text">${isLiked ? 'Đã thích' : 'Thích'}</span>
+                            </button>
 
-                            ${requiresSignInLink ? `
-                                <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors w-full md:w-auto">
-                                    <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để giữ Likes
-                                </a>
-                            ` : ''}
-                            <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center w-full md:w-auto text-center md:text-left">${manga.status || 'N/A'}</span>
-                        </div>
-                    </div>
-                </div>
+                            ${requiresSignInLink ? `
+                                <a href="#login" class="inline-flex items-center justify-center px-6 py-3 bg-gray-700 text-gray-400 font-medium rounded-lg shadow-lg hover:bg-gray-600 transition-colors w-full md:w-auto">
+                                    <ion-icon name="log-in-outline" class="text-2xl mr-2"></ion-icon>Đăng nhập để giữ Likes
+                                </a>
+                            ` : ''}
+                            <span class="inline-block bg-gray-600 text-white text-sm font-bold px-4 py-2 rounded-full uppercase self-center w-full md:w-auto text-center md:text-left">${manga.status || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="mt-12">
-                    <div id="user-review-form-container"></div> 
-                    <div id="public-reviews-list" class="mt-8"></div> 
-                </div>
+                <div class="mt-12">
+                    <div id="user-review-form-container"></div> 
+                    <div id="public-reviews-list" class="mt-8"></div> 
+                </div>
 
-                <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
-                    ${episodes.length > 0
+                <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
+                    ${episodes.length > 0
                     ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
-                        ${episodes.map(ep => `
-                                <a href="#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
-                                    class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors duration-200">
-                                    Chap ${ep.episodeNumber}
-                                </a>
-                            `).join('')}
-                        </div>`
+                        ${episodes.map(ep => `
+                                <a href="#truyen/${mangaSlug}-${manga.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
+                                    class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-orange-500 hover:text-gray-900 transition-colors duration-200">
+                                    Chap ${ep.episodeNumber}
+                                </a>
+                            `).join('')}
+                        </div>`
                     : `<p class="text-gray-400">${manga.status === 'sap-ra' ? 'Sắp ra mắt, chưa có chap.' : 'Chưa có dữ liệu.'}</p>`
                 }
-                </div>
-            </div>
-        </section>
-    `;
+                </div>
+            </div>
+        </section>
+    `;
         };
 
         const WatchPageTemplate = (manga, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, imagesList) => {
@@ -1166,73 +1140,73 @@
 
             // Hiển thị chuẩn xác số tập trên nút bấm
             const previousButton = previousEpisodeLink && previousEpisode ? `
-                <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
-                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Chap ${previousEpisode.episodeNumber}
-                </a>` : `
-                <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
-                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Đầu Truyện
-                </button>`;
+                <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
+                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Chap ${previousEpisode.episodeNumber}
+                </a>` : `
+                <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
+                    <ion-icon name="arrow-back-outline" class="text-lg mr-2"></ion-icon> Đầu Truyện
+                </button>`;
 
             const nextButton = nextEpisodeLink && nextEpisodeObj ? `
-                <a href="${nextEpisodeLink}" class="bg-orange-500 text-gray-900 text-sm font-bold px-6 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-                    Chap ${nextEpisodeObj.episodeNumber} <ion-icon name="arrow-forward-outline" class="text-lg ml-2"></ion-icon>
-                </a>` : `
-                <button disabled class="bg-gray-800 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 cursor-not-allowed">
-                    Hết Truyện <ion-icon name="lock-closed" class="text-lg ml-2"></ion-icon>
-                </button>`;
+                <a href="${nextEpisodeLink}" class="bg-orange-500 text-gray-900 text-sm font-bold px-6 py-2 rounded-lg hover:bg-orange-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+                    Chap ${nextEpisodeObj.episodeNumber} <ion-icon name="arrow-forward-outline" class="text-lg ml-2"></ion-icon>
+                </a>` : `
+                <button disabled class="bg-gray-800 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2 cursor-not-allowed">
+                    Hết Truyện <ion-icon name="lock-closed" class="text-lg ml-2"></ion-icon>
+                </button>`;
 
             return `
-                <section class="text-white pb-12">
-                    <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
-                        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-                            <div class="flex-1 text-center md:text-left min-w-0">
-                                <h1 class="text-base md:text-lg font-bold text-orange-500 truncate"><a href="#truyen/${mangaSlug}-${manga.id}" class="hover:underline">${manga.title}</a></h1>
-                                <p class="text-xs md:text-sm text-gray-400">Chapter ${currentEpNumber} ${episode.title && !episode.title.includes('Chapter') && !episode.title.includes('Tập') ? `- ${episode.title}` : ''}</p>
-                            </div>
-                            <div class="flex items-center gap-2 w-full md:w-auto justify-center">
-                                ${previousButton}
-                                ${nextButton}
-                            </div>
-                        </div>
-                    </div>
+                <section class="text-white pb-12">
+                    <div class="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 p-3 sticky top-[60px] md:top-[80px] z-40 shadow-lg">
+                        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                            <div class="flex-1 text-center md:text-left min-w-0">
+                                <h1 class="text-base md:text-lg font-bold text-orange-500 truncate"><a href="#truyen/${mangaSlug}-${manga.id}" class="hover:underline">${manga.title}</a></h1>
+                                <p class="text-xs md:text-sm text-gray-400">Chapter ${currentEpNumber} ${episode.title && !episode.title.includes('Chapter') && !episode.title.includes('Tập') ? `- ${episode.title}` : ''}</p>
+                            </div>
+                            <div class="flex items-center gap-2 w-full md:w-auto justify-center">
+                                ${previousButton}
+                                ${nextButton}
+                            </div>
+                        </div>
+                    </div>
 
-                    <div id="manga-reader-container" class="w-full bg-[#0a0a0a] min-h-[70vh] flex flex-col items-center pt-2 shadow-inner">
-                        ${imagesHtml}
-                    </div>
+                    <div id="manga-reader-container" class="w-full bg-[#0a0a0a] min-h-[70vh] flex flex-col items-center pt-2 shadow-inner">
+                        ${imagesHtml}
+                    </div>
 
-                    <div class="container mx-auto mt-8 flex justify-center gap-4 px-4">
-                        ${previousButton}
-                        ${nextButton}
-                    </div>
+                    <div class="container mx-auto mt-8 flex justify-center gap-4 px-4">
+                        ${previousButton}
+                        ${nextButton}
+                    </div>
 
-                    <div class="container mx-auto max-w-4xl mt-12 p-6 bg-gray-800 rounded-2xl shadow-xl">
-                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
-                        ${canComment ? `
-                            <form id="comment-form" class="mb-6">
-                                <textarea id="comment-input" class="w-full h-24 p-4 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
-                                <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
-                                <div class="flex justify-end mt-2">
-                                    <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors shadow-md">Gửi Bình Luận</button>
-                                </div>
-                            </form>
-                            ` : `
-                            <div class="p-4 bg-gray-700 rounded-xl text-center mb-6">
-                                <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
-                            </div>
-                            `}
+                    <div class="container mx-auto max-w-4xl mt-12 p-6 bg-gray-800 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Bình Luận (<span id="comment-count-display">${comments.length}</span>)</h3>
+                        ${canComment ? `
+                            <form id="comment-form" class="mb-6">
+                                <textarea id="comment-input" class="w-full h-24 p-4 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Viết bình luận của bạn tại đây..." required></textarea>
+                                <p id="comment-error" class="text-red-400 text-sm mb-2 hidden"></p>
+                                <div class="flex justify-end mt-2">
+                                    <button type="submit" class="bg-orange-500 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-orange-600 transition-colors shadow-md">Gửi Bình Luận</button>
+                                </div>
+                            </form>
+                            ` : `
+                            <div class="p-4 bg-gray-700 rounded-xl text-center mb-6">
+                                <p class="text-gray-300">Bạn cần <a href="#login" class="text-orange-400 hover:underline font-medium">Đăng Nhập bằng Google</a> để bình luận.</p>
+                            </div>
+                            `}
 
-                        <div id="comments-list">
-                            <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
-                                ${displayedComments.length > 0
+                        <div id="comments-list">
+                            <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
+                                ${displayedComments.length > 0
                     ? displayedComments.map(CommentTemplate).join('')
                     : '<p class="text-gray-500 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
                 }
-                                ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn.</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            `;
+                                ${comments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${comments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn.</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
         };
 
 
@@ -1241,13 +1215,13 @@
             const appEl = getEl('#app');
             if (appEl) {
                 appEl.innerHTML = `
-                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
-                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
-                        <p class="text-lg mb-2">${message}</p>
-                                                                            ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
-                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-orange-500 text-gray-900 font-bold rounded-lg hover:bg-orange-600 transition-colors">Về Trang Chủ</button>
-                    </div>
-                                                                `;
+                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
+                        <p class="text-lg mb-2">${message}</p>
+                                                                            ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
+                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-orange-500 text-gray-900 font-bold rounded-lg hover:bg-orange-600 transition-colors">Về Trang Chủ</button>
+                    </div>
+                                                                `;
             }
         };
 
@@ -1255,13 +1229,13 @@
             const appEl = getEl('#app');
             if (appEl) {
                 appEl.innerHTML = `
-                    <div class="flex justify-center items-center h-[50vh]">
-                        <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                                                                `;
+                    <div class="flex justify-center items-center h-[50vh]">
+                        <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                                                                `;
             }
         };
 
@@ -1321,10 +1295,10 @@
                     const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
 
                     avgRatingContainer.innerHTML = `
-                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
-                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
-                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
-                    `;
+                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                    `;
                 }
 
                 const button = getEl('#like-button');
@@ -1769,36 +1743,36 @@
                 const photoURL = user.photoURL || `https://placehold.co/32x32/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}`;
 
                 authButtonDesktop.innerHTML = `
-                    <div class="user-profile-dropdown">
-                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-orange-500 transition-shadow">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                        </button>
-                        <div id="user-dropdown-menu" class="user-dropdown-content">
-                            <div class="p-4 border-b border-gray-600">
-                                <p class="text-white font-bold">${displayName}</p>
-                                <p class="text-gray-400 text-sm truncate">${user.email}</p>
-                            </div>
-                            <a href="#profile" id="profile-link-desktop" class="w-full text-left flex items-center px-4 py-2 text-orange-400 hover:bg-gray-700 hover:text-orange-300 transition-colors">
-                                <ion-icon name="person-circle-outline" class="text-xl mr-2"></ion-icon>
-                                Hồ Sơ
-                            </a>
-                            <button id="logout-button-desktop" class="w-full text-left flex items-center px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
-                                <ion-icon name="log-out-outline" class="text-xl mr-2"></ion-icon>
-                                Đăng Xuất
-                            </button>
-                        </div>
-                    </div>
-        `;
+                    <div class="user-profile-dropdown">
+                        <button id="profile-avatar-btn" class="flex items-center p-1 rounded-full bg-gray-700 hover:ring-2 hover:ring-orange-500 transition-shadow">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                        </button>
+                        <div id="user-dropdown-menu" class="user-dropdown-content">
+                            <div class="p-4 border-b border-gray-600">
+                                <p class="text-white font-bold">${displayName}</p>
+                                <p class="text-gray-400 text-sm truncate">${user.email}</p>
+                            </div>
+                            <a href="#profile" id="profile-link-desktop" class="w-full text-left flex items-center px-4 py-2 text-orange-400 hover:bg-gray-700 hover:text-orange-300 transition-colors">
+                                <ion-icon name="person-circle-outline" class="text-xl mr-2"></ion-icon>
+                                Hồ Sơ
+                            </a>
+                            <button id="logout-button-desktop" class="w-full text-left flex items-center px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
+                                <ion-icon name="log-out-outline" class="text-xl mr-2"></ion-icon>
+                                Đăng Xuất
+                            </button>
+                        </div>
+                    </div>
+        `;
 
                 authButtonMobile.innerHTML = `
-                        <div class="flex items-center mb-3">
-                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
-                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-orange-400">${displayName}</span></p>
-                        </div>
-                        <a href="#profile" class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors mb-3">
-                            Hồ Sơ
-                        </a>
-            <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
+                        <div class="flex items-center mb-3">
+                            <img src="${photoURL}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 object-cover" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/fb923c/111827?text=${displayName.charAt(0).toUpperCase()}'">
+                            <p class="text-sm font-medium text-gray-300 truncate">Xin chào, <span class="text-orange-400">${displayName}</span></p>
+                        </div>
+                        <a href="#profile" class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors mb-3">
+                            Hồ Sơ
+                        </a>
+            <button id="logout-button-mobile" class="block w-full text-center text-gray-300 hover:text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng Xuất</button>`;
 
                 getEl('#profile-avatar-btn')?.addEventListener('click', function () {getEl('#user-dropdown-menu')?.classList.toggle('active');});
                 getEl('#logout-button-desktop')?.addEventListener('click', handleLogout);
@@ -1872,18 +1846,18 @@
                 const slug = createSlug(manga.title);
                 const imageUrl = manga.posterUrl || '';
                 return `
-                <a href="#truyen/${slug}-${manga.id}" class="flex items-center p-3 hover:bg-gray-700/50 transition-colors border-b border-gray-700/50 last:border-none group">
-                    <img src="${imageUrl}" class="w-12 h-16 object-cover rounded shadow-md mr-4 border border-gray-600" onerror="this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
-                    <div class="flex-1 overflow-hidden">
-                        <h4 class="text-sm font-bold text-white truncate group-hover:text-orange-400 transition-colors">${manga.title}</h4>
-                        <p class="text-xs text-gray-400 truncate mt-0.5">${manga.titleOriginal || ''}</p>
-                        <p class="text-xs text-orange-400 font-medium mt-1 flex items-center gap-1">
-                            <ion-icon name="play-circle-outline"></ion-icon>
-                            ${manga.status === 'sap-ra' ? 'Sắp ra mắt' : (manga.episodes ? `Chap ${manga.episodes.length}` : 'Đang cập nhật')}
-                        </p>
-                    </div>
-                </a>
-            `;
+                <a href="#truyen/${slug}-${manga.id}" class="flex items-center p-3 hover:bg-gray-700/50 transition-colors border-b border-gray-700/50 last:border-none group">
+                    <img src="${imageUrl}" class="w-12 h-16 object-cover rounded shadow-md mr-4 border border-gray-600" onerror="this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                    <div class="flex-1 overflow-hidden">
+                        <h4 class="text-sm font-bold text-white truncate group-hover:text-orange-400 transition-colors">${manga.title}</h4>
+                        <p class="text-xs text-gray-400 truncate mt-0.5">${manga.titleOriginal || ''}</p>
+                        <p class="text-xs text-orange-400 font-medium mt-1 flex items-center gap-1">
+                            <ion-icon name="play-circle-outline"></ion-icon>
+                            ${manga.status === 'sap-ra' ? 'Sắp ra mắt' : (manga.episodes ? `Chap ${manga.episodes.length}` : 'Đang cập nhật')}
+                        </p>
+                    </div>
+                </a>
+            `;
             };
 
             const setupLiveSearch = (inputId, resultsId) => {
@@ -1907,14 +1881,14 @@
                     if (results.length > 0) {
                         resultsEl.innerHTML = results.map(renderSuggestItem).join('') +
                             `<a href="#search/${encodeURIComponent(term)}" class="block p-3 text-center text-sm text-gray-900 bg-orange-500 hover:bg-orange-400 font-bold transition-colors">
-                            Xem tất cả kết quả...
-                        </a>`;
+                            Xem tất cả kết quả...
+                        </a>`;
                         resultsEl.classList.remove('hidden');
                     } else {
                         resultsEl.innerHTML = `<div class="p-5 text-sm text-gray-400 text-center italic flex flex-col items-center">
-                        <ion-icon name="sad-outline" class="text-3xl mb-2 text-gray-500"></ion-icon>
-                        Úi! Không tìm thấy nội dung này ạ 💦
-                    </div>`;
+                        <ion-icon name="sad-outline" class="text-3xl mb-2 text-gray-500"></ion-icon>
+                        Úi! Không tìm thấy nội dung này ạ 💦
+                    </div>`;
                         resultsEl.classList.remove('hidden');
                     }
                 });
@@ -1950,7 +1924,7 @@
         });
     </script>
 
-        <style>
+    <style>
         ::-webkit-scrollbar {
             width: 12px;
             background-color: #1a202c;
@@ -2223,7 +2197,7 @@
             border: 1px solid #fb923c;
         }
 
-        /* ---  MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
+        /* ---  MENU MOBILE DẠNG NGĂN KÉO MƯỢT MÀ --- */
         #mobile-menu {
             position: fixed;
             top: 80px;
@@ -2303,7 +2277,7 @@
             overflow-y: auto;
         }
 
-        /* ---  MENU MOBILE LINH HOẠT --- */
+        /* ---  MENU MOBILE LINH HOẠT --- */
         .mobile-dropdown-content a,
         .mobile-dropdown-content a.genre-item {
             background-color: #374151;
@@ -2388,614 +2362,582 @@
 </head>
 
 <body class="bg-gray-900 text-gray-100">
-        <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
-                <div
-            class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-orange-400">
-                        <h3 class="text-xl font-bold text-orange-400 mb-4">Đọc Tiếp Truyện</h3>
-                        <p id="resume-modal-text" class="text-gray-300 mb-6"></p>
-                        <div class="flex justify-center space-x-4">
-                                <button id="resume-modal-yes"                    
+    <div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-xl w-full max-w-sm mx-4 shadow-2xl text-center border border-orange-400">
+            <h3 class="text-xl font-bold text-orange-400 mb-4">Đọc Tiếp Truyện</h3>
+            <p id="resume-modal-text" class="text-gray-300 mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="resume-modal-yes"
                     class="bg-orange-500 hover:bg-orange-600 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors">Đọc
-                                        tiếp</button>
-                                <button id="resume-modal-no"                    
+                    tiếp</button>
+                <button id="resume-modal-no"
                     class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Đọc
-                                        từ đầu</button>
-                            </div>
-                    </div>
-            </div>
+                    từ đầu</button>
+            </div>
+        </div>
+    </div>
 
-        <header class="glass-nav shadow-lg sticky top-0 z-50">
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="flex justify-between items-center h-20">
-                                <div class="flex items-center h-full space-x-8">
-                                        <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
-                                                <img src="../anh/FOXManga.gif" alt="FOXMANGA Logo"                      
-                                 
+    <header class="glass-nav shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center h-full space-x-8">
+                    <a href="#home" class="flex-shrink-0 flex items-center space-x-2 h-full">
+                        <img src="../anh/FOXManga.gif" alt="FOXMANGA Logo"
                             class="w-14 h-14 object-cover rounded-2xl border-2 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
-                                                <span class="text-4xl font-extrabold text-white">FOX<span              
-                                                  class="text-orange-500">MANGA</span></span>
-                                            </a>
-                                    </div>
+                        <span class="text-4xl font-extrabold text-white">FOX<span
+                                class="text-orange-500">MANGA</span></span>
+                    </a>
+                </div>
 
-                                <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
-                                        <form id="search-form-desktop" class="relative flex-grow flex items-center">
-                                                <input id="search-input-desktop" type="text"
-                            placeholder="Tìm kiếm nội dung..."                            
+                <div class="hidden lg:flex items-center space-x-4 header-right-desktop h-full">
+                    <form id="search-form-desktop" class="relative flex-grow flex items-center">
+                        <input id="search-input-desktop" type="text" placeholder="Tìm kiếm nội dung..."
                             class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-gray-600 transition-all"
-                                                        autocomplete="off">
-                                                <button type="submit"                            
+                            autocomplete="off">
+                        <button type="submit"
                             class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-orange-400 flex items-center justify-center">
-                                                        <ion-icon name="search-outline"></ion-icon>
-                                                    </button>
+                            <ion-icon name="search-outline"></ion-icon>
+                        </button>
 
-                                                <div id="search-results-desktop"                            
+                        <div id="search-results-desktop"
                             class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[60vh] flex flex-col shadow-2xl overflow-y-auto">
-                                                    </div>
-                                            </form>
+                        </div>
+                    </form>
 
-                                        <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
-                                                <a href="#login"                            
+                    <div id="auth-button-desktop" class="flex items-center h-full flex-shrink-0">
+                        <a href="#login"
                             class="text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng
-                                                        Nhập</a>
-                                            </div>
-                                    </div>
+                            Nhập</a>
+                    </div>
+                </div>
 
-                                <div class="lg:hidden flex items-center">
-                                        <button id="mobile-menu-button" type="button"                        
+                <div class="lg:hidden flex items-center">
+                    <button id="mobile-menu-button" type="button"
                         class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
-                                                aria-controls="mobile-menu" aria-expanded="false">
-                                                <span class="sr-only">Mở menu</span>
-                                                <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24"                             stroke="currentColor"
-                            aria-hidden="true">
-                                                       
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"                      
-                                          d="M4 6h16M4 12h16M4 18h16" />
-                                                   
+                        aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Mở menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                                                <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24"                             stroke="currentColor"
-                            aria-hidden="true">
-                                                       
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"                      
-                                          d="M6 18L18 6M6 6l12 12" />
-                                                   
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                                            </button>
-                                    </div>
-                            </div>
+                    </button>
+                </div>
+            </div>
 
-                        <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
-                                <div class="flex space-x-6 items-center">
-                                        <a href="#home"                        
+            <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
+                <div class="flex space-x-6 items-center">
+                    <a href="#home"
                         class="nav-link text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang
-                                                Chủ</a>
+                        Chủ</a>
 
-                                        <div class="dropdown">
-                                                <a href="#genre" data-hash-group="#genre"                            
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre"
                             class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                                        Dạng Truyện
-                                                        <svg class="w-4 h-4 ml-1" fill="currentColor"
-                                viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd"                              
-                                         
+                            Dạng Truyện
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                        clip-rule="evenodd"></path>
-                                                            </svg>
-                                                    </a>
-                                                <div class="dropdown-content mega-menu-1-col">
-                                                        <a href="#genre/manga">Manga (Nhật)</a>
-                                                        <a href="#genre/manhwa">Manhwa (Hàn)</a>
-                                                        <a href="#genre/manhua">Manhua (Trung)</a>
-                                                        <a href="#genre/taihen">Taihen (18+)</a>
-                                                    </div>
-                                            </div>
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#genre/manga">Manga (Nhật)</a>
+                            <a href="#genre/manhwa">Manhwa (Hàn)</a>
+                            <a href="#genre/manhua">Manhua (Trung)</a>
+                            <a href="#genre/taihen">Taihen (18+)</a>
+                        </div>
+                    </div>
 
-                                        <div class="dropdown">
-                                                <a href="#top" data-hash-group="#top"                            
+                    <div class="dropdown">
+                        <a href="#top" data-hash-group="#top"
                             class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                                        Xếp Hạng
-                                                        <svg class="w-4 h-4 ml-1" fill="currentColor"
-                                viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd"                              
-                                         
+                            Xếp Hạng
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                        clip-rule="evenodd"></path>
-                                                            </svg>
-                                                    </a>
-                                                <div class="dropdown-content mega-menu-1-col">
-                                                        <a href="#top/ngay">Top Ngày</a>
-                                                        <a href="#top/tuan">Top Tuần</a>
-                                                        <a href="#top/thang">Top Tháng</a>
-                                                        <a href="#top/nam">Top Năm</a>
-                                                    </div>
-                                            </div>
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-1-col">
+                            <a href="#top/ngay">Top Ngày</a>
+                            <a href="#top/tuan">Top Tuần</a>
+                            <a href="#top/thang">Top Tháng</a>
+                            <a href="#top/nam">Top Năm</a>
+                        </div>
+                    </div>
 
-                                        <div class="dropdown">
-                                                <a href="#genre" data-hash-group="#genre"                            
+                    <div class="dropdown">
+                        <a href="#genre" data-hash-group="#genre"
                             class="nav-link flex items-center text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                                                        Thể Loại
-                                                        <svg class="w-4 h-4 ml-1" fill="currentColor"
-                                viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd"                              
-                                         
+                            Thể Loại
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                        clip-rule="evenodd"></path>
-                                                            </svg>
-                                                    </a>
-                                                <div class="dropdown-content mega-menu-3-cols-scroll">
-                                                        <div class="col-span-full mb-2 border-b border-gray-600 pb-1">
-                                                                <span
-                                    class="text-orange-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
-                                                                <div class="grid grid-cols-3 gap-x-4">
-                                                                        <a href="#genre/action"                        
-                                                       
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div class="dropdown-content mega-menu-3-cols-scroll">
+                            <div class="col-span-full mb-2 border-b border-gray-600 pb-1">
+                                <span class="text-orange-400 font-bold text-xs uppercase block mb-1">Phổ Biến</span>
+                                <div class="grid grid-cols-3 gap-x-4">
+                                    <a href="#genre/action"
                                         class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Action
-                                                                                (Hành động)</a>
-                                                                        <a href="#genre/romance"                        
-                                                       
+                                        (Hành động)</a>
+                                    <a href="#genre/romance"
                                         class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Romance
-                                                                                (Lãng mạn)</a>
-                                                                        <a href="#genre/comedy"                        
-                                                       
+                                        (Lãng mạn)</a>
+                                    <a href="#genre/comedy"
                                         class="font-bold text-orange-300 hover:text-orange-500 rounded-md block px-2 py-1 transition-colors duration-200">Comedy
-                                                                                (Hài hước)</a>
-                                                                    </div>
-                                                            </div>
-                                                        <a href="#genre/adult"                                
+                                        (Hài hước)</a>
+                                </div>
+                            </div>
+                            <a href="#genre/adult"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adult</a>
-                                                        <a href="#genre/adventure"                                
+                            <a href="#genre/adventure"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Adventure
-                                                                (Phiêu lưu)</a>
-                                                        <a href="#genre/anime"                                
+                                (Phiêu lưu)</a>
+                            <a href="#genre/anime"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Anime</a>
-                                                        <a href="#genre/chuyen-sinh"                                
+                            <a href="#genre/chuyen-sinh"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Chuyển
-                                                                Sinh</a>
-                                                        <a href="#genre/comedy"                                
+                                Sinh</a>
+                            <a href="#genre/comedy"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comedy
-                                                                (Hài hước)</a>
-                                                        <a href="#genre/comic"                                
+                                (Hài hước)</a>
+                            <a href="#genre/comic"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Comic</a>
-                                                        <a href="#genre/cooking"                                
+                            <a href="#genre/cooking"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cooking</a>
-                                                        <a href="#genre/co-dai"                                
+                            <a href="#genre/co-dai"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Cổ
-                                                                Đại</a>
-                                                        <a href="#genre/doujinshi"                                
+                                Đại</a>
+                            <a href="#genre/doujinshi"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Doujinshi</a>
-                                                        <a href="#genre/drama"                                
+                            <a href="#genre/drama"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Drama
-                                                                (Kịch tính)</a>
-                                                        <a href="#genre/dam-my"                                
+                                (Kịch tính)</a>
+                            <a href="#genre/dam-my"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Đam
-                                                                Mỹ</a>
-                                                        <a href="#genre/ecchi"                                
+                                Mỹ</a>
+                            <a href="#genre/ecchi"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ecchi</a>
-                                                        <a href="#genre/fantasy"                                
+                            <a href="#genre/fantasy"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Fantasy
-                                                                (Giả tưởng)</a>
-                                                        <a href="#genre/gender-bender"                                
+                                (Giả tưởng)</a>
+                            <a href="#genre/gender-bender"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Gender
-                                                                Bender</a>
-                                                        <a href="#genre/harem"                                
+                                Bender</a>
+                            <a href="#genre/harem"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Harem</a>
-                                                        <a href="#genre/historical"                                
+                            <a href="#genre/historical"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Historical
-                                                                (Lịch sử)</a>
-                                                        <a href="#genre/horror"                                
+                                (Lịch sử)</a>
+                            <a href="#genre/horror"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Horror
-                                                                (Kinh dị)</a>
-                                                        <a href="#genre/josei"                                
+                                (Kinh dị)</a>
+                            <a href="#genre/josei"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Josei</a>
-                                                        <a href="#genre/live-action"                                
+                            <a href="#genre/live-action"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Live
-                                                                action</a>
-                                                        <a href="#genre/manga"                                
+                                action</a>
+                            <a href="#genre/manga"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manga</a>
-                                                        <a href="#genre/manhua"                                
+                            <a href="#genre/manhua"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhua</a>
-                                                        <a href="#genre/manhwa"                                
+                            <a href="#genre/manhwa"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Manhwa</a>
-                                                        <a href="#genre/martial-arts"                                
+                            <a href="#genre/martial-arts"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Martial
-                                                                Arts (Võ thuật)</a>
-                                                        <a href="#genre/mature"                                
+                                Arts (Võ thuật)</a>
+                            <a href="#genre/mature"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mature</a>
-                                                        <a href="#genre/mecha"                                
+                            <a href="#genre/mecha"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mecha
-                                                                (Robot)</a>
-                                                        <a href="#genre/mystery"                                
+                                (Robot)</a>
+                            <a href="#genre/mystery"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Mystery
-                                                                (Bí ẩn)</a>
-                                                        <a href="#genre/ngon-tinh"                                
+                                (Bí ẩn)</a>
+                            <a href="#genre/ngon-tinh"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Ngôn
-                                                                Tình</a>
-                                                        <a href="#genre/one-shot"                                
+                                Tình</a>
+                            <a href="#genre/one-shot"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">One
-                                                                shot</a>
-                                                        <a href="#genre/psychological"                                
+                                shot</a>
+                            <a href="#genre/psychological"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Psychological
-                                                                (Tâm lý)</a>
-                                                        <a href="#genre/romance"                                
+                                (Tâm lý)</a>
+                            <a href="#genre/romance"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Romance
-                                                                (Lãng mạn)</a>
-                                                        <a href="#genre/school-life"                                
+                                (Lãng mạn)</a>
+                            <a href="#genre/school-life"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">School
-                                                                Life (Học đường)</a>
-                                                        <a href="#genre/sci-fi"                                
+                                Life (Học đường)</a>
+                            <a href="#genre/sci-fi"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sci-fi
-                                                                (Viễn tưởng)</a>
-                                                        <a href="#genre/seinen"                                
+                                (Viễn tưởng)</a>
+                            <a href="#genre/seinen"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Seinen</a>
-                                                        <a href="#genre/shoujo"                                
+                            <a href="#genre/shoujo"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo</a>
-                                                        <a href="#genre/shoujo-ai"                                
+                            <a href="#genre/shoujo-ai"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shoujo
-                                                                Ai</a>
-                                                        <a href="#genre/shounen"                                
+                                Ai</a>
+                            <a href="#genre/shounen"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen</a>
-                                                        <a href="#genre/shounen-ai"                                
+                            <a href="#genre/shounen-ai"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Shounen
-                                                                Ai</a>
-                                                        <a href="#genre/slice-of-life"                                
+                                Ai</a>
+                            <a href="#genre/slice-of-life"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Slice
-                                                                of Life</a>
-                                                        <a href="#genre/smut"                                
+                                of Life</a>
+                            <a href="#genre/smut"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Smut</a>
-                                                        <a href="#genre/soft-yaoi"                                
+                            <a href="#genre/soft-yaoi"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft
-                                                                Yaoi</a>
-                                                        <a href="#genre/soft-yuri"                                
+                                Yaoi</a>
+                            <a href="#genre/soft-yuri"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Soft
-                                                                Yuri</a>
-                                                        <a href="#genre/sports"                                
+                                Yuri</a>
+                            <a href="#genre/sports"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Sports
-                                                                (Thể thao)</a>
-                                                        <a href="#genre/supernatural"                                
+                                (Thể thao)</a>
+                            <a href="#genre/supernatural"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Supernatural
-                                                                (Siêu nhiên)</a>
-                                                        <a href="#genre/tap-chi-truyen-tranh"                          
-                                     
+                                (Siêu nhiên)</a>
+                            <a href="#genre/tap-chi-truyen-tranh"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tạp
-                                                                chí truyện tranh</a>
-                                                        <a href="#genre/thieu-nhi"                                
+                                chí truyện tranh</a>
+                            <a href="#genre/thieu-nhi"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Thiếu
-                                                                Nhi</a>
-                                                        <a href="#genre/tragedy"                                
+                                Nhi</a>
+                            <a href="#genre/tragedy"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Tragedy
-                                                                (Bi kịch)</a>
-                                                        <a href="#genre/trinh-tham"                                
+                                (Bi kịch)</a>
+                            <a href="#genre/trinh-tham"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Trinh
-                                                                Thám</a>
-                                                        <a href="#genre/truyen-scan"                                
+                                Thám</a>
+                            <a href="#genre/truyen-scan"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện
-                                                                scan</a>
-                                                        <a href="#genre/truyen-mau"                                
+                                scan</a>
+                            <a href="#genre/truyen-mau"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Truyện
-                                                                Màu</a>
-                                                        <a href="#genre/viet-nam"                                
+                                Màu</a>
+                            <a href="#genre/viet-nam"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Việt
-                                                                Nam</a>
-                                                        <a href="#genre/webtoon"                                
+                                Nam</a>
+                            <a href="#genre/webtoon"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Webtoon</a>
-                                                        <a href="#genre/xuyen-khong"                                
+                            <a href="#genre/xuyen-khong"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">Xuyên
-                                                                Không</a>
-                                                        <a href="#genre/16"                                
+                                Không</a>
+                            <a href="#genre/16"
                                 class="text-gray-300 hover:bg-gray-600 hover:text-orange-400 rounded-md block px-2 py-1 transition-colors duration-200">16+</a>
-                                                    </div>
-                                            </div>
+                        </div>
+                    </div>
 
-                                        <a href="#library"                        
+                    <a href="#library"
                         class="nav-link text-gray-300 hover:text-orange-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư
-                                                Viện</a>
-                                        <a href="#gacha"                        
+                        Viện</a>
+                    <a href="#gacha"
                         class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
-                                                        name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
-                                        <div class="h-4 w-px bg-gray-700 mx-2"></div>
-                                        <a href="/"                        
+                            name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
+                    <div class="h-4 w-px bg-gray-700 mx-2"></div>
+                    <a href="/"
                         class="text-lime-500 hover:text-lime-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(163,230,53,0.5)]">
-                                                <ion-icon name="tv-outline" class="mr-1 text-lg"></ion-icon>Về FoxAnime
-                                            </a>
+                        <ion-icon name="tv-outline" class="mr-1 text-lg"></ion-icon>Về FoxAnime
+                    </a>
 
-                                    </div>
-                            </nav>
-                    </div>
+                </div>
+            </nav>
+        </div>
 
-            </header>
+    </header>
 
-        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden" style="top: 80px;">
-            </div>
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden" style="top: 80px;">
+    </div>
 
-        <div class="lg:hidden hidden bg-gray-900 border-l border-gray-700" id="mobile-menu">
-                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <a href="#home"                
+    <div class="lg:hidden hidden bg-gray-900 border-l border-gray-700" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="#home"
                 class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang
-                                Chủ</a>
+                Chủ</a>
 
-                        <div>
-                                <button                    
+            <div>
+                <button
                     class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
-                                        data-hash-group="#genre">
-                                        <span>Dạng Truyện</span>
-                                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor"
-                        viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"                            
+                    data-hash-group="#genre">
+                    <span>Dạng Truyện</span>
+                    <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
                             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"></path>
-                                            </svg>
-                                    </button>
-                                <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
-                                        <a href="#genre/manga"                        
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <div class="mobile-dropdown-content pl-4 mt-1 space-y-1 hidden">
+                    <a href="#genre/manga"
                         class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manga
-                                                (Nhật)</a>
-                                        <a href="#genre/manhwa"                        
+                        (Nhật)</a>
+                    <a href="#genre/manhwa"
                         class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhwa
-                                                (Hàn)</a>
-                                        <a href="#genre/manhua"                        
+                        (Hàn)</a>
+                    <a href="#genre/manhua"
                         class="block text-gray-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm">Manhua
-                                                (Trung)</a>
-                                        <a href="#genre/taihen"                        
+                        (Trung)</a>
+                    <a href="#genre/taihen"
                         class="block text-red-400 hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Taihen
-                                                (18+)</a>
-                                    </div>
-                            </div>
+                        (18+)</a>
+                </div>
+            </div>
 
 
-                        <div>
-                                <button                    
+            <div>
+                <button
                     class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
-                                        data-hash-group="#genre">
-                                        <span>Thể Loại Chi Tiết</span>
-                                        <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor"
-                        viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"                            
+                    data-hash-group="#genre">
+                    <span>Thể Loại Chi Tiết</span>
+                    <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
                             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"></path>
-                                            </svg>
-                                    </button>
-                                <div id="genre-mobile-list" class="pl-4 mt-1 hidden">
-                                        <a href="#genre/action"
-                        class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Action
-                                                (Hành động)</a>
-                                        <a href="#genre/adult"                        
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <div id="genre-mobile-list" class="pl-4 mt-1 hidden">
+                    <a href="#genre/action" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Action
+                        (Hành động)</a>
+                    <a href="#genre/adult"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adult</a>
-                                        <a href="#genre/adventure"                        
+                    <a href="#genre/adventure"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Adventure
-                                                (Phiêu lưu)</a>
-                                        <a href="#genre/anime"                        
+                        (Phiêu lưu)</a>
+                    <a href="#genre/anime"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Anime</a>
-                                        <a href="#genre/chuyen-sinh"                        
+                    <a href="#genre/chuyen-sinh"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Chuyển
-                                                Sinh</a>
-                                        <a href="#genre/comedy"
-                        class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Comedy
-                                                (Hài hước)</a>
-                                        <a href="#genre/comic"                        
+                        Sinh</a>
+                    <a href="#genre/comedy" class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Comedy
+                        (Hài hước)</a>
+                    <a href="#genre/comic"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Comic</a>
-                                        <a href="#genre/cooking"                        
+                    <a href="#genre/cooking"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cooking</a>
-                                        <a href="#genre/co-dai"                        
+                    <a href="#genre/co-dai"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Cổ Đại</a>
-                                        <a href="#genre/doujinshi"                        
+                    <a href="#genre/doujinshi"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Doujinshi</a>
-                                        <a href="#genre/drama"                        
+                    <a href="#genre/drama"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Drama (Kịch
-                                                tính)</a>
-                                        <a href="#genre/dam-my"                        
+                        tính)</a>
+                    <a href="#genre/dam-my"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Đam Mỹ</a>
-                                        <a href="#genre/ecchi"                        
+                    <a href="#genre/ecchi"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ecchi</a>
-                                        <a href="#genre/fantasy"                        
+                    <a href="#genre/fantasy"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Fantasy
-                                                (Giả tưởng)</a>
-                                        <a href="#genre/gender-bender"                        
+                        (Giả tưởng)</a>
+                    <a href="#genre/gender-bender"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Gender
-                                                Bender</a>
-                                        <a href="#genre/harem"                        
+                        Bender</a>
+                    <a href="#genre/harem"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Harem</a>
-                                        <a href="#genre/historical"                        
+                    <a href="#genre/historical"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Historical
-                                                (Lịch sử)</a>
-                                        <a href="#genre/horror"                        
+                        (Lịch sử)</a>
+                    <a href="#genre/horror"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Horror
-                                                (Kinh dị)</a>
-                                        <a href="#genre/josei"                        
+                        (Kinh dị)</a>
+                    <a href="#genre/josei"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Josei</a>
-                                        <a href="#genre/live-action"                        
+                    <a href="#genre/live-action"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Live
-                                                action</a>
-                                        <a href="#genre/manga"                        
+                        action</a>
+                    <a href="#genre/manga"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manga</a>
-                                        <a href="#genre/manhua"                        
+                    <a href="#genre/manhua"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhua</a>
-                                        <a href="#genre/manhwa"                        
+                    <a href="#genre/manhwa"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Manhwa</a>
-                                        <a href="#genre/martial-arts"                        
+                    <a href="#genre/martial-arts"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Martial
-                                                Arts (Võ thuật)</a>
-                                        <a href="#genre/mature"                        
+                        Arts (Võ thuật)</a>
+                    <a href="#genre/mature"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mature</a>
-                                        <a href="#genre/mecha"                        
+                    <a href="#genre/mecha"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mecha
-                                                (Robot)</a>
-                                        <a href="#genre/mystery"                        
+                        (Robot)</a>
+                    <a href="#genre/mystery"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Mystery (Bí
-                                                ẩn)</a>
-                                        <a href="#genre/ngon-tinh"                        
+                        ẩn)</a>
+                    <a href="#genre/ngon-tinh"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Ngôn
-                                                Tình</a>
-                                        <a href="#genre/one-shot"                        
+                        Tình</a>
+                    <a href="#genre/one-shot"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">One
-                                                shot</a>
-                                        <a href="#genre/psychological"                        
+                        shot</a>
+                    <a href="#genre/psychological"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Psychological
-                                                (Tâm lý)</a>
-                                        <a href="#genre/romance"                        
+                        (Tâm lý)</a>
+                    <a href="#genre/romance"
                         class="genre-item text-orange-400 block px-2 py-1 rounded-md text-sm">Romance (Lãng mạn)</a>
-                                        <a href="#genre/school-life"                        
+                    <a href="#genre/school-life"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">School Life
-                                                (Học đường)</a>
-                                        <a href="#genre/sci-fi"                        
+                        (Học đường)</a>
+                    <a href="#genre/sci-fi"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sci-fi
-                                                (Viễn tưởng)</a>
-                                        <a href="#genre/seinen"                        
+                        (Viễn tưởng)</a>
+                    <a href="#genre/seinen"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Seinen</a>
-                                        <a href="#genre/shoujo"                        
+                    <a href="#genre/shoujo"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo</a>
-                                        <a href="#genre/shoujo-ai"                        
+                    <a href="#genre/shoujo-ai"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shoujo
-                                                Ai</a>
-                                        <a href="#genre/shounen"                        
+                        Ai</a>
+                    <a href="#genre/shounen"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen</a>
-                                        <a href="#genre/shounen-ai"                        
+                    <a href="#genre/shounen-ai"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Shounen
-                                                Ai</a>
-                                        <a href="#genre/slice-of-life"                        
+                        Ai</a>
+                    <a href="#genre/slice-of-life"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Slice of
-                                                Life</a>
-                                        <a href="#genre/smut"                        
+                        Life</a>
+                    <a href="#genre/smut"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Smut</a>
-                                        <a href="#genre/soft-yaoi"                        
+                    <a href="#genre/soft-yaoi"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft
-                                                Yaoi</a>
-                                        <a href="#genre/soft-yuri"                        
+                        Yaoi</a>
+                    <a href="#genre/soft-yuri"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Soft
-                                                Yuri</a>
-                                        <a href="#genre/sports"                        
+                        Yuri</a>
+                    <a href="#genre/sports"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Sports (Thể
-                                                thao)</a>
-                                        <a href="#genre/supernatural"                        
+                        thao)</a>
+                    <a href="#genre/supernatural"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Supernatural
-                                                (Siêu nhiên)</a>
-                                        <a href="#genre/tap-chi-truyen-tranh"                        
+                        (Siêu nhiên)</a>
+                    <a href="#genre/tap-chi-truyen-tranh"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tạp chí
-                                                truyện tranh</a>
-                                        <a href="#genre/thieu-nhi"                        
+                        truyện tranh</a>
+                    <a href="#genre/thieu-nhi"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Thiếu
-                                                Nhi</a>
-                                        <a href="#genre/tragedy"                        
+                        Nhi</a>
+                    <a href="#genre/tragedy"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Tragedy (Bi
-                                                kịch)</a>
-                                        <a href="#genre/trinh-tham"                        
+                        kịch)</a>
+                    <a href="#genre/trinh-tham"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Trinh
-                                                Thám</a>
-                                        <a href="#genre/truyen-scan"                        
+                        Thám</a>
+                    <a href="#genre/truyen-scan"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện
-                                                scan</a>
-                                        <a href="#genre/truyen-mau"                        
+                        scan</a>
+                    <a href="#genre/truyen-mau"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Truyện
-                                                Màu</a>
-                                        <a href="#genre/viet-nam"                        
+                        Màu</a>
+                    <a href="#genre/viet-nam"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Việt
-                                                Nam</a>
-                                        <a href="#genre/webtoon"                        
+                        Nam</a>
+                    <a href="#genre/webtoon"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Webtoon</a>
-                                        <a href="#genre/xuyen-khong"                        
+                    <a href="#genre/xuyen-khong"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">Xuyên
-                                                Không</a>
-                                        <a href="#genre/16"                        
+                        Không</a>
+                    <a href="#genre/16"
                         class="genre-item block text-gray-400 hover:text-white px-2 py-1 rounded-md text-sm">16+</a>
-                                    </div>
-                            </div>
+                </div>
+            </div>
 
-                        <a href="#library"                
+            <a href="#library"
                 class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư
-                                Viện</a>
-                        <a href="#gacha"                
+                Viện</a>
+            <a href="#gacha"
                 class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
-                                        name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
-                        <a href="/"                
+                    name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
+            <a href="/"
                 class="block px-3 py-2 mt-2 bg-gradient-to-r from-lime-500/10 to-transparent border-l-4 border-lime-500 rounded-r-lg text-lime-400 text-base font-extrabold transition-colors">
-                                <ion-icon name="tv" class="mr-2"></ion-icon>Về Xem Phim (FoxAnime)
-                            </a>
+                <ion-icon name="tv" class="mr-2"></ion-icon>Về Xem Phim (FoxAnime)
+            </a>
 
-                    </div>
-                <div class="px-5 pb-3">
-                        <form id="search-form-mobile" class="relative">
-                                <input id="search-input-mobile" type="text" placeholder="Tìm kiếm nội dung..."          
-                             
+        </div>
+        <div class="px-5 pb-3">
+            <form id="search-form-mobile" class="relative">
+                <input id="search-input-mobile" type="text" placeholder="Tìm kiếm nội dung..."
                     class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-gray-600 transition-all"
-                                        autocomplete="off">
+                    autocomplete="off">
 
-                                <div id="search-results-mobile"                    
+                <div id="search-results-mobile"
                     class="absolute top-full left-0 w-full mt-2 glass-card rounded-xl overflow-hidden z-[100] hidden max-h-[50vh] flex flex-col shadow-2xl overflow-y-auto">
-                                    </div>
-                            </form>
-                    </div>
-                <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
-                        <a href="#login"                
+                </div>
+            </form>
+        </div>
+        <div id="auth-button-mobile" class="px-5 pb-5 pt-3 border-t border-gray-700">
+            <a href="#login"
                 class="block w-full text-center text-gray-900 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-sm font-medium transition-colors">Đăng
-                                Nhập</a>
-                    </div>
-            </div>
+                Nhập</a>
+        </div>
+    </div>
 
-        <main id="app" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen">
-                <div class="flex justify-center items-center h-[50vh]">
-                        <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg"
-                fill="none"                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"                    
+    <main id="app" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-screen">
+        <div class="flex justify-center items-center h-[50vh]">
+            <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                            </svg>
-                    </div>
-            </main>
+                </path>
+            </svg>
+        </div>
+    </main>
 
-        <!-- Footer -->
-        <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
-                <!-- Hiệu ứng nền trang trí (Background Glow) -->
-                <div            
+    <!-- Footer -->
+    <footer class="relative bg-gray-800 pt-16 pb-8 border-t border-gray-700 mt-12 overflow-hidden">
+        <!-- Hiệu ứng nền trang trí (Background Glow) -->
+        <div
             class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50">
-                    </div>
-                <div
-            class="absolute -top-24 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none">
-                    </div>
-                <div
-            class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
-                    </div>
+        </div>
+        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none">
+        </div>
+        <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
+        </div>
 
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-                        <!-- PHẦN 1: LOGO & NEWSLETTER -->
-                        <div class="flex flex-col lg:flex-row justify-between items-center mb-12 gap-8">
-                                <!-- Logo -->
-                                <div class="flex items-center space-x-4 group cursor-pointer">
-                                        <div class="relative">
-                                                <div                            
+            <!-- PHẦN 1: LOGO & NEWSLETTER -->
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-12 gap-8">
+                <!-- Logo -->
+                <div class="flex items-center space-x-4 group cursor-pointer">
+                    <div class="relative">
+                        <div
                             class="absolute inset-0 bg-orange-400 blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-lg">
-                                                    </div>
-                                                <img src="../anh/FOXManga.gif" alt="FOXMANGA Logo"                      
-                                  class="w-16 h-16 object-contain rounded-lg shadow-xl relative z-10">
-                                            </div>
-                                        <div>
-                                                <span
-                            class="text-4xl font-extrabold text-white tracking-wide block leading-none">
-                                                        FOX<span class="text-orange-500">MANGA</span>
-                                                    </span>
-                                                <span class="text-sm text-gray-400 tracking-wider">Thế giới Manga trong
-                            tầm tay</span>
-                                            </div>
-                                    </div>
+                        </div>
+                        <img src="../anh/FOXManga.gif" alt="FOXMANGA Logo"
+                            class="w-16 h-16 object-contain rounded-lg shadow-xl relative z-10">
+                    </div>
+                    <div>
+                        <span class="text-4xl font-extrabold text-white tracking-wide block leading-none">
+                            FOX<span class="text-orange-500">MANGA</span>
+                        </span>
+                        <span class="text-sm text-gray-400 tracking-wider">Thế giới Manga trong tầm tay</span>
+                    </div>
+                </div>
 
-                                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE -->
-                                <div class="w-full max-w-md flex flex-col items-center">
-                                        <form id="newsletter-form"                        
+                <!-- KHU VỰC NEWSLETTER BẮN THẲNG LÊN FIREBASE -->
+                <div class="w-full max-w-md flex flex-col items-center">
+                    <form id="newsletter-form"
                         class="w-full bg-gray-800/80 p-1.5 rounded-full border border-gray-600 flex items-center overflow-hidden focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-500/30 transition-all shadow-lg relative">
-                                                <input type="email" id="email-input"
-                            placeholder="Nhập email để nhận thông báo mới..." required                            
+                        <input type="email" id="email-input" placeholder="Nhập email để nhận thông báo mới..." required
                             class="bg-transparent border-none outline-none text-white px-5 py-2 w-full placeholder-gray-400 text-sm focus:ring-0">
-                                                <button type="submit" id="submit-btn"                            
+                        <button type="submit" id="submit-btn"
                             class="bg-orange-500 hover:bg-orange-400 text-gray-950 font-bold py-2.5 px-6 rounded-full transition-colors duration-300 whitespace-nowrap text-sm shadow-md">
-                                                        Đăng ký
-                                                    </button>
-                                            </form>
-                                        <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
-                                    </div>
+                            Đăng ký
+                        </button>
+                    </form>
+                    <p id="newsletter-msg" class="text-xs mt-2 text-center w-full"></p>
+                </div>
 
-                               
                 <script type="module">
                     import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
                     import {getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -3044,187 +2986,152 @@
                         }
                     });
                 </script>
-                           
             </div>
 
-                        <!-- PHẦN DONATE -->
-                        <div                
+            <!-- PHẦN DONATE -->
+            <div
                 class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-orange-500/20 to-purple-500/20 border border-orange-500/30 relative overflow-hidden group">
-                                <div                    
+                <div
                     class="absolute inset-0 bg-[url('../anh/foxanimedonate.jpg')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500 mix-blend-overlay">
-                                    </div>
-                                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                                        <div class="flex items-center gap-4">
-                                                <img src="../anh/foxanimedonate.jpg" alt="DONATE Logo"                  
-                                     
+                </div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <img src="../anh/foxanimedonate.jpg" alt="DONATE Logo"
                             class="w-20 h-20 object-cover rounded-full shadow-lg ring-4 ring-orange-500/50 animate-pulse">
-                                                <div>
-                                                        <h3                                
+                        <div>
+                            <h3
                                 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-white">
-                                                                DONATE NGAY TẠI ĐÂY!</h3>
-                                                        <p class="text-gray-300 text-sm mt-1">Ủng hộ chúng mình để có
-                                thêm động lực phát
-                                                                triển nhé! ♡</p>
-                                                    </div>
-                                            </div>
-                                        <a href="https://foxanime.top/manga/donate.html"                        
+                                DONATE NGAY TẠI ĐÂY!</h3>
+                            <p class="text-gray-300 text-sm mt-1">Ủng hộ chúng mình để có thêm động lực phát
+                                triển nhé! ♡</p>
+                        </div>
+                    </div>
+                    <a href="https://foxanime.top/manga/donate.html"
                         class="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-full shadow-lg shadow-orange-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                                                <!-- FIX LỖI SVG PATH -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                            viewBox="0 0 24 24" fill="currentColor">
-                                                       
-                            <path                                
+                        <!-- FIX LỖI SVG PATH -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path
                                 d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                   
                         </svg>
-                                                Ủng hộ ngay
-                                            </a>
-                                    </div>
-                            </div>
+                        Ủng hộ ngay
+                    </a>
+                </div>
+            </div>
 
-                        <!-- PHẦN 2: CÁC NHÓM CỘNG ĐỒNG (GRID) -->
-                        <div
-                class="mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider text-center lg:text-left">Tham
-                                Gia Cộng đồng của chúng tôi</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            <!-- PHẦN 2: CÁC NHÓM CỘNG ĐỒNG (GRID) -->
+            <div class="mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider text-center lg:text-left">Tham
+                Gia Cộng đồng của chúng tôi</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
 
-                                <!-- FoxAnime - Fandom -->
-                                <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank"                  
-                     
+                <!-- FoxAnime - Fandom -->
+                <a href="https://www.facebook.com/share/g/17PEyLkhgp/" target="_blank"
                     class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
-                                        <img
-                        src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
-                                                alt="Fandom"                        
+                    <img src="https://th.bing.com/th/id/ODF.FFsV6sq1f2tH6MPAliUvzw?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
+                        alt="Fandom"
                         class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
-                                        <div>
-                                                <div
-                            class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Fandom</div>
-                                                <div class="text-xs text-gray-400">Group Facebook</div>
-                                            </div>
-                                    </a>
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Fandom</div>
+                        <div class="text-xs text-gray-400">Group Facebook</div>
+                    </div>
+                </a>
 
-                                <!-- FoxStudioLive -->
-                                <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank"        
-                               
+                <!-- FoxStudioLive -->
+                <a href="https://youtube.com/@foxstudio7556?si=4-JPjZZcvCJrUdKX" target="_blank"
                     class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
-                                        <img
-                        src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
-                                                alt="Live"                        
+                    <img src="https://th.bing.com/th/id/ODF.MrzzDTMlZsq_k5DWWmv7Hw?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
+                        alt="Live"
                         class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
-                                        <div>
-                                                <div
-                            class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">FoxStudioLive</div>
-                                                <div class="text-xs text-gray-400">Kênh YouTube</div>
-                                            </div>
-                                    </a>
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">FoxStudioLive</div>
+                        <div class="text-xs text-gray-400">Kênh YouTube</div>
+                    </div>
+                </a>
 
-                                <!-- Discord -->
-                                <a href="https://discord.gg/89UxfT4V" target="_blank"                    
+                <!-- Discord -->
+                <a href="https://discord.gg/89UxfT4V" target="_blank"
                     class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
-                                        <img
-                        src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
-                                                alt="Discord"                        
+                    <img src="https://th.bing.com/th/id/ODF.xXp47-dBXlzjKRnoX3v0kQ?w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
+                        alt="Discord"
                         class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
-                                        <div>
-                                                <div
-                            class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Discord Server</div>
-                                                <div class="text-xs text-gray-400">Tham gia ngay!</div>
-                                            </div>
-                                    </a>
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Discord Server</div>
+                        <div class="text-xs text-gray-400">Tham gia ngay!</div>
+                    </div>
+                </a>
 
-                                <!-- Liên hệ -->
-                                <a href="mailto:haistrem6792@gmail.com"                    
+                <!-- Liên hệ -->
+                <a href="mailto:haistrem6792@gmail.com"
                     class="group flex items-center p-3 rounded-xl bg-gray-700/40 border border-gray-600/50 hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-300">
-                                        <img
-                        src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
-                                                alt="Contact"                        
+                    <img src="https://th.bing.com/th/id/ODF.bm0RV3rptAC68RsyIbn_wQ?w=32&h=32&qlt=90&pcl=fffffc&o=6&pid=1.2"
+                        alt="Contact"
                         class="w-10 h-10 rounded-full mr-3 ring-2 ring-transparent group-hover:ring-orange-400 transition-all">
-                                        <div>
-                                                <div
-                            class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Liên hệ Quảng Cáo</div>
-                                                <div class="text-xs text-gray-400 truncate w-32">foxstudio299@...</div>
-                                            </div>
-                                    </a>
-                            </div>
+                    <div>
+                        <div class="font-bold text-gray-200 group-hover:text-orange-400 text-sm">Liên hệ Quảng Cáo</div>
+                        <div class="text-xs text-gray-400 truncate w-32">foxstudio299@...</div>
+                    </div>
+                </a>
+            </div>
 
-                        <!-- PHẦN 3: BOTTOM FOOTER (Socials & Copyright) -->
-                        <div
-                class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <!-- PHẦN 3: BOTTOM FOOTER (Socials & Copyright) -->
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
 
-                                <!-- Social Icons -->
-                                <div class="flex space-x-4">
-                                        <!-- Facebook -->
-                                        <a href="https://www.facebook.com/nguyen.hai.225063"                        
+                <!-- Social Icons -->
+                <div class="flex space-x-4">
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/nguyen.hai.225063"
                         class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all transform hover:-translate-y-1">
-                                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                                                       
-                            <path                                
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
                                 d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                                   
                         </svg>
-                                            </a>
+                    </a>
 
-                                        <!-- Instagram -->
-                                        <a href="#"                        
+                    <!-- Instagram -->
+                    <a href="#"
                         class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
-                                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                                                       
-                            <path                                
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
                                 d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                                                   
                         </svg>
-                                            </a>
+                    </a>
 
-                                        <!-- YouTube -->
-                                        <a href="https://www.youtube.com/@foxstudio7556"                        
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@foxstudio7556"
                         class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1">
-                                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                                                       
-                            <path                                
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
                                 d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                                                   
                         </svg>
-                                            </a>
+                    </a>
 
-                                        <!-- TikTok -->
-                                        <a href="https://www.tiktok.com/@foxstudio257?is_from_webapp=1&sender_device=pc"
-                                               
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com/@foxstudio257?is_from_webapp=1&sender_device=pc"
                         class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white border border-transparent hover:border-gray-600 transition-all transform hover:-translate-y-1">
-                                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                                                       
-                            <path                                
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
                                 d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.16c0 3.13-2.47 5.67-5.59 5.67h-.1c-2.91-.18-5.32-2.48-5.53-5.38-.2-2.73 1.69-5.18 4.34-5.63.13-.02.26-.03.39-.03v4.19c-.33 0-.66.07-.97.2-.67.29-1.07 1-1.07 1.77 0 1.09.89 1.98 1.98 1.98 1.09 0 1.98-.89 1.98-1.98v-15.03z" />
-                                                   
                         </svg>
-                                            </a>
-                                    </div>
+                    </a>
+                </div>
 
-                                <!-- Copyright & Legal -->
-                                <div class="text-center md:text-right">
-                                        <div class="text-gray-500 text-sm mb-2">
-                                                <a href="/manga/terms1.html"
-                            class="hover:text-orange-400 transition-colors">Điều khoản sử
-                                                        dụng</a>
-                                                <span class="mx-2">•</span>
-                                                <a href="/manga/privacy1.html"
-                            class="hover:text-orange-400 transition-colors">Chính sách bảo
-                                                        mật</a>
-                                                <span class="mx-2">•</span>
-                                                <a href="/manga/dmca1.html"
-                            class="hover:text-orange-400 transition-colors">DMCA</a>
-                                            </div>
-                                        <p class="text-gray-400 text-sm">
-                                                &copy; 2025. Bản quyền thuộc về <span
-                            class="text-orange-400 font-bold">Foxstudio.co.Ltd</span>.
-                                            </p>
-                                    </div>
-                            </div>
-                    </div>
-            </footer>
+                <!-- Copyright & Legal -->
+                <div class="text-center md:text-right">
+                    <div class="text-gray-500 text-sm mb-2">
+                        <a href="/manga/terms1.html" class="hover:text-orange-400 transition-colors">Điều khoản sử
+                            dụng</a>
+                        <span class="mx-2">•</span>
+                        <a href="/manga/privacy1.html" class="hover:text-orange-400 transition-colors">Chính sách bảo
+                            mật</a>
+                        <span class="mx-2">•</span>
+                        <a href="/manga/dmca1.html" class="hover:text-orange-400 transition-colors">DMCA</a>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        &copy; 2025. Bản quyền thuộc về <span class="text-orange-400 font-bold">Foxstudio.co.Ltd</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 <script>
     if ('serviceWorker' in navigator) {
