@@ -10,6 +10,7 @@
       "alternateName": ["Fox Manga", "FoxManga Vietsub" , "foxmanga"],
       "url": "https://foxmanga.top/"
     }
+
     </script>
     <meta name="google-site-verification" content="q11Z8-9RJYhX14rqOGPUbVU2FynPJgPa8_3kMC34J4A" />
     <meta property="og:site_name" content="FoxManga" />
@@ -35,6 +36,7 @@
     <title>FOXMANGA - Đọc Truyện Miễn Phí</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+
         const RELOAD_INTERVAL = 15000;
         window.trigger5XXError = function () {
             const overlay = document.getElementById('cdn-failure-overlay');
@@ -3133,6 +3135,41 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    // Hàm hiển thị thông báo sự cố hệ thống
+    window.showSystemAlertModal = (title = "THÔNG BÁO SỰ CỐ HỆ THỐNG", message = "Hiện tại máy chủ đang gặp sự cố kỹ thuật, hệ thống tạm thời không thể cập nhật nội dung mới hoặc tải chapter truyện. Bộ phận kỹ thuật đang tiến hành khắc phục. Mong quý độc giả thông cảm và quay lại sau ít phút.") => {
+        if (document.getElementById('system-alert-modal')) return;
+
+        const alertHtml = `
+            <div id="system-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] px-4">
+                <div class="bg-gray-900 border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-lg w-full text-center relative">
+                    <div class="text-orange-500 text-5xl mb-4 flex justify-center">
+                        <ion-icon name="warning-outline"></ion-icon>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide uppercase">${title}</h3>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed mb-8">${message}</p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button onclick="location.reload()" class="bg-orange-500 hover:bg-orange-600 text-gray-950 font-bold py-2.5 px-6 rounded-xl transition-colors">
+                            Tải lại trang
+                        </button>
+                        <button onclick="document.getElementById('system-alert-modal').remove()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 px-6 rounded-xl transition-colors border border-gray-700">
+                            Đóng thông báo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', alertHtml);
+    };
+
+    // Tự động bật bảng thông báo ngay khi vừa mở web lên
+    document.addEventListener('DOMContentLoaded', () => {
+        window.showSystemAlertModal();
+    });
+</script>
+
 </body>
 <script>
     if ('serviceWorker' in navigator) {
