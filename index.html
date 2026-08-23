@@ -169,16 +169,16 @@
             return date.toLocaleString('vi-VN');
         };
 
-        // --- BÉ LÔI ĐÃ FIX LINK CDN TRỰC TIẾP (CHUẨN 100%) ---
+        
         const GIF_ICONS = [
-            "https://static.wikia.nocookie.net/genshin-impact/images/a/ab/Icon_Emoji_Paimon_1.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/2/23/Icon_Emoji_Paimon_2.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/b/b2/Icon_Emoji_Paimon_3.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/9/9c/Icon_Emoji_Paimon_4.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/9/91/Icon_Emoji_Paimon_5.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/c/c5/Icon_Emoji_Paimon_6.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/4/4b/Icon_Emoji_Paimon_7.png",
-            "https://static.wikia.nocookie.net/genshin-impact/images/4/4d/Icon_Emoji_Paimon_8.png"
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_1.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_2.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_3.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_4.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_5.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Paimon_6.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Aether_1.png",
+            "https://genshin-impact.fandom.com/wiki/Special:FilePath/Icon_Emoji_Paimon's_Paintings_01_Lumine_1.png"
         ];
 
         const escapeHtml = (unsafe) => {
@@ -190,9 +190,8 @@
         
         const formatCommentContent = (text) => {
             let safeText = escapeHtml(text || "");
-            return safeText.replace(/\[gif:(.+?)\]/g, '<img src="$1" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">');
+            return safeText.replace(/\[gif:(.+?)\]/g, '<img src="$1" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">');
         };
-        // ----------------------------------------------
 
         window.showResumeModal = (movieTitle, time) => {
             const modal = getEl('#resume-modal');
