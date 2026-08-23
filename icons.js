@@ -3,6 +3,7 @@ for (let i = 1; i <= 35; i++) {
     myLocalIcons.push(`gificon/anh${i}.gif`); 
 }
 export const GIF_ICONS = [
+    
     "gificon/anh1.gif",
     "gificon/anh2.gif",
     "gificon/anh3.gif",
