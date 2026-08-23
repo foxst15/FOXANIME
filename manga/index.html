@@ -1354,9 +1354,10 @@
 
                     if (urls.length === 1 && urls[0].includes('otruyencdn.com')) {
                         try {
-                            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(urls[0]);
+                            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(urls[0]);
                             const res = await fetch(proxyUrl);
                             const apiData = await res.json();
+
                             if (apiData.status === 'success' && apiData.data && apiData.data.item) {
                                 const domain = apiData.data.domain_cdn;
                                 const path = apiData.data.item.chapter_path;
