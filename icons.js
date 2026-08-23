@@ -1,9 +1,4 @@
-let myLocalIcons = [];
-for (let i = 1; i <= 35; i++) {
-    myLocalIcons.push(`gificon/anh${i}.gif`); 
-}
-export const GIF_ICONS = [
-    
+export const GIF_ICONS = [  
     "gificon/anh1.gif",
     "gificon/anh2.gif",
     "gificon/anh3.gif",
@@ -826,6 +821,6 @@ export const GIF_ICONS = [
     "https://static.wikia.nocookie.net/gensin-impact/images/1/19/Icon_Emoji_Paimon%27s_Paintings_49_Chevreuse.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/9/98/Icon_Emoji_Paimon%27s_Paintings_49_Yelan.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/6/60/Icon_Emoji_Paimon%27s_Paintings_49_Dori.png",
-    "https://static.wikia.nocookie.net/gensin-impact/images/2/26/Icon_Emoji_Paimon%27s_Paintings_49_Liben.png",
-    ...myLocalIcons
+    "https://static.wikia.nocookie.net/gensin-impact/images/2/26/Icon_Emoji_Paimon%27s_Paintings_49_Liben.png"
+    
 ];
