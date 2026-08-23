@@ -2134,11 +2134,11 @@
                                                 <ion-icon name="happy" class="text-2xl"></ion-icon>
                                             </button>
 
-                                            
+                                        
                                             <div id="gif-picker-popup" class="hidden absolute right-0 bottom-full mb-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl p-3 w-64 max-h-48 overflow-y-auto z-50">
                                                 <div class="grid grid-cols-4 gap-2">
-                                                    ${GIF_ICONS.map(gif => `
-                                                        <img src="${gif}" referrerpolicy="no-referrer" class="gif-item w-12 h-12 object-contain cursor-pointer hover:bg-gray-700 rounded p-1 transition-colors" data-gif-url="${gif}" loading="lazy">
+                                                    ${GIF_ICONS.map((gif, index) => `
+                                                        <img src="${gif}" referrerpolicy="no-referrer" class="gif-item w-12 h-12 object-contain cursor-pointer hover:bg-gray-700 rounded p-1 transition-colors" data-sticker-index="${index}" loading="lazy">
                                                     `).join('')}
                                                 </div>
                                             </div>
@@ -2567,10 +2567,13 @@
                     const gifItems = document.querySelectorAll('.gif-item');
                     gifItems.forEach(item => {
                         item.addEventListener('click', (e) => {
-                            const url = e.currentTarget.getAttribute('data-gif-url');
-                            // Chèn mã code của ảnh vào khung chat
-                            commentInput.value += ` [gif:${url}] `;
+                            // Lấy số thứ tự của bé icon đó
+                            const index = e.currentTarget.getAttribute('data-sticker-index');
+                            
+                            // Chèn mã code siêu ngắn vào khung chat
+                            commentInput.value += ` [sticker:${index}] `;
                             commentInput.focus();
+                            
                             // Đóng bảng đi cho gọn
                             gifPopup.classList.add('hidden');
                         });
