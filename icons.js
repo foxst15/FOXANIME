@@ -1,39 +1,10 @@
+let myLocalIcons = [];
+for (let i = 1; i <= 35; i++) {
+    myLocalIcons.push(`gificon/anh${i}.gif`);
+}
 export const GIF_ICONS = [  
-    "gificon/anh1.gif",
-    "gificon/anh2.gif",
-    "gificon/anh3.gif",
-    "gificon/anh4.gif",
-    "gificon/anh5.gif",
-    "gificon/anh6.gif",
-    "gificon/anh7.gif",
-    "gificon/anh8.gif",
-    "gificon/anh9.gif",
-    "gificon/anh10.gif",
-    "gificon/anh11.gif",
-    "gificon/anh12.gif",
-    "gificon/anh13.gif",
-    "gificon/anh14.gif",
-    "gificon/anh15.gif",
-    "gificon/anh16.gif",
-    "gificon/anh17.gif",
-    "gificon/anh18.gif",
-    "gificon/anh19.gif",
-    "gificon/anh20.gif",
-    "gificon/anh21.gif",
-    "gificon/anh22.gif",
-    "gificon/anh23.gif",
-    "gificon/anh24.gif",
-    "gificon/anh25.gif",
-    "gificon/anh26.gif",
-    "gificon/anh27.gif",
-    "gificon/anh28.gif",
-    "gificon/anh29.gif",
-    "gificon/anh30.gif",
-    "gificon/anh31.gif",
-    "gificon/anh32.gif",
-    "gificon/anh33.gif",
-    "gificon/anh34.gif",
-    "gificon/anh35.gif",
+    ...myLocalIcons,
+    
     "https://static.wikia.nocookie.net/gensin-impact/images/5/55/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_2.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/1/11/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_1.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/b/bc/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_3.png",
@@ -822,5 +793,6 @@ export const GIF_ICONS = [
     "https://static.wikia.nocookie.net/gensin-impact/images/9/98/Icon_Emoji_Paimon%27s_Paintings_49_Yelan.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/6/60/Icon_Emoji_Paimon%27s_Paintings_49_Dori.png",
     "https://static.wikia.nocookie.net/gensin-impact/images/2/26/Icon_Emoji_Paimon%27s_Paintings_49_Liben.png"
+
     
 ];
