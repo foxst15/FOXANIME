@@ -176,8 +176,11 @@
         const getRandomSticker = () => {
             // 40% tỷ lệ bot sẽ ném sticker vào bình luận
             if (Math.random() < 0.4 && typeof GIF_ICONS !== 'undefined' && GIF_ICONS.length > 0) {
-                const randomIcon = GIF_ICONS[Math.floor(Math.random() * GIF_ICONS.length)];
-                return ` <img src="${randomIcon}" class="inline-block w-14 h-14 object-contain mx-1 align-middle">`;
+                // Lấy con số thứ tự ngẫu nhiên thay vì lấy nguyên cái link ảnh
+                const randomIndex = Math.floor(Math.random() * GIF_ICONS.length);
+
+                // 🌸 Bot gửi mã số [sticker:số] y hệt như người thật bấm nút trên web!
+                return ` [sticker:${randomIndex}]`;
             }
             return "";
         };
