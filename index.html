@@ -395,31 +395,62 @@
             if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
 
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
-
-            // --- PHẦN FIX CHUẨN ---
-            // Chỉ tải 20 bình luận MỚI NHẤT từ trên Server, không cần tải hết rồi xóa
-            const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT));
-            // ----------------------
+            // Nâng limit lên để vét cả những comment rep ẩn bên dưới
+            const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(50));
 
             unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
-                const updatedComments = [];
-                snapshot.forEach(doc => {updatedComments.push({id: doc.id, ...doc.data()});});
+                const allComments = [];
+                snapshot.forEach(doc => {allComments.push({id: doc.id, ...doc.data()});});
 
-                // Không cần gọi deleteOldestComments nữa vì mình đã giới hạn bằng query rồi!
+                // Phân loại Cha - Con
+                const parents = [];
+                const repliesMap = {};
 
-                const displayedComments = updatedComments.slice(0, COMMENT_DISPLAY_LIMIT);
+                allComments.forEach(c => {
+                    if (c.replyTo) {
+                        if (!repliesMap[c.replyTo]) repliesMap[c.replyTo] = [];
+                        repliesMap[c.replyTo].push(c);
+                    } else {
+                        parents.push(c);
+                    }
+                });
+
+                // Cứu vớt trẻ lạc (Câu rep nhưng câu gốc đã cũ bị trôi mất khỏi limit)
+                const parentIds = new Set(parents.map(p => p.id));
+                Object.keys(repliesMap).forEach(parentId => {
+                    if (!parentIds.has(parentId)) {
+                        parents.push(...repliesMap[parentId]);
+                        delete repliesMap[parentId];
+                    }
+                });
+
+                // Xếp Cha: Mới nhất lên trên
+                parents.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+
+                let html = '';
+                parents.slice(0, 15).forEach(parent => {
+                    html += CommentTemplate(parent, false); // Vẽ Cha
+                    if (repliesMap[parent.id]) {
+                        // Xếp Con: Cũ trên, Mới dưới (đọc thuận mắt)
+                        repliesMap[parent.id].sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+
+                        // Bao bọc các câu con trong 1 khối thụt lề có vạch xám bên trái
+                        html += `<div class="ml-10 md:ml-12 border-l-2 border-gray-600 pl-3 md:pl-4 mt-[-10px] mb-4 space-y-2">`;
+                        repliesMap[parent.id].forEach(reply => {
+                            html += CommentTemplate(reply, true); // Vẽ Con
+                        });
+                        html += `</div>`;
+                    }
+                });
+
                 const commentsListElement = getEl('#comments-list');
                 const commentCountElement = getEl('#comment-count-display');
 
-                if (commentCountElement) commentCountElement.textContent = updatedComments.length;
+                if (commentCountElement) commentCountElement.textContent = allComments.length;
                 if (commentsListElement) {
                     commentsListElement.innerHTML = `
-                <div class="max-h-96 overflow-y-auto comments-scroll-area">
-                    ${displayedComments.length > 0
-                            ? displayedComments.map(CommentTemplate).join('')
-                            : '<p class="text-gray-500 text-center">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'
-                        }
-                    ${updatedComments.length > COMMENT_DISPLAY_LIMIT ? `<p class="text-gray-500 text-center pt-2 text-sm italic">...Đã ẩn ${updatedComments.length - COMMENT_DISPLAY_LIMIT} bình luận cũ hơn để tối ưu hiệu suất.</p>` : ''}
+                <div class="max-h-96 overflow-y-auto comments-scroll-area pr-2">
+                    ${html || '<p class="text-gray-500 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'}
                 </div>
             `;
                 }
@@ -1195,22 +1226,32 @@
     `;
         };
 
-        const CommentTemplate = (comment) => {
+        const CommentTemplate = (comment, isReply = false) => {
             const displayName = comment.displayName || comment.email || 'Người dùng ẩn danh';
-            const photoURL = comment.photoURL || `https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}`;
+            const photoURL = comment.photoURL || `https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}`;
+            const timeStr = formatCommentDate(comment.createdAt);
+            const contentStr = formatCommentContent(comment.content);
+
+            // Nếu là Rep thì Avatar nhỏ lại, khoảng cách hẹp lại
+            const avatarClass = isReply ? "w-8 h-8" : "w-10 h-10";
+            const marginClass = isReply ? "mb-2" : "mb-4";
+
             return `
-            <div class="flex space-x-3 mb-4">
-                <div class="flex-shrink-0">
-                    <img class="w-10 h-10 rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/e2e8f0?text=${displayName.charAt(0).toUpperCase()}';">
-                </div>
-                <div>
-                    <div class="bg-gray-700 p-3 rounded-lg">
-                        <p class="font-semibold text-white text-sm">${displayName}</p>
-                        <p class="text-gray-300 text-sm whitespace-pre-wrap">${formatCommentContent(comment.content)}</p>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">${formatCommentDate(comment.createdAt)}</p>
-                </div>
+    <div class="flex space-x-3 ${marginClass}">
+        <div class="flex-shrink-0">
+            <img class="${avatarClass} rounded-full object-cover" src="${photoURL}" alt="Avatar" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x40/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}';">
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="bg-gray-700 p-3 rounded-xl rounded-tl-none inline-block max-w-full">
+                <p class="font-bold text-lime-400 text-sm mb-1">${displayName}</p>
+                <p class="text-gray-200 text-sm whitespace-pre-wrap break-words">${contentStr}</p>
             </div>
+            <div class="flex items-center space-x-4 mt-1 ml-1">
+                <p class="text-xs text-gray-500">${timeStr}</p>
+                ${!isReply ? `<button type="button" onclick="window.handleReplyClick('${comment.id}', '${displayName}')" class="text-xs text-gray-400 hover:text-lime-400 font-bold transition-colors">Phản hồi</button>` : ''}
+            </div>
+        </div>
+    </div>
     `;
         };
 
