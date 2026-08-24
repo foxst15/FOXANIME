@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOXANIME - Công Cụ Bot Giao Dịch Độc Lập (Unlimited Data)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
-        import { initializeApp } 
+        import {GIF_ICONS} from './icons.js?v=4';
+
+        import {initializeApp}
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        
-        
-        import { getAuth, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, signOut, signInAnonymously } 
+
+        import {getAuth, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, signOut, signInAnonymously}
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-            
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, collection, query, getDocs, serverTimestamp, writeBatch, increment, orderBy, limit } 
+
+        import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, collection, query, getDocs, serverTimestamp, writeBatch, increment, orderBy, limit}
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         // CẤU HÌNH FIREBASE VÀ BIẾN TOÀN CỤC
-        const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com","projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
+        const FIREBASE_DEFAULT_CONFIG = {"apiKey": "AIzaSyDvI4bfJXh08biyFORz6X2xwBc19TERWEc", "authDomain": "foxanime-e77d4.firebaseapp.com", "projectId": "foxanime-e77d4", "storageBucket": "foxanime-e77d4.firebasestorage.app", "messagingSenderId": "1025177423292", "appId": "1:1025177423292:web:14c200fbc905e79b3c6fb9"};
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         const finalConfig = firebaseConfigFromCanvas?.projectId ? firebaseConfigFromCanvas : FIREBASE_DEFAULT_CONFIG;
 
         let app, db, auth;
@@ -28,16 +30,16 @@
         let dataCollectionPath = `artifacts/${appId}/public/data/movies`;
         let globalMovieCache = [];
         let isAuthInitialised = false;
-        let botInterval = null; 
+        let botInterval = null;
         let isBotRunning = false;
         let targetMovies = [];
         let currentDisplayedResults = []; // Dùng để nhớ danh sách phim đang hiển thị
-        
+
         // --- CẤU HÌNH TỐC ĐỘ (Theo yêu cầu của User) ---
         const BOT_INTERVAL_ANON = 1000; // 1 giây cho Khách/Ẩn danh (View + Like)
         const BOT_INTERVAL_AUTH = 5000; // 5 giây cho Google Auth (Full tương tác)
         let currentBotInterval = BOT_INTERVAL_AUTH;
-        
+
         // === DANH SÁCH URL ẢNH MỚI BỔ SUNG TỪ NGƯỜI DÙNG ===
         // BÉ LÔI đã thêm các URL ảnh chủ nhân cung cấp vào đây!
         const HARDCODED_AVATAR_URLS = [
@@ -80,47 +82,47 @@
         // SỬ DỤNG FORMAT MỚI THEO YÊU CẦU CỦA NGƯỜI DÙNG
         const GENZ_TEENCODES = [
             // Thay thế chính
-            { src: /không/gi, dest: ["ko", "hong", "k", "khong", "kg", "hông"] },
-            { src: /được/gi, dest: ["dc", "đc", "duoc"] },
-            { src: /gì/gi, dest: ["j", "gi", "gì z", "j z", "zì"] }, 
-            { src: /biết/gi, dest: ["bít", "bik", "biet", "bt"] }, 
-            { src: /yêu/gi, dest: ["iu", "yeu"] },
-            { src: /quá/gi, dest: ["qa", "qá", "vãi", "vcl", "qua", "quá trời"] }, 
-            { src: /luôn/gi, dest: ["lun", "luon"] },
-            { src: /rồi/gi, dest: ["r", "roi", "rùi", "òy"] }, 
-            { src: /nhiều/gi, dest: ["nhìu", "nhieu", "nhiu"] },
-            { src: /vậy/gi, dest: ["z", "vay", "zay", "dạy", "v"] }, 
-            { src: /bây giờ/gi, dest: ["h", "bi h", "bay h", "jo", "bh"] },
-            { src: /của/gi, dest: ["cua"] },
-            { src: /mình/gi, dest: ["mik", "minh", "tui", "t"] },
-            { src: /bạn/gi, dest: ["bn", "ban", "b"] },
-            { src: /thực sự/gi, dest: ["that su", "thuc su", "real", "tht sự"] }, 
-            { src: /xem/gi, dest: ["coi", "xem", "x"] }, 
-            { src: /tập/gi, dest: ["ep", "tap"] },
-            { src: /anh/gi, dest: ["a"] }, { src: /em/gi, dest: ["e"] }, { src: /chị/gi, dest: ["c", "cj"] },
-            { src: /người yêu/gi, dest: ["ny", "gau"] }, { src: /vợ/gi, dest: ["vk"] }, { src: /chồng/gi, dest: ["ck"] },
-            { src: /nhưng/gi, dest: ["nma", "nhung", "nhg"] }, { src: /thôi/gi, dest: ["thui", "thoi", "thoy"] },
-            { src: /mới/gi, dest: ["ms", "moi"] }, { src: /trước/gi, dest: ["trc", "trươc"] }, { src: /với/gi, dest: ["vs", "voi"] },
-            { src: /thế nào/gi, dest: ["ntn", "the nao"] }, { src: /cũng/gi, dest: ["cx", "cug"] },
-            
+            {src: /không/gi, dest: ["ko", "hong", "k", "khong", "kg", "hông"]},
+            {src: /được/gi, dest: ["dc", "đc", "duoc"]},
+            {src: /gì/gi, dest: ["j", "gi", "gì z", "j z", "zì"]},
+            {src: /biết/gi, dest: ["bít", "bik", "biet", "bt"]},
+            {src: /yêu/gi, dest: ["iu", "yeu"]},
+            {src: /quá/gi, dest: ["qa", "qá", "vãi", "vcl", "qua", "quá trời"]},
+            {src: /luôn/gi, dest: ["lun", "luon"]},
+            {src: /rồi/gi, dest: ["r", "roi", "rùi", "òy"]},
+            {src: /nhiều/gi, dest: ["nhìu", "nhieu", "nhiu"]},
+            {src: /vậy/gi, dest: ["z", "vay", "zay", "dạy", "v"]},
+            {src: /bây giờ/gi, dest: ["h", "bi h", "bay h", "jo", "bh"]},
+            {src: /của/gi, dest: ["cua"]},
+            {src: /mình/gi, dest: ["mik", "minh", "tui", "t"]},
+            {src: /bạn/gi, dest: ["bn", "ban", "b"]},
+            {src: /thực sự/gi, dest: ["that su", "thuc su", "real", "tht sự"]},
+            {src: /xem/gi, dest: ["coi", "xem", "x"]},
+            {src: /tập/gi, dest: ["ep", "tap"]},
+            {src: /anh/gi, dest: ["a"]}, {src: /em/gi, dest: ["e"]}, {src: /chị/gi, dest: ["c", "cj"]},
+            {src: /người yêu/gi, dest: ["ny", "gau"]}, {src: /vợ/gi, dest: ["vk"]}, {src: /chồng/gi, dest: ["ck"]},
+            {src: /nhưng/gi, dest: ["nma", "nhung", "nhg"]}, {src: /thôi/gi, dest: ["thui", "thoi", "thoy"]},
+            {src: /mới/gi, dest: ["ms", "moi"]}, {src: /trước/gi, dest: ["trc", "trươc"]}, {src: /với/gi, dest: ["vs", "voi"]},
+            {src: /thế nào/gi, dest: ["ntn", "the nao"]}, {src: /cũng/gi, dest: ["cx", "cug"]},
+
             // Các từ bổ sung theo yêu cầu (đã được làm giàu)
-            { src: /oke/gi, dest: ["ok", "k", "oke", "oki"] }, { src: /tại sao/gi, dest: ["tsao", "tai sao"] },
-            { src: /vì/gi, dest: ["vi"] }, { src: /là/gi, dest: ["la"] }, { src: /người/gi, dest: ["ng", "nguoi"] },
-            { src: /này/gi, dest: ["nì", "ne", "nay"] }, { src: /đi/gi, dest: ["di", "đii"] }, { src: /làm/gi, dest: ["lm", "lam"] },
-            { src: /nói/gi, dest: ["noi"] }, { src: /buồn/gi, dest: ["bùn", "buon", "buồnn"] }, { src: /thích/gi, dest: ["thik", "thich"] },
-            { src: /ghê/gi, dest: ["ghe"] }, { src: /trời ơi/gi, dest: ["tr oi", "troi oi", "omg"] },
-            { src: /xin lỗi/gi, dest: ["xl", "xin loi"] }, { src: /cảm ơn/gi, dest: ["tks", "cam on", "thanks", "cmon"] },
-            { src: /bình luận/gi, dest: ["cmt", "comment"] }, { src: /nhắn tin/gi, dest: ["ib", "inbox"] },
-            { src: /facebook/gi, dest: ["fb"] }, { src: /đẹp/gi, dest: ["dep", "đẹpp"] }, { src: /hôm nay/gi, dest: ["hnay", "hom nay"] },
-            { src: /thế/gi, dest: ["the", "thế"] }, { src: /đâu/gi, dest: ["dau"] }, { src: /muốn/gi, dest: ["mun"] },
-            { src: /ngủ/gi, dest: ["ngu"] }, { src: /chúc/gi, dest: ["chuc", "chúc"] }, { src: /phải/gi, dest: ["fai", "phai"] }, 
-            { src: /đúng/gi, dest: ["dung"] }, { src: /rất/gi, dest: ["rat", "rt"] },
-            
+            {src: /oke/gi, dest: ["ok", "k", "oke", "oki"]}, {src: /tại sao/gi, dest: ["tsao", "tai sao"]},
+            {src: /vì/gi, dest: ["vi"]}, {src: /là/gi, dest: ["la"]}, {src: /người/gi, dest: ["ng", "nguoi"]},
+            {src: /này/gi, dest: ["nì", "ne", "nay"]}, {src: /đi/gi, dest: ["di", "đii"]}, {src: /làm/gi, dest: ["lm", "lam"]},
+            {src: /nói/gi, dest: ["noi"]}, {src: /buồn/gi, dest: ["bùn", "buon", "buồnn"]}, {src: /thích/gi, dest: ["thik", "thich"]},
+            {src: /ghê/gi, dest: ["ghe"]}, {src: /trời ơi/gi, dest: ["tr oi", "troi oi", "omg"]},
+            {src: /xin lỗi/gi, dest: ["xl", "xin loi"]}, {src: /cảm ơn/gi, dest: ["tks", "cam on", "thanks", "cmon"]},
+            {src: /bình luận/gi, dest: ["cmt", "comment"]}, {src: /nhắn tin/gi, dest: ["ib", "inbox"]},
+            {src: /facebook/gi, dest: ["fb"]}, {src: /đẹp/gi, dest: ["dep", "đẹpp"]}, {src: /hôm nay/gi, dest: ["hnay", "hom nay"]},
+            {src: /thế/gi, dest: ["the", "thế"]}, {src: /đâu/gi, dest: ["dau"]}, {src: /muốn/gi, dest: ["mun"]},
+            {src: /ngủ/gi, dest: ["ngu"]}, {src: /chúc/gi, dest: ["chuc", "chúc"]}, {src: /phải/gi, dest: ["fai", "phai"]},
+            {src: /đúng/gi, dest: ["dung"]}, {src: /rất/gi, dest: ["rat", "rt"]},
+
             // Các từ ngữ ít dùng teencode nhưng giữ lại để thay đổi kiểu gõ
-            { src: /như vậy/gi, dest: ["nv"] }, { src: /bình thường/gi, dest: ["bth"] }, { src: /chứ/gi, dest: ["chớ", "chư"] }, 
-            { src: /thật/gi, dest: ["tht"] }, { src: /còn/gi, dest: ["cn"] }, { src: /tốt/gi, dest: ["tot"] }, 
-            { src: /tuyệt/gi, dest: ["tuyệt"] }, { src: /xinh/gi, dest: ["xink"] }, { src: /hạnh phúc/gi, dest: ["hp"] },
-            { src: /lại/gi, dest: ["lai"] }, { src: /người ta/gi, dest: ["nt"] }, { src: /yêu rồi/gi, dest: ["iu òy"] },
+            {src: /như vậy/gi, dest: ["nv"]}, {src: /bình thường/gi, dest: ["bth"]}, {src: /chứ/gi, dest: ["chớ", "chư"]},
+            {src: /thật/gi, dest: ["tht"]}, {src: /còn/gi, dest: ["cn"]}, {src: /tốt/gi, dest: ["tot"]},
+            {src: /tuyệt/gi, dest: ["tuyệt"]}, {src: /xinh/gi, dest: ["xink"]}, {src: /hạnh phúc/gi, dest: ["hp"]},
+            {src: /lại/gi, dest: ["lai"]}, {src: /người ta/gi, dest: ["nt"]}, {src: /yêu rồi/gi, dest: ["iu òy"]},
         ];
         const TEENCODE_RATE = 0.7; // Tăng tỉ lệ áp dụng teencode lên 70%
 
@@ -128,7 +130,7 @@
             let result = text;
             if (Math.random() < TEENCODE_RATE) {
                 // Áp dụng ngẫu nhiên 1 đến 5 teencode để lời nói được "real" hơn
-                const numToApply = Math.floor(Math.random() * 5) + 1; 
+                const numToApply = Math.floor(Math.random() * 5) + 1;
                 // Xáo trộn danh sách Teencode để chọn ngẫu nhiên các quy tắc để áp dụng
                 const shuffledTeencodes = [...GENZ_TEENCODES].sort(() => 0.5 - Math.random());
 
@@ -146,7 +148,7 @@
         // --- HÀM RÚT GỌN TÊN PHIM (Tránh lộ là Bot) ---
         const getShortTitle = (title) => {
             const parts = title.split(':');
-            let cleanTitle = parts[parts.length - 1].trim(); 
+            let cleanTitle = parts[parts.length - 1].trim();
 
             // Loại bỏ các phần trong ngoặc đơn/vuông (thường là season, part...)
             cleanTitle = cleanTitle.replace(/ *\([^)]*\) */g, "");
@@ -160,7 +162,7 @@
             }
 
             // Rút gọn thành 2-4 từ đầu tiên
-            const numWords = Math.floor(Math.random() * 3) + 2; 
+            const numWords = Math.floor(Math.random() * 3) + 2;
             const shortTitle = words.slice(0, numWords).join(' ');
 
             // Thêm "..." để trông tự nhiên hơn
@@ -170,20 +172,29 @@
 
             return shortTitle;
         };
-        
+
+        const getRandomSticker = () => {
+            // 40% tỷ lệ bot sẽ ném sticker vào bình luận
+            if (Math.random() < 0.4 && typeof GIF_ICONS !== 'undefined' && GIF_ICONS.length > 0) {
+                const randomIcon = GIF_ICONS[Math.floor(Math.random() * GIF_ICONS.length)];
+                return ` <img src="${randomIcon}" class="inline-block w-14 h-14 object-contain mx-1 align-middle">`;
+            }
+            return "";
+        };
+
         // --- HỆ THỐNG TẠO TÊN "VŨ TRỤ WIBU" (MASSIVE & MIXED) ---
         const getBotDisplayName = () => {
             const prefixes = [
-                "Chúa Tể", "Ông Trùm", "Sát Thủ", "Thánh", "Giáo Chủ", "Huyền Thoại", "Kẻ Hủy Diệt", "Người Chơi Hệ", 
-                "Trùm Cuối", "Vua Lì Đòn", "Thanh Niên", "Hot Boy", "Hot Girl", "Idol Tóp Tóp", "Pháp Sư", 
+                "Chúa Tể", "Ông Trùm", "Sát Thủ", "Thánh", "Giáo Chủ", "Huyền Thoại", "Kẻ Hủy Diệt", "Người Chơi Hệ",
+                "Trùm Cuối", "Vua Lì Đòn", "Thanh Niên", "Hot Boy", "Hot Girl", "Idol Tóp Tóp", "Pháp Sư",
                 "Chuyên Gia", "Tài Đạt", "Boy", "Girl", "Mèo Béo", "Đệ Tử", "Vợ Của", "Chồng Của", "Fan Cứng",
-                "Đại Ca", "Tiểu Muội", "Công Chúa", "Hoàng Tử", "Soái Ca", "Thần Đồng", "Kẻ Lang Thang", 
+                "Đại Ca", "Tiểu Muội", "Công Chúa", "Hoàng Tử", "Soái Ca", "Thần Đồng", "Kẻ Lang Thang",
                 "Tộc Trưởng", "Thủ Lĩnh", "Chiến Thần", "Ma Vương", "Đại Đế", "Người Qua Đường", "Thám Tử",
                 "Tiên Tôn", "Yếu Sinh Lý", "Cục Nợ", "Chủ Hội", "Thần Bài", "Đạo Tặc", "Chiến Tướng", "Mẫu Hậu",
                 "Hoàng Hậu", "Thổ Dân", "Thanh Long", "Phượng Hoàng", "Vô Danh", "Tiểu Tử", "Lão Đại",
                 "Độc Cô", "Thiên Hạ", "Đệ Nhất", "Minh Chủ", "Tiểu Ca", "Võ Thánh", "Siêu Cấp", "Bậc Thầy",
                 "Phượt Thủ", "Cây Khế", "Người Yêu Cũ", "Lớp Trưởng", "Bà Trùm", "Kẻ Thao Túng", "Ngôi Sao",
-                "Anh Hai", "Chị Đại", "Tổng Biên Tập", "Admin", "Mod", "Chiến Lược", "Thợ Săn", "Phá Đảo", 
+                "Anh Hai", "Chị Đại", "Tổng Biên Tập", "Admin", "Mod", "Chiến Lược", "Thợ Săn", "Phá Đảo",
                 "Đạo Sĩ", "Thiếu Gia", "Thế Tử", "Cụ Tổ", "Thánh Nữ", "Nữ Thần", "Nam Thần", "Bá Chủ", "Học Bá",
                 "Học Tra", "Kẻ Si Tình", "Người Âm Phủ", "Thánh Phồng", "Vua Trò Chơi", "Thánh Gióng", "Hoàng Đế",
                 "Tướng Quân", "Hiệp Sĩ", "Lãng Khách", "Phản Diện", "Nhân Vật Chính", "Người Qua Đường A",
@@ -191,15 +202,15 @@
                 "Kẻ", "Người", "Thằng", "Con", "Đứa", "Vị", "Bậc", "Đấng", "Chúa", "Thần", "Ma", "Quỷ",
                 "Siêu Nhân", "Người Dơi", "Người Nhện", "Thợ Sửa Ống Nước", "Hải Tặc", "Ninja", "Thần Chết"
             ];
-            
+
             const nouns = [
-                "Wibu", "Gacha", "Simp", "Meme", "Waifu", "Drama", "Spoil", "Net", "Wifi", "Deadline", 
-                "Yasuo", "Flop", "Nợ Môn", "Mì Tôm", "Trà Sữa", "Bánh Tráng", "Tiktok", "Facebook", "Discord", 
-                "Youtube", "Anime", "Manga", "Hent...", "Tu Tiên", "Xuyên Không", "Bách Khoa", "Saitama", "Levi", 
+                "Wibu", "Gacha", "Simp", "Meme", "Waifu", "Drama", "Spoil", "Net", "Wifi", "Deadline",
+                "Yasuo", "Flop", "Nợ Môn", "Mì Tôm", "Trà Sữa", "Bánh Tráng", "Tiktok", "Facebook", "Discord",
+                "Youtube", "Anime", "Manga", "Hent...", "Tu Tiên", "Xuyên Không", "Bách Khoa", "Saitama", "Levi",
                 "Goku", "Naruto", "Luffy", "Zoro", "Kirito", "Asuna", "Rem", "ZeroTwo", "Makima", "Anya",
-                "Husky", "Mochi", "Cosplay", "Fandom", "OTP", "Check Var", "Keo Ly", "Mãi Mận", "Xà Lơ", 
-                "Overthinking", "Tấu Hài", "Thao Túng", "Đơn Phương", "Hắc Ám", "Vô Cực", "Ánh Sáng", "Hắc Hóa", 
-                "Sư Phụ", "Vạn Kiếm", "Cẩm Nang", "Lương Tháng", "Trưởng Khoa", "Đồ Án", "Tấm Chiếu", 
+                "Husky", "Mochi", "Cosplay", "Fandom", "OTP", "Check Var", "Keo Ly", "Mãi Mận", "Xà Lơ",
+                "Overthinking", "Tấu Hài", "Thao Túng", "Đơn Phương", "Hắc Ám", "Vô Cực", "Ánh Sáng", "Hắc Hóa",
+                "Sư Phụ", "Vạn Kiếm", "Cẩm Nang", "Lương Tháng", "Trưởng Khoa", "Đồ Án", "Tấm Chiếu",
                 "Ngáo Ngơ", "Bé Ba", "Tiểu Tam", "Học Sinh", "Giáo Viên", "Đầu Bếp", "Sát Thủ", "Tiền Tệ",
                 "Thủ Kho", "Tư Bản", "Đế Vương", "Cẩu Lương", "Độc Giả", "Khán Giả", "Phim Rác",
                 "Trai Thẳng", "Gái Xinh", "Đầu Gấu", "Lò Luyện", "Cà Khịa", "Cơm Tró", "Vương Giả", "Đại Thần",
@@ -218,13 +229,13 @@
                 "Admin", "Mod", "Vip", "Pro", "Noob", "Gamer", "Streamer", "Youtuber", "Tiktoker", "Facebook",
                 "Anime", "Manga", "LightNovel", "Game", "Music", "Movie", "Cosplay", "Figure", "Art", "Design"
             ];
-            
+
             const suffixes = [
-                "Gaming", "TV", "Official", "Vlog", "Víp Pro", "No1", "99", "2k", "Chan", "Sama", "Kun", 
-                "Senpai", "Dạo", "Chúa", "Slayer", "Master", "Legend", "God", "King", "Fa", "Cô Đơn", 
+                "Gaming", "TV", "Official", "Vlog", "Víp Pro", "No1", "99", "2k", "Chan", "Sama", "Kun",
+                "Senpai", "Dạo", "Chúa", "Slayer", "Master", "Legend", "God", "King", "Fa", "Cô Đơn",
                 "Lạnh Lùng", "Hài Hước", "Vui Tính", "Yêu Đời", "Trầm Cảm", "Suy", "Keo Lỳ",
-                "Xỉu", "Xinh", "Xinh Đẹp", "Ngoan", "Nhây", "Bựa", "Thẳng Thắn", "Nhất", "Nhì", "Tam", 
-                "Xạo L...", "Tỉnh", "Ờ Mây Zing", "Gút Chóp", "Gắt", "Khét", "Chất", "Real", "Fake", 
+                "Xỉu", "Xinh", "Xinh Đẹp", "Ngoan", "Nhây", "Bựa", "Thẳng Thắn", "Nhất", "Nhì", "Tam",
+                "Xạo L...", "Tỉnh", "Ờ Mây Zing", "Gút Chóp", "Gắt", "Khét", "Chất", "Real", "Fake",
                 "Thâm Niên", "Hụt Hẫng", "Sầu", "Thành Công", "Thất Bại", "Chính Hiệu",
                 "Tuổi", "Đời", "Nghèo", "Giàu", "Quá", "Mới", "Cũ", "Đẹp Trai", "Xinh Gái", "Hết",
                 "Chờ", "Thở", "Luôn", "Đấy", "Nhóc", "Tí", "Mập", "Gầy", "Táo Bạo", "Thần Thoại",
@@ -245,52 +256,52 @@
 
             const type = Math.random();
             let name;
-            
-            if (type < 0.3) { 
+
+            if (type < 0.3) {
                 // 30% Tên Thường + Hậu Tố
                 const baseName = normalNames[Math.floor(Math.random() * normalNames.length)];
-                const firstName = baseName.split(" ").pop(); 
+                const firstName = baseName.split(" ").pop();
                 const cleanName = firstName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'D');
                 const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-                
+
                 if (Math.random() < 0.5) {
-                     name = cleanName + suffix.toLowerCase(); 
+                    name = cleanName + suffix.toLowerCase();
                 } else {
-                     name = `${cleanName} ${suffix}`; 
+                    name = `${cleanName} ${suffix}`;
                 }
 
-            } else if (type < 0.5) { 
-                 // 20% Danh hiệu + Danh từ
+            } else if (type < 0.5) {
+                // 20% Danh hiệu + Danh từ
                 name = `${prefixes[Math.floor(Math.random() * prefixes.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
             } else if (type < 0.8) {
-                 // 30% Danh từ + Hậu tố
+                // 30% Danh từ + Hậu tố
                 name = `${nouns[Math.floor(Math.random() * nouns.length)]} ${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
             } else {
-                 // 20% Full Option
+                // 20% Full Option
                 name = `${prefixes[Math.floor(Math.random() * prefixes.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]} ${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
             }
-            
+
             if (!name.includes(" ")) {
-                 return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-zA-Z0-9]/g, "");
+                return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-zA-Z0-9]/g, "");
             }
-            
-            return name; 
+
+            return name;
         };
 
         // --- HỆ THỐNG AVATAR "VŨ TRỤ" (TỰ ĐỘNG TẠO + KHO ẢNH KHỔNG LỒ) ---
         const getBotAvatar = (botName) => {
             const rand = Math.random();
-            
+
             // 1. Tỷ lệ dùng Avatar từ URL Hardcoded (70%) - Tăng cường sự "thật"
             if (rand < 0.7) {
-                 return UNIQUE_AVATAR_URLS[Math.floor(Math.random() * UNIQUE_AVATAR_URLS.length)];
+                return UNIQUE_AVATAR_URLS[Math.floor(Math.random() * UNIQUE_AVATAR_URLS.length)];
             }
 
             // 2. Tỷ lệ dùng Avatar Art xịn (DiceBear - Lorelei/Notionists) (%)
 
             // 3. Tỷ lệ dùng Avatar "Người dùng mới/Chữ cái" (20%) - Rất phổ biến ở web phim
             if (rand < 0.9) {
-                 return `https://ui-avatars.com/api/?name=${encodeURIComponent(botName)}&background=random&color=fff&size=128`;
+                return `https://ui-avatars.com/api/?name=${encodeURIComponent(botName)}&background=random&color=fff&size=128`;
             }
 
             // 4. Tỷ lệ dùng Avatar "Fan Cứng" (Logo/Nhân vật - Placeholder) (10%)
@@ -300,7 +311,7 @@
             ];
             const keyword = keywords[Math.floor(Math.random() * keywords.length)];
             // Tạo màu ngẫu nhiên
-            const bg = Math.floor(Math.random()*16777215).toString(16);
+            const bg = Math.floor(Math.random() * 16777215).toString(16);
             const fg = "ffffff";
             return `https://placehold.co/100x100/${bg}/${fg}/png?text=${keyword}`;
         };
@@ -324,27 +335,27 @@
         const calculatePerceivedScore = (movie) => {
             const total = movie.reviewTotal || 0;
             const count = movie.reviewCount || 0;
-            if (count === 0) return 4.0; 
+            if (count === 0) return 4.0;
             return total / count;
         };
-        
+
         // Utility: Lấy Comment cuối cùng
         const fetchLastComment = async (movieId) => {
             try {
                 const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
                 const q = query(commentsColRef, orderBy('createdAt', 'desc'), limit(1));
                 const snapshot = await getDocs(q);
-                if (!snapshot.empty && (Date.now() - snapshot.docs[0].data().createdAt.toDate().getTime() < 600000)) { 
-                    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+                if (!snapshot.empty && (Date.now() - snapshot.docs[0].data().createdAt.toDate().getTime() < 600000)) {
+                    return {id: snapshot.docs[0].id, ...snapshot.docs[0].data()};
                 }
-            } catch (e) {}
+            } catch (e) { }
             return null;
         };
 
         // === KHO BÌNH LUẬN KHỔNG LỒ (MASSIVE & TRENDY) ===
         // Lưu ý: Đã thay thế {title} bằng {shortTitle} để dùng tên phim rút gọn
         const COMMENT_POOLS = {
-            ACTION: [ 
+            ACTION: [
                 `Combat tập này của {shortTitle} cháy khét lẹt luôn 🔥`, `Animation mượt như sunsilk, xem đã con mắt!`,
                 `Main bá đạo quá, cân cả map luôn rồi!`, `Đoạn đánh nhau cuối phim đúng đỉnh cao, out trình!`,
                 `Sức mạnh tình bạn lại chiến thắng trong {shortTitle} à? 😂`, `Hóng main show skill mới trong {shortTitle} quá!`,
@@ -363,7 +374,7 @@
                 `Cảnh này phải tua lại 10 lần mới đã nư.`, `Đỉnh cao của nghệ thuật đánh đấm.`,
                 `Hiệu ứng cháy nổ làm tui chói cả mắt.`, `Âm thanh sống động như đang ở chiến trường.`
             ],
-            ROMANCE: [ 
+            ROMANCE: [
                 `Cơm tró ngập mồm, F.A như tui tức á! 🐶`, `Ngọt sâu răng luôn rồi, cứu tui với!`,
                 `Cặp đôi chính trong {shortTitle} dễ thương xỉu up xỉu down.`, `Thuyền này bao real, không lên thuyền là phí!`,
                 `Xem {shortTitle} mà quắn quéo hết cả người.`, `Đừng drama nữa mà, cho họ hạnh phúc đi! 😭`,
@@ -380,7 +391,7 @@
                 `Ước gì có anh người yêu như nam chính.`, `Nữ chính xinh quá, muốn bắt về nuôi.`,
                 `Phim này không dành cho người cô đơn.`, `Tui đang GATO với nhân vật chính đây này.`
             ],
-            ISEKAI: [ 
+            ISEKAI: [
                 `Lại là xe tải-kun làm việc năng suất trong {shortTitle} :))`, `Main {shortTitle} hack game à? Sao mạnh vô lý vậy?`,
                 `Ước gì được isekai vào thế giới {shortTitle} làm slime cũng chịu.`, `Harem của main trong {shortTitle} chất lượng quá!`,
                 `Thế giới trong {shortTitle} xây dựng đỉnh ghê.`, `Skill của main ảo ma canada quá.`,
@@ -395,7 +406,7 @@
                 `Đúng chất isekai mì ăn liền, nhưng mà ngon.`, `Xem giải trí, không cần não nhiều.`,
                 `Main giấu nghề, giả heo ăn thịt hổ kinh vãi.`, `Khi nào main mới lộ sức mạnh thật đây?`
             ],
-            HORROR: [ 
+            HORROR: [
                 `Xem {shortTitle} lúc nửa đêm đúng là sai lầm, sợ vãi linh hồn 😱`, `Plot twist của {shortTitle} làm tui trầm cảm luôn.`,
                 `Không khí trong {shortTitle} u ám ghê, lạnh sống lưng.`, `Cái kết của {shortTitle} dark quá, ám ảnh thực sự.`,
                 `Ai yếu tim đừng xem {shortTitle} nha, cảnh báo trước!`, `Nhạc phim {shortTitle} nghe rợn người.`,
@@ -409,7 +420,7 @@
                 `Phim này ám ảnh quá, chắc phải xem phim hài để tẩy não.`, `Ghê rợn nhưng không thể ngừng xem.`,
                 `Tác giả chắc có vấn đề tâm lý mới nghĩ ra được cái này.`, `Sợ quá mà vẫn muốn xem tiếp.`
             ],
-            COMEDY: [ 
+            COMEDY: [
                 `Cười ỉa với {shortTitle}, tấu hài cực mạnh 😂`, `Đang ăn cơm xem {shortTitle} mà sặc mấy lần.`,
                 `Thánh meme mới là đây chứ đâu!`, `Xem {shortTitle} xả stress hiệu quả lắm nha.`,
                 `Độ lầy của main trong {shortTitle} là vô đối.`, `Cười muốn nội thương với tập này của {shortTitle}.`,
@@ -477,7 +488,7 @@
 
         const getCommentContentByGenre = (movie) => {
             const genres = (movie.genre || "").toLowerCase();
-            let pool = [...COMMENT_POOLS.GENERAL]; 
+            let pool = [...COMMENT_POOLS.GENERAL];
 
             if (genres.includes("hành động") || genres.includes("action")) pool = pool.concat(COMMENT_POOLS.ACTION);
             if (genres.includes("tình cảm") || genres.includes("romance")) pool = pool.concat(COMMENT_POOLS.ROMANCE);
@@ -493,15 +504,14 @@
             let content = template.replace(/{shortTitle}/g, shortTitle);
 
             // Áp dụng Teencode
-            content = applyTeencode(content);
-            return content;
+            return applyTeencode(content) + getRandomSticker();
         };
 
         // --- REVIEW THEO THỂ LOẠI & ĐIỂM SỐ (LOGIC MỚI - BỔ SUNG NHIỀU) ---
         const getReviewContentByGenre = (movie, rating) => {
             const genres = (movie.genre || "").toLowerCase();
             const shortTitle = getShortTitle(movie.title);
-            
+
             // 5 SAO & 4 SAO (KHEN)
             let content;
             if (rating >= 4) {
@@ -526,14 +536,14 @@
                     content = generalPraise[Math.floor(Math.random() * generalPraise.length)];
                 }
             }
-            
+
             // 3 SAO (TRUNG BÌNH)
             else if (rating === 3) {
                 if (genres.includes("hành động")) content = `Combat tạm đc nma cốt truyện ${shortTitle} hơi loãng. Cần cải thiện thêm.`;
                 else if (genres.includes("tình cảm")) content = `${shortTitle} hơi sến, nhìu đoạn tình tiết bị gượng ép. Xem giải trí thì ổn.`;
                 else content = `${shortTitle} xem tạm ổn, nma đoạn giữa hơi dài dòng. Cần cải thiện nhịp phim. K qá đặc sắc.`;
             }
-            
+
             // 2 SAO (CHÊ)
             else if (rating === 2) {
                 if (genres.includes("hành động")) content = `Animation của ${shortTitle} cứng đơ, combat như múa rối. Thất vọng! PowerPoint à?`;
@@ -557,25 +567,24 @@
             else content = `${shortTitle} flop qá. K đáng xem.`;
 
             // Áp dụng Teencode
-            content = applyTeencode(content);
-            return content;
+            return applyTeencode(content) + getRandomSticker();
         };
 
         const getRandomReplyContent = (movieTitle, lastComment) => {
-             const shortTitle = getShortTitle(movieTitle);
-             const lastCommentContent = (lastComment.content || "").toLowerCase();
-             
-             let replyContent;
-             if (lastCommentContent.includes("phim rác") || lastCommentContent.includes("dở") || lastCommentContent.includes("tệ")) {
-                 replyContent = `Sao bn lại chê ${shortTitle} ghê z? Tui thấy cx ổn mà! 🤔 Gu mỗi ng mỗi khác thui.`;
-             }
-             else if (lastCommentContent.includes("đỉnh") || lastCommentContent.includes("hay") || lastCommentContent.includes("tuyệt")) {
-                 replyContent = `Chuẩn lun! ${shortTitle} là siêu phẩm mùa này rùi! 🔥 Cày nát máy lun.`;
-             }
-             else if (lastCommentContent.includes("hóng") || lastCommentContent.includes("khi nào") || lastCommentContent.includes("bao giờ")) {
-                 replyContent = `Tui cx đang hóng ${shortTitle} mòn mỏi đây nì! Cùng cảnh ngộ T.T`;
-             } else {
-                 const REPLY_TEMPLATES = [
+            const shortTitle = getShortTitle(movieTitle);
+            const lastCommentContent = (lastComment.content || "").toLowerCase();
+
+            let replyContent;
+            if (lastCommentContent.includes("phim rác") || lastCommentContent.includes("dở") || lastCommentContent.includes("tệ")) {
+                replyContent = `Sao bn lại chê ${shortTitle} ghê z? Tui thấy cx ổn mà! 🤔 Gu mỗi ng mỗi khác thui.`;
+            }
+            else if (lastCommentContent.includes("đỉnh") || lastCommentContent.includes("hay") || lastCommentContent.includes("tuyệt")) {
+                replyContent = `Chuẩn lun! ${shortTitle} là siêu phẩm mùa này rùi! 🔥 Cày nát máy lun.`;
+            }
+            else if (lastCommentContent.includes("hóng") || lastCommentContent.includes("khi nào") || lastCommentContent.includes("bao giờ")) {
+                replyContent = `Tui cx đang hóng ${shortTitle} mòn mỏi đây nì! Cùng cảnh ngộ T.T`;
+            } else {
+                const REPLY_TEMPLATES = [
                     `Đồng quan điểm về ${shortTitle}!`, `Tui cx nghĩ y chang bn lun.`,
                     `K thể đồng ý hơn! ${shortTitle} mãi đỉnh.`, `Bác nói chuẩn vãi.`,
                     `Rep cmt dạo: ${shortTitle} hay tht sự.`, `Chuẩn cơm mẹ nấu!`,
@@ -583,12 +592,12 @@
                     `Like mạnh cho cmt nì.`, `Kết bn giao lưu đi ông ơi.`,
                     `+1 Respect.`, `Chuẩn k cần chỉnh.`,
                     `Bác nói hộ lòng tui.`, `Qá đúng lun!`
-                 ];
-                 replyContent = REPLY_TEMPLATES[Math.floor(Math.random() * REPLY_TEMPLATES.length)];
-             }
+                ];
+                replyContent = REPLY_TEMPLATES[Math.floor(Math.random() * REPLY_TEMPLATES.length)];
+            }
 
-             // Áp dụng Teencode
-             return applyTeencode(replyContent);
+            // Áp dụng Teencode
+            return applyTeencode(replyContent) + getRandomSticker();
         };
 
         const getRandomReviewContentAiring = (movieTitle) => {
@@ -609,59 +618,58 @@
             let content = AIRING_REVIEW_TEMPLATES[Math.floor(Math.random() * AIRING_REVIEW_TEMPLATES.length)];
 
             // Áp dụng Teencode
-            content = applyTeencode(content);
-            return content;
+            return applyTeencode(content) + getRandomSticker();
         };
-        
+
         // === HÀM XỬ LÝ HÀNH ĐỘNG BOT ===
-        
+
         const simulateView = (movie) => {
             if (movie.status === 'sap-chieu') return;
             const movieDocRef = doc(db, dataCollectionPath, movie.id);
-            updateDoc(movieDocRef, { viewCount: increment(1) })
+            updateDoc(movieDocRef, {viewCount: increment(1)})
                 .then(() => log(`[VIEW] Đã xem: "${getShortTitle(movie.title)}"`, 'success'))
                 .catch(e => log(`Lỗi View: ${e.message}`, 'error'));
         };
 
         const simulateLike = (movie) => {
             // Tăng tỷ lệ like lên 98% (Gần như luôn like)
-            if (Math.random() < 0.98) { 
+            if (Math.random() < 0.98) {
                 const movieDocRef = doc(db, dataCollectionPath, movie.id);
-                updateDoc(movieDocRef, { likeCount: increment(1) })
+                updateDoc(movieDocRef, {likeCount: increment(1)})
                     .then(() => log(`[LIKE] Đã bão like cho: "${getShortTitle(movie.title)}"`, 'success'))
                     .catch(e => log(`Lỗi Like: ${e.message}`, 'error'));
             }
         };
-        
+
         const simulateComment = (movie, user) => {
-             // KHÔNG CÀY COMMENT CHO PHIM SẮP CHIẾU
+            // KHÔNG CÀY COMMENT CHO PHIM SẮP CHIẾU
             if (movie.status === 'sap-chieu') return;
 
             if (!user || !user.uid || Math.random() < 0.5) return; // 50% chance to comment
-            
+
             const commentsColRef = collection(db, dataCollectionPath, movie.id, 'comments');
             // SỬ DỤNG LOGIC COMMENT THEO NGỮ CẢNH
-            const content = getCommentContentByGenre(movie); 
+            const content = getCommentContentByGenre(movie);
             const botName = getBotDisplayName();
             const botAvatar = getBotAvatar(botName); // Pass name as seed for consistency if needed
-            
+
             addDoc(commentsColRef, {
                 content: content,
                 userId: user.uid,
                 email: user.email,
-                displayName: botName, 
-                photoURL: botAvatar, 
+                displayName: botName,
+                photoURL: botAvatar,
                 createdAt: serverTimestamp()
             }).then(() => {
-                 const imgTag = `<img src="${botAvatar}" class="w-5 h-5 rounded-full inline mr-1" onerror="this.src='https://placehold.co/20x20/6B7280/ffffff?text=U'">`;
-                 log(`[COMMENT] ${imgTag} <b>${botName}</b>: "${content}"`, 'success');
+                const imgTag = `<img src="${botAvatar}" class="w-5 h-5 rounded-full inline mr-1" onerror="this.src='https://placehold.co/20x20/6B7280/ffffff?text=U'">`;
+                log(`[COMMENT] ${imgTag} <b>${botName}</b>: "${content}"`, 'success');
             }).catch(e => log(`Lỗi Comment: ${e.message}`, 'error'));
         };
 
         const simulateReply = async (movie, user) => {
             // KHÔNG CÀY REPLY CHO PHIM SẮP CHIẾU
-            if (movie.status === 'sap-chieu') return false; 
-            
+            if (movie.status === 'sap-chieu') return false;
+
             if (!user || !user.uid) return false;
             const lastComment = await fetchLastComment(movie.id);
 
@@ -690,17 +698,17 @@
         };
 
         const simulateReview = (movie, user) => {
-            if (!user || !user.uid || Math.random() < 0.5) return; 
-            
+            if (!user || !user.uid || Math.random() < 0.5) return;
+
             let rating;
             let content;
 
             if (movie.status === 'sap-chieu') {
                 // Phim sắp chiếu: Chỉ đánh giá 4 hoặc 5 sao (Hype)
-                rating = Math.random() < 0.5 ? 5 : 4; 
+                rating = Math.random() < 0.5 ? 5 : 4;
                 content = getRandomReviewContentAiring(movie.title);
             } else {
-                 // Phim đã/đang chiếu: Logic chấm điểm 2-5 sao
+                // Phim đã/đang chiếu: Logic chấm điểm 2-5 sao
                 const rand = Math.random();
                 if (rand < 0.5) rating = 5;
                 else if (rand < 0.8) rating = 4;
@@ -716,25 +724,25 @@
             const botAvatar = getBotAvatar(botName);
 
             const batch = writeBatch(db);
-            
+
             batch.set(reviewDocRef, {
                 userId: user.uid,
                 rating: rating,
                 content: content,
                 displayName: botName,
-                photoURL: botAvatar, 
+                photoURL: botAvatar,
                 updatedAt: serverTimestamp()
-            }, { merge: true });
+            }, {merge: true});
 
             batch.update(movieDocRef, {
                 reviewTotal: increment(rating),
-                reviewCount: increment(1) 
+                reviewCount: increment(1)
             });
-            
+
             batch.commit()
                 .then(() => {
-                     const imgTag = `<img src="${botAvatar}" class="w-5 h-5 rounded-full inline mr-1" onerror="this.src='https://placehold.co/20x20/6B7280/ffffff?text=U'">`;
-                     log(`[REVIEW] ${imgTag} <b>${botName}</b> đánh giá ${rating}⭐: "${content}"`, 'success');
+                    const imgTag = `<img src="${botAvatar}" class="w-5 h-5 rounded-full inline mr-1" onerror="this.src='https://placehold.co/20x20/6B7280/ffffff?text=U'">`;
+                    log(`[REVIEW] ${imgTag} <b>${botName}</b> đánh giá ${rating}⭐: "${content}"`, 'success');
                 }).catch(e => log(`Lỗi Review: ${e.message}`, 'error'));
         };
 
@@ -757,17 +765,17 @@
 
             if (movies.length > 0) {
                 resultsContainer.classList.remove('hidden');
-                getEl('#add-all-filtered-btn')?.classList.remove('hidden'); 
+                getEl('#add-all-filtered-btn')?.classList.remove('hidden');
 
                 movies.forEach(movie => {
                     const div = document.createElement('div');
                     div.className = "p-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2 border-b border-gray-700 last:border-0 relative z-[60]";
-                    
+
                     // Gắn tag đỏ cho phim chưa có review cho dễ nhìn
                     const unratedTag = (!movie.reviewCount || movie.reviewCount === 0) ? `<span class="bg-red-500 text-white text-[10px] font-bold px-1 rounded ml-2 whitespace-nowrap">0 Review</span>` : '';
-                    
+
                     div.innerHTML = `<img src="${movie.posterUrl}" class="w-8 h-12 object-cover rounded flex-shrink-0"><span class="text-sm text-gray-200 truncate flex-1">${movie.title}</span>${unratedTag}`;
-                    
+
                     div.onclick = () => {
                         addMovieToTarget(movie);
                         getEl('#search-input').value = '';
@@ -790,14 +798,14 @@
                 return;
             }
             // Mở rộng hiển thị 20 kết quả để hốt trọn ổ
-            const matchedMovies = globalMovieCache.filter(m => m.title.toLowerCase().includes(searchTerm)).slice(0, 20); 
+            const matchedMovies = globalMovieCache.filter(m => m.title.toLowerCase().includes(searchTerm)).slice(0, 20);
             showResultsInDropdown(matchedMovies);
         };
 
         const handleFilterUnrated = () => {
             // Lọc ra các phim có reviewCount = 0 (Lấy max 30 phim)
             const unratedMovies = globalMovieCache.filter(m => !m.reviewCount || m.reviewCount === 0).slice(0, 30);
-            if(unratedMovies.length === 0) {
+            if (unratedMovies.length === 0) {
                 log("🎉 Chúc mừng! Toàn bộ kho phim của web đều đã được buff đánh giá rồi ạ!", "success");
                 getEl('#search-results').classList.add('hidden');
                 getEl('#add-all-filtered-btn')?.classList.add('hidden');
@@ -808,7 +816,7 @@
         };
 
         const handleAddAllFiltered = () => {
-            if(currentDisplayedResults.length > 0) {
+            if (currentDisplayedResults.length > 0) {
                 let addedCount = 0;
                 currentDisplayedResults.forEach(movie => {
                     if (!targetMovies.find(m => m.id === movie.id)) {
@@ -816,14 +824,14 @@
                         addedCount++;
                     }
                 });
-                
-                if(addedCount > 0) {
+
+                if (addedCount > 0) {
                     renderTargetList();
                     log(`⚡ Đã hốt trọn ${addedCount} phim vào danh sách buff! Quá dữ luôn!`, 'success');
                 } else {
                     log(`⚠️ Các phim này cậu chủ đã gom vào list hết rồi ạ!`, 'error');
                 }
-                
+
                 // Dọn dẹp giao diện sau khi thêm xong
                 getEl('#search-results').classList.add('hidden');
                 getEl('#add-all-filtered-btn')?.classList.add('hidden');
@@ -847,15 +855,15 @@
                             <span class="text-lime-200 text-xs font-bold truncate">${movie.title}</span>
                         </div>
                     `;
-                    
+
                     const btnRemove = document.createElement('button');
                     btnRemove.className = "text-red-400 hover:text-red-200 text-xs font-extrabold px-2 py-1 bg-red-900/20 rounded hover:bg-red-900/50 transition-colors";
                     btnRemove.textContent = "XÓA";
                     btnRemove.onclick = () => {
                         targetMovies.splice(index, 1);
-                        renderTargetList(); 
+                        renderTargetList();
                     };
-                    
+
                     div.appendChild(btnRemove);
                     listEl.appendChild(div);
                 });
@@ -871,73 +879,73 @@
         };
 
         // === LOGIC CHẠY BOT (ĐÃ FIX LỖI GỘP LỆNH BATCH) ===
-        const botLoop = async () => { 
-            if (!isBotRunning || globalMovieCache.length === 0) { stopBotActivity(); return; }
-            
-           let pool = targetMovies.length > 0 ? targetMovies : globalMovieCache;
-           let randomMovie = pool[Math.floor(Math.random() * pool.length)];
+        const botLoop = async () => {
+            if (!isBotRunning || globalMovieCache.length === 0) {stopBotActivity(); return;}
+
+            let pool = targetMovies.length > 0 ? targetMovies : globalMovieCache;
+            let randomMovie = pool[Math.floor(Math.random() * pool.length)];
             const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
-            
+
             // TẠO GIỎ HÀNG (BATCH) ĐỂ ĐÓNG GÓI LỆNH
             const batch = writeBatch(db);
             const movieDocRef = doc(db, dataCollectionPath, randomMovie.id);
-            
+
             // 1. Mặc định luôn có View trong giỏ
-            let movieUpdates = { viewCount: increment(1) };
+            let movieUpdates = {viewCount: increment(1)};
             let logDetails = `[VIEW]`;
-            
+
             // 2. Bỏ thêm Like vào giỏ (Tỷ lệ 98%)
             if (Math.random() < 0.98) {
                 movieUpdates.likeCount = increment(1);
                 logDetails += ` + [LIKE]`;
             }
-            
+
             // 3. Bỏ thêm Comment & Review vào giỏ (Chỉ khi đã Login Google)
             if (isAuthUser) {
-                const replied = await simulateReply(randomMovie, auth.currentUser); 
-                
+                const replied = await simulateReply(randomMovie, auth.currentUser);
+
                 if (!replied) {
                     // Random Comment (50%) - KHÔNG chạy cho phim sắp chiếu
                     if (randomMovie.status !== 'sap-chieu' && Math.random() < 0.5) {
                         const commentsColRef = collection(db, dataCollectionPath, randomMovie.id, 'comments');
                         const botName = getBotDisplayName();
-                        const newCommentRef = doc(commentsColRef); 
+                        const newCommentRef = doc(commentsColRef);
                         batch.set(newCommentRef, {
                             content: getCommentContentByGenre(randomMovie),
                             userId: auth.currentUser.uid,
                             email: auth.currentUser.email,
-                            displayName: botName, 
-                            photoURL: getBotAvatar(botName), 
+                            displayName: botName,
+                            photoURL: getBotAvatar(botName),
                             createdAt: serverTimestamp()
                         });
                         logDetails += ` + [CMT]`;
                     }
-                    
+
                     // Random Review (50%) - Chạy cho CẢ phim sắp chiếu
                     if (Math.random() < 0.5) {
                         let rating;
                         let content;
                         if (randomMovie.status === 'sap-chieu') {
-                            rating = Math.random() < 0.5 ? 5 : 4; 
+                            rating = Math.random() < 0.5 ? 5 : 4;
                             content = getRandomReviewContentAiring(randomMovie.title);
                         } else {
                             const rand = Math.random();
                             rating = rand < 0.5 ? 5 : (rand < 0.8 ? 4 : (rand < 0.9 ? 3 : 2));
                             content = getReviewContentByGenre(randomMovie, rating);
                         }
-                        
+
                         const reviewDocRef = doc(db, dataCollectionPath, randomMovie.id, 'reviews', auth.currentUser.uid);
                         const botName = getBotDisplayName();
-                        
+
                         batch.set(reviewDocRef, {
                             userId: auth.currentUser.uid,
                             rating: rating,
                             content: content,
                             displayName: botName,
-                            photoURL: getBotAvatar(botName), 
+                            photoURL: getBotAvatar(botName),
                             updatedAt: serverTimestamp()
-                        }, { merge: true });
-                        
+                        }, {merge: true});
+
                         // Bỏ điểm Review vào chung giỏ hàng Phim
                         movieUpdates.reviewTotal = increment(rating);
                         movieUpdates.reviewCount = increment(1);
@@ -945,10 +953,10 @@
                     }
                 }
             }
-            
+
             // 4. GỬI GÓI HÀNG ĐI TRONG 1 LẦN DUY NHẤT!
             batch.update(movieDocRef, movieUpdates);
-            
+
             try {
                 await batch.commit();
                 log(`🎯 ${getShortTitle(randomMovie.title)}: ${logDetails}`, 'success');
@@ -959,8 +967,8 @@
 
         const startBotActivity = () => {
             if (isBotRunning || globalMovieCache.length === 0) {
-                 log(globalMovieCache.length === 0 ? "Chưa tải dữ liệu phim..." : "Bot đang chạy.", 'error');
-                 return;
+                log(globalMovieCache.length === 0 ? "Chưa tải dữ liệu phim..." : "Bot đang chạy.", 'error');
+                return;
             }
             // Logic tốc độ mới: 1s cho Khách/Ẩn danh, 5s cho Google Auth
             const isAuthUser = auth.currentUser && isGoogleAuth(auth.currentUser);
@@ -974,12 +982,12 @@
             btn.classList.replace('hover:bg-lime-600', 'hover:bg-red-600');
             status.textContent = 'ĐANG CHẠY 🚀';
             status.classList.replace('text-lime-400', 'text-red-400');
-            
+
             // Xóa interval cũ nếu có (để phòng hờ khi auth state thay đổi)
-            if (botInterval) clearInterval(botInterval); 
+            if (botInterval) clearInterval(botInterval);
 
             botInterval = setInterval(botLoop, currentBotInterval);
-            log(`🚀 Bot đã kích hoạt! Tốc độ hiện tại: ${currentBotInterval/1000}s/lần.`, 'success');
+            log(`🚀 Bot đã kích hoạt! Tốc độ hiện tại: ${currentBotInterval / 1000}s/lần.`, 'success');
             botLoop();
         };
 
@@ -998,33 +1006,33 @@
         };
 
         const handleBotToggle = () => {
-            if (isBotRunning) { stopBotActivity(); } else { startBotActivity(); }
+            if (isBotRunning) {stopBotActivity();} else {startBotActivity();}
         };
 
         const handleGoogleLogin = async () => {
             try {
                 // Dừng bot trước khi login để cập nhật tốc độ
-                if (isBotRunning) stopBotActivity(); 
+                if (isBotRunning) stopBotActivity();
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithPopup(auth, new GoogleAuthProvider()); 
+                await signInWithPopup(auth, new GoogleAuthProvider());
                 log("Đăng nhập Google thành công! ✅", 'success');
-            } catch (error) { log(`Lỗi Login: ${error.message}`, 'error'); }
+            } catch (error) {log(`Lỗi Login: ${error.message}`, 'error');}
         };
 
-        const handleLogout = () => { 
+        const handleLogout = () => {
             // Dừng bot trước khi logout để cập nhật tốc độ
-            if (isBotRunning) stopBotActivity(); 
-            signOut(auth).then(() => log("Đã đăng xuất.", 'info')); 
+            if (isBotRunning) stopBotActivity();
+            signOut(auth).then(() => log("Đã đăng xuất.", 'info'));
         };
-        
+
         const loadInitialMovieCache = () => {
-             if (!db) return;
-             log("Đang tải kho phim...", 'info');
-             const q = query(collection(db, dataCollectionPath), orderBy('title')); 
-             getDocs(q).then(snapshot => {
-                    globalMovieCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    log(`✅ Đã tải xong ${globalMovieCache.length} phim. Sẵn sàng!`, 'success');
-             }).catch(e => log(`Lỗi tải phim: ${e.message}`, 'error'));
+            if (!db) return;
+            log("Đang tải kho phim...", 'info');
+            const q = query(collection(db, dataCollectionPath), orderBy('title'));
+            getDocs(q).then(snapshot => {
+                globalMovieCache = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                log(`✅ Đã tải xong ${globalMovieCache.length} phim. Sẵn sàng!`, 'success');
+            }).catch(e => log(`Lỗi tải phim: ${e.message}`, 'error'));
         };
 
         const setupFirebase = async () => {
@@ -1037,17 +1045,17 @@
                 onAuthStateChanged(auth, (user) => {
                     userId = user ? user.uid : null;
                     updateAuthUI(user);
-                    if (!isAuthInitialised) { isAuthInitialised = true; loadInitialMovieCache(); }
+                    if (!isAuthInitialised) {isAuthInitialised = true; loadInitialMovieCache();}
                 });
                 if (!auth.currentUser) signInAnonymously(auth).catch(e => console.log(e));
-            } catch (error) { log(`Lỗi setup: ${error.message}`, 'error'); }
+            } catch (error) {log(`Lỗi setup: ${error.message}`, 'error');}
         };
 
-       const updateAuthUI = (user) => {
+        const updateAuthUI = (user) => {
             const authContainer = getEl('#auth-control');
             // Thêm dòng này để lấy cái nút
             const botBtn = getEl('#bot-control-btn');
-            
+
             if (!authContainer) return;
 
             // --- QUAN TRỌNG: MỞ KHÓA NÚT CHO TẤT CẢ MỌI NGƯỜI (KỂ CẢ KHÁCH) ---
@@ -1076,21 +1084,25 @@
                 getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
             }
         };
-        
+
         document.addEventListener('DOMContentLoaded', setupFirebase);
-        document.addEventListener('DOMContentLoaded', () => { getEl('#bot-control-btn')?.addEventListener('click', handleBotToggle);
+        document.addEventListener('DOMContentLoaded', () => {
+            getEl('#bot-control-btn')?.addEventListener('click', handleBotToggle);
             getEl('#search-input')?.addEventListener('input', handleSearchMovie);
             getEl('#clear-all-targets-btn')?.addEventListener('click', clearAllTargets);
             getEl('#filter-unrated-btn')?.addEventListener('click', handleFilterUnrated);
-            getEl('#add-all-filtered-btn')?.addEventListener('click', handleAddAllFiltered);                                                
+            getEl('#add-all-filtered-btn')?.addEventListener('click', handleAddAllFiltered);
 
-         });
+        });
     </script>
 </head>
+
 <body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8 font-sans">
     <div class="max-w-3xl mx-auto">
         <header class="mb-6 text-center">
-            <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-green-600">FOXANIME BOT TOOL 🤖</h1>
+            <h1
+                class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-green-600">
+                FOXANIME BOT TOOL 🤖</h1>
             <p class="text-gray-500 text-sm mt-2">Hệ thống "Cày View" & "Seeding" Tự Động Hóa (Cập nhật Gen Z)</p>
         </header>
 
@@ -1101,67 +1113,85 @@
         <section class="bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
 
             <div class="w-full px-6 pt-6 mb-2 relative z-30">
-                    <p class="text-lime-400 text-xs uppercase tracking-wider mb-2 font-bold text-center flex items-center justify-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                        CHỌN DANH SÁCH PHIM ĐỂ BUFF (TARGET LIST)
-                    </p>
-                    
-                    <div class="relative z-50"> <!-- Z-50 cực cao để nổi lên trên cùng -->
-                        <input type="text" id="search-input" placeholder="Gõ tên phim hoặc dùng công cụ lọc bên dưới..." autocomplete="off"
-                            class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-lime-500 placeholder-gray-500 text-sm relative z-50">
-                        
-                        <!-- z-[60] đảm bảo dropdown không bao giờ bị đè -->
-                        <div id="search-results" class="absolute left-0 right-0 bg-gray-800 border border-gray-600 rounded-lg mt-1 hidden shadow-2xl max-h-60 overflow-y-auto z-[60]"></div>
-                    </div>
+                <p
+                    class="text-lime-400 text-xs uppercase tracking-wider mb-2 font-bold text-center flex items-center justify-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    CHỌN DANH SÁCH PHIM ĐỂ BUFF (TARGET LIST)
+                </p>
 
-                    <!-- Thanh công cụ Lọc nhanh của Bé Lôi -->
-                    <div class="flex gap-2 mt-2 justify-center relative z-40">
-                        <button id="filter-unrated-btn" class="bg-blue-600/80 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded border border-blue-400/50 transition-colors">
-                            🔍 LỌC PHIM 0 ĐÁNH GIÁ
-                        </button>
-                        <button id="add-all-filtered-btn" class="hidden bg-yellow-600/80 hover:bg-yellow-500 text-white text-xs font-bold py-1 px-3 rounded border border-yellow-400/50 transition-colors shadow-[0_0_10px_rgba(202,138,4,0.5)]">
-                            ⚡ CHỌN HẾT LIST NÀY
-                        </button>
-                    </div>
+                <div class="relative z-50"> <!-- Z-50 cực cao để nổi lên trên cùng -->
+                    <input type="text" id="search-input" placeholder="Gõ tên phim hoặc dùng công cụ lọc bên dưới..."
+                        autocomplete="off"
+                        class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-lime-500 placeholder-gray-500 text-sm relative z-50">
 
-                    <!-- Giao diện list danh sách buff -->
-                    <div id="target-display-container" class="hidden mt-3 relative z-10">
-                        <div id="target-list" class="max-h-40 overflow-y-auto space-y-1 scrollbar-hide border border-gray-700 p-2 rounded bg-gray-800/50"></div>
-                        <button id="clear-all-targets-btn" class="mt-2 w-full text-red-400 hover:text-red-200 text-xs font-bold py-2 bg-red-900/20 rounded border border-red-500/30 hover:bg-red-900/50 transition-colors">🗑️ XÓA TẤT CẢ DANH SÁCH CHỌN</button>
+                    <!-- z-[60] đảm bảo dropdown không bao giờ bị đè -->
+                    <div id="search-results"
+                        class="absolute left-0 right-0 bg-gray-800 border border-gray-600 rounded-lg mt-1 hidden shadow-2xl max-h-60 overflow-y-auto z-[60]">
                     </div>
                 </div>
+
+                <!-- Thanh công cụ Lọc nhanh của Bé Lôi -->
+                <div class="flex gap-2 mt-2 justify-center relative z-40">
+                    <button id="filter-unrated-btn"
+                        class="bg-blue-600/80 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded border border-blue-400/50 transition-colors">
+                        🔍 LỌC PHIM 0 ĐÁNH GIÁ
+                    </button>
+                    <button id="add-all-filtered-btn"
+                        class="hidden bg-yellow-600/80 hover:bg-yellow-500 text-white text-xs font-bold py-1 px-3 rounded border border-yellow-400/50 transition-colors shadow-[0_0_10px_rgba(202,138,4,0.5)]">
+                        ⚡ CHỌN HẾT LIST NÀY
+                    </button>
+                </div>
+
+                <!-- Giao diện list danh sách buff -->
+                <div id="target-display-container" class="hidden mt-3 relative z-10">
+                    <div id="target-list"
+                        class="max-h-40 overflow-y-auto space-y-1 scrollbar-hide border border-gray-700 p-2 rounded bg-gray-800/50">
+                    </div>
+                    <button id="clear-all-targets-btn"
+                        class="mt-2 w-full text-red-400 hover:text-red-200 text-xs font-bold py-2 bg-red-900/20 rounded border border-red-500/30 hover:bg-red-900/50 transition-colors">🗑️
+                        XÓA TẤT CẢ DANH SÁCH CHỌN</button>
+                </div>
+            </div>
 
             <div class="p-6 flex flex-col items-center justify-center">
                 <div class="mb-4 text-center">
                     <p class="text-gray-400 text-sm uppercase tracking-wider mb-1">TRẠNG THÁI</p>
                     <p id="bot-status-display" class="text-3xl font-black text-lime-400">SẴN SÀNG</p>
                 </div>
-                
-                <button id="bot-control-btn" 
+
+                <button id="bot-control-btn"
                     class="w-full md:w-auto bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-xl shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     disabled>
                     BẮT ĐẦU CÀY
                 </button>
-                
+
                 <p class="text-gray-500 text-xs mt-4 text-center px-4">
-                    ⚠️ Tốc độ Bot: 1s (Khách/Ẩn danh - View/Like) / 5s (Google Auth - Full Tương Tác). Vui lòng giữ tab này mở để Bot hoạt động.
+                    ⚠️ Tốc độ Bot: 1s (Khách/Ẩn danh - View/Like) / 5s (Google Auth - Full Tương Tác). Vui lòng giữ tab
+                    này mở để Bot hoạt động.
                 </p>
             </div>
-            
+
             <!-- Logs Terminal -->
             <div class="bg-black p-4 border-t border-gray-700">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs text-gray-500 font-mono">TERMINAL LOGS</span>
                     <span class="flex h-2 w-2 relative">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-lime-500"></span>
                     </span>
                 </div>
-                <div id="bot-logs" class="h-64 overflow-y-auto font-mono text-xs text-gray-300 space-y-1 scrollbar-hide">
+                <div id="bot-logs"
+                    class="h-64 overflow-y-auto font-mono text-xs text-gray-300 space-y-1 scrollbar-hide">
                     <div class="text-gray-600 italic"> > Chờ lệnh khởi động...</div>
                 </div>
             </div>
         </section>
     </div>
 </body>
+
 </html>
