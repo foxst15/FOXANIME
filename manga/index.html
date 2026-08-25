@@ -14,6 +14,7 @@
     </script>
     <meta name="google-site-verification" content="q11Z8-9RJYhX14rqOGPUbVU2FynPJgPa8_3kMC34J4A" />
     <meta property="og:site_name" content="FoxManga" />
+
     <meta name="referrer" content="no-referrer">
 
     <meta name="description"
@@ -1135,11 +1136,16 @@
             }
 
             // XỬ LÝ RENDER DANH SÁCH ẢNH TỪ MẢNG imagesList
+            // Sửa thành đoạn này để tự động ép mọi link ảnh qua Proxy chống 403:
             let imagesHtml = '<p class="text-center text-gray-500 py-20 text-lg"><i class="fas fa-spinner fa-spin text-orange-500 text-3xl mb-4"></i><br>Đang tải ảnh hoặc Chapter này chưa có dữ liệu...</p>';
             if (imagesList && imagesList.length > 0) {
-                imagesHtml = imagesList.map(url => `<img src="${url}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`).join('');
+                imagesHtml = imagesList.map(url => {
+                    let clean = url.trim().replace(/^https?:\/\//, '');
+                    let proxyUrl = `https://images.weserv.nl/?url=${clean}`;
+                    return `<img src="${proxyUrl}" class="w-full max-w-3xl mx-auto block object-contain border-b border-gray-900" loading="lazy" onerror="this.style.display='none'">`;
+                }).join('');
             }
-
+            
             // Hiển thị chuẩn xác số tập trên nút bấm
             const previousButton = previousEpisodeLink && previousEpisode ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
@@ -3138,11 +3144,11 @@
     </footer>
 
     <script>
-    // Hàm hiển thị thông báo sự cố hệ thống
-    window.showSystemAlertModal = (title = "THÔNG BÁO SỰ CỐ HỆ THỐNG", message = "Hiện tại máy chủ đang gặp sự cố kỹ thuật, hệ thống tạm thời không thể cập nhật nội dung mới hoặc tải chapter truyện. Bộ phận kỹ thuật đang tiến hành khắc phục. Mong quý độc giả thông cảm và quay lại sau ít phút.") => {
-        if (document.getElementById('system-alert-modal')) return;
+        // Hàm hiển thị thông báo sự cố hệ thống
+        window.showSystemAlertModal = (title = "THÔNG BÁO SỰ CỐ HỆ THỐNG", message = "Hiện tại máy chủ đang gặp sự cố kỹ thuật, hệ thống tạm thời không thể cập nhật nội dung mới hoặc tải chapter truyện. Bộ phận kỹ thuật đang tiến hành khắc phục. Mong quý độc giả thông cảm và quay lại sau ít phút.") => {
+            if (document.getElementById('system-alert-modal')) return;
 
-        const alertHtml = `
+            const alertHtml = `
             <div id="system-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] px-4">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-lg w-full text-center relative">
                     <div class="text-orange-500 text-5xl mb-4 flex justify-center">
@@ -3162,14 +3168,14 @@
             </div>
         `;
 
-        document.body.insertAdjacentHTML('beforeend', alertHtml);
-    };
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+        };
 
-    // Tự động bật bảng thông báo ngay khi vừa mở web lên
-    document.addEventListener('DOMContentLoaded', () => {
-        window.showSystemAlertModal();
-    });
-</script>
+        // Tự động bật bảng thông báo ngay khi vừa mở web lên
+        document.addEventListener('DOMContentLoaded', () => {
+            window.showSystemAlertModal();
+        });
+    </script>
 
 </body>
 <script>
