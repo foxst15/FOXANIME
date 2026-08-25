@@ -1582,9 +1582,20 @@
 
             try {
                 const rawData = JSON.parse(jsonText);
-                const mangasToProcess = Array.isArray(rawData) ? rawData : [rawData];
 
-                statusEl.textContent = `Đang xử lý và sửa lỗi ${mangasToProcess.length} truyện...`;
+                // 🌟 KIỂM TRA THÔNG MINH: Nếu JSON có cấu trúc cào từ Python (chứa .chapters) thì tự động convert sang chuẩn Admin!
+                let mangasToProcess = [];
+                if (rawData.chapters && typeof rawData.chapters === 'object') {
+                    // Đây là file JSON cào 1 bộ truyện riêng lẻ từ Python script của chúng ta
+                    mangasToProcess = [convertScrapedJsonToAdminSchema(rawData)];
+                } else if (Array.isArray(rawData)) {
+                    // Nếu là mảng chuẩn cũ thì map kiểm tra từng phần tử
+                    mangasToProcess = rawData.map(item => item.chapters ? convertScrapedJsonToAdminSchema(item) : item);
+                } else {
+                    mangasToProcess = [rawData];
+                }
+
+                statusEl.textContent = `Đang xử lý và lưu ${mangasToProcess.length} truyện lên Database...`;
                 statusEl.style.color = COLORS.SUCCESS;
 
                 const batch = writeBatch(db);
@@ -1594,20 +1605,19 @@
                 for (const rawManga of mangasToProcess) {
                     try {
                         const sanitizedManga = sanitizeMangaData(rawManga, userId);
-
                         const newDocRef = doc(mangasCollectionRef);
                         batch.set(newDocRef, sanitizedManga);
                         successCount++;
                     } catch (error) {
-                        console.error("Lỗi Sanitization cho 1 mục:", rawManga, error.message);
+                        console.error("Lỗi Sanitization:", error.message);
                         failCount++;
                     }
                 }
 
                 await batch.commit();
 
-                statusEl.textContent = `SUCCESS! Đã thêm thành công ${successCount} truyện (có ${failCount} mục bị lỗi không thể thêm).`;
-                statusEl.style.color = failCount > 0 ? COLORS.ERROR : COLORS.SUCCESS;
+                statusEl.textContent = `SUCCESS! Đã thêm thành công ${successCount} truyện vào hệ thống FoxManga.`;
+                statusEl.style.color = COLORS.SUCCESS;
 
                 $('bulk-json-input').value = '';
                 setTimeout(() => hideModal('bulk-import-modal'), 3000);
@@ -1618,6 +1628,56 @@
                 statusEl.style.color = COLORS.ERROR;
             }
         };
+
+        // Hàm chuyển đổi chuẩn dữ liệu do Bé Lôi thiết kế cho Chủ nhân
+        function convertScrapedJsonToAdminSchema(scrapedData) {
+            let formatType = 'manga';
+            const titleLower = (scrapedData.title || "").toLowerCase();
+            if (titleLower.includes('manhwa') || titleLower.includes('hàn')) formatType = 'manhwa';
+            else if (titleLower.includes('manhua') || titleLower.includes('trung')) formatType = 'manhua';
+
+            let formattedEpisodes = [];
+            const chaptersObj = scrapedData.chapters || {};
+
+            Object.keys(chaptersObj).forEach((key, index) => {
+                const chapData = chaptersObj[key];
+                let chapNum = index + 1;
+                const matchNum = chapData.name?.match(/\d+/);
+                if (matchNum) {
+                    chapNum = parseFloat(matchNum[0]);
+                }
+
+                const imagesString = Array.isArray(chapData.images) ? chapData.images.join('\n') : '';
+
+                formattedEpisodes.push({
+                    episodeNumber: chapNum,
+                    title: chapData.name || `Chapter ${chapNum}`,
+                    videoUrl: imagesString,
+                    addedAt: new Date().toISOString()
+                });
+            });
+
+            formattedEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+
+            return {
+                title: scrapedData.title || "Truyện Mới Cập Nhật",
+                titleOriginal: "",
+                summary: "Được cào tự động bởi Bé Lôi Auto Crawler (✿ ◕‿◕)",
+                posterUrl: formattedEpisodes.length > 0 && formattedEpisodes[0].videoUrl ? formattedEpisodes[0].videoUrl.split('\n')[0] : "https://placehold.co/100x150/1f2937/d1d5db?text=POSTER",
+                bannerUrl: "",
+                formatType: formatType,
+                status: "dang-ra",
+                genre: "Manga, Truyện Màu",
+                totalEpisodes: formattedEpisodes.length,
+                viewCount: 0,
+                likeCount: 0,
+                reviewCount: 0,
+                reviewTotal: 0,
+                episodes: formattedEpisodes,
+                airingDay: "Không có",
+                isNotified: false
+            };
+        }
 
         // THÊM HÀM CHO HERO SLIDER NÈ CẬU CHỦ!!! 🎀
         window.changeSliderMode = (mode) => {
