@@ -2060,137 +2060,91 @@
             e.preventDefault();
             const mangaId = $('bulk-chapter-manga-id').value;
             const startNumber = parseInt($('bulk-chapter-start-number').value);
-            const urlsText = $('bulk-chapter-urls').value.trim();
+            const rawText = $('bulk-chapter-urls').value.trim();
             const messageEl = $('bulk-chapter-form-message');
 
             messageEl.textContent = '';
             messageEl.style.color = COLORS.ERROR;
 
-            // Đổi từ url thành line để quét nguyên dòng
-            const rawLines = urlsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-            const lineCount = rawLines.length;
-
-            if (isNaN(startNumber) || startNumber < 1 || lineCount === 0) {
-                messageEl.textContent = 'INVALID INPUT! Vui lòng điền Số chapter bắt đầu hợp lệ (>= 1) và cung cấp danh sách link.';
+            if (!rawText) {
+                messageEl.textContent = 'Vui lòng dán dữ liệu vào ô trống!';
                 return;
             }
+
             if (!mangasCollectionRef || !userId) {
                 messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.';
                 return;
             }
 
-            if (lineCount > 1000) {
-                const confirmed = await window.showConfirmModal(`WARNING: Bạn đang cố gắng thêm ${lineCount} chapter. Điều này có thể gây ra lỗi Timeout hoặc Lỗi Kích thước Document. Bạn có muốn tiếp tục không? (Khuyến nghị: < 500 chapter/lần)`);
-                if (!confirmed) {
-                    messageEl.textContent = 'Đã hủy thao tác Bulk Add.';
-                    messageEl.style.color = COLORS.SUCCESS;
+            try {
+                // 🌟 NHẬN DIỆN THÔNG MINH: Nếu Chủ nhân dán nội dung từ file JSON cào truyện vào đây
+                let newChaptersToAdd = [];
+                
+                if (rawText.startsWith('{') || rawText.startsWith('[')) {
+                    // Nếu là định dạng JSON cào từ Python
+                    const jsonData = JSON.parse(rawText);
+                    const chaptersObj = jsonData.chapters || (Array.isArray(jsonData) ? null : jsonData);
+                    
+                    if (chaptersObj) {
+                        let idx = startNumber;
+                        Object.keys(chaptersObj).forEach(key => {
+                            const chap = chaptersObj[key];
+                            const imagesString = Array.isArray(chap.images) ? chap.images.join('\n') : '';
+                            if (imagesString) {
+                                newChaptersToAdd.push({
+                                    episodeNumber: idx,
+                                    title: chap.name || `Chapter ${idx}`,
+                                    videoUrl: imagesString,
+                                    addedAt: new Date().toISOString()
+                                });
+                                idx++;
+                            }
+                        });
+                    }
+                } else {
+                    // Nếu dán theo kiểu cũ (mỗi dòng 1 link)
+                    const rawLines = rawText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+                    let idx = startNumber;
+                    for (const line of rawLines) {
+                        newChaptersToAdd.push({
+                            episodeNumber: idx,
+                            title: `Chapter ${idx}`,
+                            videoUrl: line,
+                            addedAt: new Date().toISOString()
+                        });
+                        idx++;
+                    }
+                }
+
+                if (newChaptersToAdd.length === 0) {
+                    messageEl.textContent = 'LỖI: Không tìm thấy chapter hợp lệ nào từ dữ liệu bạn dán.';
                     return;
                 }
-            }
 
-            try {
                 const mangaDocRef = doc(mangasCollectionRef, mangaId);
                 const mangaSnap = await getDoc(mangaDocRef);
                 let existingEpisodes = mangaSnap.data()?.episodes || [];
 
-                let autoEpisodeNumber = startNumber;
-                const newEpisodes = [];
-                let conflictingUrls = 0;
-                let conflictingNumbers = 0;
-
-                const existingNumbers = new Set(existingEpisodes.map(ep => ep.episodeNumber));
-                const existingUrls = new Set(existingEpisodes.map(ep => ep.videoUrl));
-
-                messageEl.textContent = `Đang xử lý ${lineCount} dòng dữ liệu...`;
-                messageEl.style.color = COLORS.SUCCESS;
-
-                for (const line of rawLines) {
-                    let currentUrl = line;
-                    let currentChapNum = autoEpisodeNumber;
-                    let currentTitle = null;
-
-                    if (line.includes('|')) {
-                        const parts = line.split('|').map(p => p.trim());
-                        const parsedNum = parseInt(parts[0]);
-                        // Nếu phần tử đầu tiên là số, và phần thứ 2 là link http
-                        if (!isNaN(parsedNum) && parts[1] && parts[1].startsWith('http')) {
-                            currentChapNum = parsedNum;
-                            currentUrl = parts[1];
-                            // Nếu có phần thứ 3 thì lấy làm tên Chapter
-                            if (parts.length >= 3 && parts[2]) {
-                                currentTitle = parts[2];
-                            }
-                        } else if (parts[0].startsWith('http')) {
-                            // Backup lỡ đổi định dạng link đứng trước
-                            currentUrl = parts[0];
-                            if (parts.length >= 2 && parts[1]) {
-                                currentTitle = parts[1];
-                            }
-                        }
-                    }
-
-                    if (existingUrls.has(currentUrl)) {
-                        conflictingUrls++;
-                        continue;
-                    }
-
-                    if (existingNumbers.has(currentChapNum)) {
-                        conflictingNumbers++;
-                        // Dịch số lên nếu bị trùng để không đè mất chap cũ
-                        while (existingNumbers.has(currentChapNum)) {
-                            currentChapNum++;
-                        }
-                    }
-
-                    const newEpisode = {
-                        episodeNumber: currentChapNum,
-                        // BÉ LÔI ƯU TIÊN LẤY TÊN TỰ ĐỊNH NGHĨA, NẾU KHÔNG CÓ MỚI DÙNG MẶC ĐỊNH
-                        title: currentTitle ? currentTitle : `Chapter ${currentChapNum}`,
-                        videoUrl: currentUrl,
-                        addedAt: new Date().toISOString()
-                    };
-
-                    // Thêm liền vào Set để các dòng bên dưới không bị trùng số với dòng vừa thêm
-                    newEpisodes.push(newEpisode);
-                    existingNumbers.add(currentChapNum);
-                    existingUrls.add(currentUrl);
-
-                    autoEpisodeNumber = currentChapNum + 1;
-                }
-
-                if (newEpisodes.length === 0) {
-                    messageEl.textContent = 'LỖI: Không có chapter hợp lệ nào để thêm. Có thể tất cả đều bị trùng dữ liệu hoặc số chapter bị xung đột.';
-                    messageEl.style.color = COLORS.ERROR;
-                    return;
-                }
-
-                existingEpisodes = [...existingEpisodes, ...newEpisodes];
+                // Gộp danh sách chap mới vào
+                existingEpisodes = [...existingEpisodes, ...newChaptersToAdd];
                 existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
 
+                // Cập nhật lại tổng số tập nếu cần
                 await updateDoc(mangaDocRef, {
                     episodes: existingEpisodes,
-                    lastEpisodeUpdate: serverTimestamp(),
-                    isNotified: false
+                    totalEpisodes: existingEpisodes.length,
+                    lastEpisodeUpdate: serverTimestamp()
                 });
 
-                let warning = '';
-                if (conflictingUrls > 0) {
-                    warning += `Lưu ý: Đã bỏ qua ${conflictingUrls} chapter bị trùng link. `;
-                }
-                if (conflictingNumbers > 0) {
-                    warning += `Lưu ý: Đã tự động điều chỉnh số của ${conflictingNumbers} chapter để tránh trùng lặp.`;
-                }
-
-                messageEl.textContent = `SUCCESS! Đã thêm thành công ${newEpisodes.length} chapter. ${warning}`;
+                messageEl.textContent = `SUCCESS! Đã thêm thành công ${newChaptersToAdd.length} chapter vào truyện! 🎉`;
                 messageEl.style.color = COLORS.SUCCESS;
 
                 $('bulk-add-chapter-form').reset();
-                setTimeout(() => hideModal('bulk-add-chapter-modal'), 1500);
+                setTimeout(() => hideModal('bulk-add-chapter-modal'), 2000);
 
             } catch (error) {
-                console.error("Lỗi khi thêm chapter hàng loạt:", error);
-                messageEl.textContent = 'BULK ADD ERROR: Lỗi hệ thống khi lưu chapter: ' + error.message;
-                messageEl.style.color = COLORS.ERROR;
+                console.error("Lỗi Bulk Add Chapters:", error);
+                messageEl.textContent = 'LỖI XỬ LÝ: ' + error.message;
             }
         };
 
