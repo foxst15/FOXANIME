@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
+        convertScrapedJsonToAdminSchema
         const RELOAD_INTERVAL = 15000;
 
         function checkTailwindLoadAndShowFallback() {
@@ -48,6 +49,7 @@
         window.addEventListener('load', () => {
             setTimeout(checkTailwindLoadAndShowFallback, 300);
         });
+
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -1063,6 +1065,7 @@
 
 
     <script type="module">
+
         import {initializeApp, getApps} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {
             getAuth,
@@ -1570,66 +1573,7 @@
             }
         };
 
-        window.processBulkImport = async () => {
-            const jsonText = $('bulk-json-input').value.trim();
-            const statusEl = $('bulk-status');
-
-            if (!jsonText) {
-                statusEl.textContent = 'Vui lòng nhập JSON!';
-                statusEl.style.color = COLORS.ERROR;
-                return;
-            }
-
-            try {
-                const rawData = JSON.parse(jsonText);
-
-                // 🌟 KIỂM TRA THÔNG MINH: Nếu JSON có cấu trúc cào từ Python (chứa .chapters) thì tự động convert sang chuẩn Admin!
-                let mangasToProcess = [];
-                if (rawData.chapters && typeof rawData.chapters === 'object') {
-                    // Đây là file JSON cào 1 bộ truyện riêng lẻ từ Python script của chúng ta
-                    mangasToProcess = [convertScrapedJsonToAdminSchema(rawData)];
-                } else if (Array.isArray(rawData)) {
-                    // Nếu là mảng chuẩn cũ thì map kiểm tra từng phần tử
-                    mangasToProcess = rawData.map(item => item.chapters ? convertScrapedJsonToAdminSchema(item) : item);
-                } else {
-                    mangasToProcess = [rawData];
-                }
-
-                statusEl.textContent = `Đang xử lý và lưu ${mangasToProcess.length} truyện lên Database...`;
-                statusEl.style.color = COLORS.SUCCESS;
-
-                const batch = writeBatch(db);
-                let successCount = 0;
-                let failCount = 0;
-
-                for (const rawManga of mangasToProcess) {
-                    try {
-                        const sanitizedManga = sanitizeMangaData(rawManga, userId);
-                        const newDocRef = doc(mangasCollectionRef);
-                        batch.set(newDocRef, sanitizedManga);
-                        successCount++;
-                    } catch (error) {
-                        console.error("Lỗi Sanitization:", error.message);
-                        failCount++;
-                    }
-                }
-
-                await batch.commit();
-
-                statusEl.textContent = `SUCCESS! Đã thêm thành công ${successCount} truyện vào hệ thống FoxManga.`;
-                statusEl.style.color = COLORS.SUCCESS;
-
-                $('bulk-json-input').value = '';
-                setTimeout(() => hideModal('bulk-import-modal'), 3000);
-
-            } catch (error) {
-                console.error("Lỗi Import:", error);
-                statusEl.textContent = `Lỗi JSON hoặc Database: ${error.message}`;
-                statusEl.style.color = COLORS.ERROR;
-            }
-        };
-
-        // Hàm chuyển đổi chuẩn dữ liệu do Bé Lôi thiết kế cho Chủ nhân
+        // Hàm chuyển đổi file JSON cào web sang chuẩn Admin
         function convertScrapedJsonToAdminSchema(scrapedData) {
             let formatType = 'manga';
             const titleLower = (scrapedData.title || "").toLowerCase();
@@ -1678,6 +1622,63 @@
                 isNotified: false
             };
         }
+
+        window.processBulkImport = async () => {
+            const jsonText = $('bulk-json-input').value.trim();
+            const statusEl = $('bulk-status');
+
+            if (!jsonText) {
+                statusEl.textContent = 'Vui lòng nhập JSON!';
+                statusEl.style.color = COLORS.ERROR;
+                return;
+            }
+
+            try {
+                const rawData = JSON.parse(jsonText);
+
+                let mangasToProcess = [];
+                if (rawData.chapters && typeof rawData.chapters === 'object') {
+                    // Nếu là file JSON cào từ Python, tự động convert qua chuẩn Admin
+                    mangasToProcess = [convertScrapedJsonToAdminSchema(rawData)];
+                } else if (Array.isArray(rawData)) {
+                    mangasToProcess = rawData.map(item => item.chapters ? convertScrapedJsonToAdminSchema(item) : item);
+                } else {
+                    mangasToProcess = [rawData];
+                }
+
+                statusEl.textContent = `Đang xử lý và lưu ${mangasToProcess.length} truyện lên Database...`;
+                statusEl.style.color = COLORS.SUCCESS;
+
+                const batch = writeBatch(db);
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const rawManga of mangasToProcess) {
+                    try {
+                        const sanitizedManga = sanitizeMangaData(rawManga, userId);
+                        const newDocRef = doc(mangasCollectionRef);
+                        batch.set(newDocRef, sanitizedManga);
+                        successCount++;
+                    } catch (error) {
+                        console.error("Lỗi Sanitization:", error.message);
+                        failCount++;
+                    }
+                }
+
+                await batch.commit();
+
+                statusEl.textContent = `SUCCESS! Đã thêm thành công ${successCount} truyện vào hệ thống FoxManga.`;
+                statusEl.style.color = COLORS.SUCCESS;
+
+                $('bulk-json-input').value = '';
+                setTimeout(() => hideModal('bulk-import-modal'), 3000);
+
+            } catch (error) {
+                console.error("Lỗi Import:", error);
+                statusEl.textContent = `Lỗi JSON hoặc Database: ${error.message}`;
+                statusEl.style.color = COLORS.ERROR;
+            }
+        };
 
         // THÊM HÀM CHO HERO SLIDER NÈ CẬU CHỦ!!! 🎀
         window.changeSliderMode = (mode) => {
