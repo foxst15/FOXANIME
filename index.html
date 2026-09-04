@@ -1801,20 +1801,7 @@
                         }));
                     }
                 }
-
-                if (hasMultipleServers) {
-                    const activeServerObj = rawEpisodes.find(s => s.serverName === requestedServer) || rawEpisodes[0];
-                    currentServerName = activeServerObj.serverName;
-                    episodesList = (activeServerObj.items || []).map((ep, index) => ({
-                        ...ep,
-                        id: `${movieId}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
-                    }));
-                } else {
-                    episodesList = rawEpisodes.map((ep, index) => ({
-                        ...ep,
-                        id: `${movieId}_${ep.episodeNumber}_${index}`
-                    }));
-                }
+                
 
                 // 🌟 BÓC TÁCH SỐ TẬP CHUẨN XÁC CHO MỌI ĐỊNH DẠNG ID 🌟
                 const episodeMatch = episodeUniqueId.match(/_(\d+)_\d+$/) || episodeUniqueId.match(/_(\d+)$/) || episodeUniqueId.match(/tap-(\d+)/);
