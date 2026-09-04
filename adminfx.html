@@ -105,10 +105,12 @@
             transform: scale(0.95);
         }
 
+        /* MOVIE CARD STYLES MODIFIED FOR ADMIN BADGE */
         .movie-card-anime {
             transition: all 0.3s ease-in-out;
             border-left: 5px solid transparent;
             position: relative;
+            /* Cho phép định vị tuyệt đối con */
             overflow: hidden;
         }
 
@@ -594,9 +596,8 @@
                 class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH
                 CHIẾU</button>
 
-            <!-- Nút KHO API NGUỒN C -->
             <button id="nav-api-hunter" data-hash="#api-hunter"
-                class="py-2 px-4 font-semibold hover:text-[#fbbf24] transition border-b-4 border-transparent text-yellow-400">
+                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400">
                 <i class="fas fa-spider mr-1"></i> KHO API PHIM
             </button>
 
@@ -1014,7 +1015,7 @@
         </div>
     </div>
 
-    <!-- START: BULK ADD EPISODES MODAL -->
+    <!-- START: BULK ADD EPISODES MODAL (New Feature) -->
     <div id="bulk-add-episode-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
         <div
@@ -1046,7 +1047,7 @@
                         Video (1 link/dòng)</label>
                     <textarea class="form-input h-32 font-mono text-xs" id="bulk-episode-urls"
                         placeholder="https://link-tap-1.com/video.mp4&#10;https://link-tap-2.com/video.mp4&#10;..."></textarea>
-                    <p id="bulk-episode-warning" class="text-xs text-yellow-400 mt-1"></p>
+                    <p id="bulk-episode-warning" class="text-xs text-yellow-400 mt-1"></p> <!-- Thêm cảnh báo ở đây -->
                 </div>
 
                 <div id="bulk-episode-form-message" class="text-[#ff69b4] text-sm mb-4"></div>
@@ -1129,7 +1130,7 @@
 
 
     <script type="module">
-        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {initializeApp, getApps} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {
             getAuth,
             signInWithCustomToken,
@@ -1185,8 +1186,9 @@
         let adminProfilesCollectionRef = null;
         let userProfileDocRef = null;
 
+        // BIẾN MỚI CỦA BÉ LÔI CHO HERO SLIDER NÈ
         let sliderSettingsDocRef = null;
-        let currentSliderSettings = { mode: 'random', selectedMovieIds: [] };
+        let currentSliderSettings = {mode: 'random', selectedMovieIds: []};
 
         let currentUserProfile = {};
         let globalAdminMoviesCache = [];
@@ -1204,12 +1206,56 @@
         const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
 
         const GENRE_TRANSLATIONS = {
-            "Action": "Hành động", "Adventure": "Phiêu lưu", "Boys Love": "Đam mỹ", "Cartoon": "Hoạt hình", "Comedy": "Hài hước", "Dementia": "Điên loạn", "Demons": "Ác quỷ", "Drama": "Kịch tính", "Ecchi": "Ecchi", "Fantasy": "Giả tưởng", "Game": "Trò chơi", "Harem": "Harem", "Historical": "Lịch sử", "Horror": "Kinh dị", "Josei": "Josei", "Kids": "Trẻ em", "Live Action": "Người đóng", "Magic": "Ma thuật", "Martial Arts": "Võ thuật", "Mecha": "Robot", "Military": "Quân sự", "Music": "Âm nhạc", "Mystery": "Bí ẩn", "Parody": "Hài nhái", "Police": "Cảnh sát", "Psychological": "Tâm lý", "Romance": "Lãng mạn", "Samurai": "Samurai", "School": "Học đường", "Sci-Fi": "Viễn tưởng", "Seinen": "Seinen", "Shoujo": "Thiếu nữ", "Shoujo Ai": "Bách hợp (Nhẹ)", "Shounen": "Thiếu niên", "Shounen Ai": "Đam mỹ (Nhẹ)", "Slice of Life": "Đời thường", "Space": "Vũ trụ", "Sports": "Thể thao", "Super Power": "Siêu năng lực", "Supernatural": "Siêu nhiên", "Suspense": "Hồi hộp", "Thriller": "Giật gân", "Tokusatsu": "Tokusatsu", "Vampire": "Ma cà rồng", "Yaoi": "Đam mỹ (Mạnh)", "Yuri": "Bách hợp (Mạnh)"
+            "Action": "Hành động",
+            "Adventure": "Phiêu lưu",
+            "Boys Love": "Đam mỹ",
+            "Cartoon": "Hoạt hình",
+            "Comedy": "Hài hước",
+            "Dementia": "Điên loạn",
+            "Demons": "Ác quỷ",
+            "Drama": "Kịch tính",
+            "Ecchi": "Ecchi",
+            "Fantasy": "Giả tưởng",
+            "Game": "Trò chơi",
+            "Harem": "Harem",
+            "Historical": "Lịch sử",
+            "Horror": "Kinh dị",
+            "Josei": "Josei",
+            "Kids": "Trẻ em",
+            "Live Action": "Người đóng",
+            "Magic": "Ma thuật",
+            "Martial Arts": "Võ thuật",
+            "Mecha": "Robot",
+            "Military": "Quân sự",
+            "Music": "Âm nhạc",
+            "Mystery": "Bí ẩn",
+            "Parody": "Hài nhái",
+            "Police": "Cảnh sát",
+            "Psychological": "Tâm lý",
+            "Romance": "Lãng mạn",
+            "Samurai": "Samurai",
+            "School": "Học đường",
+            "Sci-Fi": "Viễn tưởng",
+            "Seinen": "Seinen",
+            "Shoujo": "Thiếu nữ",
+            "Shoujo Ai": "Bách hợp (Nhẹ)",
+            "Shounen": "Thiếu niên",
+            "Shounen Ai": "Đam mỹ (Nhẹ)",
+            "Slice of Life": "Đời thường",
+            "Space": "Vũ trụ",
+            "Sports": "Thể thao",
+            "Super Power": "Siêu năng lực",
+            "Supernatural": "Siêu nhiên",
+            "Suspense": "Hồi hộp",
+            "Thriller": "Giật gân",
+            "Tokusatsu": "Tokusatsu",
+            "Vampire": "Ma cà rồng",
+            "Yaoi": "Đam mỹ (Mạnh)",
+            "Yuri": "Bách hợp (Mạnh)"
         };
 
-        // =========================================================
-        // KHAI BÁO CÁC HÀM TIỆN ÍCH, MAPPING VÀ CHUẨN HÓA LÊN TRƯỚC
-        // =========================================================
+        window.mapApiToSchema = mapApiToSchema;
+        window.sanitizeMovieData = sanitizeMovieData;
 
         let resolveConfirm;
 
@@ -1231,8 +1277,8 @@
             resolveConfirm(false);
         });
 
-        window.showModal = (id) => { $(id).classList.remove('hidden'); $(id).classList.add('flex'); };
-        window.hideModal = (id) => { $(id).classList.add('hidden'); $(id).classList.remove('flex'); };
+        window.showModal = (id) => {$(id).classList.remove('hidden'); $(id).classList.add('flex');};
+        window.hideModal = (id) => {$(id).classList.add('hidden'); $(id).classList.remove('flex');};
 
         const showLoading = (isLoading) => {
             const overlay = $('loading-overlay');
@@ -1241,115 +1287,6 @@
             overlay.classList.toggle('opacity-0', !isLoading);
             overlay.classList.toggle('opacity-100', isLoading);
         };
-
-        // Hàm Tự Sửa Lỗi và Chuẩn hóa Dữ liệu Phim
-        function sanitizeMovieData(movie, currentUserId) {
-            if (!movie.title || typeof movie.title !== 'string' || movie.title.trim() === '') {
-                throw new Error("Movie object is missing a valid 'title'.");
-            }
-
-            const validFormats = ['tv-series', 'movie-ova', 'hh-trung-quoc', 'anime-tron-bo', 'khac'];
-            const validStatuses = ['dang-chieu', 'tron-bo', 'sap-chieu'];
-
-            const sanitized = {
-                title: movie.title.trim(),
-                titleOriginal: (movie.titleOriginal || '').toString().trim(),
-                summary: (movie.summary || '').toString().trim(),
-                posterUrl: (movie.posterUrl || '').toString().trim(),
-                bannerUrl: (movie.bannerUrl || '').toString().trim(),
-                airingDay: movie.airingDay || 'Không có',
-                formatType: validFormats.includes(movie.formatType) ? movie.formatType : 'tv-series',
-                season: movie.season || 'khac',
-                status: validStatuses.includes(movie.status) ? movie.status : 'dang-chieu',
-                genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || '').toString().trim(),
-                totalEpisodes: parseInt(movie.totalEpisodes) || 0,
-                viewCount: parseInt(movie.viewCount) || 0,
-                likeCount: parseInt(movie.likeCount) || 0,
-                reviewCount: parseInt(movie.reviewCount) || 0,
-                reviewTotal: parseInt(movie.reviewTotal) || 0,
-                episodes: movie.episodes || [], // Lấy episodes nếu có (do Auto Crawler cấp)
-                createdAt: serverTimestamp(),
-                updatedBy: currentUserId,
-                lastEpisodeUpdate: serverTimestamp(),
-                isNotified: false
-            };
-
-            return sanitized;
-        }
-
-        // Hàm Ánh Xạ API Nguồn C sang Schema FOXANIME
-        function mapApiToSchema(rawMovie) {
-            const data = rawMovie.movie || rawMovie;
-
-            if (!data || !data.name) {
-                return rawMovie;
-            }
-
-            const currentEpisodeText = data.current_episode || '';
-            let status = 'dang-chieu';
-            if (currentEpisodeText.includes('Hoàn tất') || currentEpisodeText.includes('Trọn bộ')) {
-                status = 'tron-bo';
-            } else if (data.status === 'Sắp chiếu') {
-                status = 'sap-chieu';
-            }
-
-            let genres = [];
-            if (data.category && data.category['2'] && data.category['2'].list) {
-                genres = data.category['2'].list.map(g => (g.name || g.title).trim());
-            } else if (data.category && Array.isArray(data.category)) {
-                genres = data.category.map(g => (typeof g === 'string' ? g : g.name || g.title)).filter(Boolean);
-            }
-
-            let detectedFormat = 'tv-series';
-            const genresCheck = genres.map(g => g.toLowerCase());
-            if (genresCheck.some(g => g.includes('trung quốc') || g.includes('chinese'))) {
-                detectedFormat = 'hh-trung-quoc';
-            } else if (genresCheck.some(g => g.includes('movie') || g.includes('ova') || g.includes('theatrical'))) {
-                detectedFormat = 'movie-ova';
-            } else if (genresCheck.some(g => g.includes('việt nam') || g.includes('vietnam') || g.includes('khác'))) {
-                detectedFormat = 'khac';
-            }
-
-            // Tự động map mảng tập phim nếu API có trả về
-            let mappedEpisodes = [];
-            if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
-                rawMovie.episodes.forEach(server => {
-                    if (server.server_data && Array.isArray(server.server_data)) {
-                        server.server_data.forEach((ep, index) => {
-                            if (!mappedEpisodes.find(e => e.title === ep.name)) {
-                                mappedEpisodes.push({
-                                    episodeNumber: index + 1,
-                                    title: ep.name || `Tập ${index + 1}`,
-                                    videoUrl: ep.link_m3u8 || ep.link_embed || '',
-                                    addedAt: new Date().toISOString()
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-
-            let movieData = {
-                title: data.name || data.original_name || 'Unknown Title',
-                titleOriginal: data.original_name || '',
-                summary: data.description || data.content || '',
-                posterUrl: data.thumb_url || data.poster_url || '',
-                bannerUrl: data.cover_url || data.banner_url || data.thumb_url || '',
-                status: status,
-                genre: genres.join(', '),
-                totalEpisodes: parseInt(data.total_episodes) || 0,
-                formatType: detectedFormat,
-                season: 'khac',
-                airingDay: 'Không có',
-                episodes: mappedEpisodes,
-            };
-
-            return movieData;
-        }
-
-        // Đưa các hàm lên global để html có thể gọi
-        window.mapApiToSchema = mapApiToSchema;
-        window.sanitizeMovieData = sanitizeMovieData;
 
         const updateAuthStatusHeader = (message, isError = false) => {
             const authStatusEl = $('auth-status');
@@ -1446,7 +1383,7 @@
                 }
 
                 if (role !== "admin") {
-                    errorEl.textContent = `LỖI PHÂN QUYỀN: Role hiện tại là '${role}'. Bạn phải có role 'admin' để truy cập.`;
+                    errorEl.textContent = `LỖI PHÂN QUYỀN: Role hiện tại là '${role}'. Bạn phải có role 'admin' để truy cập. Vui lòng kiểm tra Collection adminProfiles.`;
                     await signOut(auth);
                     return;
                 }
@@ -1471,6 +1408,7 @@
             }
         };
 
+
         const handleSaveProfile = async (e) => {
             e.preventDefault();
             const displayName = $('profile-display-name').value.trim();
@@ -1478,7 +1416,7 @@
             const messageEl = $('profile-message');
             messageEl.textContent = '';
 
-            if (!userProfileDocRef || !userId) { messageEl.textContent = 'Lỗi hệ thống: User ID không hợp lệ.'; return; }
+            if (!userProfileDocRef || !userId) {messageEl.textContent = 'Lỗi hệ thống: User ID không hợp lệ.'; return;}
 
             try {
                 let avatarBase64 = currentUserProfile.avatarBase64 || null;
@@ -1495,8 +1433,9 @@
                     updatedAt: serverTimestamp()
                 };
 
-                await setDoc(userProfileDocRef, profileData, { merge: true });
-                await setDoc(doc(adminProfilesCollectionRef, userId), { displayName: profileData.displayName }, { merge: true });
+                await setDoc(userProfileDocRef, profileData, {merge: true});
+                // Cập nhật tên hiển thị trong adminProfiles để dùng cho việc hiển thị người tạo
+                await setDoc(doc(adminProfilesCollectionRef, userId), {displayName: profileData.displayName}, {merge: true});
 
                 messageEl.textContent = 'SUCCESS! Đã lưu profile Admin.';
                 messageEl.className = 'text-sm mb-4 text-[#00ffaa]';
@@ -1514,7 +1453,7 @@
             const password = $('newAdminPass').value;
             const msgEl = $('create-admin-msg');
 
-            if (password.length < 6) { msgEl.textContent = 'Lỗi: Mật khẩu phải có ít nhất 6 ký tự.'; msgEl.style.color = COLORS.ERROR; return; }
+            if (password.length < 6) {msgEl.textContent = 'Lỗi: Mật khẩu phải có ít nhất 6 ký tự.'; msgEl.style.color = COLORS.ERROR; return;}
 
             msgEl.textContent = 'Đang tạo...';
             msgEl.style.color = COLORS.SUCCESS;
@@ -1552,8 +1491,8 @@
             const confirmNewPass = $('confirmNewPass').value;
             const msgEl = $('change-pass-msg');
 
-            if (newPass !== confirmNewPass) { msgEl.innerText = "Mật khẩu xác nhận không khớp!"; msgEl.style.color = COLORS.ERROR; return; }
-            if (newPass.length < 6) { msgEl.innerText = "Mật khẩu phải có ít nhất 6 ký tự."; msgEl.style.color = COLORS.ERROR; return; }
+            if (newPass !== confirmNewPass) {msgEl.innerText = "Mật khẩu xác nhận không khớp!"; msgEl.style.color = COLORS.ERROR; return;}
+            if (newPass.length < 6) {msgEl.innerText = "Mật khẩu phải có ít nhất 6 ký tự."; msgEl.style.color = COLORS.ERROR; return;}
 
             msgEl.innerText = 'Đang đổi mật khẩu...';
             msgEl.style.color = COLORS.SUCCESS;
@@ -1575,198 +1514,117 @@
             }
         };
 
-        // =====================================================================
-        // ⚡ MODULE KHO API NGUỒN C (TÍCH HỢP SO SÁNH & CẬP NHẬT) ⚡
-        // =====================================================================
-
-        $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
-
-        const renderApiHunterPage = () => {
-            $('main-content').innerHTML = `
-                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
-                    <h2 class="text-3xl font-bold text-yellow-400 mb-6 border-b border-[#5d3f9e] pb-2">
-                        <i class="fas fa-satellite-dish mr-2"></i> TRẠM THU THẬP API NGUỒN C
-                    </h2>
-                    
-                    <div class="bg-[#1a0f3d] p-5 rounded-lg border border-[#00ffaa] mb-6 flex flex-wrap gap-4 items-end">
-                        <div>
-                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Loại API:</label>
-                            <select id="api-type" class="form-input w-48">
-                                <option value="moi-cap-nhat">Phim Mới Cập Nhật</option>
-                                <option value="quoc-gia">Lọc theo Quốc Gia</option>
-                                <option value="the-loai">Lọc theo Thể Loại</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Slug (Tên k-dấu):</label>
-                            <input id="api-slug" type="text" class="form-input w-40" placeholder="vd: nhat-ban, hanh-dong" disabled>
-                            <p class="text-[10px] text-gray-400 mt-1">Chỉ dùng cho Quốc gia/Thể loại</p>
-                        </div>
-                        <div>
-                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Trang (Page):</label>
-                            <input id="api-page" type="number" class="form-input w-24" value="1" min="1">
-                        </div>
-                        <button onclick="window.scanNguonCApi()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-6 rounded-lg shadow-md h-10">
-                            <i class="fas fa-radar mr-2"></i> QUÉT TÌM PHIM
-                        </button>
-                    </div>
-
-                    <div id="api-results-container">
-                        <p class="text-center text-gray-400 py-8 italic">Chưa quét dữ liệu. Hãy bấm "Quét Tìm Phim" thưa Chủ nhân!</p>
-                    </div>
-                </div>
-            `;
-            
-            $('api-type').addEventListener('change', (e) => {
-                $('api-slug').disabled = e.target.value === 'moi-cap-nhat';
-            });
-        };
-
-        window.scanNguonCApi = async () => {
-            const type = $('api-type').value;
-            const slug = $('api-slug').value.trim();
-            const page = $('api-page').value;
-            const container = $('api-results-container');
-
-            if (type !== 'moi-cap-nhat' && !slug) {
-                alert("Chủ nhân quên nhập Slug rồi ạ!");
-                return;
+        // Hàm Tự Sửa Lỗi và Chuẩn hóa Dữ liệu Phim
+        function sanitizeMovieData(movie, userId) {
+            // 1. Basic required validation
+            if (!movie.title || typeof movie.title !== 'string' || movie.title.trim() === '') {
+                throw new Error("Movie object is missing a valid 'title'.");
             }
 
-            container.innerHTML = '<div class="text-center text-[#00ffaa] py-10"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><br>Bé Lôi đang quét radar... Chủ nhân đợi xíu nha!</div>';
+            // 2. Chuyển đổi và chuẩn hóa các trường Status và Type
+            // BÉ LÔI ĐÃ THÊM 'khac' VÀO ĐÂY Ạ!
+            const validFormats = ['tv-series', 'movie-ova', 'hh-trung-quoc', 'anime-tron-bo', 'khac'];
+            const validStatuses = ['dang-chieu', 'tron-bo', 'sap-chieu'];
 
-            let url = '';
-            if (type === 'moi-cap-nhat') url = `https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=${page}`;
-            else if (type === 'quoc-gia') url = `https://phim.nguonc.com/api/films/quoc-gia/${slug}?page=${page}`;
-            else if (type === 'the-loai') url = `https://phim.nguonc.com/api/films/the-loai/${slug}?page=${page}`;
+            const sanitized = {
+                // Core mandatory/string fields
+                title: movie.title.trim(),
+                titleOriginal: (movie.titleOriginal || '').toString().trim(),
+                summary: (movie.summary || '').toString().trim(),
+                posterUrl: (movie.posterUrl || '').toString().trim(),
+                bannerUrl: (movie.bannerUrl || '').toString().trim(),
+                airingDay: movie.airingDay || 'Không có',
 
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                const items = data.items || data.data || [];
+                // Status/Type fields with sanitization and defaults
+                formatType: validFormats.includes(movie.formatType) ? movie.formatType : 'tv-series',
+                season: movie.season || 'khac',
+                status: validStatuses.includes(movie.status) ? movie.status : 'dang-chieu',
 
-                if (items.length === 0) {
-                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Không tìm thấy phim nào ở trang này ạ!</p>';
-                    return;
-                }
+                // Genre processing (ensure it's a comma-separated string)
+                genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || '').toString().trim(),
 
-                let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
-                
-                items.forEach(apiMovie => {
-                    const dbMovie = globalAdminMoviesCache.find(m => 
-                        m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() ||
-                        (m.titleOriginal && apiMovie.original_name && m.titleOriginal.toLowerCase().trim() === apiMovie.original_name.toLowerCase().trim())
-                    );
+                // Numeric fields (ensure integer, default to 0)
+                totalEpisodes: parseInt(movie.totalEpisodes) || 0,
+                viewCount: parseInt(movie.viewCount) || 0,
+                likeCount: parseInt(movie.likeCount) || 0,
+                reviewCount: parseInt(movie.reviewCount) || 0,
+                reviewTotal: parseInt(movie.reviewTotal) || 0,
 
-                    let statusBadge = '';
-                    let actionButton = '';
-                    const apiEpText = apiMovie.current_episode || 'Chưa rõ';
+                // Metadata and Episode Array (episodes array phải là mảng rỗng cho lần import này)
+                episodes: [],
+                createdAt: serverTimestamp(),
+                updatedBy: userId,
+                lastEpisodeUpdate: serverTimestamp(),
+                isNotified: false
+            };
 
-                    if (dbMovie) {
-                        const dbEpCount = dbMovie.episodes ? dbMovie.episodes.length : 0;
-                        const apiEpMatch = apiEpText.match(/\d+/);
-                        const apiEpNumber = apiEpMatch ? parseInt(apiEpMatch[0]) : 0;
-
-                        if (apiEpNumber > dbEpCount) {
-                            statusBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">🚨 CÓ TẬP MỚI (DB: ${dbEpCount} ➔ API: ${apiEpText})</span>`;
-                            actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ Tập</button>`;
-                        } else {
-                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (Đang có: ${dbEpCount} tập)</span>`;
-                            actionButton = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-1 px-3 rounded text-sm cursor-not-allowed">Đã xong</button>`;
-                        }
-                    } else {
-                        statusBadge = `<span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">🌟 PHIM MỚI TINH</span>`;
-                        actionButton = `<button onclick="window.autoAddNewMovie('${apiMovie.slug}')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-plus mr-1"></i> Thêm Phim Này</button>`;
-                    }
-
-                    htmlContent += `
-                        <div class="bg-[#1e1346] p-3 rounded-lg border border-[#5d3f9e] flex gap-4">
-                            <img src="${apiMovie.thumb_url || apiMovie.poster_url}" class="w-16 h-24 object-cover rounded border border-gray-600">
-                            <div class="flex-grow flex flex-col justify-between">
-                                <div>
-                                    <h4 class="text-white font-bold text-sm line-clamp-1">${apiMovie.name}</h4>
-                                    <p class="text-xs text-gray-400 mb-1">${apiMovie.original_name}</p>
-                                    ${statusBadge}
-                                </div>
-                                <div class="mt-2 text-right">
-                                    ${actionButton}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                htmlContent += '</div>';
-                container.innerHTML = htmlContent;
-
-            } catch (error) {
-                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi khi gọi API Nguồn C: ${error.message}</p>`;
-            }
+            return sanitized;
         };
 
-        window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
-            try {
-                const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tập mới nhất từ API và đẩy vào phim này nha?");
-                if(!confirmed) return;
-                
-                showLoading(true);
-                const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
-                const dataDetail = await resDetail.json();
-                const rawMovie = dataDetail.movie || dataDetail;
-                
-                let mappedEpisodes = [];
-                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
-                    rawMovie.episodes.forEach(server => {
-                        if (server.server_data) {
-                            server.server_data.forEach((ep, index) => {
-                                if (!mappedEpisodes.find(e => e.title === ep.name)) {
-                                    mappedEpisodes.push({
-                                        episodeNumber: index + 1,
-                                        title: ep.name || `Tập ${index + 1}`,
-                                        videoUrl: ep.link_m3u8 || ep.link_embed || '',
-                                        addedAt: new Date().toISOString()
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-                
-                await updateDoc(doc(moviesCollectionRef, dbMovieId), {
-                    episodes: mappedEpisodes,
-                    lastEpisodeUpdate: serverTimestamp()
-                });
-                
-                showLoading(false);
-                alert("Thành công! Bé Lôi đã đồng bộ tập mới xong ạ!");
-                window.scanNguonCApi(); 
+        // START: LOGIC MAPPING TỪ API NGOÀI VÀO SCHEMA CHUẨN (Quan trọng)
+        function mapApiToSchema(rawMovie) {
+            // Chú ý: Dữ liệu API mẫu của Nii-chan là cho MỘT phim và được bọc trong field 'movie'
+            const data = rawMovie.movie || rawMovie;
 
-            } catch(err) {
-                showLoading(false);
-                alert("Lỗi đồng bộ: " + err.message);
+            if (!data || !data.name) {
+                // Trả về dữ liệu thô nếu không thể xác định cấu trúc
+                return rawMovie;
             }
-        };
 
-        window.autoAddNewMovie = async (apiSlug) => {
-            try {
-                showLoading(true);
-                const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
-                const dataDetail = await resDetail.json();
-                
-                const convertedMovie = mapApiToSchema(dataDetail);
-                const sanitizedMovie = sanitizeMovieData(convertedMovie, userId);
-
-                await setDoc(doc(moviesCollectionRef), sanitizedMovie);
-                
-                showLoading(false);
-                alert("Quá xịn! Đã thêm siêu phẩm mới vào kho thành công!");
-                window.scanNguonCApi(); 
-                
-            } catch(err) {
-                showLoading(false);
-                alert("Lỗi thêm phim: " + err.message);
+            // 1. Ánh xạ trạng thái dựa vào text
+            const currentEpisodeText = data.current_episode || '';
+            let status = 'dang-chieu';
+            if (currentEpisodeText.includes('Hoàn tất') || currentEpisodeText.includes('Trọn bộ')) {
+                status = 'tron-bo';
+            } else if (data.status === 'Sắp chiếu') { // Giả định có field status riêng
+                status = 'sap-chieu';
             }
+
+            // 2. Ánh xạ Thể loại (Category List)
+            let genres = [];
+            // Kiểm tra category[2].list (dạng API phim.nguonc.com)
+            if (data.category && data.category['2'] && data.category['2'].list) {
+                genres = data.category['2'].list.map(g => (g.name || g.title).trim());
+            } else if (data.category && Array.isArray(data.category)) {
+                // Trường hợp category là mảng các chuỗi/objects
+                genres = data.category.map(g => (typeof g === 'string' ? g : g.name || g.title)).filter(Boolean);
+            }
+
+            // --- BÉ LÔI THÊM LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG PHIM NÈ ---
+            let detectedFormat = 'tv-series'; // Mặc định vẫn là TV/Series
+            const genresCheck = genres.map(g => g.toLowerCase());
+
+            if (genresCheck.some(g => g.includes('trung quốc') || g.includes('chinese'))) {
+                detectedFormat = 'hh-trung-quoc';
+            } else if (genresCheck.some(g => g.includes('movie') || g.includes('ova') || g.includes('theatrical'))) {
+                detectedFormat = 'movie-ova';
+            } else if (genresCheck.some(g => g.includes('việt nam') || g.includes('vietnam') || g.includes('khác'))) {
+                detectedFormat = 'khac'; // Nhận diện Hoạt Hình VN hoặc các dòng khác
+            }
+
+            // 3. Ánh xạ chính
+            let movieData = {
+                title: data.name || data.original_name || 'Unknown Title',
+                titleOriginal: data.original_name || '',
+                summary: data.description || data.content || '',
+
+                posterUrl: data.thumb_url || data.poster_url || '',
+                bannerUrl: data.cover_url || data.banner_url || data.thumb_url || '',
+
+                status: status,
+                genre: genres.join(', '),
+                totalEpisodes: parseInt(data.total_episodes) || 0,
+
+                // Gắn biến tự động nhận diện của Bé Lôi vào đây nha:
+                formatType: detectedFormat,
+                season: 'khac',
+                airingDay: 'Không có',
+                episodes: [],
+            };
+
+            return movieData;
         };
+        // END: LOGIC MAPPING TỪ API NGOÀI VÀO SCHEMA CHUẨN
 
 
         window.fetchBulkFromUrl = async () => {
@@ -1790,19 +1648,25 @@
 
                 let moviesToConvert = [];
                 if (Array.isArray(data)) {
+                    // 1. API trả về mảng phim
                     moviesToConvert = data;
                 } else if (data && data.movie && typeof data.movie === 'object') {
+                    // 2. API trả về một phim bọc trong field "movie" (như API mẫu của Nii-chan)
                     moviesToConvert = [data];
                 } else if (data && data.data && Array.isArray(data.data)) {
+                    // 3. API trả về cấu trúc wrapper {data: []}
                     moviesToConvert = data.data;
                 } else if (data && typeof data === 'object') {
+                    // 4. API trả về MỘT phim (object thuần)
                     moviesToConvert = [data];
                 } else {
                     throw new Error("Không thể nhận dạng cấu trúc JSON API trả về.");
                 }
 
+                // Bước 2: Tự động ánh xạ từng phim về schema chuẩn
                 const convertedMovies = moviesToConvert.map(rawMovie => mapApiToSchema(rawMovie));
 
+                // Bước 3: Dán JSON đã được ánh xạ vào textarea để người dùng xem và kiểm tra
                 $('bulk-json-input').value = JSON.stringify(convertedMovies, null, 4);
 
                 statusEl.textContent = `Đã tải thành công và tự động ánh xạ! Tìm thấy ${convertedMovies.length} mục. Vui lòng kiểm tra JSON bên dưới trước khi IMPORT.`;
@@ -1837,7 +1701,9 @@
 
                 for (const rawMovie of moviesToProcess) {
                     try {
+                        // Gọi sanitizeMovieData để đảm bảo dữ liệu đúng mẫu lần cuối trước khi ghi
                         const sanitizedMovie = sanitizeMovieData(rawMovie, userId);
+
                         const newDocRef = doc(moviesCollectionRef);
                         batch.set(newDocRef, sanitizedMovie);
                         successCount++;
@@ -1861,7 +1727,9 @@
                 statusEl.style.color = COLORS.ERROR;
             }
         };
+        // END: BULK IMPORT LOGIC
 
+        // THÊM HÀM CHO HERO SLIDER NÈ CẬU CHỦ!!! 🎀
         window.changeSliderMode = (mode) => {
             currentSliderSettings.mode = mode;
             $('manual-slider-controls').classList.toggle('hidden', mode === 'random');
@@ -1869,7 +1737,7 @@
 
         window.handleSliderSearch = (term) => {
             const resultsEl = $('slider-search-results');
-            if (!term.trim()) { resultsEl.classList.add('hidden'); return; }
+            if (!term.trim()) {resultsEl.classList.add('hidden'); return;}
 
             const results = globalAdminMoviesCache.filter(m =>
                 m.title.toLowerCase().includes(term.toLowerCase())
@@ -1956,6 +1824,7 @@
                 $('slider-msg').innerHTML = `<span class="text-red-400">Lỗi: ${error.message}</span>`;
             }
         };
+        // KẾT THÚC HÀM HERO SLIDER
 
         const extractMovieData = (prefix = '') => {
             const containerId = prefix === 'edit-' ? 'edit-genre-tag-container' : 'genre-tag-container';
@@ -2014,6 +1883,7 @@
                     bannerStatusEl.textContent = 'Banner Base64 đã sẵn sàng!';
                 }
 
+                // Dữ liệu tạo phim mới đã được đảm bảo đúng mẫu
                 const newDocRef = doc(moviesCollectionRef);
                 await setDoc(newDocRef, {
                     title: data.title,
@@ -2061,8 +1931,8 @@
 
             messageEl.textContent = posterStatusEl.textContent = bannerStatusEl.textContent = '';
 
-            if (!movieId) { messageEl.textContent = 'FATAL ERROR: Không tìm thấy Movie ID.'; return; }
-            if (!data.title || data.genres.length === 0) { messageEl.textContent = 'WARNING! Vui lòng điền Tên Phim và chọn ít nhất 1 Thể Loại.'; return; }
+            if (!movieId) {messageEl.textContent = 'FATAL ERROR: Không tìm thấy Movie ID.'; return;}
+            if (!data.title || data.genres.length === 0) {messageEl.textContent = 'WARNING! Vui lòng điền Tên Phim và chọn ít nhất 1 Thể Loại.'; return;}
 
             let isPosterUpdated = false;
             let finalPosterUrl = data.posterUrlInput;
@@ -2113,8 +1983,8 @@
                     updateData.reviewTotal = 0;
                 }
 
-                if (isPosterUpdated) { updateData.posterUrl = finalPosterUrl; }
-                if (isBannerUpdated) { updateData.bannerUrl = finalBannerUrl; }
+                if (isPosterUpdated) {updateData.posterUrl = finalPosterUrl;}
+                if (isBannerUpdated) {updateData.bannerUrl = finalBannerUrl;}
 
                 await updateDoc(movieDocRef, updateData);
 
@@ -2158,7 +2028,6 @@
                 });
 
                 if (updateCount > 0) {
-                    await batch.commit();
                     alert(`Đã sửa dữ liệu cho ${updateCount} phim cũ thành công!`);
                 } else {
                     alert("Dữ liệu tất cả phim đều đã chuẩn. Không cần sửa gì thêm.");
@@ -2170,6 +2039,29 @@
                 alert("Lỗi: " + error.message);
             }
         };
+
+        // NEW: Thêm hàm xóa tất cả tập phim
+        window.handleDeleteAllEpisodes = async (movieId, movieTitle) => {
+            const confirmed = await window.showConfirmModal(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA TOÀN BỘ ${movieTitle}'s Episodes không?`);
+            if (!confirmed) return;
+
+            try {
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+
+                await updateDoc(movieDocRef, {
+                    episodes: [], // Đặt mảng episodes về rỗng
+                    lastEpisodeUpdate: serverTimestamp()
+                });
+
+                window.showConfirmModal(`SUCCESS: Đã xóa toàn bộ tập phim của "${movieTitle}".`);
+                hideModal('edit-movie-modal');
+
+            } catch (error) {
+                console.error("Lỗi khi xóa tất cả tập phim:", error);
+                window.showConfirmModal('LỖI: Không thể xóa toàn bộ tập phim. Vui lòng kiểm tra lại quyền truy cập.');
+            }
+        };
+
 
         const handleAddEpisode = async (e) => {
             e.preventDefault();
@@ -2185,7 +2077,7 @@
             }
             messageEl.textContent = '';
 
-            if (!moviesCollectionRef || !userId) { messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.'; return; }
+            if (!moviesCollectionRef || !userId) {messageEl.textContent = 'SYSTEM STATUS: Bạn không có quyền Admin.'; return;}
 
             try {
                 const movieDocRef = doc(moviesCollectionRef, movieId);
@@ -2197,7 +2089,7 @@
                     return;
                 }
 
-                const newEpisode = { episodeNumber, title, videoUrl, addedAt: new Date().toISOString() };
+                const newEpisode = {episodeNumber, title, videoUrl, addedAt: new Date().toISOString()};
 
                 existingEpisodes.push(newEpisode);
                 existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
@@ -2216,7 +2108,10 @@
             }
         };
 
+        // START: NEW BULK ADD EPISODES LOGIC
+        // Định nghĩa số lượng tối đa cho mỗi lần ghi vào Firestore để tránh Timeout/Lỗi
         const MAX_EPISODES_PER_COMMIT = 500;
+
         const handleBulkAddEpisodes = async (e) => {
             e.preventDefault();
             const movieId = $('bulk-episode-movie-id').value;
@@ -2225,8 +2120,9 @@
             const messageEl = $('bulk-episode-form-message');
 
             messageEl.textContent = '';
-            messageEl.style.color = COLORS.ERROR;
+            messageEl.style.color = COLORS.ERROR; // Mặc định lỗi
 
+            // Đổi từ url thành rawLines để quét nguyên dòng chứa dấu "|"
             const rawLines = urlsText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             const lineCount = rawLines.length;
 
@@ -2264,26 +2160,31 @@
                 messageEl.textContent = `Đang xử lý ${lineCount} dòng dữ liệu...`;
                 messageEl.style.color = COLORS.SUCCESS;
 
+                // --- BÉ LÔI BẮT ĐẦU VÒNG LẶP XỬ LÝ SIÊU CẤP Ở ĐÂY NÈ ---
                 for (const line of rawLines) {
                     let currentUrl = line;
                     let currentEpNum = autoEpisodeNumber;
-                    let currentTitle = null;
+                    let currentTitle = null; // Biến lưu tên tập tự định nghĩa
 
+                    // NHẬN DIỆN ĐA ĐỊNH DẠNG CÓ DẤU "|"
                     if (line.includes('|')) {
                         const parts = line.split('|').map(p => p.trim());
                         const parsedNum = parseInt(parts[0]);
 
                         if (!isNaN(parsedNum)) {
                             currentEpNum = parsedNum;
+                            // Dạng 1: Số | Link | Tên
                             if (parts[1] && parts[1].startsWith('http')) {
                                 currentUrl = parts[1];
                                 if (parts.length >= 3 && parts[2]) currentTitle = parts[2];
                             }
+                            // Dạng 2 (như chủ nhân yêu cầu): Số | Tên | Link
                             else if (parts.length >= 3 && parts[2].startsWith('http')) {
                                 currentTitle = parts[1];
                                 currentUrl = parts[2];
                             }
                         } else if (parts[0].startsWith('http')) {
+                            // Dạng 3: Link | Tên (Không có số ở đầu)
                             currentUrl = parts[0];
                             if (parts.length >= 2 && parts[1]) currentTitle = parts[1];
                         }
@@ -2296,6 +2197,7 @@
 
                     if (existingNumbers.has(currentEpNum)) {
                         conflictingNumbers++;
+                        // Dịch số tập lên nếu bị trùng để không đè mất tập cũ
                         while (existingNumbers.has(currentEpNum)) {
                             currentEpNum++;
                         }
@@ -2303,6 +2205,7 @@
 
                     const newEpisode = {
                         episodeNumber: currentEpNum,
+                        // ƯU TIÊN TÊN TỰ ĐỊNH NGHĨA, NẾU KHÔNG CÓ THÌ ĐẺ RA "Tập N"
                         title: currentTitle ? currentTitle : `Tập ${currentEpNum}`,
                         videoUrl: currentUrl,
                         addedAt: new Date().toISOString()
@@ -2310,6 +2213,7 @@
 
                     newEpisodes.push(newEpisode);
 
+                    // Thêm liền vào Set để các dòng bên dưới không bị trùng số
                     existingNumbers.add(currentEpNum);
                     existingUrls.add(currentUrl);
 
@@ -2321,6 +2225,7 @@
                     messageEl.style.color = COLORS.ERROR;
                     return;
                 }
+                // Cập nhật mảng episode và sort
                 existingEpisodes = [...existingEpisodes, ...newEpisodes];
                 existingEpisodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
 
@@ -2331,8 +2236,12 @@
                 });
 
                 let warning = '';
-                if (conflictingUrls > 0) warning += `Lưu ý: Đã bỏ qua ${conflictingUrls} link bị trùng URL. `;
-                if (conflictingNumbers > 0) warning += `Lưu ý: Đã tự động điều chỉnh số tập bắt đầu (tăng lên) để tránh ${conflictingNumbers} tập bị trùng số.`;
+                if (conflictingUrls > 0) {
+                    warning += `Lưu ý: Đã bỏ qua ${conflictingUrls} link bị trùng URL. `;
+                }
+                if (conflictingNumbers > 0) {
+                    warning += `Lưu ý: Đã tự động điều chỉnh số tập bắt đầu (tăng lên) để tránh ${conflictingNumbers} tập bị trùng số.`;
+                }
 
                 messageEl.textContent = `SUCCESS! Đã thêm thành công ${newEpisodes.length} tập phim. ${warning}`;
                 messageEl.style.color = COLORS.SUCCESS;
@@ -2346,6 +2255,50 @@
                 messageEl.style.color = COLORS.ERROR;
             }
         };
+
+        window.showBulkAddEpisodeModal = (movieId, movieTitle) => {
+            const movie = globalAdminMoviesCache.find(m => m.id === movieId);
+            const lastEpisodeNumber = movie?.episodes?.length || 0;
+
+            $('bulk-episode-movie-id').value = movieId;
+            $('bulk-episode-movie-title').textContent = movieTitle || '[Không có tên]';
+            $('bulk-episode-form-message').textContent = '';
+            $('bulk-episode-urls').value = '';
+            $('bulk-episode-warning').textContent = 'Khuyến nghị: Mỗi lần thêm tối đa 500 link để đảm bảo ổn định.';
+
+
+            // Đặt mặc định là tập cuối + 1
+            $('bulk-episode-start-number').value = lastEpisodeNumber + 1;
+
+            // Thêm listener oninput để tính toán số lượng link và đưa ra cảnh báo
+            const urlsTextarea = $('bulk-episode-urls');
+            const warningEl = $('bulk-episode-warning');
+
+            const updateWarning = () => {
+                const urls = urlsTextarea.value.trim().split('\n').map(url => url.trim()).filter(url => url.length > 0);
+                const count = urls.length;
+
+                if (count === 0) {
+                    warningEl.textContent = 'Khuyến nghị: Mỗi lần thêm tối đa 500 link để đảm bảo ổn định.';
+                    warningEl.classList.remove('text-red-500');
+                    warningEl.classList.add('text-yellow-400');
+                } else if (count > MAX_EPISODES_PER_COMMIT) {
+                    warningEl.textContent = `⚠️ CẢNH BÁO: Bạn đang nhập ${count} link. Số lượng lớn có thể gây lỗi Timeout. Khuyến nghị: < 500.`;
+                    warningEl.classList.add('text-red-500');
+                    warningEl.classList.remove('text-yellow-400');
+                } else {
+                    warningEl.textContent = `Đã nhập ${count} link. Sẵn sàng xử lý.`;
+                    warningEl.classList.remove('text-red-500');
+                    warningEl.classList.add('text-yellow-400');
+                }
+            };
+
+            urlsTextarea.oninput = updateWarning;
+
+            showModal('bulk-add-episode-modal');
+        };
+        // END: NEW BULK ADD EPISODES LOGIC
+
 
         const handleEditEpisode = async (e) => {
             e.preventDefault();
@@ -2404,7 +2357,806 @@
             }
         };
 
+        window.handleDeleteMovie = async (movieId, movieTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc chắn muốn xóa TOÀN BỘ phim "${movieTitle}"?`);
+            if (confirmed) {
+                try {
+                    await deleteDoc(doc(moviesCollectionRef, movieId));
+                } catch (error) {console.error("Lỗi khi xóa phim:", error);}
+            }
+        };
+        window.handleDeleteEpisode = async (movieId, episodeNumber, episodeTitle) => {
+            const confirmed = await window.showConfirmModal(`Bạn có chắc muốn xóa TẬP ${episodeNumber} ("${episodeTitle}")?`);
+            if (!confirmed) return;
+
+            try {
+                const movieDocRef = doc(moviesCollectionRef, movieId);
+                const movieSnap = await getDoc(movieDocRef);
+                const episodes = movieSnap.data()?.episodes || [];
+
+                const updatedEpisodes = episodes.filter(ep => ep.episodeNumber !== episodeNumber);
+
+                await updateDoc(movieDocRef, {episodes: updatedEpisodes});
+
+            } catch (error) {
+                console.error("Lỗi khi xóa tập phim:", error);
+            }
+        };
+
+
+        const router = () => {
+            const hash = window.location.hash.substring(1) || 'dashboard';
+
+            
+            document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
+                btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : 'transparent';
+                btn.style.color = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : '#e0e7ff';
+            });
+
+            
+            if (!userId) {
+                if (hash !== 'login') window.location.hash = '#login';
+                $('main-content').innerHTML = '';
+                return;
+            }
+
+            
+            switch (hash) {
+                case 'dashboard':
+                    renderAdminDashboard();
+                    break;
+                case 'profile':
+                    renderProfilePage();
+                    break;
+                case 'schedule':
+                    renderSchedulePage();
+                    break;
+                case 'api-hunter': 
+                    renderApiHunterPage();
+                    break;
+                case 'login':
+                    window.location.hash = '#dashboard';
+                    break;
+                default:
+                    window.location.hash = '#dashboard';
+            }
+        };
+
+        const initFirebase = async () => {
+            try {
+                if (!getApps().length) {
+                    app = initializeApp(finalConfig);
+                } else {
+                    app = getApps()[0];
+                }
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                await setPersistence(auth, browserSessionPersistence);
+
+                adminProfilesCollectionRef = collection(db, 'artifacts', appId, 'adminProfiles');
+
+                // Lắng nghe cấu hình Hero Slider
+                sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'heroSlider');
+                onSnapshot(sliderSettingsDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentSliderSettings = docSnap.data();
+                    } else {
+                        currentSliderSettings = {mode: 'random', selectedMovieIds: []};
+                    }
+                    if (window.location.hash === '' || window.location.hash === '#dashboard') {
+                        const manualControls = $('manual-slider-controls');
+                        if (manualControls) {
+                            window.renderSelectedSliderMoviesUI();
+                        }
+                    }
+                });
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && !user.isAnonymous) {
+
+                        try {
+                            const adminDocRef = doc(adminProfilesCollectionRef, user.uid);
+                            const adminDocSnap = await getDoc(adminDocRef);
+                            const role = adminDocSnap.exists() ? adminDocSnap.data().role : 'user';
+
+                            if (role !== 'admin') {
+                                await signOut(auth);
+                                updateAuthStatusHeader('QUYỀN BỊ THU HỒI: Bạn không có quyền Admin.', true);
+                                return;
+                            }
+                        } catch (error) {
+                            console.error("Lỗi khi kiểm tra role trong onAuthStateChanged:", error);
+                            await signOut(auth);
+                            updateAuthStatusHeader('Lỗi hệ thống: Không thể xác minh quyền Admin.', true);
+                            return;
+                        }
+
+
+                        userId = user.uid;
+                        userEmail = user.email;
+
+                        moviesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'movies');
+
+                        userProfileDocRef = doc(adminProfilesCollectionRef, userId);
+
+                        try {
+                            onSnapshot(userProfileDocRef, (docSnap) => {
+                                currentUserProfile = docSnap.exists() ? {id: docSnap.id, ...docSnap.data()} : {};
+                                updateProfileHeader();
+                            }, (error) => {
+                                console.error("Lỗi tải profile:", error.message);
+                                currentUserProfile = {};
+                                updateProfileHeader();
+                            });
+
+                            // Lắng nghe thay đổi của tất cả admin để cập nhật adminProfileMap
+                            onSnapshot(adminProfilesCollectionRef, (snapshot) => {
+                                adminProfileMap = {};
+                                snapshot.forEach(doc => {
+                                    adminProfileMap[doc.id] = doc.data().displayName || doc.data().email;
+                                });
+                                renderDashboardDynamicContent(); // Cập nhật danh sách phim để hiển thị tên Admin mới
+                            });
+
+                        } catch (e) {
+                            console.error("Lỗi nghiêm trọng khi gắn listener profile:", e);
+                        }
+
+                        updateAuthStatusHeader(`Đã đăng nhập: ${userEmail}`, false);
+                        loadMovies();
+                        router();
+
+                   } else {
+                        // Nhánh chưa đăng nhập
+                        userId = userEmail = moviesCollectionRef = null;
+                        currentUserProfile = {};
+                        globalAdminMoviesCache = [];
+                        updateProfileHeader();
+                        updateAuthStatusHeader('Vui lòng Đăng nhập Admin.');
+                        if (unsubscribeMoviesListener) {
+                            unsubscribeMoviesListener();
+                            unsubscribeMoviesListener = null;
+                        }
+                        router(); // Đá về login
+                    }
+                    showLoading(false);
+                });
+
+            } catch (error) {
+                console.error("Lỗi khởi tạo Firebase:", error);
+                updateAuthStatusHeader(`Cấu hình Firebase không hợp lệ. Chi tiết: ${error.message}`, true);
+                showLoading(false);
+            }
+        };
+
+        const loadMovies = () => {
+            if (!moviesCollectionRef || unsubscribeMoviesListener) return;
+
+            try {
+                const q = query(moviesCollectionRef);
+
+                unsubscribeMoviesListener = onSnapshot(q, (snapshot) => {
+                    const movies = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                    // Sắp xếp theo thời gian tạo mới nhất
+                    movies.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
+                    globalAdminMoviesCache = movies;
+
+                    const hash = window.location.hash.substring(1) || 'dashboard';
+                    if (hash === 'dashboard') {
+                        renderAdminDashboard();
+                        renderDashboardDynamicContent();
+                    } else if (hash === 'schedule') {
+                        renderSchedulePage();
+                    }
+
+                }, (error) => {
+                    console.error("Lỗi khi tải danh sách phim (onSnapshot):", error);
+                    if (window.location.hash.substring(1) === 'dashboard') {
+                        $('main-content').innerHTML = '<p class="text-[#ff69b4] font-bold text-center py-8">Lỗi tải dữ liệu. Vui lòng kiểm tra Quy tắc Bảo mật Firestore và quyền truy cập vào Movies.</p>';
+                    }
+                });
+            } catch (e) {
+                console.error("Lỗi thiết lập listener phim:", e);
+            }
+        };
+
+        const getFilteredAndPaginatedMovies = () => {
+            let result = globalAdminMoviesCache.filter(movie => {
+                const matchTitle = (movie.title || '').toLowerCase().includes(filterState.title.toLowerCase());
+                const matchGenre = filterState.genre === '' || (movie.genre || '').includes(filterState.genre);
+
+                const creatorName = adminProfileMap[movie.updatedBy] || '';
+                const matchCreator = (creatorName.toLowerCase().includes(filterState.creator.toLowerCase())) ||
+                    ((movie.updatedBy || '').includes(filterState.creator));
+
+                return matchTitle && matchGenre && matchCreator;
+            });
+
+            const totalPages = Math.ceil(result.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages > 0 ? totalPages : 1;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = result.slice(start, start + itemsPerPage);
+
+            return {data: paginated, total: result.length, totalPages};
+        };
+
+        window.handleFilterChange = (key, value) => {
+            filterState[key] = value;
+            currentPage = 1;
+            renderDashboardDynamicContent();
+        };
+
+        window.changePage = (delta) => {
+            currentPage += delta;
+            renderDashboardDynamicContent();
+        };
+
+        window.toggleGenreDropdown = (targetId, event) => {
+            const dropdown = $(targetId);
+            const isHidden = dropdown.classList.contains('hidden');
+            document.querySelectorAll('.custom-dropdown-menu').forEach(d => {
+                if (d.id !== targetId) d.classList.add('hidden');
+            });
+
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        };
+
+        const renderDashboardDynamicContent = () => {
+            const container = $('dynamic-dashboard-content');
+            if (!container) return;
+
+            const {data, total, totalPages} = getFilteredAndPaginatedMovies();
+            const movieListHtml = renderMovieListContent(data);
+
+            container.innerHTML = `
+                
+                <div id="movie-list" class="space-y-4">${movieListHtml}</div>
+                
+                <div class="mt-6 flex justify-center items-center space-x-4">
+                    <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(-1)">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </button>
+                    <span class="text-[#00ffaa] font-bold">Page ${currentPage} / ${totalPages || 1}</span>
+                    <button class="pagination-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+
+            const totalMoviesDisplay = $('stat-total-movies-display');
+            if (totalMoviesDisplay) totalMoviesDisplay.textContent = total;
+
+            // Thêm listeners cho nút thêm tập đơn
+            container.querySelectorAll('.add-episode-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    window.showAddEpisodeModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+
+            // Thêm listeners cho nút thêm tập hàng loạt
+            container.querySelectorAll('.bulk-add-episode-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    window.showBulkAddEpisodeModal(this.getAttribute('data-movie-id'), this.getAttribute('data-movie-title'));
+                });
+            });
+
+            // Thêm listeners cho nút sửa phim
+            container.querySelectorAll('.edit-movie-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    window.showEditMovieModal(this.getAttribute('data-movie-id'));
+                });
+            });
+
+        };
+
+        const renderAdminDashboard = () => {
+            const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : (GENRE_TRANSLATIONS[filterState.genre] ? `${filterState.genre} (${GENRE_TRANSLATIONS[filterState.genre]})` : filterState.genre);
+
+            const genreTagListHtml = ALL_GENRES.map(g => {
+                const vietnameseName = GENRE_TRANSLATIONS[g] || g;
+                return `
+                <button type="button" 
+                        onclick="handleFilterChange('genre', '${g}')" 
+                        class="genre-tag ${filterState.genre === g ? 'selected' : ''}">
+                    ${g} <span class="text-xs text-gray-400 ml-1">(${vietnameseName})</span>
+                </button>
+            `}).join('');
+
+            const totalMoviesCache = globalAdminMoviesCache.length;
+            const totalEpisodes = globalAdminMoviesCache.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
+
+            // TẠO GIAO DIỆN HERO SLIDER MANAGEMENT
+            const sliderManagementHtml = `
+                <div class="bg-[#1e1346] p-5 rounded-xl border-2 border-[#00ffaa] mb-6 shadow-[0_0_15px_rgba(0,255,170,0.15)] relative overflow-visible z-20">
+                    <div class="absolute -top-3 left-4 bg-[#00ffaa] text-gray-900 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-md">
+                        <i class="fas fa-images mr-1"></i> Quản Lý Hero Slider
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 mb-4 mt-2">
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="random" ${currentSliderSettings.mode === 'random' ? 'checked' : ''} onchange="window.changeSliderMode('random')" class="form-radio text-[#00ffaa] focus:ring-[#00ffaa] w-4 h-4">
+                            <span class="font-medium text-sm">Tự động Random (5 Phim)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer text-white">
+                            <input type="radio" name="slider-mode" value="manual" ${currentSliderSettings.mode === 'manual' ? 'checked' : ''} onchange="window.changeSliderMode('manual')" class="form-radio text-[#ff69b4] focus:ring-[#ff69b4] w-4 h-4">
+                            <span class="font-medium text-sm text-[#ff69b4]">Chọn tay (Max 6 Phim)</span>
+                        </label>
+                    </div>
+
+                    <div id="manual-slider-controls" class="${currentSliderSettings.mode === 'random' ? 'hidden' : 'block'} transition-all bg-[#2f1d56] p-4 rounded-lg border border-[#5d3f9e]">
+                        <!-- Search & Add -->
+                        <div class="flex space-x-2 mb-4 relative z-30">
+                            <div class="relative flex-grow">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="slider-search-input" placeholder="Gõ tên phim để thêm vào Slider..." class="form-input text-sm w-full pl-10 h-10" oninput="window.handleSliderSearch(this.value)">
+                            </div>
+                            <div id="slider-search-results" class="absolute top-full left-0 w-full mt-1 bg-[#1a0f3d] border border-[#ff69b4] rounded-lg shadow-2xl z-50 hidden max-h-48 overflow-y-auto"></div>
+                        </div>
+                        
+                        <!-- Selected List -->
+                        <div id="slider-selected-list" class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-2">
+                            <!-- Rendered via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 border-t border-gray-700 pt-4">
+                        <p id="slider-msg" class="text-sm font-bold"></p>
+                        <button onclick="window.saveSliderSettings()" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-6 rounded-lg shadow-md flex items-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> LƯU CẤU HÌNH SLIDER
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            $('main-content').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-semibold text-[#00ffaa]">DANH SÁCH MOVIE (<span id="stat-total-movies-display">${getFilteredAndPaginatedMovies().total}</span>)</h2>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="#schedule" class="anime-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-sm">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Lịch Chiếu
+                                </a>
+                                <button onclick="showModal('add-movie-modal')" class="anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-plus mr-2"></i> Thêm Phim
+                                </button>
+                                <!-- Nút Import Phim (Bulk Import Movies) đã được thêm lại -->
+                                <button onclick="showModal('bulk-import-modal')" class="anime-button bg-[#bf94e4] hover:bg-[#a06ec4] text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center">
+                                    <i class="fas fa-file-import mr-2"></i> Import Phim
+                                </button>
+                                
+                                <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-md flex items-center text-xs">
+                                    <i class="fas fa-wrench mr-2"></i> FIX DATA
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="fix-legacy-status" class="text-[#00ffaa] font-bold mb-2"></div>
+                        
+                        ${sliderManagementHtml}
+
+                        <div class="filter-bar-container">
+                            <div class="flex-grow">
+                                <input type="text" id="filter-title-input" placeholder="🔍 Tìm tên phim..." class="form-input h-10 text-sm" 
+                                       value="${filterState.title}" oninput="handleFilterChange('title', this.value)">
+                            </div>
+                            
+                            <div class="relative w-full sm:w-auto">
+                                <button type="button" id="genre-filter-button"
+                                        onclick="window.toggleGenreDropdown('genre-filter-dropdown', event)" 
+                                        class="anime-button bg-[#1a0f3d] hover:bg-[#2f1d56] border border-[#00ffaa] text-[#00ffaa] text-sm font-semibold py-2 px-3 rounded-lg w-full sm:w-64 flex items-center justify-between text-left">
+                                    <span class="truncate">${selectedGenreName}</span>
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </button>
+                                
+                                <div id="genre-filter-dropdown" 
+                                     class="custom-dropdown-menu absolute bg-[#2f1d56] p-2 rounded-lg shadow-xl hidden w-full sm:w-96">
+                                    <button type="button" 
+                                            onclick="handleFilterChange('genre', '')" 
+                                            class="genre-tag w-full mb-2 ${filterState.genre === '' ? 'selected' : ''}">
+                                        -- Tất cả thể loại --
+                                    </button>
+                                    <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                                        ${genreTagListHtml}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                             <div class="flex-grow sm:flex-grow-0">
+                                <input type="text" id="filter-creator-input" placeholder="👤 Tên Admin..." class="form-input h-10 text-sm" 
+                                       value="${filterState.creator}" oninput="handleFilterChange('creator', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div id="dynamic-dashboard-content">
+                            <p class="text-center text-gray-400 py-8">Đang tải danh sách phim...</p>
+                        </div>
+                        
+                    </div>
+
+                    <div class="lg:col-span-1">
+                        <div id="admin-info" class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border sticky top-8">
+                            <h2 class="text-xl font-semibold text-[#00ffaa] mb-4">THỐNG KÊ (STATS)</h2>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
+                                    <p class="text-sm text-gray-400">TỔNG SỐ PHIM (Cache)</p>
+                                    <p class="text-3xl font-bold text-[#00ffaa]">${totalMoviesCache}</p>
+                                </div>
+                                <div class="bg-[#1e1346] p-4 rounded-lg border border-[#5d3f9e]">
+                                    <p class="text-sm text-gray-400">TỔNG SỐ TẬP</p>
+                                    <p id="stat-total-episodes" class="text-3xl font-bold text-[#ff69b4]">${totalEpisodes}</p>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-xl font-semibold text-[#00ffaa] mb-4">HỆ THỐNG INFO</h2>
+                            <div class="space-y-3 text-sm text-[#e0e7ff]">
+                                <p><strong>App ID:</strong> <span id="display-app-id" class="break-all text-blue-300">${appId}</span></p>
+                                <p><strong>User ID:</strong> <span id="display-user-id" class="break-all text-[#00ffaa]">${userId || 'CHƯA ĐĂNG NHẬP'}</span></p>
+                                <p class="pt-2 border-t border-gray-600 text-xs">Database Location: <code class="bg-gray-800 p-1 rounded text-yellow-300 break-all">/artifacts/{appId}/public/data/movies</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            window.renderSelectedSliderMoviesUI(); // Tải UI list phim ngay sau khi render Dashboard
+
+            document.addEventListener('click', function (event) {
+                const dropdown = $('genre-filter-dropdown');
+                const dropdownButton = $('genre-filter-button');
+
+                // Kiểm tra cho dropdown thể loại
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    const isClickInsideButton = event.target.closest('#genre-filter-button');
+                    const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
+
+                    if (!isClickInsideButton && !isClickInsideDropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+
+                // Kiểm tra cho dropdown search của Slider
+                const sliderSearchResults = $('slider-search-results');
+                const sliderSearchInput = $('slider-search-input');
+                if (sliderSearchResults && !sliderSearchResults.classList.contains('hidden')) {
+                    const isClickInsideInput = event.target.closest('#slider-search-input');
+                    const isClickInsideResults = event.target.closest('#slider-search-results');
+                    if (!isClickInsideInput && !isClickInsideResults) {
+                        sliderSearchResults.classList.add('hidden');
+                    }
+                }
+            });
+
+            renderDashboardDynamicContent();
+        };
+
+        const renderProfilePage = () => {
+            const profile = currentUserProfile;
+            $('main-content').innerHTML = `
+                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card bg-[#2f1d56] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-[#ff69b4] mb-6 border-b border-[#5d3f9e] pb-2">CHỈNH SỬA PROFILE</h2>
+                        <div class="flex items-center space-x-4 mb-8">
+                            <img id="profile-avatar-preview" src="${profile.avatarBase64 || `https://placehold.co/80x80/ff69b4/ffffff?text=${(profile.displayName || (userEmail ? userEmail.charAt(0) : 'AD')).toUpperCase()}`}" alt="Admin Avatar" class="w-20 h-20 rounded-full border-4 border-[#00ffaa] object-cover">
+                            <div>
+                                <p class="text-2xl font-bold text-[#00ffaa]">${profile.displayName || userEmail}</p>
+                                <p class="text-sm text-gray-400">Email: ${userEmail}</p>
+                            </div>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="mb-4">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-display-name">Tên Hiển Thị</label>
+                                <input class="form-input" id="profile-display-name" type="text" placeholder="Ví dụ: Sensei, Dev-chan" value="${profile.displayName || ''}">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2" for="profile-avatar-file">Ảnh Đại Diện (Max 0.5MB)</label>
+                                <input class="shadow border border-[#5d3f9e] rounded w-full py-2 px-3 bg-[#1a0f3d] text-white leading-tight focus:outline-none focus:ring-2 focus:ring-[#ff69b4] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff69b4]/20 file:text-[#ff69b4]" 
+                                       id="profile-avatar-file" type="file" accept="image/png, image/jpeg">
+                                <p class="text-xs text-gray-500 mt-2">Ảnh được lưu dưới dạng Base64 trong Firestore.</p>
+                            </div>
+                            
+                            <p id="profile-message" class="text-[#00ffaa] text-sm mb-4"></p>
+
+                            <button type="submit" class="anime-button bg-[#00ffaa] hover:bg-[#00cc88] text-gray-900 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff69b4] w-full">
+                                <i class="fas fa-save mr-2"></i> LƯU PROFILE
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="card bg-[#2f1d56] p-8 rounded-xl shadow-2xl panel-border">
+                        <h2 class="text-3xl font-bold text-[#00ffaa] mb-6 border-b border-[#5d3f9e] pb-2">QUẢN LÝ TÀI KHOẢN</h2>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-[#e0e7ff] mb-3">Đổi Mật khẩu Của Bạn</h3>
+                            <form id="changePasswordForm">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="newPass" required placeholder="Nhập mật khẩu mới (min 6 ký tự)">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Xác nhận mật khẩu mới:</label>
+                                <input class="form-input" type="password" id="confirmNewPass" required placeholder="Xác nhận mật khẩu">
+                                <p id="change-pass-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-key mr-2"></i> ĐỔI MẬT KHẨU
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <hr class="border-t border-gray-700 my-6">
+                        <div class="pt-2">
+                            <h3 class="text-xl font-bold text-[#e0e7ff] mb-3">Tạo Tài Khoản Admin Mới</h3>
+                            <form id="create-admin-form">
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Email Admin Mới:</label>
+                                <input class="form-input" type="email" id="newAdminEmail" placeholder="ví dụ: sub@admin.com" required>
+                                <label class="block text-[#e0e7ff] text-sm font-bold mb-2">Mật khẩu:</label>
+                                <input class="form-input" type="password" id="newAdminPass" placeholder="Ít nhất 6 ký tự" required>
+                                <p id="create-admin-msg" class="text-sm mt-2 mb-4"></p>
+                                <button type="submit" class="anime-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full">
+                                    <i class="fas fa-user-plus mr-2"></i> TẠO TÀI KHOẢN
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $('profile-avatar-file')?.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        $('profile-avatar-preview').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            $('profile-form')?.addEventListener('submit', handleSaveProfile);
+            $('create-admin-form')?.addEventListener('submit', handleCreateAdmin);
+            $('changePasswordForm')?.addEventListener('submit', handleChangePassword);
+        };
+
+        const renderSchedulePage = () => {
+            const slots = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật", "Không có"];
+
+            const scheduleMap = {};
+            slots.forEach(s => scheduleMap[s] = []);
+
+            globalAdminMoviesCache.filter(m => m.status !== 'tron-bo').forEach(m => {
+                let day = m.airingDay || "Không có";
+                if (!slots.includes(day)) day = "Không có";
+                scheduleMap[day].push(m);
+            });
+
+            const gridHtml = slots.map(day => {
+                const movies = scheduleMap[day];
+                const hasMovies = movies.length > 0;
+
+                return `
+                    <div class="bg-[#1a0f3d] rounded-xl border border-[#5d3f9e] overflow-hidden flex flex-col h-full min-h-[200px] shadow-lg hover:shadow-[#ff69b4]/20 transition duration-300">
+                        <div class="bg-[#2f1d56] py-3 text-center border-b border-[#5d3f9e]">
+                            <h3 class="text-[#ff69b4] font-bold text-lg uppercase">${day}</h3>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col ${hasMovies ? 'justify-start' : 'justify-center'} custom-scrollbar overflow-y-auto max-h-[350px]">
+                            ${hasMovies ? movies.map(m => `
+                                <div class="flex gap-3 items-center bg-[#1e1346] p-2 rounded mb-2 hover:bg-[#2f1d56] border border-transparent hover:border-[#00ffaa] cursor-pointer group transition" onclick="window.showEditMovieModal('${m.id}')">
+                                    <img src="${m.posterUrl}" class="w-12 h-16 object-cover rounded border border-[#5d3f9e] group-hover:border-[#00ffaa]" onerror="this.src='https://placehold.co/48x64'">
+                                    <div class="min-w-0 overflow-hidden">
+                                        <p class="text-sm font-bold text-gray-200 truncate group-hover:text-[#00ffaa] transition">${m.title}</p>
+                                        <p class="text-xs text-gray-500">Tập ${(m.episodes || []).length}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500 text-sm italic text-center">Chưa có phim nào.</p>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $('main-content').innerHTML = `
+                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
+                    <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+                        <h2 class="text-2xl font-bold text-[#00ffaa] neon-glow">LỊCH CHIẾU PHIM TRONG TUẦN</h2>
+                        <button onclick="location.hash='#dashboard'" class="bg-[#4b5563] hover:bg-[#374151] text-white text-sm font-bold py-2 px-6 rounded-lg flex items-center transition shadow-lg">
+                            <i class="fas fa-arrow-left mr-2"></i> Quay lại Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="schedule-grid-container">
+                        ${gridHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderEpisodeList = (episodes, movieId) => {
+            if (!episodes || episodes.length === 0) {
+                return '<p class="text-gray-500 italic text-sm">Chưa có tập phim nào. (No Data)</p>';
+            }
+            episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
+
+            const listItems = episodes.map(ep => {
+                const title = ep.title || 'Không có tên';
+                const safeTitle = title.replace(/'/g, "\\'");
+                const previewUrl = getAdminPreviewUrl(ep.videoUrl);
+                return `
+                <li class="flex items-center justify-between p-2 border-b border-[#5d3f9e] last:border-b-0 text-sm">
+                    <div class="flex-grow truncate">
+                        <!-- Hiển thị chỉ số tập và tên tập -->
+                        <span class="font-medium text-[#00ffaa]">EP ${ep.episodeNumber || 'N/A'}:</span>
+                        <span class="mx-2 text-white">${title}</span>
+                    </div>
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video (Mở Preview)">
+                            <i class="fas fa-external-link-alt"></i> LINK
+                        </a>
+                        <button onclick="window.showEditEpisodeModal('${movieId}', ${ep.episodeNumber})" class="text-yellow-400 hover:text-yellow-300 ml-3" title="Sửa tập">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="window.handleDeleteEpisode('${movieId}', ${ep.episodeNumber}, '${safeTitle}')" class="text-red-500 hover:text-red-700 ml-2" title="Xóa tập">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `}).join('');
+
+            return `<ul class="divide-y divide-[#1e1346] episode-list-scroll">${listItems}</ul>`;
+        };
+
+        const renderMovieListContent = (movies) => {
+            if (movies.length === 0) {
+                return '<p class="text-center text-[#ff69b4] font-bold py-8" id="no-movies-message">Chưa có phim nào (hoặc không khớp bộ lọc).</p>';
+            }
+
+            return movies.map(movie => {
+                const titleHtml = movie.titleOriginal
+                    ? `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3><h4 class="text-sm font-normal text-gray-400 -mt-1 mb-1">${movie.titleOriginal}</h4>`
+                    : `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3>`;
+                const posterSrc = movie.posterUrl || 'https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';
+                const episodeCount = movie.episodes ? movie.episodes.length : 0;
+                const totalEpisodes = movie.totalEpisodes || 0;
+                const episodeText = totalEpisodes > 0 ? `${episodeCount} / ${totalEpisodes} tập` : `Tập ${episodeCount}`;
+
+                // Tạo badge Admin ở góc phải trên cùng
+                const creatorName = adminProfileMap[movie.updatedBy] ?
+                    `<div class="admin-badge-corner">Admin: ${adminProfileMap[movie.updatedBy]}</div>` : '';
+
+                return `
+                    <div class="movie-card-anime bg-[#1e1346] p-4 rounded-xl shadow-md border border-[#5d3f9e] transition duration-300 hover:border-[#ff69b4]">
+                        ${creatorName} <!-- Đặt Admin Badge ở đây -->
+                        
+                        <div class="flex items-start space-x-4">
+                            <img src="${posterSrc}" onerror="this.onerror=null;this.src='https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';" 
+                                 class="w-20 h-30 object-cover rounded-lg shadow-lg flex-shrink-0 border-2 border-[#ff69b4]" alt="Poster ${movie.title}">
+                            
+                            <div class="flex-grow">
+                                ${titleHtml}
+                                <p class="text-sm text-[#00ffaa] mb-2 italic">Genre: ${movie.genre || 'N/A'}</p>
+                                <p class="text-gray-300 text-sm line-clamp-2">${movie.summary || 'Không có tóm tắt.'}</p>
+                                
+                                <div class="mt-3 flex flex-wrap gap-2 items-center">
+                                    ${getStatusBadge(movie.status)}
+                                    <span class="bg-[#2f1d56] text-[#00ffaa] text-xs font-semibold py-1 px-3 rounded-full border border-[#00ffaa]">Views: ${movie.viewCount || 0}</span>
+                                    
+                                    <div class="ml-auto flex space-x-2">
+                                        <!-- Nút Thêm Tập Đơn -->
+                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-bolt mr-1"></i> EP SINGLE
+                                        </button>
+                                        <!-- Nút Thêm Tập Hàng Loạt -->
+                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-stream mr-1"></i> EP BULK
+                                        </button>
+                                        
+                                        <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-edit mr-1"></i> EDIT
+                                        </button>
+                                        
+                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                            <i class="fas fa-skull-crossbones mr-1"></i> DELETE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-[#5d3f9e]">
+                            <h4 class="text-lg font-semibold text-[#00ffaa] mb-2">EPISODE LIST (${episodeText})</h4>
+                            ${renderEpisodeList(movie.episodes, movie.id)} 
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        const getStatusBadge = (statusKey) => {
+            switch (statusKey) {
+                case 'dang-chieu': return '<span class="bg-[#5d3f9e] text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Đang Chiếu</span>';
+                case 'tron-bo': return '<span class="bg-green-500 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Hoàn Thành</span>';
+                case 'sap-chieu': return '<span class="bg-yellow-500 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full shadow-lg">Sắp Chiếu</span>';
+                default: return `<span class="bg-gray-700 text-white text-xs font-semibold py-1 px-3 rounded-full shadow-lg">${statusKey || 'N/A'}</span>`;
+            }
+        };
+
+        window.showAddEpisodeModal = (movieId, movieTitle) => {
+            $('episode-movie-id').value = movieId;
+            $('episode-movie-title').textContent = movieTitle || '[Không có tên]';
+            $('episode-form-message').textContent = '';
+            $('add-episode-form').reset();
+            $('episode-movie-id').value = movieId;
+
+            showModal('add-episode-modal');
+        };
+
+        window.showEditMovieModal = async (movieId) => {
+            if (!moviesCollectionRef) return;
+            const movie = globalAdminMoviesCache.find(m => m.id === movieId);
+            if (!movie) {
+                window.showConfirmModal("Lỗi: Không tìm thấy phim trong cache. Vui lòng tải lại trang.");
+                return;
+            }
+
+            $('edit-movie-id').value = movieId;
+            $('edit-movie-title').value = movie.title || '';
+            $('edit-movie-title-original').value = movie.titleOriginal || '';
+            $('edit-movie-summary').value = movie.summary || '';
+
+            $('edit-movie-formatType').value = movie.formatType || 'tv-series';
+            $('edit-movie-season').value = movie.season || 'khac';
+            $('edit-movie-totalEpisodes').value = movie.totalEpisodes || 0;
+            $('edit-movie-status').value = movie.status || 'dang-chieu';
+            $('edit-movie-airingDay').value = movie.airingDay || 'Không có';
+
+            const isPosterBase64 = movie.posterUrl && movie.posterUrl.startsWith('data:image');
+            $('edit-poster-upload-status').textContent = isPosterBase64 ? 'Phim đang dùng ảnh Base64. Tải tệp mới hoặc dán URL sẽ ghi đè.' : '';
+            $('edit-movie-poster').value = isPosterBase64 ? '' : movie.posterUrl || '';
+
+            const isBannerBase64 = movie.bannerUrl && movie.bannerUrl.startsWith('data:image');
+            $('edit-banner-upload-status').textContent = isBannerBase64 ? 'Phim đang dùng banner Base64. Tải tệp mới/dán URL sẽ ghi đè.' : '';
+            $('edit-movie-banner').value = isBannerBase64 ? '' : movie.bannerUrl || '';
+
+            const savedGenres = (movie.genre || '').split(',').map(g => g.trim());
+            document.querySelectorAll('#edit-genre-tag-container .genre-tag').forEach(tag => {
+                tag.classList.toggle('selected', savedGenres.includes(tag.dataset.genre));
+            });
+
+            // NEW: Cập nhật nút xóa tất cả tập phim
+            const deleteAllBtn = $('delete-all-episodes-btn');
+            if (deleteAllBtn) {
+                deleteAllBtn.onclick = () => window.handleDeleteAllEpisodes(movieId, movie.title);
+            }
+
+            showModal('edit-movie-modal');
+        };
+
+        window.showEditEpisodeModal = (movieId, episodeNumber) => {
+            const movie = globalAdminMoviesCache.find(m => m.id === movieId);
+            const episodeToEdit = (movie?.episodes || []).find(ep => ep.episodeNumber === episodeNumber);
+
+            if (!episodeToEdit) {
+                window.showConfirmModal("Lỗi: Không tìm thấy tập phim để sửa.");
+                return;
+            }
+
+            $('edit-episode-movie-id').value = movieId;
+            $('edit-episode-movie-title').textContent = movie.title;
+            $('edit-episode-number-original').value = episodeToEdit.episodeNumber;
+            $('edit-episode-number').value = episodeToEdit.episodeNumber;
+            $('edit-episode-title').value = episodeToEdit.title;
+            $('edit-episode-url').value = episodeToEdit.videoUrl;
+            $('edit-episode-form-message').textContent = '';
+
+            showModal('edit-episode-modal');
+        };
+
         const setupModalFormListeners = () => {
+            // Render các nút chọn thể loại trong Modal (có dịch tiếng Việt)
             const genreContainers = document.querySelectorAll('#genre-tag-container, #edit-genre-tag-container');
 
             const genreButtonsHtml = ALL_GENRES.map(g => {
@@ -2426,189 +3178,9 @@
             $('edit-movie-form')?.addEventListener('submit', handleEditMovie);
             $('add-episode-form')?.addEventListener('submit', handleAddEpisode);
             $('edit-episode-form')?.addEventListener('submit', handleEditEpisode);
+            // Thêm listener cho form Bulk Add Episodes
             $('bulk-add-episode-form')?.addEventListener('submit', handleBulkAddEpisodes);
         };
-
-        // =========================================================
-        // KHỞI TẠO ROUTER VÀ SỰ KIỆN GIAO DIỆN
-        // =========================================================
-
-        const router = () => {
-            const hash = window.location.hash.substring(1) || 'dashboard';
-
-            document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
-                btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : 'transparent';
-                btn.style.color = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : '#e0e7ff';
-            });
-
-            if (!userId) {
-                if (hash !== 'login') window.location.hash = '#login';
-                $('main-content').innerHTML = '';
-                return;
-            }
-
-            switch (hash) {
-                case 'dashboard':
-                    renderAdminDashboard();
-                    break;
-                case 'profile':
-                    renderProfilePage();
-                    break;
-                case 'schedule':
-                    renderSchedulePage();
-                    break;
-                case 'api-hunter':
-                    renderApiHunterPage();
-                    break;
-                case 'login':
-                    window.location.hash = '#dashboard';
-                    break;
-                default:
-                    window.location.hash = '#dashboard';
-            }
-        };
-
-        // =========================================================
-        // INIT VÀ CHẠY TOÀN BỘ APP
-        // =========================================================
-
-        const initFirebase = async () => {
-            try {
-                if (!getApps().length) {
-                    app = initializeApp(finalConfig);
-                } else {
-                    app = getApps()[0];
-                }
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                await setPersistence(auth, browserSessionPersistence);
-
-                adminProfilesCollectionRef = collection(db, 'artifacts', appId, 'adminProfiles');
-
-                sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'heroSlider');
-                onSnapshot(sliderSettingsDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        currentSliderSettings = docSnap.data();
-                    } else {
-                        currentSliderSettings = { mode: 'random', selectedMovieIds: [] };
-                    }
-                    if (window.location.hash === '' || window.location.hash === '#dashboard') {
-                        const manualControls = $('manual-slider-controls');
-                        if (manualControls) {
-                            window.renderSelectedSliderMoviesUI();
-                        }
-                    }
-                });
-
-                // XÁC THỰC RỒI MỚI CHO PHÉP ROUTER CHẠY
-                onAuthStateChanged(auth, async (user) => {
-                    if (user && !user.isAnonymous) {
-                        try {
-                            const adminDocRef = doc(adminProfilesCollectionRef, user.uid);
-                            const adminDocSnap = await getDoc(adminDocRef);
-                            const role = adminDocSnap.exists() ? adminDocSnap.data().role : 'user';
-
-                            if (role !== 'admin') {
-                                await signOut(auth);
-                                updateAuthStatusHeader('QUYỀN BỊ THU HỒI: Bạn không có quyền Admin.', true);
-                                return;
-                            }
-                        } catch (error) {
-                            console.error("Lỗi khi kiểm tra role:", error);
-                            await signOut(auth);
-                            updateAuthStatusHeader('Lỗi hệ thống: Không thể xác minh quyền Admin.', true);
-                            return;
-                        }
-
-                        userId = user.uid;
-                        userEmail = user.email;
-
-                        moviesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'movies');
-                        userProfileDocRef = doc(adminProfilesCollectionRef, userId);
-
-                        try {
-                            onSnapshot(userProfileDocRef, (docSnap) => {
-                                currentUserProfile = docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : {};
-                                updateProfileHeader();
-                            });
-
-                            onSnapshot(adminProfilesCollectionRef, (snapshot) => {
-                                adminProfileMap = {};
-                                snapshot.forEach(doc => {
-                                    adminProfileMap[doc.id] = doc.data().displayName || doc.data().email;
-                                });
-                                if (window.location.hash === '' || window.location.hash === '#dashboard') {
-                                    renderDashboardDynamicContent(); 
-                                }
-                            });
-
-                        } catch (e) {
-                            console.error("Lỗi listener profile:", e);
-                        }
-
-                        updateAuthStatusHeader(`Đã đăng nhập: ${userEmail}`, false);
-                        loadMovies();
-                        router(); // Gọi router SAU KHI CÓ USER ID
-
-                    } else {
-                        userId = userEmail = moviesCollectionRef = null;
-                        currentUserProfile = {};
-                        globalAdminMoviesCache = [];
-                        updateProfileHeader();
-                        updateAuthStatusHeader('Vui lòng Đăng nhập Admin.');
-                        if (unsubscribeMoviesListener) {
-                            unsubscribeMoviesListener();
-                            unsubscribeMoviesListener = null;
-                        }
-                        router(); // Gọi router để đá về trang login
-                    }
-                    showLoading(false);
-                });
-
-            } catch (error) {
-                console.error("Lỗi khởi tạo Firebase:", error);
-                updateAuthStatusHeader(`Cấu hình Firebase không hợp lệ. Chi tiết: ${error.message}`, true);
-                showLoading(false);
-            }
-        };
-
-        const loadMovies = () => {
-            if (!moviesCollectionRef || unsubscribeMoviesListener) return;
-
-            try {
-                const q = query(moviesCollectionRef);
-
-                unsubscribeMoviesListener = onSnapshot(q, (snapshot) => {
-                    const movies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    movies.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-
-                    globalAdminMoviesCache = movies;
-
-                    const hash = window.location.hash.substring(1) || 'dashboard';
-                    if (hash === 'dashboard') {
-                        renderAdminDashboard();
-                        renderDashboardDynamicContent();
-                    } else if (hash === 'schedule') {
-                        renderSchedulePage();
-                    } else if (hash === 'api-hunter') {
-                        // Nếu đang ở trang quét API mà kho phim có data mới thì refresh lại
-                        const container = $('api-results-container');
-                        if (container && container.innerHTML.includes('CÓ TẬP MỚI')) {
-                             // Tùy chọn: Tự động quét lại nếu muốn
-                             // window.scanNguonCApi(); 
-                        }
-                    }
-
-                }, (error) => {
-                    console.error("Lỗi khi tải danh sách phim:", error);
-                });
-            } catch (e) {
-                console.error("Lỗi thiết lập listener phim:", e);
-            }
-        };
-
 
         document.addEventListener('DOMContentLoaded', () => {
             initFirebase();
@@ -2616,13 +3188,227 @@
             $('nav-dashboard')?.addEventListener('click', () => window.location.hash = '#dashboard');
             $('nav-schedule')?.addEventListener('click', () => window.location.hash = '#schedule');
             $('nav-profile')?.addEventListener('click', () => window.location.hash = '#profile');
-            $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
 
             $('login-form')?.addEventListener('submit', handleLogin);
 
             setupModalFormListeners();
+
             window.addEventListener('hashchange', router);
         });
+
+        // =====================================================================
+        // ⚡ BÉ LÔI: MODULE KHO API NGUỒN C (TÍCH HỢP SO SÁNH & CẬP NHẬT) ⚡
+        // =====================================================================
+
+        // 1. Khai báo nút mới trong Router
+        $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
+
+        
+        const renderApiHunterPage = () => {
+            $('main-content').innerHTML = `
+                <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
+                    <h2 class="text-3xl font-bold text-yellow-400 mb-6 border-b border-[#5d3f9e] pb-2">
+                        <i class="fas fa-satellite-dish mr-2"></i> TRẠM THU THẬP API NGUỒN C
+                    </h2>
+                    
+                    <!-- Bảng điều khiển Quét API -->
+                    <div class="bg-[#1a0f3d] p-5 rounded-lg border border-[#00ffaa] mb-6 flex flex-wrap gap-4 items-end">
+                        <div>
+                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Loại API:</label>
+                            <select id="api-type" class="form-input w-48">
+                                <option value="moi-cap-nhat">Phim Mới Cập Nhật</option>
+                                <option value="quoc-gia">Lọc theo Quốc Gia</option>
+                                <option value="the-loai">Lọc theo Thể Loại</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Slug (Tên k-dấu):</label>
+                            <input id="api-slug" type="text" class="form-input w-40" placeholder="vd: nhat-ban, hanh-dong" disabled>
+                            <p class="text-[10px] text-gray-400 mt-1">Chỉ dùng cho Quốc gia/Thể loại</p>
+                        </div>
+                        <div>
+                            <label class="block text-[#00ffaa] text-sm font-bold mb-2">Trang (Page):</label>
+                            <input id="api-page" type="number" class="form-input w-24" value="1" min="1">
+                        </div>
+                        <button onclick="window.scanNguonCApi()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-6 rounded-lg shadow-md h-10">
+                            <i class="fas fa-radar mr-2"></i> QUÉT TÌM PHIM
+                        </button>
+                    </div>
+
+                    <!-- Nơi hiển thị kết quả -->
+                    <div id="api-results-container">
+                        <p class="text-center text-gray-400 py-8 italic">Chưa quét dữ liệu. Hãy bấm "Quét Tìm Phim" thưa Chủ nhân!</p>
+                    </div>
+                </div>
+            `;
+            // Lắng nghe sự kiện đổi Loại API để Bật/Tắt ô Slug
+            $('api-type').addEventListener('change', (e) => {
+                $('api-slug').disabled = e.target.value === 'moi-cap-nhat';
+             });
+        };
+
+        // 3. Hàm Quét và So Sánh Logic (Trái tim của hệ thống nè!)
+        window.scanNguonCApi = async () => {
+            const type = $('api-type').value;
+            const slug = $('api-slug').value.trim();
+            const page = $('api-page').value;
+            const container = $('api-results-container');
+
+            if (type !== 'moi-cap-nhat' && !slug) {
+                alert("Chủ nhân quên nhập Slug rồi ạ!");
+                return;
+            }
+
+            container.innerHTML = '<div class="text-center text-[#00ffaa] py-10"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><br>Bé Lôi đang quét radar... Chủ nhân đợi xíu nha!</div>';
+
+            let url = '';
+            if (type === 'moi-cap-nhat') url = `https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=${page}`;
+            else if (type === 'quoc-gia') url = `https://phim.nguonc.com/api/films/quoc-gia/${slug}?page=${page}`;
+            else if (type === 'the-loai') url = `https://phim.nguonc.com/api/films/the-loai/${slug}?page=${page}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const items = data.items || data.data || [];
+
+                if (items.length === 0) {
+                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Không tìm thấy phim nào ở trang này ạ!</p>';
+                    return;
+                }
+
+                // Tạo danh sách HTML
+                let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                
+                items.forEach(apiMovie => {
+                    // So sánh tên phim API với Cache DB của mình
+                    const dbMovie = globalAdminMoviesCache.find(m => 
+                        m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() ||
+                        (m.titleOriginal && apiMovie.original_name && m.titleOriginal.toLowerCase().trim() === apiMovie.original_name.toLowerCase().trim())
+                    );
+
+                    let statusBadge = '';
+                    let actionButton = '';
+                    const apiEpText = apiMovie.current_episode || 'Chưa rõ';
+
+                    if (dbMovie) {
+                        // Đã có trong DB -> Kiểm tra số tập
+                        const dbEpCount = dbMovie.episodes ? dbMovie.episodes.length : 0;
+                        
+                        // Mẹo nhỏ: Dùng Regex bóc tách con số tập từ API (vd: "Tập 12" -> 12)
+                        const apiEpMatch = apiEpText.match(/\d+/);
+                        const apiEpNumber = apiEpMatch ? parseInt(apiEpMatch[0]) : 0;
+
+                        if (apiEpNumber > dbEpCount) {
+                            // 🚨 CÓ TẬP MỚI!
+                            statusBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">🚨 CÓ TẬP MỚI (DB: ${dbEpCount} ➔ API: ${apiEpText})</span>`;
+                            actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ Tập</button>`;
+                        } else {
+                            // ĐÃ CẬP NHẬT ĐẦY ĐỦ
+                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (Đang có: ${dbEpCount} tập)</span>`;
+                            actionButton = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-1 px-3 rounded text-sm cursor-not-allowed">Đã xong</button>`;
+                        }
+                    } else {
+                        // 🌟 PHIM MỚI HOÀN TOÀN
+                        statusBadge = `<span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">🌟 PHIM MỚI TINH</span>`;
+                        actionButton = `<button onclick="window.autoAddNewMovie('${apiMovie.slug}')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-plus mr-1"></i> Thêm Phim Này</button>`;
+                    }
+
+                    htmlContent += `
+                        <div class="bg-[#1e1346] p-3 rounded-lg border border-[#5d3f9e] flex gap-4">
+                            <img src="${apiMovie.thumb_url || apiMovie.poster_url}" class="w-16 h-24 object-cover rounded border border-gray-600">
+                            <div class="flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-white font-bold text-sm line-clamp-1">${apiMovie.name}</h4>
+                                    <p class="text-xs text-gray-400 mb-1">${apiMovie.original_name}</p>
+                                    ${statusBadge}
+                                </div>
+                                <div class="mt-2 text-right">
+                                    ${actionButton}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += '</div>';
+                container.innerHTML = htmlContent;
+
+            } catch (error) {
+                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi khi gọi API Nguồn C: ${error.message}</p>`;
+            }
+        };
+
+        // 4. Hàm Tự Động Lấy & Đồng Bộ Tập Phim Vào DB (Bản Chuẩn)
+        window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
+            try {
+                const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tập mới nhất từ API và đẩy vào phim này nha?");
+                if(!confirmed) return;
+                
+                showLoading(true);
+                // Lấy chi tiết để có link m3u8/embed
+                const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
+                const dataDetail = await resDetail.json();
+                const rawMovie = dataDetail.movie || dataDetail;
+                
+                let mappedEpisodes = [];
+                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
+                    rawMovie.episodes.forEach(server => {
+                        if (server.server_data) {
+                            server.server_data.forEach((ep, index) => {
+                                // Kiểm tra tránh trùng lặp tên tập
+                                if (!mappedEpisodes.find(e => e.title === ep.name)) {
+                                    mappedEpisodes.push({
+                                        episodeNumber: index + 1,
+                                        title: ep.name || `Tập ${index + 1}`,
+                                        videoUrl: ep.link_m3u8 || ep.link_embed || '',
+                                        addedAt: new Date().toISOString()
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                // Ghi đè cập nhật vào Database
+                await updateDoc(doc(moviesCollectionRef, dbMovieId), {
+                    episodes: mappedEpisodes,
+                    lastEpisodeUpdate: serverTimestamp()
+                });
+                
+                showLoading(false);
+                alert("Thành công! Bé Lôi đã đồng bộ tập mới xong ạ!");
+                window.scanNguonCApi(); // Refresh lại bảng
+
+            } catch(err) {
+                showLoading(false);
+                alert("Lỗi đồng bộ: " + err.message);
+            }
+        };
+
+        // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
+        window.autoAddNewMovie = async (apiSlug) => {
+            try {
+                showLoading(true);
+                const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
+                const dataDetail = await resDetail.json();
+                
+                // Dùng lại hàm chuẩn hóa Dữ liệu đã có sẵn trong web
+                const convertedMovie = mapApiToSchema(dataDetail);
+                const sanitizedMovie = sanitizeMovieData(convertedMovie, userId);
+
+                // Lưu phim mới vào Database
+                await setDoc(doc(moviesCollectionRef), sanitizedMovie);
+                
+                showLoading(false);
+                alert("Quá xịn! Đã thêm siêu phẩm mới vào kho thành công!");
+                window.scanNguonCApi(); // Refresh lại bảng
+                
+            } catch(err) {
+                showLoading(false);
+                alert("Lỗi thêm phim: " + err.message);
+            }
+        };
+                
 
     </script>
 </body>
