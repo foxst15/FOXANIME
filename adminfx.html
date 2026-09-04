@@ -3195,19 +3195,43 @@
         $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
 
         // Can thiệp vào Router hiện tại để thêm trang API Hunter
-        const originalRouter = router;
-        router = () => {
-            originalRouter(); // Chạy router cũ
+        const router = () => {
             const hash = window.location.hash.substring(1) || 'dashboard';
 
-            // Đổi màu menu
+            // Đổi màu menu (Bé Lôi đã thêm màu vàng #fbbf24 cho nút API Hunter)
             document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
+                // Chỉnh màu viền dưới
                 btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : 'transparent';
+                // Chỉnh màu chữ
+                btn.style.color = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : '#e0e7ff';
             });
 
-            if (hash === 'api-hunter' && userId) {
-                renderApiHunterPage();
+            if (!userId) {
+                if (hash !== 'login') window.location.hash = '#login';
+                $('main-content').innerHTML = '';
+                return;
+            }
+
+            // Xử lý chuyển trang
+            switch (hash) {
+                case 'dashboard':
+                    renderAdminDashboard();
+                    break;
+                case 'profile':
+                    renderProfilePage();
+                    break;
+                case 'schedule':
+                    renderSchedulePage();
+                    break;
+                case 'api-hunter':       // 🌟 BÉ LÔI ĐÃ THÊM NHÁNH NÀY VÀO ĐÂY 🌟
+                    renderApiHunterPage();
+                    break;
+                case 'login':
+                    window.location.hash = '#dashboard';
+                    break;
+                default:
+                    window.location.hash = '#dashboard';
             }
         };
 
