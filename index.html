@@ -256,20 +256,29 @@
         };
 
         window.switchServer = (movieId, serverName) => {
-            const movie = globalMovieCache.find(m => m.id === movieId);
-            if (!movie) return;
+            // Lấy từ globalMovieCache hoặc window.globalMovieCache
+            const cache = globalMovieCache || window.globalMovieCache || [];
+            const movie = cache.find(m => m.id === movieId);
+            if (!movie) {
+                console.error("Không tìm thấy phim trong cache cho ID:", movieId);
+                return;
+            }
 
-            const targetServer = movie.episodes.find(s => s.serverName === serverName) || movie.episodes[0];
-            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
+            const targetServer = (movie.episodes || []).find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) {
+                console.error("Server không có tập phim nào!");
+                return;
+            }
 
             const firstEp = targetServer.items[0];
             const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
             const movieSlug = createSlug(movie.title);
 
+            // Điều hướng chuẩn xác kèm query server
             window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
         };
 
-        
+
         // ========================================================
         // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
         // ========================================================
@@ -2296,6 +2305,7 @@
                     });
 
                     globalMovieCache = movieList;
+                    window.globalMovieCache = movieList;
 
                     // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
                     if (!wasCacheLoaded) {
