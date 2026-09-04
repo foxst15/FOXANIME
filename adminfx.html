@@ -3337,82 +3337,58 @@
                 const dataDetail = await resDetail.json();
                 const rawMovie = dataDetail.movie || dataDetail;
                 
+                let formattedServers = [];
                 
-                let mappedEpisodes = [];
-                
-                // 1. Kiểm tra xem episodes có phải là mảng không
-                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
-                    // Ưu tiên quét server đầu tiên (hoặc gộp tất cả server Vietsub/Lồng tiếng nếu muốn)
-                    // Ở đây Bé Lôi lấy server đầu tiên làm chuẩn (hoặc server Vietsub)
-                    const targetServer = rawMovie.episodes.find(s => s.server_name && s.server_name.includes('Vietsub')) || rawMovie.episodes[0];
-                    
-                    if (targetServer && Array.isArray(targetServer.items)) {
-                        targetServer.items.forEach((ep, index) => {
-                            // 🌟 LẤY ĐÚNG TÊN LÀ 'ep.name' VÀ LINK LÀ 'ep.embed' TỪ JSON 🌟
-                            const epName = ep.name ? `Tập ${ep.name}` : `Tập ${index + 1}`;
-                            const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || '';
-                            
-                            if (epUrl) {
-                                mappedEpisodes.push({
-                                    episodeNumber: parseInt(ep.name) || (index + 1),
-                                    title: epName,
-                                    videoUrl: epUrl,
-                                    addedAt: new Date().toISOString()
-                                });
-                            }
-                        });
-                    }
-                }
-                
-                // 🌟 QUÉT "VÉT CẠN" THÔNG MINH: CHẤP MỌI CẤU TRÚC TỪ NGUỒN C 🌟
-                let rawList = [];
-                
-                // Kiểm tra xem episodes là mảng hay object bọc lót
+                // Lấy mảng episodes từ API Nguồn C (hỗ trợ cả mảng trực tiếp hoặc bọc lót)
                 const episodesSource = Array.isArray(rawMovie.episodes) ? rawMovie.episodes : (rawMovie.episodes?.items || []);
                 
                 if (Array.isArray(episodesSource)) {
                     episodesSource.forEach(server => {
-                        // Lấy mảng tập phim từ các biến tiềm năng: items, server_data, data hoặc chính bản thân server
+                        const serverName = server.server_name || 'Server 1';
                         const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
+                        
+                        let parsedItems = [];
                         if (Array.isArray(serverItems)) {
-                            rawList.push(...serverItems);
-                        } else if (server.link_m3u8 || server.link_embed || server.url) {
-                            rawList.push(server);
+                            serverItems.forEach((ep, index) => {
+                                const epName = ep.name || ep.title || '';
+                                const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '';
+                                
+                                if (epUrl) {
+                                    parsedItems.push({
+                                        episodeNumber: parseInt(epName) || (index + 1),
+                                        title: epName ? `Tập ${epName}` : `Tập ${index + 1}`,
+                                        videoUrl: epUrl,
+                                        addedAt: new Date().toISOString()
+                                    });
+                                }
+                            });
+                        }
+
+                        if (parsedItems.length > 0) {
+                            formattedServers.push({
+                                serverName: serverName,
+                                items: parsedItems
+                            });
                         }
                     });
                 }
 
-                // Tiến hành bóc tách từng tập và loại bỏ trùng lặp URL
-                rawList.forEach((ep, index) => {
-                    const epName = ep.name || ep.title || `Tập ${index + 1}`;
-                    const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
-                    
-                    if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
-                        mappedEpisodes.push({
-                            episodeNumber: mappedEpisodes.length + 1,
-                            title: epName,
-                            videoUrl: epUrl,
-                            addedAt: new Date().toISOString()
-                        });
-                    }
-                });
-                
-                if (mappedEpisodes.length === 0) {
+                if (formattedServers.length === 0) {
                     showLoading(false);
-                    alert("Cảnh báo: API Nguồn C không trả về link tập phim nào cho phim này cả!");
+                    alert("Cảnh báo: Không tìm thấy danh sách tập phim nào từ Nguồn C!");
                     return;
                 }
-                
-                // 2. Ghi đè cập nhật vào Database chính xác theo ID
+
+                // 2. Ghi cấu trúc đa Server vào Database
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
-                    episodes: mappedEpisodes,
-                    totalEpisodes: mappedEpisodes.length, // Cập nhật luôn tổng số tập cho chuẩn
+                    episodes: formattedServers, // Lưu dạng mảng các server (Vietsub, Lồng Tiếng...)
+                    totalEpisodes: formattedServers[0]?.items.length || 0,
                     lastEpisodeUpdate: serverTimestamp()
                 });
                 
                 showLoading(false);
-                alert(`Thành công rực rỡ! Đã cập nhật ${mappedEpisodes.length} tập vào Database! 🎉`);
+                alert(`Thành công rực rỡ! Đã cập nhật đầy đủ các Server vào Database! 🎉`);
                 
                 // Tự động quét lại giao diện trạm API
                 window.scanNguonCApi(); 
@@ -3463,6 +3439,7 @@
                 if (formattedServers.length === 0) {
                     showLoading(false);
                     alert("Cảnh báo: Không tìm thấy danh sách tập phim nào từ Nguồn C!");
+                    
                     return;
                 }
 
