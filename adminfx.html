@@ -3318,7 +3318,7 @@
             }
         };
 
-        // 4. Hàm Tự Động Lấy & Đồng Bộ Tập Phim Vào DB (Bản Chuẩn)
+       // 4. Hàm Tự Động Lấy & Đồng Bộ Tập Phim Vào DB (Bản Đa Server Chuẩn Xác)
         window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
             try {
                 // Kiểm tra xem ID truyền vào có hợp lệ không
@@ -3399,57 +3399,6 @@
                 alert("Lỗi đồng bộ tập phim: " + err.message);
             }
         };
-
-       let formattedServers = [];
-                
-                // Lấy mảng episodes từ API Nguồn C (hỗ trợ cả mảng trực tiếp hoặc bọc lót)
-                const episodesSource = Array.isArray(rawMovie.episodes) ? rawMovie.episodes : (rawMovie.episodes?.items || []);
-                
-                if (Array.isArray(episodesSource)) {
-                    episodesSource.forEach(server => {
-                        const serverName = server.server_name || 'Server 1';
-                        const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
-                        
-                        let parsedItems = [];
-                        if (Array.isArray(serverItems)) {
-                            serverItems.forEach((ep, index) => {
-                                const epName = ep.name || ep.title || '';
-                                const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '';
-                                
-                                if (epUrl) {
-                                    parsedItems.push({
-                                        episodeNumber: parseInt(epName) || (index + 1),
-                                        title: epName ? `Tập ${epName}` : `Tập ${index + 1}`,
-                                        videoUrl: epUrl,
-                                        addedAt: new Date().toISOString()
-                                    });
-                                }
-                            });
-                        }
-
-                        if (parsedItems.length > 0) {
-                            formattedServers.push({
-                                serverName: serverName,
-                                items: parsedItems
-                            });
-                        }
-                    });
-                }
-
-                if (formattedServers.length === 0) {
-                    showLoading(false);
-                    alert("Cảnh báo: Không tìm thấy danh sách tập phim nào từ Nguồn C!");
-                    
-                    return;
-                }
-
-                // Ghi cấu trúc đa Server vào Database
-                const targetDocRef = doc(moviesCollectionRef, dbMovieId);
-                await updateDoc(targetDocRef, {
-                    episodes: formattedServers, // Lưu dạng mảng các server (Vietsub, Lồng Tiếng...)
-                    totalEpisodes: formattedServers[0]?.items.length || 0,
-                    lastEpisodeUpdate: serverTimestamp()
-                });
 
         // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
         window.autoAddNewMovie = async (apiSlug) => {
