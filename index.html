@@ -1756,7 +1756,7 @@
             if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
             if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
 
-            try {
+           try {
                 let movieData = globalMovieCache.find(a => a.id === movieId);
                 if (!movieData) {
                     const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
@@ -1790,6 +1790,7 @@
                     }));
                 }
 
+
                 // 🌟 BÓC TÁCH SỐ TẬP CHUẨN XÁC CHO MỌI ĐỊNH DẠNG ID 🌟
                 const episodeMatch = episodeUniqueId.match(/_(\d+)_\d+$/) || episodeUniqueId.match(/_(\d+)$/) || episodeUniqueId.match(/tap-(\d+)/);
                 const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
@@ -1810,9 +1811,12 @@
                 } catch (e) {console.error("Lỗi khi tải bình luận:", e);}
 
                 const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
-                let nextEpisodeLink = nextEpisode ? `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpisode.id}.html` : null;
+                let nextEpisodeLink = null;
+                if (nextEpisode) {
+                    nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpisode.id}.html`;
+                }
 
-                // Truyền đầy đủ dữ liệu vào WatchPageTemplate
+                // Truyền thêm currentServerName vào WatchPageTemplate để render thanh chọn server
                 getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, episodesList, episodeNumber, nextEpisodeLink, currentServerName);
 
                 const videoElement = getEl('#video-player-element');
@@ -1823,7 +1827,10 @@
                 }
 
                 if (videoElement) {
+                    // Lưu thời gian xem dở
                     videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
+
+                    // Sự kiện khi xem hết phim
                     videoElement.addEventListener('ended', () => {
                         localStorage.removeItem(`_watchTime_${episodeUniqueId}`);
                         if (nextEpisodeLink) {
@@ -1833,7 +1840,7 @@
                     });
                 }
 
-                // Lắng nghe sự kiện iframe (nếu có)
+                // --- BÉ LÔI CHÈN MÁY NGHE LÉN IFRAME VÀO ĐÂY NÈ ---
                 const iframeElement = getEl('#video-player-iframe');
                 if (iframeElement && nextEpisodeLink) {
                     if (window.iframeEndedListener) {
@@ -1872,7 +1879,7 @@
                 if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
                 setupCommentsListener(movieId);
 
-                // Gắn sự kiện sticker/bình luận
+                // --- BÉ LÔI: GẮN SỰ KIỆN CHO BẢNG STICKER ---
                 const toggleGifBtn = getEl('#toggle-gif-btn');
                 const gifPopup = getEl('#gif-picker-popup');
                 const commentInput = getEl('#comment-input');
