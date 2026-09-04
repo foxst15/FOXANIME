@@ -255,6 +255,21 @@
             }
         };
 
+        window.switchServer = (movieId, serverName) => {
+            const movie = globalMovieCache.find(m => m.id === movieId);
+            if (!movie) return;
+
+            const targetServer = movie.episodes.find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
+
+            const firstEp = targetServer.items[0];
+            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const movieSlug = createSlug(movie.title);
+
+            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
+        };
+
+        
         // ========================================================
         // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
         // ========================================================
