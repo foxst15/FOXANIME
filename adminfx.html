@@ -3318,46 +3318,41 @@
             }
         };
 
-       // 4. Hàm Tự Động Lấy & Đồng Bộ Tập Phim Vào DB (Bản Đa Server Chuẩn Xác)
-        window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
+       window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
             try {
-                // Kiểm tra xem ID truyền vào có hợp lệ không
                 if (!dbMovieId || dbMovieId === 'undefined') {
-                    alert("Lỗi: Không tìm thấy ID phim trong Database của bạn! Hãy chắc chắn phim này đã được thêm vào hệ thống trước.");
+                    alert("Lỗi: Không tìm thấy ID phim trong Database!");
                     return;
                 }
 
-                const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tập mới nhất từ API và đẩy vào phim này nha?");
+                const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tất cả các server (Vietsub, Lồng Tiếng...) từ API nha?");
                 if(!confirmed) return;
                 
                 showLoading(true);
                 
-                // 1. Gọi API chi tiết của Nguồn C
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
                 const rawMovie = dataDetail.movie || dataDetail;
                 
                 let formattedServers = [];
-                
-                // Lấy mảng episodes từ API Nguồn C (hỗ trợ cả mảng trực tiếp hoặc bọc lót)
                 const episodesSource = Array.isArray(rawMovie.episodes) ? rawMovie.episodes : (rawMovie.episodes?.items || []);
                 
                 if (Array.isArray(episodesSource)) {
-                    episodesSource.forEach(server => {
-                        const serverName = server.server_name || 'Server 1';
+                    episodesSource.forEach((server, sIndex) => {
+                        // Lấy tên server chuẩn xác từ API Nguồn C
+                        const serverName = server.server_name || server.name || `Server ${sIndex + 1}`;
                         const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
                         
-                       let parsedItems = [];
+                        let parsedItems = [];
                         if (Array.isArray(serverItems)) {
                             serverItems.forEach((ep, index) => {
-                                // 🌟 BẮT CHUẨN TÊN TẬP VÀ SỐ TẬP TỪ NGUỒN C 🌟
-                                const epTitleName = ep.name || ep.title || `${index + 1}`;
+                                const epName = ep.name || ep.title || '';
                                 const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '';
                                 
                                 if (epUrl) {
                                     parsedItems.push({
-                                        episodeNumber: parseInt(ep.name) || (index + 1),
-                                        title: `Tập ${epTitleName}`,
+                                        episodeNumber: parseInt(epName) || (index + 1),
+                                        title: epName ? `Tập ${epName}` : `Tập ${index + 1}`,
                                         videoUrl: epUrl,
                                         addedAt: new Date().toISOString()
                                     });
@@ -3376,31 +3371,28 @@
 
                 if (formattedServers.length === 0) {
                     showLoading(false);
-                    alert("Cảnh báo: Không tìm thấy danh sách tập phim nào từ Nguồn C!");
+                    alert("Cảnh báo: Không tìm thấy server hoặc link tập phim nào từ Nguồn C!");
                     return;
                 }
 
-                // 2. Ghi cấu trúc đa Server vào Database
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
-                    episodes: formattedServers, // Lưu dạng mảng các server (Vietsub, Lồng Tiếng...)
+                    episodes: formattedServers, // Lưu mảng chứa các server
                     totalEpisodes: formattedServers[0]?.items.length || 0,
                     lastEpisodeUpdate: serverTimestamp()
                 });
                 
                 showLoading(false);
-                alert(`Thành công rực rỡ! Đã cập nhật đầy đủ các Server vào Database! 🎉`);
-                
-                // Tự động quét lại giao diện trạm API
+                alert(`Thành công rực rỡ! Đã nạp thành công ${formattedServers.length} Server vào Database! 🎉`);
                 window.scanNguonCApi(); 
 
             } catch(err) {
                 showLoading(false);
-                console.error("Lỗi đồng bộ chi tiết:", err);
+                console.error("Lỗi đồng bộ:", err);
                 alert("Lỗi đồng bộ tập phim: " + err.message);
             }
         };
-
+        
         // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
         window.autoAddNewMovie = async (apiSlug) => {
             try {
