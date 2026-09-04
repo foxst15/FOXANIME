@@ -3070,7 +3070,7 @@
                     }
                 }
                 const totalEpisodes = movie.totalEpisodes || 0;
-                const episodeText = totalEpisodes > 0 ? `${episodeCount} / ${totalEpisodes} tập` : `Tập ${episodeCount}`;
+                const episodeText = totalEpisodes > 0 ? `${totalEpCount} / ${totalEpisodes} tập` : `Tổng: ${totalEpCount} tập`;
 
                 // Tạo badge Admin ở góc phải trên cùng
                 const creatorName = adminProfileMap[movie.updatedBy] ?
