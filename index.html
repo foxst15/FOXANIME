@@ -1658,11 +1658,11 @@
 
                 if (!hasRenderedFullPage) {
                     const rawEpisodes = updatedMovieData.episodes || [];
-                    
+
                     // 🌟 XỬ LÝ LỌC TẬP CHO CẢ MẢNG ĐA SERVER HOẶC MẢNG PHẲNG CŨ 🌟
                     let actualEpisodes = [];
                     const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
-                    
+
                     if (hasMultipleServers) {
                         // Lấy mảng items của server đầu tiên làm mặc định cho trang Info
                         actualEpisodes = rawEpisodes[0].items || [];
@@ -1773,8 +1773,34 @@
                 let currentServerName = 'Server 1';
                 let episodesList = [];
 
-                // Kiểm tra xem phim có lưu theo cấu trúc đa server hay mảng phẳng cũ
-                const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
+                const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+                let serversListHtml = '';
+                let activeEpisodes = allEpisodes;
+
+                if (hasMultipleServers) {
+                    serversListHtml = `
+                    <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                        <span class="text-xs font-bold text-gray-400 uppercase mr-2"><ion-icon name="server-outline" class="text-lime-400 mr-1"></ion-icon> Chọn Server:</span>
+                        ${movie.episodes.map(srv => {
+                        const isSelected = srv.serverName === currentServerName;
+                        return `
+                                <button onclick="window.switchServer('${movie.id}', '${srv.serverName}')" 
+                                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                    ${srv.serverName}
+                                </button>
+                            `;
+                    }).join('')}
+                    </div>
+                `;
+
+                    const currentServerObj = movie.episodes.find(s => s.serverName === currentServerName) || movie.episodes[0];
+                    if (currentServerObj && Array.isArray(currentServerObj.items)) {
+                        activeEpisodes = currentServerObj.items.map((ep, index) => ({
+                            ...ep,
+                            id: `${movie.id}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
+                        }));
+                    }
+                }
 
                 if (hasMultipleServers) {
                     const activeServerObj = rawEpisodes.find(s => s.serverName === requestedServer) || rawEpisodes[0];
