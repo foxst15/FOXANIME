@@ -3347,16 +3347,17 @@
                         const serverName = server.server_name || 'Server 1';
                         const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
                         
-                        let parsedItems = [];
+                       let parsedItems = [];
                         if (Array.isArray(serverItems)) {
                             serverItems.forEach((ep, index) => {
-                                const epName = ep.name || ep.title || '';
+                                // 🌟 BẮT CHUẨN TÊN TẬP VÀ SỐ TẬP TỪ NGUỒN C 🌟
+                                const epTitleName = ep.name || ep.title || `${index + 1}`;
                                 const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '';
                                 
                                 if (epUrl) {
                                     parsedItems.push({
-                                        episodeNumber: parseInt(epName) || (index + 1),
-                                        title: epName ? `Tập ${epName}` : `Tập ${index + 1}`,
+                                        episodeNumber: parseInt(ep.name) || (index + 1),
+                                        title: `Tập ${epTitleName}`,
                                         videoUrl: epUrl,
                                         addedAt: new Date().toISOString()
                                     });
