@@ -255,6 +255,21 @@
             }
         };
 
+        window.switchServer = (movieId, serverName) => {
+            const movie = globalMovieCache.find(m => m.id === movieId);
+            if (!movie) return;
+
+            const targetServer = movie.episodes.find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
+
+            const firstEp = targetServer.items[0];
+            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const movieSlug = createSlug(movie.title);
+
+            // Điều hướng sang tập 1 của server mới kèm theo query server
+            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
+        };
+
         // ========================================================
         // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
         // ========================================================
@@ -1395,29 +1410,64 @@
     `;
         };
 
-        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, currentServerName = 'Vietsub #1') => {
             const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, movie.posterUrl);
             const movieSlug = createSlug(movie.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            // Kiểm tra cấu trúc đa server hay mảng tập cũ
+            const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+            
+            let serversListHtml = '';
+            let activeEpisodes = allEpisodes;
+
+            if (hasMultipleServers) {
+                serversListHtml = `
+                    <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                        <span class="text-xs font-bold text-gray-400 uppercase mr-2"><ion-icon name="server-outline" class="text-lime-400 mr-1"></ion-icon> Chọn Server:</span>
+                        ${movie.episodes.map(srv => {
+                            const isSelected = srv.serverName === currentServerName;
+                            return `
+                                <button onclick="window.switchServer('${movie.id}', '${srv.serverName}')" 
+                                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                    ${srv.serverName}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                const currentServerObj = movie.episodes.find(s => s.serverName === currentServerName) || movie.episodes[0];
+                if (currentServerObj && Array.isArray(currentServerObj.items)) {
+                    activeEpisodes = currentServerObj.items.map((ep, index) => ({
+                        ...ep,
+                        id: `${movie.id}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
+                    }));
+                }
+            }
+
+            const previousEpisode = activeEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
             let previousEpisodeLink = null;
             if (previousEpisode) {
                 const prevEpId = previousEpisode.id;
-                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
+                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html?server=${encodeURIComponent(currentServerName)}`;
+            }
+
+            if (nextEpisodeLink && currentServerName) {
+                nextEpisodeLink += `?server=${encodeURIComponent(currentServerName)}`;
             }
 
             const previousButton = previousEpisodeLink ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
                 </a>
-                                ` : `
+            ` : `
                 <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
                 </button>
-                            `;
+            `;
 
             const nextButton = nextEpisodeLink ? `
             <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
@@ -1428,7 +1478,6 @@
                 Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
             </button>
         `;
-
 
             return `
                 <section class="text-white">
@@ -1453,7 +1502,7 @@
                             <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-lime-500">
                                 <h1 class="text-3xl font-extrabold text-white mb-1">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'} <span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded ml-2">${currentServerName}</span></h2>
                                 <p class="text-gray-400 text-sm mt-2">${movie.genre}</p>
                                 <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
                                     <div class="flex flex-wrap items-center justify-start space-x-3">
@@ -1513,219 +1562,157 @@
 
                         <div class="lg:col-span-1">
                             <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${movie.episodes.length} Tập)</h3>
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập</h3>
+                                
+                                ${serversListHtml}
 
-                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
-                                    ${allEpisodes.map(ep => {
-                    const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
-                    const isActive = ep.episodeNumber === currentEpNumber;
-                    return `
+                                <div class="space-y-2 max-h-[70vh] overflow-y-auto schedule-scroll-area">
+                                    ${activeEpisodes.map(ep => {
+                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html?server=${encodeURIComponent(currentServerName)}`;
+                                        const isActive = ep.episodeNumber === currentEpNumber;
+                                        return `
                                             <a href="${epLink}" 
                                                 class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
-                                                ${isActive
-                            ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                        }">
+                                                ${isActive ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'}">
                                                 Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
                                             </a>
-                                                    `;
-                }).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                                                `;
+            `;
         };
 
-        const renderScheduleMovieCard = (movie) => {
-            const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
-            const episodeCount = movie.episodes ? movie.episodes.length : 0;
-            const totalEpisodes = movie.totalEpisodes || '??';
-            const statusColor = movie.status === 'sap-chieu' ? 'text-yellow-400' : 'text-lime-400';
-            const statusText = movie.status === 'sap-chieu' ? 'Sắp Chiếu' : `Tập ${episodeCount}/${totalEpisodes}`;
+        window.switchServer = (movieId, serverName) => {
+            const movie = globalMovieCache.find(m => m.id === movieId);
+            if (!movie) return;
 
+            const targetServer = movie.episodes.find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
 
-            return `
-                <a href="${infoUrl}" class="group block bg-gray-700 p-2 rounded-lg flex items-center space-x-2 transition duration-200 hover:bg-lime-500/20 border border-gray-600 hover:border-lime-500/50">
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
-                    <div class="flex-grow overflow-hidden">
-                        <p class="text-white font-semibold text-sm truncate group-hover:text-lime-400">${movie.title}</p>
-                        <p class="text-xs ${statusColor}">${statusText}</p>
-                    </div>
-                </a>
-                                                `;
+            const firstEp = targetServer.items[0];
+            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const movieSlug = createSlug(movie.title);
+
+            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
         };
 
-        const SchedulePageTemplate = (moviesByDay) => {
-            const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-
-            return `
-                <section class="min-h-[70vh]">
-                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-lime-500 pb-3">LỊCH CHIẾU ANIME TRONG TUẦN</h2>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
-                                                    ${daysOfWeek.map(day => `
-                            <div class="bg-gray-800 p-3 rounded-xl shadow-xl border border-gray-700 hover:border-lime-500/50 transition min-h-[250px] flex flex-col">
-                                <h3 class="text-xl font-extrabold text-lime-400 mb-3 text-center border-b border-gray-700 pb-2">${day}</h3>
-                                <div class="flex-grow space-y-2 max-h-[60vh] overflow-y-auto schedule-scroll-area">
-                                    ${(moviesByDay[day] && moviesByDay[day].length > 0)
-                    ? moviesByDay[day].map(renderScheduleMovieCard).join('')
-                    : '<p class="text-gray-500 text-xs italic text-center py-4">Không có phim chiếu.</p>'
-                }
-                                </div>
-                            </div>
-                                        `).join('')}
-                    </div>
-
-                                                    ${(moviesByDay["Không có"] && moviesByDay["Không có"].length > 0) ? `
-                        <div class="mt-12">
-                            <h3 class="text-2xl font-bold text-gray-400 mb-4 border-b border-gray-700 pb-2">PHIM CHƯA GÁN LỊCH HOẶC SẮP CHIẾU KHÁC</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                ${(moviesByDay["Không có"]).map(MovieCardTemplate).join('')}
-                            </div>
-                        </div>
-                                                        ` : ''}
-                </section>
-                                                    `;
-        };
-
-        const renderSchedulePage = () => {
-            const moviesByDay = {"Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []};
-            const airingMovies = globalMovieCache.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
-            airingMovies.forEach(movie => {
-                const day = movie.airingDay || "Không có";
-                moviesByDay.hasOwnProperty(day) ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie);
-            });
-            getEl('#app').innerHTML = SchedulePageTemplate(moviesByDay);
-        };
-
-        const showError = (message, details = '') => {
-            console.error(message, details);
-            const appEl = getEl('#app');
-            if (appEl) {
-                appEl.innerHTML = `
-                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
-                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
-                        <p class="text-lg mb-2">${message}</p>
-                                                            ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
-                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
-                    </div>
-                                                        `;
-            }
-        };
-
-        const showLoading = () => {
-            const appEl = getEl('#app');
-            if (appEl) {
-                appEl.innerHTML = `
-                    <div class="flex justify-center items-center h-[50vh]">
-                        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                                                        `;
-            }
-        };
-
-        window.renderInfoPage = async (movieId) => {
+        window.renderWatchPage = async (movieId, episodeUniqueId) => {
             if (!db) {showLoading(); return;}
+            if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
             if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
             if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
             if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
 
-            const movieDocRef = doc(db, dataCollectionPath, movieId);
-            let hasRenderedFullPage = false;
-
-            unsubscribeMovieListener = onSnapshot(movieDocRef, (movieDocSnap) => {
-                if (!movieDocSnap.exists()) {
-                    showError("Không tìm thấy bộ phim này.");
-                    return;
+            try {
+                let movieData = globalMovieCache.find(a => a.id === movieId);
+                if (!movieData) {
+                    const movieDocSnap = await getDoc(doc(db, dataCollectionPath, movieId));
+                    if (movieDocSnap.exists()) {
+                        movieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
+                    } else {showError("Không tìm thấy bộ phim này."); return;}
                 }
 
-                const updatedMovieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
-                const isLiked = !!currentUserLikeDocIds[movieId];
+                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                const requestedServer = urlParams.get('server');
 
-                if (!hasRenderedFullPage) {
-                    const episodesList = updatedMovieData.episodes || [];
-                    const episodesWithId = episodesList.map((ep, index) => ({
+                const rawEpisodes = movieData.episodes || [];
+                let currentServerName = 'Server 1';
+                let episodesList = [];
+
+                const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
+
+                if (hasMultipleServers) {
+                    const activeServerObj = rawEpisodes.find(s => s.serverName === requestedServer) || rawEpisodes[0];
+                    currentServerName = activeServerObj.serverName;
+                    episodesList = (activeServerObj.items || []).map((ep, index) => ({
+                        ...ep,
+                        id: `${movieId}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
+                    }));
+                } else {
+                    episodesList = rawEpisodes.map((ep, index) => ({
                         ...ep,
                         id: `${movieId}_${ep.episodeNumber}_${index}`
                     }));
+                }
 
-                    const movieSlug = createSlug(updatedMovieData.title);
-                    const firstEpUrl = `#phim/${movieSlug}-${updatedMovieData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html`;
+                const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/) || episodeUniqueId.match(/_(\d+)$/);
+                const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
 
-                    const resumeTime = localStorage.getItem(`_watchTime_${episodesWithId[0]?.id}`);
-                    const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
+                if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số tập phim."); return;}
 
-                    getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked);
+                const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber) || episodesList[0];
+                if (!episodeData) {showError("Không tìm thấy tập phim này."); return;}
 
-                    if (hasWatchTime) {
-                        window.showResumeModal(updatedMovieData.title, parseInt(resumeTime)).then(shouldResume => {
-                            let finalUrl = firstEpUrl;
-                            if (shouldResume) {
-                                finalUrl += `?time=${resumeTime}`;
-                            } else {
-                                localStorage.removeItem(`_watchTime_${episodesWithId[0]?.id}`);
-                            }
-                            window.location.hash = finalUrl;
+                const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
+                let commentsList = [];
+                let commentsSnapshot;
+                try {
+                    commentsSnapshot = await getDocs(query(commentsColRef));
+                    commentsSnapshot.forEach(doc => commentsList.push({id: doc.id, ...doc.data()}));
+                    commentsList.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                    commentsList = commentsList.slice(0, COMMENT_LIMIT);
+                } catch (e) {console.error("Lỗi khi tải bình luận:", e);}
+
+                const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
+                let nextEpisodeLink = null;
+                if (nextEpisode) {
+                    nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpisode.id}.html`;
+                }
+
+                getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, episodesList, episodeNumber, nextEpisodeLink, currentServerName);
+
+                const videoElement = getEl('#video-player-element');
+                const startTime = parseInt(urlParams.get('time') || localStorage.getItem(`_watchTime_${episodeUniqueId}`) || '0');
+
+                if (videoElement && startTime > 0) {
+                    videoElement.currentTime = startTime;
+                }
+
+                if (videoElement) {
+                    videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
+                    videoElement.addEventListener('ended', () => {
+                        localStorage.removeItem(`_watchTime_${episodeUniqueId}`);
+                        if (nextEpisodeLink) {
+                            const nextLinkWithServer = nextEpisodeLink + `?server=${encodeURIComponent(currentServerName)}`;
+                            window.location.hash = nextLinkWithServer;
+                        }
+                    });
+                }
+
+                getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
+                if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
+                setupCommentsListener(movieId);
+
+                // Gắn sự kiện Sticker bình luận
+                const toggleGifBtn = getEl('#toggle-gif-btn');
+                const gifPopup = getEl('#gif-picker-popup');
+                const commentInput = getEl('#comment-input');
+
+                if (toggleGifBtn && gifPopup && commentInput) {
+                    toggleGifBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        gifPopup.classList.toggle('hidden');
+                    });
+                    document.addEventListener('click', (e) => {
+                        if (!gifPopup.contains(e.target) && !toggleGifBtn.contains(e.target)) {
+                            gifPopup.classList.add('hidden');
+                        }
+                    });
+                    document.querySelectorAll('.gif-item').forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            const index = e.currentTarget.getAttribute('data-sticker-index');
+                            commentInput.value += ` [sticker:${index}] `;
+                            commentInput.focus();
+                            gifPopup.classList.add('hidden');
                         });
-                    }
-
-                    getEl('#like-button')?.addEventListener('click', handleLike);
-                    setupPublicReviewsListener(movieId);
-
-                    if (auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser)) {
-                        setupUserReviewListener(movieId);
-                    } else {
-                        setupReviewSection(updatedMovieData, null);
-                    }
-
-                    hasRenderedFullPage = true;
+                    });
                 }
 
-                incrementViewCount(movieId);
-
-                const likeCountEl = getEl('#like-count');
-                const viewCountEl = getEl('#view-count');
-                const avgRatingContainer = getEl('.text-yellow-400.mb-4');
-
-                if (viewCountEl) viewCountEl.textContent = (updatedMovieData.viewCount || 0).toLocaleString('vi-VN') + " Lượt xem";
-                if (likeCountEl) likeCountEl.textContent = (updatedMovieData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
-
-                if (avgRatingContainer) {
-                    const reviewCount = updatedMovieData.reviewCount || 0;
-                    const reviewTotal = updatedMovieData.reviewTotal || 0;
-                    const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
-
-                    avgRatingContainer.innerHTML = `
-                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
-                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
-                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
-                                                    `;
-                }
-
-                const button = getEl('#like-button');
-                const likeButtonText = getEl('#like-button-text');
-                const likeButtonIcon = button?.querySelector('ion-icon');
-
-                if (button) {
-                    button.classList.toggle('bg-lime-600', isLiked);
-                    button.classList.toggle('text-white', isLiked);
-                    button.classList.toggle('font-bold', isLiked);
-                    button.classList.toggle('bg-gray-700', !isLiked);
-                    button.classList.toggle('text-gray-300', !isLiked);
-                    button.classList.toggle('font-medium', !isLiked);
-                    if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
-                    if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
-                }
-
-            }, (error) => {
-                console.error("Lỗi listener phim:", error);
-                showError("Lỗi khi tải dữ liệu phim thời gian thực.", error.message);
-            });
+            } catch (e) {showError("Lỗi khi tải trang xem phim.", e.message);}
         };
 
         window.renderWatchPage = async (movieId, episodeUniqueId) => {
