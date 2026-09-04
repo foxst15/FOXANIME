@@ -73,6 +73,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
     <script type="module">
 
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -253,6 +255,21 @@
                 localStorage.setItem(`_watchTime_${episodeId}`, time);
                 localStorage.setItem(`_lastSave_${episodeId}`, Date.now());
             }
+        };
+
+        window.switchServer = (movieId, serverName) => {
+            const cache = globalMovieCache || window.globalMovieCache || [];
+            const movie = cache.find(m => m.id === movieId);
+            if (!movie) return;
+
+            const targetServer = (movie.episodes || []).find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
+
+            const firstEp = targetServer.items[0];
+            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const movieSlug = createSlug(movie.title);
+
+            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
         };
 
         // ========================================================
@@ -1522,28 +1539,64 @@
 
                         <div class="lg:col-span-1">
                             <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${movie.episodes.length} Tập)</h3>
-
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập</h3>
                                 
+                                ${(() => {
+                                    const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+                                    if (!hasMultipleServers) return '';
+                                    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                                    const currentServer = urlParams.get('server') || movie.episodes[0].serverName;
+                                    return `
+                                        <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                                            <span class="text-xs font-bold text-gray-400 uppercase mr-2">Chọn Server:</span>
+                                            ${movie.episodes.map(srv => {
+                                                const isSelected = srv.serverName === currentServer;
+                                                return `
+                                                    <button onclick="window.switchServer('${movie.id}', '${srv.serverName}')" 
+                                                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-lime-500 text-gray-900 shadow' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                                        ${srv.serverName}
+                                                    </button>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    `;
+                                })()}
+
                                 <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
-                                    ${allEpisodes.map(ep => {
-                    const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
-                    const isActive = ep.episodeNumber === currentEpNumber;
-                    return `
-                                            <a href="${epLink}" 
-                                                class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
-                                                ${isActive
-                            ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                        }">
-                                                Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
-                                            </a>
-                                                    `;
-                }).join('')}
+                                    ${(() => {
+                                        // Tự động lọc ra tập của server đang chọn để hiển thị
+                                        const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                                        const requestedServer = urlParams.get('server');
+                                        const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+                                        let displayEpisodes = allEpisodes;
+                                        let activeServerName = 'Vietsub #1';
+
+                                        if (hasMultipleServers) {
+                                            const activeServerObj = movie.episodes.find(s => s.serverName === requestedServer) || movie.episodes[0];
+                                            activeServerName = activeServerObj.serverName;
+                                            if (activeServerObj && Array.isArray(activeServerObj.items)) {
+                                                displayEpisodes = activeServerObj.items.map((ep, index) => ({
+                                                    ...ep,
+                                                    id: `${movie.id}_${createSlug(activeServerName)}_${ep.episodeNumber}_${index}`
+                                                }));
+                                            }
+                                        }
+
+                                        return displayEpisodes.map(ep => {
+                                            const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html?server=${encodeURIComponent(activeServerName)}`;
+                                            const isActive = ep.episodeNumber === currentEpNumber;
+                                            return `
+                                                <a href="${epLink}" 
+                                                    class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
+                                                    ${isActive ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'}">
+                                                    Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
+                                                </a>
+                                            `;
+                                        }).join('');
+                                    })()}
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </section>
                                                 `;
         };
@@ -2086,10 +2139,11 @@
                 if (!mId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
 
                 if (pathSegments.length === 2) {
-
                     window.renderInfoPage(mId);
                 } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
-                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/);
+                    // 🌟 Cắt bỏ phần query ?server=... để bộ router nhận diện đúng ID tập phim
+                    const rawEpisodeSegment = pathSegments[2].split('?')[0];
+                    const episodeMatch = rawEpisodeSegment.match(/-([a-zA-Z0-9_]+)\.html$/);
                     const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
                     if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
                 }
