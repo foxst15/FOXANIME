@@ -1780,14 +1780,15 @@
         };
 
         window.renderSelectedSliderMoviesUI = () => {
-            const selectedIds = currentSliderSettings.selectedMovieIds || [];
+            const container = $('slider-selected-list');
+            if (!container) return;
 
             if (selectedIds.length === 0) {
                 container.innerHTML = '<p class="col-span-full text-sm text-gray-400 italic">Chưa chọn phim nào.</p>';
                 return;
             }
 
-            container.innerHTML = selectedIds.map(id => {
+            container.innerHTML = currentSliderSettings.selectedMovieIds.map(id => {
                 const movie = globalAdminMoviesCache.find(m => m.id === id);
                 if (!movie) return '';
                 return `
