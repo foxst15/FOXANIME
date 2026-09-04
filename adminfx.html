@@ -1780,15 +1780,14 @@
         };
 
         window.renderSelectedSliderMoviesUI = () => {
-            const container = $('slider-selected-list');
-            if (!container) return;
+            const selectedIds = currentSliderSettings.selectedMovieIds || [];
 
-            if (currentSliderSettings.selectedMovieIds.length === 0) {
+            if (selectedIds.length === 0) {
                 container.innerHTML = '<p class="col-span-full text-sm text-gray-400 italic">Chưa chọn phim nào.</p>';
                 return;
             }
 
-            container.innerHTML = currentSliderSettings.selectedMovieIds.map(id => {
+            container.innerHTML = selectedIds.map(id => {
                 const movie = globalAdminMoviesCache.find(m => m.id === id);
                 if (!movie) return '';
                 return `
@@ -2476,6 +2475,7 @@
 
                         userId = user.uid;
                         userEmail = user.email;
+                        updateProfileHeader();
 
                         moviesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'movies');
 
@@ -3211,7 +3211,6 @@
                         <i class="fas fa-satellite-dish mr-2"></i> TRẠM THU THẬP API NGUỒN C
                     </h2>
                     
-                    <!-- Bảng điều khiển Quét API -->
                     <div class="bg-[#1a0f3d] p-5 rounded-lg border border-[#00ffaa] mb-6 flex flex-wrap gap-4 items-end">
                         <div>
                             <label class="block text-[#00ffaa] text-sm font-bold mb-2">Loại API:</label>
@@ -3224,7 +3223,6 @@
                         <div>
                             <label class="block text-[#00ffaa] text-sm font-bold mb-2">Slug (Tên k-dấu):</label>
                             <input id="api-slug" type="text" class="form-input w-40" placeholder="vd: nhat-ban, hanh-dong" disabled>
-                            <p class="text-[10px] text-gray-400 mt-1">Chỉ dùng cho Quốc gia/Thể loại</p>
                         </div>
                         <div>
                             <label class="block text-[#00ffaa] text-sm font-bold mb-2">Trang (Page):</label>
@@ -3235,31 +3233,25 @@
                         </button>
                     </div>
 
-                    <!-- Nơi hiển thị kết quả -->
                     <div id="api-results-container">
-                        <p class="text-center text-gray-400 py-8 italic">Chưa quét dữ liệu. Hãy bấm "Quét Tìm Phim" thưa Chủ nhân!</p>
+                        <p class="text-center text-gray-400 py-8 italic">Hãy bấm "Quét Tìm Phim" thưa Chủ nhân!</p>
                     </div>
                 </div>
             `;
-            // Lắng nghe sự kiện đổi Loại API để Bật/Tắt ô Slug
             $('api-type').addEventListener('change', (e) => {
                 $('api-slug').disabled = e.target.value === 'moi-cap-nhat';
-             });
+            });
         };
 
-        // 3. Hàm Quét và So Sánh Logic (Trái tim của hệ thống nè!)
         window.scanNguonCApi = async () => {
             const type = $('api-type').value;
             const slug = $('api-slug').value.trim();
             const page = $('api-page').value;
             const container = $('api-results-container');
 
-            if (type !== 'moi-cap-nhat' && !slug) {
-                alert("Chủ nhân quên nhập Slug rồi ạ!");
-                return;
-            }
+            if (type !== 'moi-cap-nhat' && !slug) { alert("Chủ nhân quên nhập Slug rồi ạ!"); return; }
 
-            container.innerHTML = '<div class="text-center text-[#00ffaa] py-10"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><br>Bé Lôi đang quét radar... Chủ nhân đợi xíu nha!</div>';
+            container.innerHTML = '<div class="text-center text-[#00ffaa] py-10"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><br>Bé Lôi đang quét radar...</div>';
 
             let url = '';
             if (type === 'moi-cap-nhat') url = `https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=${page}`;
@@ -3272,15 +3264,11 @@
                 const items = data.items || data.data || [];
 
                 if (items.length === 0) {
-                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Không tìm thấy phim nào ở trang này ạ!</p>';
-                    return;
+                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Không tìm thấy phim nào ạ!</p>'; return;
                 }
 
-                // Tạo danh sách HTML
                 let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
-                
                 items.forEach(apiMovie => {
-                    // So sánh tên phim API với Cache DB của mình
                     const dbMovie = globalAdminMoviesCache.find(m => 
                         m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() ||
                         (m.titleOriginal && apiMovie.original_name && m.titleOriginal.toLowerCase().trim() === apiMovie.original_name.toLowerCase().trim())
@@ -3291,26 +3279,20 @@
                     const apiEpText = apiMovie.current_episode || 'Chưa rõ';
 
                     if (dbMovie) {
-                        // Đã có trong DB -> Kiểm tra số tập
                         const dbEpCount = dbMovie.episodes ? dbMovie.episodes.length : 0;
-                        
-                        // Mẹo nhỏ: Dùng Regex bóc tách con số tập từ API (vd: "Tập 12" -> 12)
                         const apiEpMatch = apiEpText.match(/\d+/);
                         const apiEpNumber = apiEpMatch ? parseInt(apiEpMatch[0]) : 0;
 
                         if (apiEpNumber > dbEpCount) {
-                            // 🚨 CÓ TẬP MỚI!
                             statusBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">🚨 CÓ TẬP MỚI (DB: ${dbEpCount} ➔ API: ${apiEpText})</span>`;
-                            actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ Tập</button>`;
+                            actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ</button>`;
                         } else {
-                            // ĐÃ CẬP NHẬT ĐẦY ĐỦ
-                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (Đang có: ${dbEpCount} tập)</span>`;
-                            actionButton = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-1 px-3 rounded text-sm cursor-not-allowed">Đã xong</button>`;
+                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (${dbEpCount} tập)</span>`;
+                            actionButton = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-1 px-3 rounded text-sm cursor-not-allowed">Xong</button>`;
                         }
                     } else {
-                        // 🌟 PHIM MỚI HOÀN TOÀN
                         statusBadge = `<span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">🌟 PHIM MỚI TINH</span>`;
-                        actionButton = `<button onclick="window.autoAddNewMovie('${apiMovie.slug}')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-plus mr-1"></i> Thêm Phim Này</button>`;
+                        actionButton = `<button onclick="window.autoAddNewMovie('${apiMovie.slug}')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-plus mr-1"></i> Thêm</button>`;
                     }
 
                     htmlContent += `
@@ -3322,19 +3304,15 @@
                                     <p class="text-xs text-gray-400 mb-1">${apiMovie.original_name}</p>
                                     ${statusBadge}
                                 </div>
-                                <div class="mt-2 text-right">
-                                    ${actionButton}
-                                </div>
+                                <div class="mt-2 text-right">${actionButton}</div>
                             </div>
                         </div>
                     `;
                 });
-                
                 htmlContent += '</div>';
                 container.innerHTML = htmlContent;
-
             } catch (error) {
-                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi khi gọi API Nguồn C: ${error.message}</p>`;
+                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi gọi API: ${error.message}</p>`;
             }
         };
 
