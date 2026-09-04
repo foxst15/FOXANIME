@@ -3339,31 +3339,33 @@
                 
                 let mappedEpisodes = [];
                 
-                // Lấy danh sách server từ API
-                const episodesList = rawMovie.episodes || [];
-                
-                episodesList.forEach(server => {
-                    // 🌟 BÉ LÔI ĐÃ THÊM 'server.items' VÀO ĐÂY ĐỂ ĐÓN CƠ CẤU CỦA CONAN NÈ 🌟
-                    const serverData = server.items || server.server_data || server.data || [];
+                // 🌟 QUÉT "VÉT CẠN" MỌI NGÓ NGÁCH MÀ NGUỒN C CÓ THỂ TRẢ VỀ 🌟
+                let rawList = [];
+                if (Array.isArray(rawMovie.episodes)) {
+                    // Trường hợp episodes là mảng chứa các object server hoặc mảng các tập trực tiếp
+                    rawMovie.episodes.forEach(s => {
+                        if (Array.isArray(s.items)) rawList.push(...s.items);
+                        else if (Array.isArray(s.server_data)) rawList.push(...s.server_data);
+                        else if (Array.isArray(s)) rawList.push(...s);
+                        else if (s.link_m3u8 || s.link_embed || s.url) rawList.push(s);
+                    });
+                }
+
+                // Tiến hành bóc tách từng tập
+                rawList.forEach((ep, index) => {
+                    const epName = ep.name || ep.title || `Tập ${index + 1}`;
+                    const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
                     
-                    if (Array.isArray(serverData)) {
-                        serverData.forEach((ep, index) => {
-                            const epName = ep.name || ep.title || `Tập ${index + 1}`;
-                            // Nguồn C thường dùng link_m3u8, link_embed hoặc link trong items
-                            const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
-                            
-                            if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
-                                mappedEpisodes.push({
-                                    episodeNumber: mappedEpisodes.length + 1,
-                                    title: epName,
-                                    videoUrl: epUrl,
-                                    addedAt: new Date().toISOString()
-                                });
-                            }
+                    if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
+                        mappedEpisodes.push({
+                            episodeNumber: index + 1,
+                            title: epName,
+                            videoUrl: epUrl,
+                            addedAt: new Date().toISOString()
                         });
                     }
                 });
-
+                
                 if (mappedEpisodes.length === 0) {
                     showLoading(false);
                     alert("Cảnh báo: API Nguồn C không trả về link tập phim nào cho phim này cả!");
