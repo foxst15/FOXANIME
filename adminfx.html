@@ -3339,26 +3339,32 @@
                 
                 let mappedEpisodes = [];
                 
-                // 🌟 QUÉT "VÉT CẠN" MỌI NGÓ NGÁCH MÀ NGUỒN C CÓ THỂ TRẢ VỀ 🌟
+                // 🌟 QUÉT "VÉT CẠN" THÔNG MINH: CHẤP MỌI CẤU TRÚC TỪ NGUỒN C 🌟
                 let rawList = [];
-                if (Array.isArray(rawMovie.episodes)) {
-                    rawMovie.episodes.forEach(s => {
-                        // 🌟 THÊM s.items VÀO ĐÂY ĐỂ ĐÓN MẢNG TẬP PHIM CỦA CONAN NÈ 🌟
-                        if (Array.isArray(s.items)) rawList.push(...s.items);
-                        else if (Array.isArray(s.server_data)) rawList.push(...s.server_data);
-                        else if (Array.isArray(s)) rawList.push(...s);
-                        else if (s.link_m3u8 || s.link_embed || s.url) rawList.push(s);
+                
+                // Kiểm tra xem episodes là mảng hay object bọc lót
+                const episodesSource = Array.isArray(rawMovie.episodes) ? rawMovie.episodes : (rawMovie.episodes?.items || []);
+                
+                if (Array.isArray(episodesSource)) {
+                    episodesSource.forEach(server => {
+                        // Lấy mảng tập phim từ các biến tiềm năng: items, server_data, data hoặc chính bản thân server
+                        const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
+                        if (Array.isArray(serverItems)) {
+                            rawList.push(...serverItems);
+                        } else if (server.link_m3u8 || server.link_embed || server.url) {
+                            rawList.push(server);
+                        }
                     });
                 }
 
-                // Tiến hành bóc tách từng tập
+                // Tiến hành bóc tách từng tập và loại bỏ trùng lặp URL
                 rawList.forEach((ep, index) => {
                     const epName = ep.name || ep.title || `Tập ${index + 1}`;
                     const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
                     
                     if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
                         mappedEpisodes.push({
-                            episodeNumber: index + 1,
+                            episodeNumber: mappedEpisodes.length + 1,
                             title: epName,
                             videoUrl: epUrl,
                             addedAt: new Date().toISOString()
