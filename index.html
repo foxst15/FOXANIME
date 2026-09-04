@@ -2151,10 +2151,11 @@
                 if (!mId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
 
                 if (pathSegments.length === 2) {
-
                     window.renderInfoPage(mId);
                 } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
-                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/);
+                    // Cắt bỏ phần query ?server=... để lấy đúng tên file html của tập phim
+                    const rawEpisodeSegment = pathSegments[2].split('?')[0];
+                    const episodeMatch = rawEpisodeSegment.match(/-([a-zA-Z0-9_]+)\.html$/);
                     const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
                     if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
                 }
