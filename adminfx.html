@@ -1515,7 +1515,7 @@
         };
 
         // Hàm Tự Sửa Lỗi và Chuẩn hóa Dữ liệu Phim
-        const sanitizeMovieData = (movie, userId) => {
+        function sanitizeMovieData(movie, userId) {
             // 1. Basic required validation
             if (!movie.title || typeof movie.title !== 'string' || movie.title.trim() === '') {
                 throw new Error("Movie object is missing a valid 'title'.");
@@ -1562,7 +1562,7 @@
         };
 
         // START: LOGIC MAPPING TỪ API NGOÀI VÀO SCHEMA CHUẨN (Quan trọng)
-        const mapApiToSchema = (rawMovie) => {
+        function mapApiToSchema(rawMovie) {
             // Chú ý: Dữ liệu API mẫu của Nii-chan là cho MỘT phim và được bọc trong field 'movie'
             const data = rawMovie.movie || rawMovie;
 
