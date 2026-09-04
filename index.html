@@ -1593,7 +1593,9 @@
 
                                 <div class="space-y-2 max-h-[70vh] overflow-y-auto schedule-scroll-area">
                                     ${activeEpisodes.map(ep => {
-                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html?server=${encodeURIComponent(currentServerName)}`;
+                                        // Đảm bảo ep.id được sinh ra chuẩn theo từng server
+                                        const epId = ep.id || `${movie.id}_${createSlug(currentServerName)}_${ep.episodeNumber}_0`;
+                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${epId}.html?server=${encodeURIComponent(currentServerName)}`;
                                         const isActive = ep.episodeNumber === currentEpNumber;
                                         return `
                                             <a href="${epLink}" 
