@@ -3339,6 +3339,30 @@
                 
                 let mappedEpisodes = [];
                 
+                // 1. Kiểm tra xem episodes có phải là mảng không
+                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
+                    // Ưu tiên quét server đầu tiên (hoặc gộp tất cả server Vietsub/Lồng tiếng nếu muốn)
+                    // Ở đây Bé Lôi lấy server đầu tiên làm chuẩn (hoặc server Vietsub)
+                    const targetServer = rawMovie.episodes.find(s => s.server_name && s.server_name.includes('Vietsub')) || rawMovie.episodes[0];
+                    
+                    if (targetServer && Array.isArray(targetServer.items)) {
+                        targetServer.items.forEach((ep, index) => {
+                            // 🌟 LẤY ĐÚNG TÊN LÀ 'ep.name' VÀ LINK LÀ 'ep.embed' TỪ JSON 🌟
+                            const epName = ep.name ? `Tập ${ep.name}` : `Tập ${index + 1}`;
+                            const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || '';
+                            
+                            if (epUrl) {
+                                mappedEpisodes.push({
+                                    episodeNumber: parseInt(ep.name) || (index + 1),
+                                    title: epName,
+                                    videoUrl: epUrl,
+                                    addedAt: new Date().toISOString()
+                                });
+                            }
+                        });
+                    }
+                }
+                
                 // 🌟 QUÉT "VÉT CẠN" THÔNG MINH: CHẤP MỌI CẤU TRÚC TỪ NGUỒN C 🌟
                 let rawList = [];
                 
