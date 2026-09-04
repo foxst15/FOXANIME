@@ -3200,10 +3200,7 @@
 
             window.addEventListener('hashchange', router);
         });
-
-        // =====================================================================
-        // ⚡ BÉ LÔI: MODULE KHO API NGUỒN C (TÍCH HỢP SO SÁNH & CẬP NHẬT) ⚡
-        // =====================================================================
+    
 
         // 1. Khai báo nút mới trong Router
         $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
@@ -3213,7 +3210,7 @@
             $('main-content').innerHTML = `
                 <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
                     <h2 class="text-3xl font-bold text-yellow-400 mb-6 border-b border-[#5d3f9e] pb-2">
-                        <i class="fas fa-satellite-dish mr-2"></i> TRẠM THU THẬP API NGUỒN C
+                        <i class="fas fa-satellite-dish mr-2"></i> TRẠM THU THẬP PHIM
                     </h2>
                     
                     <div class="bg-[#1a0f3d] p-5 rounded-lg border border-[#00ffaa] mb-6 flex flex-wrap gap-4 items-end">
@@ -3324,11 +3321,18 @@
         // 4. Hàm Tự Động Lấy & Đồng Bộ Tập Phim Vào DB (Bản Chuẩn)
         window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
             try {
+                // Kiểm tra xem ID truyền vào có hợp lệ không
+                if (!dbMovieId || dbMovieId === 'undefined') {
+                    alert("Lỗi: Không tìm thấy ID phim trong Database của bạn! Hãy chắc chắn phim này đã được thêm vào hệ thống trước.");
+                    return;
+                }
+
                 const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tập mới nhất từ API và đẩy vào phim này nha?");
                 if(!confirmed) return;
                 
                 showLoading(true);
-                // Lấy chi tiết để có link m3u8/embed
+                
+                // 1. Gọi API chi tiết của Nguồn C
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
                 const rawMovie = dataDetail.movie || dataDetail;
@@ -3338,7 +3342,6 @@
                     rawMovie.episodes.forEach(server => {
                         if (server.server_data) {
                             server.server_data.forEach((ep, index) => {
-                                // Kiểm tra tránh trùng lặp tên tập
                                 if (!mappedEpisodes.find(e => e.title === ep.name)) {
                                     mappedEpisodes.push({
                                         episodeNumber: index + 1,
@@ -3351,20 +3354,31 @@
                         }
                     });
                 }
+
+                if (mappedEpisodes.length === 0) {
+                    showLoading(false);
+                    alert("Cảnh báo: API Nguồn C không trả về link tập phim nào cho phim này cả!");
+                    return;
+                }
                 
-                // Ghi đè cập nhật vào Database
-                await updateDoc(doc(moviesCollectionRef, dbMovieId), {
+                // 2. Ghi đè cập nhật vào Database chính xác theo ID
+                const targetDocRef = doc(moviesCollectionRef, dbMovieId);
+                await updateDoc(targetDocRef, {
                     episodes: mappedEpisodes,
+                    totalEpisodes: mappedEpisodes.length, // Cập nhật luôn tổng số tập cho chuẩn
                     lastEpisodeUpdate: serverTimestamp()
                 });
                 
                 showLoading(false);
-                alert("Thành công! Bé Lôi đã đồng bộ tập mới xong ạ!");
-                window.scanNguonCApi(); // Refresh lại bảng
+                alert(`Thành công rực rỡ! Đã cập nhật ${mappedEpisodes.length} tập vào Database! 🎉`);
+                
+                // Tự động quét lại giao diện trạm API
+                window.scanNguonCApi(); 
 
             } catch(err) {
                 showLoading(false);
-                alert("Lỗi đồng bộ: " + err.message);
+                console.error("Lỗi đồng bộ chi tiết:", err);
+                alert("Lỗi đồng bộ tập phim: " + err.message);
             }
         };
 
