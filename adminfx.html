@@ -3338,22 +3338,30 @@
                 const rawMovie = dataDetail.movie || dataDetail;
                 
                 let mappedEpisodes = [];
-                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
-                    rawMovie.episodes.forEach(server => {
-                        if (server.server_data) {
-                            server.server_data.forEach((ep, index) => {
-                                if (!mappedEpisodes.find(e => e.title === ep.name)) {
-                                    mappedEpisodes.push({
-                                        episodeNumber: index + 1,
-                                        title: ep.name || `Tập ${index + 1}`,
-                                        videoUrl: ep.link_m3u8 || ep.link_embed || '',
-                                        addedAt: new Date().toISOString()
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
+                
+                // Lấy danh sách server hoặc ép nó về mảng nếu Nguồn C đổi cấu trúc
+                const episodesList = rawMovie.episodes || rawMovie.listEpisode || [];
+                
+                episodesList.forEach(server => {
+                    // Quét tất cả các tên biến có thể chứa data tập phim của Nguồn C
+                    const serverData = server.server_data || server.items || server.data || (Array.isArray(server) ? server : []);
+                    
+                    if (Array.isArray(serverData)) {
+                        serverData.forEach((ep, index) => {
+                            const epName = ep.name || ep.title || `Tập ${index + 1}`;
+                            const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
+                            
+                            if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
+                                mappedEpisodes.push({
+                                    episodeNumber: mappedEpisodes.length + 1,
+                                    title: epName,
+                                    videoUrl: epUrl,
+                                    addedAt: new Date().toISOString()
+                                });
+                            }
+                        });
+                    }
+                });
 
                 if (mappedEpisodes.length === 0) {
                     showLoading(false);
