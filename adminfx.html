@@ -1783,7 +1783,7 @@
             const container = $('slider-selected-list');
             if (!container) return;
 
-            
+
             const selectedIds = currentSliderSettings.selectedMovieIds || [];
 
             if (selectedIds.length === 0) {
@@ -1791,7 +1791,7 @@
                 return;
             }
 
-            
+
             container.innerHTML = selectedIds.map(id => {
                 const movie = globalAdminMoviesCache.find(m => m.id === id);
                 if (!movie) return '';
@@ -2391,21 +2391,21 @@
         const router = () => {
             const hash = window.location.hash.substring(1) || 'dashboard';
 
-            
+
             document.querySelectorAll('#admin-main-view button[data-hash]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.hash === `#${hash}`);
                 btn.style.borderBottomColor = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : 'transparent';
                 btn.style.color = btn.dataset.hash === `#${hash}` ? (btn.id === 'nav-api-hunter' ? '#fbbf24' : '#00ffaa') : '#e0e7ff';
             });
 
-            
+
             if (!userId) {
                 if (hash !== 'login') window.location.hash = '#login';
                 $('main-content').innerHTML = '';
                 return;
             }
 
-            
+
             switch (hash) {
                 case 'dashboard':
                     renderAdminDashboard();
@@ -2416,7 +2416,7 @@
                 case 'schedule':
                     renderSchedulePage();
                     break;
-                case 'api-hunter': 
+                case 'api-hunter':
                     renderApiHunterPage();
                     break;
                 case 'login':
@@ -2513,7 +2513,7 @@
                         loadMovies();
                         router();
 
-                   } else {
+                    } else {
                         // Nhánh chưa đăng nhập
                         userId = userEmail = moviesCollectionRef = null;
                         currentUserProfile = {};
@@ -3057,7 +3057,18 @@
                     ? `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3><h4 class="text-sm font-normal text-gray-400 -mt-1 mb-1">${movie.titleOriginal}</h4>`
                     : `<h3 class="text-xl font-bold text-[#e0e7ff] mb-1">${movie.title}</h3>`;
                 const posterSrc = movie.posterUrl || 'https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';
-                const episodeCount = movie.episodes ? movie.episodes.length : 0;
+                let totalEpCount = 0;
+                if (Array.isArray(movie.episodes)) {
+                    if (movie.episodes[0] && movie.episodes[0].serverName) {
+                        // Cấu trúc đa server mới
+                        movie.episodes.forEach(srv => {
+                            if (Array.isArray(srv.items)) totalEpCount += srv.items.length;
+                        });
+                    } else {
+                        // Cấu trúc mảng phẳng cũ
+                        totalEpCount = movie.episodes.length;
+                    }
+                }
                 const totalEpisodes = movie.totalEpisodes || 0;
                 const episodeText = totalEpisodes > 0 ? `${episodeCount} / ${totalEpisodes} tập` : `Tập ${episodeCount}`;
 
@@ -3233,12 +3244,12 @@
 
             window.addEventListener('hashchange', router);
         });
-    
+
 
         // 1. Khai báo nút mới trong Router
         $('nav-api-hunter')?.addEventListener('click', () => window.location.hash = '#api-hunter');
 
-        
+
         const renderApiHunterPage = () => {
             $('main-content').innerHTML = `
                 <div class="bg-[#2f1d56] p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
@@ -3284,7 +3295,7 @@
             const page = $('api-page').value;
             const container = $('api-results-container');
 
-            if (type !== 'moi-cap-nhat' && !slug) { alert("Chủ nhân quên nhập Slug rồi ạ!"); return; }
+            if (type !== 'moi-cap-nhat' && !slug) {alert("Chủ nhân quên nhập Slug rồi ạ!"); return;}
 
             container.innerHTML = '<div class="text-center text-[#00ffaa] py-10"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><br>Bé Lôi đang quét radar...</div>';
 
@@ -3304,7 +3315,7 @@
 
                 let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
                 items.forEach(apiMovie => {
-                    const dbMovie = globalAdminMoviesCache.find(m => 
+                    const dbMovie = globalAdminMoviesCache.find(m =>
                         m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() ||
                         (m.titleOriginal && apiMovie.original_name && m.titleOriginal.toLowerCase().trim() === apiMovie.original_name.toLowerCase().trim())
                     );
@@ -3351,7 +3362,7 @@
             }
         };
 
-       window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
+        window.autoSyncEpisodes = async (dbMovieId, apiSlug) => {
             try {
                 if (!dbMovieId || dbMovieId === 'undefined') {
                     alert("Lỗi: Không tìm thấy ID phim trong Database!");
@@ -3359,28 +3370,28 @@
                 }
 
                 const confirmed = await window.showConfirmModal("Bé Lôi sẽ cào tất cả các server (Vietsub, Lồng Tiếng...) từ API nha?");
-                if(!confirmed) return;
-                
+                if (!confirmed) return;
+
                 showLoading(true);
-                
+
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
                 const rawMovie = dataDetail.movie || dataDetail;
-                
+
                 let formattedServers = [];
                 const episodesSource = Array.isArray(rawMovie.episodes) ? rawMovie.episodes : (rawMovie.episodes?.items || []);
-                
+
                 if (Array.isArray(episodesSource)) {
                     episodesSource.forEach((server, sIndex) => {
                         const serverName = server.server_name || server.name || `Server ${sIndex + 1}`;
                         const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
-                        
+
                         let parsedItems = [];
                         if (Array.isArray(serverItems)) {
                             serverItems.forEach((ep, index) => {
                                 const epName = ep.name || ep.title || '';
                                 const epUrl = ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '';
-                                
+
                                 if (epUrl) {
                                     parsedItems.push({
                                         episodeNumber: parseInt(epName) || (index + 1),
@@ -3413,42 +3424,42 @@
                     totalEpisodes: formattedServers[0]?.items.length || 0,
                     lastEpisodeUpdate: serverTimestamp()
                 });
-                
+
                 showLoading(false);
                 alert(`Thành công rực rỡ! Đã nạp thành công ${formattedServers.length} Server vào Database! 🎉`);
-                window.scanNguonCApi(); 
+                window.scanNguonCApi();
 
-            } catch(err) {
+            } catch (err) {
                 showLoading(false);
                 console.error("Lỗi đồng bộ:", err);
                 alert("Lỗi đồng bộ tập phim: " + err.message);
             }
         };
-        
+
         // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
         window.autoAddNewMovie = async (apiSlug) => {
             try {
                 showLoading(true);
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
-                
+
                 // Dùng lại hàm chuẩn hóa Dữ liệu đã có sẵn trong web
                 const convertedMovie = mapApiToSchema(dataDetail);
                 const sanitizedMovie = sanitizeMovieData(convertedMovie, userId);
 
                 // Lưu phim mới vào Database
                 await setDoc(doc(moviesCollectionRef), sanitizedMovie);
-                
+
                 showLoading(false);
                 alert("Quá xịn! Đã thêm siêu phẩm mới vào kho thành công!");
                 window.scanNguonCApi(); // Refresh lại bảng
-                
-            } catch(err) {
+
+            } catch (err) {
                 showLoading(false);
                 alert("Lỗi thêm phim: " + err.message);
             }
         };
-                
+
 
     </script>
 </body>
