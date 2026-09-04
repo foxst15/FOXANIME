@@ -2984,8 +2984,48 @@
             if (!episodes || episodes.length === 0) {
                 return '<p class="text-gray-500 italic text-sm">Chưa có tập phim nào. (No Data)</p>';
             }
-            episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
 
+            // Kiểm tra xem phim có lưu theo cấu trúc đa server hay mảng phẳng cũ
+            const hasMultipleServers = Array.isArray(episodes) && episodes.length > 0 && episodes[0].serverName;
+
+            if (hasMultipleServers) {
+                return episodes.map(srv => {
+                    const serverName = srv.serverName || 'Server';
+                    const items = srv.items || [];
+                    items.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
+
+                    const serverItemsHtml = items.map(ep => {
+                        const title = ep.title || 'Không có tên';
+                        const safeTitle = title.replace(/'/g, "\\'");
+                        const previewUrl = getAdminPreviewUrl(ep.videoUrl);
+                        return `
+                            <li class="flex items-center justify-between p-2 border-b border-[#5d3f9e] last:border-b-0 text-sm">
+                                <div class="flex-grow truncate">
+                                    <span class="font-medium text-[#00ffaa]">EP ${ep.episodeNumber || 'N/A'}:</span>
+                                    <span class="mx-2 text-white">${title}</span>
+                                </div>
+                                <div class="flex-shrink-0 flex items-center">
+                                    <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video">
+                                        <i class="fas fa-external-link-alt"></i> LINK
+                                    </a>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="mb-3 bg-[#160a30] p-3 rounded-lg border border-[#5d3f9e]">
+                            <div class="text-[#00ffaa] font-bold text-xs uppercase mb-2 flex items-center">
+                                <i class="fas fa-server mr-1"></i> ${serverName} (${items.length} tập)
+                            </div>
+                            <ul class="divide-y divide-[#1e1346] episode-list-scroll">${serverItemsHtml || '<p class="text-gray-500 text-xs italic">Trống</p>'}</ul>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Trường hợp mảng phẳng cũ
+            episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
             const listItems = episodes.map(ep => {
                 const title = ep.title || 'Không có tên';
                 const safeTitle = title.replace(/'/g, "\\'");
@@ -2993,20 +3033,13 @@
                 return `
                 <li class="flex items-center justify-between p-2 border-b border-[#5d3f9e] last:border-b-0 text-sm">
                     <div class="flex-grow truncate">
-                        <!-- Hiển thị chỉ số tập và tên tập -->
                         <span class="font-medium text-[#00ffaa]">EP ${ep.episodeNumber || 'N/A'}:</span>
                         <span class="mx-2 text-white">${title}</span>
                     </div>
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video (Mở Preview)">
+                        <a href="${previewUrl}" target="_blank" class="text-xs text-[#ff69b4] hover:text-[#f8d4e4] transition duration-150" title="Link Video">
                             <i class="fas fa-external-link-alt"></i> LINK
                         </a>
-                        <button onclick="window.showEditEpisodeModal('${movieId}', ${ep.episodeNumber})" class="text-yellow-400 hover:text-yellow-300 ml-3" title="Sửa tập">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="window.handleDeleteEpisode('${movieId}', ${ep.episodeNumber}, '${safeTitle}')" class="text-red-500 hover:text-red-700 ml-2" title="Xóa tập">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     </div>
                 </li>
             `}).join('');
@@ -3339,7 +3372,6 @@
                 
                 if (Array.isArray(episodesSource)) {
                     episodesSource.forEach((server, sIndex) => {
-                        // Lấy tên server chuẩn xác từ API Nguồn C
                         const serverName = server.server_name || server.name || `Server ${sIndex + 1}`;
                         const serverItems = server.items || server.server_data || server.data || (Array.isArray(server) ? server : []);
                         
@@ -3377,7 +3409,7 @@
 
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
-                    episodes: formattedServers, // Lưu mảng chứa các server
+                    episodes: formattedServers, // Lưu danh sách các server vào Database
                     totalEpisodes: formattedServers[0]?.items.length || 0,
                     lastEpisodeUpdate: serverTimestamp()
                 });
