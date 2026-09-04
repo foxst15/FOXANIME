@@ -3342,8 +3342,8 @@
                 // 🌟 QUÉT "VÉT CẠN" MỌI NGÓ NGÁCH MÀ NGUỒN C CÓ THỂ TRẢ VỀ 🌟
                 let rawList = [];
                 if (Array.isArray(rawMovie.episodes)) {
-                    // Trường hợp episodes là mảng chứa các object server hoặc mảng các tập trực tiếp
                     rawMovie.episodes.forEach(s => {
+                        // 🌟 THÊM s.items VÀO ĐÂY ĐỂ ĐÓN MẢNG TẬP PHIM CỦA CONAN NÈ 🌟
                         if (Array.isArray(s.items)) rawList.push(...s.items);
                         else if (Array.isArray(s.server_data)) rawList.push(...s.server_data);
                         else if (Array.isArray(s)) rawList.push(...s);
