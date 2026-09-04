@@ -1411,10 +1411,11 @@
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            // 🌟 KHAI BÁO CÁC BIẾN ĐA SERVER NGAY TẠI ĐÂY TRƯỚC KHI DÙNG 🌟
+            // 🌟 KIỂM TRA CẤU TRÚC ĐA SERVER VÀ TẠO GIAO DIỆN NÚT CHỌN SERVER 🌟
             const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
             let serversListHtml = '';
             let activeEpisodes = allEpisodes;
+            let totalEpCount = 0;
 
             if (hasMultipleServers) {
                 serversListHtml = `
@@ -1439,6 +1440,13 @@
                         id: `${movie.id}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
                     }));
                 }
+
+                // Cộng dồn tổng số tập thực tế của các server để hiển thị tiêu đề
+                movie.episodes.forEach(srv => {
+                    if (Array.isArray(srv.items)) totalEpCount += srv.items.length;
+                });
+            } else {
+                totalEpCount = allEpisodes.length;
             }
 
             const previousEpisode = activeEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
@@ -1555,9 +1563,8 @@
 
                         <div class="lg:col-span-1">
                             <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập</h3>
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${totalEpCount} Tập)</h3>
                                 
-                                <!-- 🌟 GỌI BIẾN SERVERS LIST HTML Ở ĐÂY NÈ CHỦ NHÂN 🌟 -->
                                 ${serversListHtml}
 
                                 <div class="space-y-2 max-h-[70vh] overflow-y-auto schedule-scroll-area">
