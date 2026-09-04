@@ -3339,16 +3339,17 @@
                 
                 let mappedEpisodes = [];
                 
-                // Lấy danh sách server hoặc ép nó về mảng nếu Nguồn C đổi cấu trúc
-                const episodesList = rawMovie.episodes || rawMovie.listEpisode || [];
+                // Lấy danh sách server từ API
+                const episodesList = rawMovie.episodes || [];
                 
                 episodesList.forEach(server => {
-                    // Quét tất cả các tên biến có thể chứa data tập phim của Nguồn C
-                    const serverData = server.server_data || server.items || server.data || (Array.isArray(server) ? server : []);
+                    // 🌟 BÉ LÔI ĐÃ THÊM 'server.items' VÀO ĐÂY ĐỂ ĐÓN CƠ CẤU CỦA CONAN NÈ 🌟
+                    const serverData = server.items || server.server_data || server.data || [];
                     
                     if (Array.isArray(serverData)) {
                         serverData.forEach((ep, index) => {
                             const epName = ep.name || ep.title || `Tập ${index + 1}`;
+                            // Nguồn C thường dùng link_m3u8, link_embed hoặc link trong items
                             const epUrl = ep.link_m3u8 || ep.link_embed || ep.url || '';
                             
                             if (epUrl && !mappedEpisodes.find(e => e.videoUrl === epUrl)) {
