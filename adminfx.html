@@ -3337,6 +3337,7 @@
                 const dataDetail = await resDetail.json();
                 const rawMovie = dataDetail.movie || dataDetail;
                 
+                
                 let mappedEpisodes = [];
                 
                 // 1. Kiểm tra xem episodes có phải là mảng không
@@ -3422,6 +3423,42 @@
                 alert("Lỗi đồng bộ tập phim: " + err.message);
             }
         };
+
+       let formattedServers = [];
+                
+                if (rawMovie.episodes && Array.isArray(rawMovie.episodes)) {
+                    rawMovie.episodes.forEach(server => {
+                        const serverName = server.server_name || 'Server 1';
+                        const serverItems = server.items || server.server_data || server.data || [];
+                        
+                        let parsedItems = [];
+                        if (Array.isArray(serverItems)) {
+                            serverItems.forEach((ep, index) => {
+                                parsedItems.push({
+                                    episodeNumber: parseInt(ep.name) || (index + 1),
+                                    title: ep.name ? `Tập ${ep.name}` : `Tập ${index + 1}`,
+                                    videoUrl: ep.embed || ep.link_m3u8 || ep.link_embed || ep.url || '',
+                                    addedAt: new Date().toISOString()
+                                });
+                            });
+                        }
+
+                        if (parsedItems.length > 0) {
+                            formattedServers.push({
+                                serverName: serverName,
+                                items: parsedItems
+                            });
+                        }
+                    });
+                }
+
+                // Ghi cấu trúc nhiều server vào Database
+                const targetDocRef = doc(moviesCollectionRef, dbMovieId);
+                await updateDoc(targetDocRef, {
+                    episodes: formattedServers, // Lưu cấu trúc bọc server
+                    totalEpisodes: formattedServers[0]?.items.length || 0,
+                    lastEpisodeUpdate: serverTimestamp()
+                });
 
         // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
         window.autoAddNewMovie = async (apiSlug) => {
