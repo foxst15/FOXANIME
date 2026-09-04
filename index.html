@@ -1404,29 +1404,63 @@
     `;
         };
 
-        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, currentServerName = 'Vietsub #1') => {
             const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, movie.posterUrl);
             const movieSlug = createSlug(movie.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            // 🌟 KHAI BÁO CÁC BIẾN ĐA SERVER NGAY TẠI ĐÂY TRƯỚC KHI DÙNG 🌟
+            const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+            let serversListHtml = '';
+            let activeEpisodes = allEpisodes;
+
+            if (hasMultipleServers) {
+                serversListHtml = `
+                    <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                        <span class="text-xs font-bold text-gray-400 uppercase mr-2"><ion-icon name="server-outline" class="text-lime-400 mr-1"></ion-icon> Chọn Server:</span>
+                        ${movie.episodes.map(srv => {
+                            const isSelected = srv.serverName === currentServerName;
+                            return `
+                                <button onclick="window.switchServer('${movie.id}', '${srv.serverName}')" 
+                                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                    ${srv.serverName}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                const currentServerObj = movie.episodes.find(s => s.serverName === currentServerName) || movie.episodes[0];
+                if (currentServerObj && Array.isArray(currentServerObj.items)) {
+                    activeEpisodes = currentServerObj.items.map((ep, index) => ({
+                        ...ep,
+                        id: `${movie.id}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
+                    }));
+                }
+            }
+
+            const previousEpisode = activeEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
             let previousEpisodeLink = null;
             if (previousEpisode) {
                 const prevEpId = previousEpisode.id;
-                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
+                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html?server=${encodeURIComponent(currentServerName)}`;
+            }
+
+            if (nextEpisodeLink && currentServerName) {
+                nextEpisodeLink += `?server=${encodeURIComponent(currentServerName)}`;
             }
 
             const previousButton = previousEpisodeLink ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
                 </a>
-                                ` : `
+            ` : `
                 <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
                 </button>
-                            `;
+            `;
 
             const nextButton = nextEpisodeLink ? `
             <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
@@ -1437,7 +1471,6 @@
                 Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
             </button>
         `;
-
 
             return `
                 <section class="text-white">
@@ -1462,7 +1495,7 @@
                             <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-lime-500">
                                 <h1 class="text-3xl font-extrabold text-white mb-1">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'} <span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded ml-2">${currentServerName}</span></h2>
                                 <p class="text-gray-400 text-sm mt-2">${movie.genre}</p>
                                 <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
                                     <div class="flex flex-wrap items-center justify-start space-x-3">
@@ -1522,31 +1555,29 @@
 
                         <div class="lg:col-span-1">
                             <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${movie.episodes.length} Tập)</h3>
-
-                                ${serversListHtml}
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập</h3>
                                 
-                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
-                                    ${allEpisodes.map(ep => {
-                    const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
-                    const isActive = ep.episodeNumber === currentEpNumber;
-                    return `
+                                <!-- 🌟 GỌI BIẾN SERVERS LIST HTML Ở ĐÂY NÈ CHỦ NHÂN 🌟 -->
+                                ${serversListHtml}
+
+                                <div class="space-y-2 max-h-[70vh] overflow-y-auto schedule-scroll-area">
+                                    ${activeEpisodes.map(ep => {
+                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html?server=${encodeURIComponent(currentServerName)}`;
+                                        const isActive = ep.episodeNumber === currentEpNumber;
+                                        return `
                                             <a href="${epLink}" 
                                                 class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
-                                                ${isActive
-                            ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                        }">
+                                                ${isActive ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'}">
                                                 Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
                                             </a>
-                                                    `;
-                }).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                                                `;
+            `;
         };
 
         const renderScheduleMovieCard = (movie) => {
