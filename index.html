@@ -1991,17 +1991,19 @@
             if (primaryHash !== '#phim' && unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
 
             if (primaryHash === '#phim' && pathSegments.length >= 2) {
-                const movieIdMatch = pathSegments[1].match(/-([a-zA-Z0-9]+)$/);
+        
+                const movieIdMatch = pathSegments[1].match(/-([a-zA-Z0-9_-]+)$/);
                 const mId = movieIdMatch ? movieIdMatch[1] : null;
                 if (!mId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
 
                 if (pathSegments.length === 2) {
                     window.renderInfoPage(mId);
                 } else if (pathSegments.length === 3) {
-                    // 🌟 CẮT QUERY ?SERVER ĐỂ TRÁNH LỖI ĐỊNH TUYẾN 🌟
+                    
                     const rawEpisodeSegment = pathSegments[2].split('?')[0];
                     if (rawEpisodeSegment.endsWith('.html')) {
-                        const episodeMatch = rawEpisodeSegment.match(/-([a-zA-Z0-9_]+)\.html$/);
+                        
+                        const episodeMatch = rawEpisodeSegment.match(/-([a-zA-Z0-9_-]+)\.html$/);
                         const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
                         if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
                     }
