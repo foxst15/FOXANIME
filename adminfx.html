@@ -1576,22 +1576,22 @@
             let status = 'dang-chieu';
             if (currentEpisodeText.includes('Hoàn tất') || currentEpisodeText.includes('Trọn bộ')) {
                 status = 'tron-bo';
-            } else if (data.status === 'Sắp chiếu') { // Giả định có field status riêng
+            } else if (data.status === 'Sắp chiếu') { 
                 status = 'sap-chieu';
             }
 
-            // 2. Ánh xạ Thể loại (Category List)
+            
             let genres = [];
-            // Kiểm tra category[2].list (dạng API phim.nguonc.com)
+            
             if (data.category && data.category['2'] && data.category['2'].list) {
                 genres = data.category['2'].list.map(g => (g.name || g.title).trim());
             } else if (data.category && Array.isArray(data.category)) {
-                // Trường hợp category là mảng các chuỗi/objects
+               
                 genres = data.category.map(g => (typeof g === 'string' ? g : g.name || g.title)).filter(Boolean);
             }
 
-            // --- BÉ LÔI THÊM LOGIC TỰ ĐỘNG PHÂN LOẠI DẠNG PHIM NÈ ---
-            let detectedFormat = 'tv-series'; // Mặc định vẫn là TV/Series
+            
+            let detectedFormat = 'tv-series'; 
             const genresCheck = genres.map(g => g.toLowerCase());
 
             if (genresCheck.some(g => g.includes('trung quốc') || g.includes('chinese'))) {
@@ -3325,7 +3325,18 @@
                     const apiEpText = apiMovie.current_episode || 'Chưa rõ';
 
                     if (dbMovie) {
-                        const dbEpCount = dbMovie.episodes ? dbMovie.episodes.length : 0;
+                      
+                        let dbEpCount = 0;
+                        if (Array.isArray(dbMovie.episodes) && dbMovie.episodes.length > 0) {
+                            if (dbMovie.episodes[0].serverName) {
+                                
+                                dbEpCount = Math.max(...dbMovie.episodes.map(srv => Array.isArray(srv.items) ? srv.items.length : 0));
+                            } else {
+                               
+                                dbEpCount = dbMovie.episodes.length;
+                            }
+                        }
+
                         const apiEpMatch = apiEpText.match(/\d+/);
                         const apiEpNumber = apiEpMatch ? parseInt(apiEpMatch[0]) : 0;
 
@@ -3333,7 +3344,7 @@
                             statusBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">🚨 CÓ TẬP MỚI (DB: ${dbEpCount} ➔ API: ${apiEpText})</span>`;
                             actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ</button>`;
                         } else {
-                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (${dbEpCount} tập)</span>`;
+                            statusBadge = `<span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">✅ ĐÃ ĐỒNG BỘ (${dbEpCount} tập lớn nhất)</span>`;
                             actionButton = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-1 px-3 rounded text-sm cursor-not-allowed">Xong</button>`;
                         }
                     } else {
