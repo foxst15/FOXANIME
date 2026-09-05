@@ -467,6 +467,14 @@
             color: #111827 !important;
             background-color: white !important;
         }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 
@@ -563,46 +571,45 @@
     </div>
 
     <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
-        <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
+        <header class="mb-6 border-b border-gray-700 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex items-center space-x-3 md:space-x-4 w-full md:w-auto">
                 <img src="anh/foxanimelogo.jpg" alt="FoxAnime Logo"
-                    class="w-16 h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg"
+                    class="w-12 h-12 md:w-16 md:h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg flex-shrink-0"
                     onerror="this.onerror=null;this.src='https://placehold.co/64x64/ff69b4/ffffff?text=FX';" />
-                <div>
-                    <h1 class="text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN
-                    </h1>
-                    <p class="text-gray-400">Quản lý Phim và Tài khoản Admin .</p>
-                    <div id="auth-status" class="mt-2 text-sm text-[#ff69b4]"></div>
+                <div class="flex-grow min-w-0">
+                    <h1 class="text-xl md:text-4xl font-extrabold text-[#00ffaa] neon-glow mb-1 truncate">BẢNG ĐIỀU KHIỂN - ADMIN</h1>
+                    <p class="text-xs md:text-sm text-gray-400">Quản lý Phim và Tài khoản.</p>
+                    <div id="auth-status" class="mt-1 text-xs text-[#ff69b4] truncate"></div>
                 </div>
             </div>
             <div id="admin-profile-header"
-                class="hidden items-center space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border">
-                <img id="admin-avatar-header" src="https://placehold.co/40x40/ff69b4/ffffff?text=AD" alt="Admin Avatar"
-                    class="w-10 h-10 rounded-full border-2 border-[#00ffaa] object-cover">
-                <div>
-                    <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block"></span>
-                    <a href="#profile" class="text-xs text-[#ff69b4] hover:underline transition">Chỉnh sửa Profile</a>
+                class="hidden w-full md:w-auto items-center justify-between md:justify-start space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border flex-shrink-0">
+                <div class="flex items-center space-x-3 min-w-0">
+                    <img id="admin-avatar-header" src="https://placehold.co/40x40/ff69b4/ffffff?text=AD" alt="Admin Avatar"
+                        class="w-10 h-10 rounded-full border-2 border-[#00ffaa] object-cover flex-shrink-0">
+                    <div class="min-w-0">
+                        <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block text-sm truncate"></span>
+                        <a href="#profile" class="text-xs text-[#ff69b4] hover:underline transition">Chỉnh sửa Profile</a>
+                    </div>
                 </div>
-                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-4">
-                    <i class="fas fa-sign-out-alt text-lg" title="Đăng Xuất"></i>
+                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-2">
+                    <i class="fas fa-sign-out-alt text-xl" title="Đăng Xuất"></i>
                 </button>
             </div>
         </header>
 
-        <div class="flex space-x-4 mb-8 border-b border-gray-700">
+       <div class="flex overflow-x-auto hide-scrollbar space-x-2 md:space-x-4 mb-8 border-b border-gray-700 pb-1">
             <button id="nav-dashboard" data-hash="#dashboard"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa]">DASHBOARD</button>
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa] whitespace-nowrap">DASHBOARD</button>
             <button id="nav-schedule" data-hash="#schedule"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent whitespace-nowrap">LỊCH
                 CHIẾU</button>
-
             <button id="nav-api-hunter" data-hash="#api-hunter"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400">
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400 whitespace-nowrap">
                 <i class="fas fa-spider mr-1"></i> KHO API PHIM
             </button>
-
             <button id="nav-profile" data-hash="#profile"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI KHOẢN
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent whitespace-nowrap">TÀI KHOẢN
                 ADMIN</button>
         </div>
 
@@ -2621,21 +2628,70 @@
             const {data, total, totalPages} = getFilteredAndPaginatedMovies();
             const movieListHtml = renderMovieListContent(data);
 
-            container.innerHTML = `
-                
-                <div id="movie-list" class="space-y-4">${movieListHtml}</div>
-                
-                <div class="mt-6 flex justify-center items-center space-x-4">
-                    <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(-1)">
-                        <i class="fas fa-chevron-left"></i> Prev
-                    </button>
-                    <span class="text-[#00ffaa] font-bold">Page ${currentPage} / ${totalPages || 1}</span>
-                    <button class="pagination-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(1)">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
+           container.innerHTML = `
+                <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl shadow-lg panel-border min-h-[85vh]">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-gray-700 pb-4">
+                        <h2 class="text-xl md:text-2xl font-semibold text-[#00ffaa] whitespace-nowrap">DANH SÁCH MOVIE (<span id="stat-total-movies-display">${getFilteredAndPaginatedMovies().total}</span>)</h2>
+                        
+                        <!-- 🌟 Nút bấm tự động chia 2 cột trên Mobile, dàn ngang trên PC -->
+                        <div class="grid grid-cols-2 md:flex flex-wrap gap-2 w-full md:w-auto">
+                            <a href="#schedule" class="anime-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-3 rounded-lg shadow-md flex items-center justify-center text-xs md:text-sm">
+                                <i class="fas fa-calendar-alt mr-1"></i> Lịch Chiếu
+                            </a>
+                            <button onclick="showModal('add-movie-modal')" class="anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 font-bold py-2 px-3 rounded-lg shadow-md flex items-center justify-center text-xs md:text-sm">
+                                <i class="fas fa-plus mr-1"></i> Thêm Phim
+                            </button>
+                            <button onclick="showModal('bulk-import-modal')" class="anime-button bg-[#bf94e4] hover:bg-[#a06ec4] text-gray-900 font-bold py-2 px-3 rounded-lg shadow-md flex items-center justify-center text-xs md:text-sm">
+                                <i class="fas fa-file-import mr-1"></i> Import Phim
+                            </button>
+                            <button onclick="handleFixLegacyData()" class="anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-3 rounded-lg shadow-md flex items-center justify-center text-xs md:text-sm">
+                                <i class="fas fa-wrench mr-1"></i> FIX DATA
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fix-legacy-status" class="text-[#00ffaa] font-bold mb-2"></div>
+                    
+                    ${sliderManagementHtml}
+
+                    <div class="filter-bar-container">
+                        <div class="flex-grow w-full md:w-auto">
+                            <input type="text" id="filter-title-input" placeholder="🔍 Tìm tên phim..." class="form-input w-full h-10 text-sm" 
+                                   value="${filterState.title}" oninput="handleFilterChange('title', this.value)">
+                        </div>
+                        
+                        <div class="relative w-full sm:w-auto">
+                            <button type="button" id="genre-filter-button"
+                                    onclick="window.toggleGenreDropdown('genre-filter-dropdown', event)" 
+                                    class="anime-button bg-[#1a0f3d] hover:bg-[#2f1d56] border border-[#00ffaa] text-[#00ffaa] text-sm font-semibold py-2 px-3 rounded-lg w-full sm:w-56 flex items-center justify-between text-left">
+                                <span class="truncate">${selectedGenreName}</span>
+                                <i class="fas fa-chevron-down ml-2 flex-shrink-0"></i>
+                            </button>
+                            
+                            <div id="genre-filter-dropdown" 
+                                 class="custom-dropdown-menu absolute bg-[#2f1d56] p-2 rounded-lg shadow-xl hidden w-full sm:w-80 z-50">
+                                <button type="button" 
+                                        onclick="handleFilterChange('genre', '')" 
+                                        class="genre-tag w-full mb-2 ${filterState.genre === '' ? 'selected' : ''}">
+                                    -- Tất cả thể loại --
+                                </button>
+                                <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                                    ${genreTagListHtml}
+                                </div>
+                            </div>
+                        </div>
+                        
+                         <div class="flex-grow sm:flex-grow-0 w-full md:w-auto mt-2 md:mt-0">
+                            <input type="text" id="filter-creator-input" placeholder="👤 Tên Admin..." class="form-input w-full h-10 text-sm" 
+                                   value="${filterState.creator}" oninput="handleFilterChange('creator', this.value)">
+                        </div>
+                    </div>
+                    
+                    <div id="dynamic-dashboard-content">
+                        <p class="text-center text-gray-400 py-8">Đang tải danh sách phim...</p>
+                    </div>
                 </div>
             `;
-
             const totalMoviesDisplay = $('stat-total-movies-display');
             if (totalMoviesDisplay) totalMoviesDisplay.textContent = total;
 
