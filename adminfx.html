@@ -2760,9 +2760,9 @@
             });
         };
 
-        const renderAdminDashboard = () => {
+       const renderAdminDashboard = () => {
             const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : (GENRE_TRANSLATIONS[filterState.genre] ? `${filterState.genre} (${GENRE_TRANSLATIONS[filterState.genre]})` : filterState.genre);
-
+            
             const genreTagListHtml = ALL_GENRES.map(g => {
                 const vietnameseName = GENRE_TRANSLATIONS[g] || g;
                 return `
@@ -2772,10 +2772,10 @@
                     ${g} <span class="text-xs text-gray-400 ml-1">(${vietnameseName})</span>
                 </button>
             `}).join('');
-
+            
             const totalMoviesCache = globalAdminMoviesCache.length;
             const totalEpisodes = globalAdminMoviesCache.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
-
+            
             // TẠO GIAO DIỆN HERO SLIDER MANAGEMENT
             const sliderManagementHtml = `
                 <div class="bg-[#1e1346] p-5 rounded-xl border-2 border-[#00ffaa] mb-6 shadow-[0_0_15px_rgba(0,255,170,0.15)] relative overflow-visible z-20">
@@ -2844,6 +2844,7 @@
                         
                         <div id="fix-legacy-status" class="text-[#00ffaa] font-bold mb-2"></div>
                         
+                        ${sliderManagementHtml}
 
                         <div class="filter-bar-container">
                             <div class="flex-grow">
@@ -2908,35 +2909,35 @@
                     </div>
                 </div>
             `;
-
+            
             window.renderSelectedSliderMoviesUI(); // Tải UI list phim ngay sau khi render Dashboard
+            
+            document.addEventListener('click', function(event) {
+                 const dropdown = $('genre-filter-dropdown');
+                 const dropdownButton = $('genre-filter-button');
+                 
+                 // Kiểm tra cho dropdown thể loại
+                 if (dropdown && !dropdown.classList.contains('hidden')) {
+                     const isClickInsideButton = event.target.closest('#genre-filter-button');
+                     const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
+                     
+                     if (!isClickInsideButton && !isClickInsideDropdown) {
+                         dropdown.classList.add('hidden');
+                     }
+                 }
 
-            document.addEventListener('click', function (event) {
-                const dropdown = $('genre-filter-dropdown');
-                const dropdownButton = $('genre-filter-button');
-
-                // Kiểm tra cho dropdown thể loại
-                if (dropdown && !dropdown.classList.contains('hidden')) {
-                    const isClickInsideButton = event.target.closest('#genre-filter-button');
-                    const isClickInsideDropdown = event.target.closest('#genre-filter-dropdown');
-
-                    if (!isClickInsideButton && !isClickInsideDropdown) {
-                        dropdown.classList.add('hidden');
-                    }
-                }
-
-                // Kiểm tra cho dropdown search của Slider
-                const sliderSearchResults = $('slider-search-results');
-                const sliderSearchInput = $('slider-search-input');
-                if (sliderSearchResults && !sliderSearchResults.classList.contains('hidden')) {
-                    const isClickInsideInput = event.target.closest('#slider-search-input');
-                    const isClickInsideResults = event.target.closest('#slider-search-results');
-                    if (!isClickInsideInput && !isClickInsideResults) {
-                        sliderSearchResults.classList.add('hidden');
-                    }
-                }
+                 // Kiểm tra cho dropdown search của Slider
+                 const sliderSearchResults = $('slider-search-results');
+                 const sliderSearchInput = $('slider-search-input');
+                 if (sliderSearchResults && !sliderSearchResults.classList.contains('hidden')) {
+                     const isClickInsideInput = event.target.closest('#slider-search-input');
+                     const isClickInsideResults = event.target.closest('#slider-search-results');
+                     if (!isClickInsideInput && !isClickInsideResults) {
+                         sliderSearchResults.classList.add('hidden');
+                     }
+                 }
             });
-
+            
             renderDashboardDynamicContent();
         };
 
