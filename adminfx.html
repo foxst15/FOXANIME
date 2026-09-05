@@ -1792,7 +1792,6 @@
             const container = $('slider-selected-list');
             if (!container) return;
 
-
             const selectedIds = currentSliderSettings.selectedMovieIds || [];
 
             if (selectedIds.length === 0) {
@@ -1800,12 +1799,25 @@
                 return;
             }
 
-
             container.innerHTML = selectedIds.map(id => {
                 const movie = globalAdminMoviesCache.find(m => m.id === id);
-                if (!movie) return '';
+                
+                
+                if (!movie) {
+                    return `
+                        <div class="relative bg-red-900/40 rounded-lg border border-red-500 border-dashed p-2 flex flex-col items-center justify-center group min-h-[160px]">
+                            <i class="fas fa-ghost text-4xl text-red-400 mb-2 opacity-60"></i>
+                            <span class="text-xs text-center font-bold text-red-300 w-full break-words">Dữ liệu lỗi/Đã xóa</span>
+                            <button onclick="window.removeMovieFromSlider('${id}')" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-800 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                // Nếu phim vẫn bình thường thì hiện bình thường
                 return `
-                    <div class="relative bg-[#2f1d56] rounded-lg border border-[#5d3f9e] p-2 flex flex-col items-center group">
+                    <div class="relative bg-[#2f1d56] rounded-lg border border-[#5d3f9e] p-2 flex flex-col items-center group min-h-[160px]">
                         <img src="${movie.posterUrl}" class="w-full h-32 object-cover rounded mb-2">
                         <span class="text-xs text-center font-bold text-white truncate w-full">${movie.title}</span>
                         <button onclick="window.removeMovieFromSlider('${id}')" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-800 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition">
