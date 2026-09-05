@@ -467,6 +467,14 @@
             color: #111827 !important;
             background-color: white !important;
         }
+
+        .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
     </style>
 </head>
 
@@ -563,47 +571,46 @@
     </div>
 
     <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
-        <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
+        <!-- BÉ LÔI SỬA: Thêm flex-col cho mobile, md:flex-row cho desktop, thêm gap-4 -->
+        <header class="mb-8 border-b border-gray-700 pb-4 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <img src="anh/foxanimelogo.jpg" alt="FoxAnime Logo"
                     class="w-16 h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg"
                     onerror="this.onerror=null;this.src='https://placehold.co/64x64/ff69b4/ffffff?text=FX';" />
                 <div>
-                    <h1 class="text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN
-                    </h1>
-                    <p class="text-gray-400">Quản lý Phim và Tài khoản Admin .</p>
+                    <!-- BÉ LÔI SỬA: Giảm size chữ xíu trên mobile (text-2xl md:text-4xl) -->
+                    <h1 class="text-2xl md:text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN</h1>
+                    <p class="text-gray-400 text-sm md:text-base">Quản lý Phim và Tài khoản Admin.</p>
                     <div id="auth-status" class="mt-2 text-sm text-[#ff69b4]"></div>
                 </div>
             </div>
+            
             <div id="admin-profile-header"
-                class="hidden items-center space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border">
+                class="hidden items-center space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border w-full md:w-auto justify-center md:justify-end">
                 <img id="admin-avatar-header" src="https://placehold.co/40x40/ff69b4/ffffff?text=AD" alt="Admin Avatar"
                     class="w-10 h-10 rounded-full border-2 border-[#00ffaa] object-cover">
-                <div>
-                    <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block"></span>
+                <div class="text-left">
+                    <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block text-sm"></span>
                     <a href="#profile" class="text-xs text-[#ff69b4] hover:underline transition">Chỉnh sửa Profile</a>
                 </div>
-                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-4">
-                    <i class="fas fa-sign-out-alt text-lg" title="Đăng Xuất"></i>
+                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-auto md:ml-4">
+                    <i class="fas fa-sign-out-alt text-xl" title="Đăng Xuất"></i>
                 </button>
             </div>
         </header>
 
-        <div class="flex space-x-4 mb-8 border-b border-gray-700">
+        <!-- BÉ LÔI SỬA: Thêm overflow-x-auto và hide-scrollbar để lướt ngang trên điện thoại -->
+        <div class="flex space-x-2 md:space-x-4 mb-8 border-b border-gray-700 overflow-x-auto hide-scrollbar whitespace-nowrap pb-2">
             <button id="nav-dashboard" data-hash="#dashboard"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa]">DASHBOARD</button>
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa]">DASHBOARD</button>
             <button id="nav-schedule" data-hash="#schedule"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH
-                CHIẾU</button>
-
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH CHIẾU</button>
             <button id="nav-api-hunter" data-hash="#api-hunter"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400">
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400">
                 <i class="fas fa-spider mr-1"></i> KHO API PHIM
             </button>
-
             <button id="nav-profile" data-hash="#profile"
-                class="py-2 px-4 font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI KHOẢN
-                ADMIN</button>
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI KHOẢN ADMIN</button>
         </div>
 
 
@@ -613,8 +620,8 @@
 
     <!-- START: BULK IMPORT MODAL -->
     <div id="bulk-import-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 hidden items-center justify-center z-50">
-        <div
-            class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-4xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-[#bf94e4] border-b border-[#5d3f9e] pb-2">
                 <i class="fas fa-file-import mr-2"></i> SPMODE IMPORT MOVIES (Thêm hàng loạt)
             </h3>
@@ -678,8 +685,8 @@
     <!-- END: BULK IMPORT MODAL -->
 
     <div id="add-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div
-            class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">CREATE NEW MOVIE CARD</h3>
             <form id="add-movie-form">
 
@@ -821,8 +828,8 @@
     </div>
 
     <div id="edit-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div
-            class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-3xl mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT MOVIE CARD</h3>
             <form id="edit-movie-form">
                 <input type="hidden" id="edit-movie-id">
@@ -979,7 +986,8 @@
 
 
     <div id="add-episode-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">ADD NEW EPISODE</h3>
             <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="episode-movie-title" class="text-white"></span>
             </h4>
@@ -1018,8 +1026,8 @@
     <!-- START: BULK ADD EPISODES MODAL (New Feature) -->
     <div id="bulk-add-episode-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div
-            class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border max-h-[90vh] overflow-y-auto">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-purple-400 border-b border-[#5d3f9e] pb-2">
                 <i class="fas fa-stream mr-2"></i> BULK ADD EPISODES (Thêm hàng loạt)
             </h3>
@@ -1068,7 +1076,8 @@
 
     <div id="edit-episode-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl panel-border">
+        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+            
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT EPISODE</h3>
             <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="edit-episode-movie-title"
                     class="text-white"></span></h4>
@@ -3089,25 +3098,25 @@
                                 <p class="text-sm text-[#00ffaa] mb-2 italic">Genre: ${movie.genre || 'N/A'}</p>
                                 <p class="text-gray-300 text-sm line-clamp-2">${movie.summary || 'Không có tóm tắt.'}</p>
                                 
-                                <div class="mt-3 flex flex-wrap gap-2 items-center">
-                                    ${getStatusBadge(movie.status)}
-                                    <span class="bg-[#2f1d56] text-[#00ffaa] text-xs font-semibold py-1 px-3 rounded-full border border-[#00ffaa]">Views: ${movie.viewCount || 0}</span>
+                                <<!-- BÉ LÔI SỬA: Cấu trúc lại khu vực nút bấm cho Mobile -->
+                                <div class="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-2 items-start sm:items-center">
+                                    <div class="flex gap-2">
+                                        ${getStatusBadge(movie.status)}
+                                        <span class="bg-[#2f1d56] text-[#00ffaa] text-xs font-semibold py-1 px-3 rounded-full border border-[#00ffaa]">Views: ${movie.viewCount || 0}</span>
+                                    </div>
                                     
-                                    <div class="ml-auto flex space-x-2">
-                                        <!-- Nút Thêm Tập Đơn -->
-                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                    <!-- Nhóm nút bấm: Trên mobile sẽ dàn thành 2 cột (grid-cols-2), desktop xếp ngang -->
+                                    <div class="w-full sm:w-auto sm:ml-auto grid grid-cols-2 sm:flex sm:space-x-2 gap-2 mt-2 sm:mt-0">
+                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-bolt mr-1"></i> EP SINGLE
                                         </button>
-                                        <!-- Nút Thêm Tập Hàng Loạt -->
-                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-stream mr-1"></i> EP BULK
                                         </button>
-                                        
-                                        <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                        <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-edit mr-1"></i> EDIT
                                         </button>
-                                        
-                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded-full transition duration-300">
+                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-skull-crossbones mr-1"></i> DELETE
                                         </button>
                                     </div>
