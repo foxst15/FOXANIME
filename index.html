@@ -1755,6 +1755,94 @@
             } catch (e) {showError("Lỗi khi tải trang xem phim.", e.message);}
         };
 
+       const renderScheduleMovieCard = (movie) => {
+            const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
+            const episodeCount = movie.episodes ? movie.episodes.length : 0;
+            const totalEpisodes = movie.totalEpisodes || '??';
+            const statusColor = movie.status === 'sap-chieu' ? 'text-yellow-400' : 'text-lime-400';
+            const statusText = movie.status === 'sap-chieu' ? 'Sắp Chiếu' : `Tập ${episodeCount}/${totalEpisodes}`;
+
+            return `
+                <a href="${infoUrl}" class="group block bg-gray-700 p-2 rounded-lg flex items-center space-x-2 transition duration-200 hover:bg-lime-500/20 border border-gray-600 hover:border-lime-500/50">
+                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
+                    <div class="flex-grow overflow-hidden">
+                        <p class="text-white font-semibold text-sm truncate group-hover:text-lime-400">${movie.title}</p>
+                        <p class="text-xs ${statusColor}">${statusText}</p>
+                    </div>
+                </a>
+            `;
+        };
+
+        const SchedulePageTemplate = (moviesByDay) => {
+            const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+
+            return `
+                <section class="min-h-[70vh]">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-lime-500 pb-3">LỊCH CHIẾU ANIME TRONG TUẦN</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
+                        ${daysOfWeek.map(day => `
+                            <div class="bg-gray-800 p-3 rounded-xl shadow-xl border border-gray-700 hover:border-lime-500/50 transition min-h-[250px] flex flex-col">
+                                <h3 class="text-xl font-extrabold text-lime-400 mb-3 text-center border-b border-gray-700 pb-2">${day}</h3>
+                                <div class="flex-grow space-y-2 max-h-[60vh] overflow-y-auto schedule-scroll-area">
+                                    ${(moviesByDay[day] && moviesByDay[day].length > 0)
+                                        ? moviesByDay[day].map(renderScheduleMovieCard).join('')
+                                        : '<p class="text-gray-500 text-xs italic text-center py-4">Không có phim chiếu.</p>'
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${(moviesByDay["Không có"] && moviesByDay["Không có"].length > 0) ? `
+                        <div class="mt-12">
+                            <h3 class="text-2xl font-bold text-gray-400 mb-4 border-b border-gray-700 pb-2">PHIM CHƯA GÁN LỊCH HOẶC SẮP CHIẾU KHÁC</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                                ${(moviesByDay["Không có"]).map(MovieCardTemplate).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </section>
+            `;
+        };
+
+        const renderSchedulePage = () => {
+            const moviesByDay = {"Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []};
+            const airingMovies = globalMovieCache.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
+            airingMovies.forEach(movie => {
+                const day = movie.airingDay || "Không có";
+                moviesByDay.hasOwnProperty(day) ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie);
+            });
+            getEl('#app').innerHTML = SchedulePageTemplate(moviesByDay);
+        };
+
+        const showError = (message, details = '') => {
+            console.error(message, details);
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
+                        <p class="text-lg mb-2">${message}</p>
+                        ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
+                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
+                    </div>
+                `;
+            }
+        };
+
+        const showLoading = () => {
+            const appEl = getEl('#app');
+            if (appEl) {
+                appEl.innerHTML = `
+                    <div class="flex justify-center items-center h-[50vh]">
+                        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                `;
+            }
+        };
+
         const renderPage = (pageType, param) => {
             if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
             if (!db || !isGlobalCacheLoaded) {showLoading(); return;}
