@@ -1246,29 +1246,33 @@
 
                 if (!hasRenderedFullPage) {
                     const rawEpisodes = updatedMovieData.episodes || [];
-                    
                     let actualEpisodes = [];
+                    let currentServerName = '';
                     const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
                     
                     if (hasMultipleServers) {
-                        actualEpisodes = rawEpisodes[0].items || [];
+                        const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                        const requestedServer = urlParams.get('server');
+                        const activeServerObj = rawEpisodes.find(s => s.serverName === requestedServer) || rawEpisodes[0];
+                        currentServerName = activeServerObj.serverName;
+                        actualEpisodes = activeServerObj.items || [];
                     } else {
                         actualEpisodes = rawEpisodes;
                     }
 
-                    const serverSlug = hasMultipleServers ? createSlug(rawEpisodes[0].serverName) : '';
+                    const serverSlug = hasMultipleServers ? createSlug(currentServerName) : '';
                     const episodesWithId = actualEpisodes.map((ep, index) => ({
                         ...ep,
                         id: hasMultipleServers ? `${movieId}_${serverSlug}_${ep.episodeNumber}_${index}` : `${movieId}_${ep.episodeNumber}_${index}`
                     }));
 
                     const movieSlug = createSlug(updatedMovieData.title);
-                    const firstEpUrl = episodesWithId.length > 0 ? `#phim/${movieSlug}-${updatedMovieData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html${hasMultipleServers ? `?server=${encodeURIComponent(rawEpisodes[0].serverName)}` : ''}` : '#';
+                    const firstEpUrl = episodesWithId.length > 0 ? `#phim/${movieSlug}-${updatedMovieData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html${hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : ''}` : '#';
 
                     const resumeTime = localStorage.getItem(`_watchTime_${episodesWithId[0]?.id}`);
                     const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
 
-                    getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked);
+                    getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked, currentServerName);
 
                     if (hasWatchTime) {
                         window.showResumeModal(updatedMovieData.title, parseInt(resumeTime)).then(shouldResume => {
@@ -1335,12 +1339,12 @@
             });
         };
 
-        const InfoPageTemplate = (movie, episodes, isLiked) => {
+        const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             const firstEpisode = episodes.length > 0 ? episodes[0] : null;
             const movieSlug = createSlug(movie.title);
             
             const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
-            const firstServerQuery = hasMultipleServers ? `?server=${encodeURIComponent(movie.episodes[0].serverName)}` : '';
+            const firstServerQuery = hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : '';
             const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html${firstServerQuery}` : '#';
             
             const imageUrl = movie.bannerUrl || movie.posterUrl;
@@ -1348,6 +1352,25 @@
             const reviewTotal = movie.reviewTotal || 0;
             const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
             const requiresSignInLink = !!auth?.currentUser && auth.currentUser.isAnonymous;
+
+            let serversListHtml = '';
+            if (hasMultipleServers) {
+                serversListHtml = `
+                    <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                        <span class="text-xs font-bold text-gray-400 uppercase mr-2"><ion-icon name="server-outline" class="text-lime-400 mr-1"></ion-icon> Chọn Server:</span>
+                        ${movie.episodes.map(srv => {
+                            const isSelected = srv.serverName === currentServerName;
+                            const infoUrlWithServer = `#phim/${movieSlug}-${movie.id}?server=${encodeURIComponent(srv.serverName)}`;
+                            return `
+                                <a href="${infoUrlWithServer}" 
+                                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all inline-block ${isSelected ? 'bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                    ${srv.serverName}
+                                </a>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
 
             return `
         <section class="text-white">
@@ -1414,7 +1437,10 @@
                 </div>
 
                 <div class="mt-12 bg-gray-800 rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập</h2>
+                    <h2 class="text-2xl font-bold text-white mb-6">Danh Sách Tập ${currentServerName ? `<span class="text-sm bg-gray-700 text-gray-300 px-3 py-1 rounded-md ml-2 border border-gray-600">${currentServerName}</span>` : ''}</h2>
+                    
+                    ${serversListHtml}
+
                     ${episodes.length > 0
                     ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
                         ${episodes.map(ep => `
