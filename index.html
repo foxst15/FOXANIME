@@ -238,7 +238,7 @@
             }
         };
 
-        // 🌟 HÀM SWITCH SERVER TOÀN CỤC CHUẨN XÁC 🌟
+      
         window.switchServer = (movieId, serverName) => {
             const cache = globalMovieCache || window.globalMovieCache || [];
             const movie = cache.find(m => m.id === movieId);
@@ -247,11 +247,57 @@
             const targetServer = (movie.episodes || []).find(s => s.serverName === serverName) || movie.episodes[0];
             if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
 
-            const firstEp = targetServer.items[0];
-            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const isWatchPage = window.location.hash.includes('/tap-');
+            const serverSlug = createSlug(serverName);
             const movieSlug = createSlug(movie.title);
 
-            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
+            if (!isWatchPage) {
+
+                document.querySelectorAll('.server-btn').forEach(btn => {
+                    if (btn.textContent.trim() === serverName) {
+                        btn.className = "server-btn px-4 py-1.5 rounded-lg text-xs font-bold transition-all inline-block bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]";
+                    } else {
+                        btn.className = "server-btn px-4 py-1.5 rounded-lg text-xs font-bold transition-all inline-block bg-gray-700 text-gray-300 hover:bg-gray-600";
+                    }
+                });
+
+                
+                const epGrid = document.querySelector('.episode-list-grid');
+                if (epGrid) {
+                    epGrid.innerHTML = targetServer.items.map((ep, index) => {
+                        const epId = `${movieId}_${serverSlug}_${ep.episodeNumber}_${index}`;
+                        const epLink = `#phim/${movieSlug}-${movieId}/tap-${ep.episodeNumber}-${epId}.html?server=${encodeURIComponent(serverName)}`;
+                        return `<a href="${epLink}" class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors duration-200">Tập ${ep.episodeNumber}</a>`;
+                    }).join('');
+                }
+
+                /
+                const titleSpan = document.querySelector('h2.text-2xl.font-bold.text-white.mb-6 span');
+                if (titleSpan) titleSpan.textContent = serverName;
+
+                
+                const firstEp = targetServer.items[0];
+                const firstEpId = `${movieId}_${serverSlug}_${firstEp.episodeNumber}_0`;
+                const firstEpLink = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
+                document.querySelectorAll(`a[href^="#phim/${movieSlug}-${movieId}"]`).forEach(link => {
+                    if (link.innerHTML.includes('play-circle-outline') || link.textContent.includes('Xem Phim')) {
+                        link.href = firstEpLink;
+                    }
+                });
+
+                
+                window.history.replaceState(null, null, `#phim/${movieSlug}-${movieId}?server=${encodeURIComponent(serverName)}`);
+            } else {
+                
+                const currentEpMatch = window.location.hash.match(/tap-(\d+)-/);
+                const currentEpNum = currentEpMatch ? parseInt(currentEpMatch[1]) : 1;
+                
+                let targetEp = targetServer.items.find(ep => ep.episodeNumber === currentEpNum) || targetServer.items[0];
+                const targetEpIndex = targetServer.items.indexOf(targetEp);
+                const targetEpId = `${movieId}_${serverSlug}_${targetEp.episodeNumber}_${targetEpIndex}`;
+
+                window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${targetEp.episodeNumber}-${targetEpId}.html?server=${encodeURIComponent(serverName)}`;
+            }
         };
 
         const getZodiacInfo = (d, m) => {
