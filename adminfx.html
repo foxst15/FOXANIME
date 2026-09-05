@@ -2374,8 +2374,29 @@
             const confirmed = await window.showConfirmModal(`Bạn có chắc chắn muốn xóa TOÀN BỘ phim "${movieTitle}"?`);
             if (confirmed) {
                 try {
+                    
                     await deleteDoc(doc(moviesCollectionRef, movieId));
-                } catch (error) {console.error("Lỗi khi xóa phim:", error);}
+
+                    if (currentSliderSettings && currentSliderSettings.selectedMovieIds.includes(movieId)) {
+    
+                        currentSliderSettings.selectedMovieIds = currentSliderSettings.selectedMovieIds.filter(id => id !== movieId);
+                        
+                        if (sliderSettingsDocRef) {
+                            await setDoc(sliderSettingsDocRef, {
+                                mode: currentSliderSettings.mode,
+                                selectedMovieIds: currentSliderSettings.selectedMovieIds,
+                                updatedAt: serverTimestamp(),
+                                updatedBy: userId
+                            });
+                        }
+                        
+                        window.renderSelectedSliderMoviesUI();
+                    }
+
+                } catch (error) {
+                    console.error("Lỗi khi xóa phim:", error);
+                    window.showConfirmModal("Lỗi khi xóa phim: " + error.message);
+                }
             }
         };
         window.handleDeleteEpisode = async (movieId, episodeNumber, episodeTitle) => {
