@@ -2761,22 +2761,7 @@
                 });
             });
         };
-
-       const renderAdminDashboard = () => {
-            const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : (GENRE_TRANSLATIONS[filterState.genre] ? `${filterState.genre} (${GENRE_TRANSLATIONS[filterState.genre]})` : filterState.genre);
-            
-            const genreTagListHtml = ALL_GENRES.map(g => {
-                const vietnameseName = GENRE_TRANSLATIONS[g] || g;
-                return `
-                <button type="button" 
-                        onclick="handleFilterChange('genre', '${g}')" 
-                        class="genre-tag ${filterState.genre === g ? 'selected' : ''}">
-                    ${g} <span class="text-xs text-gray-400 ml-1">(${vietnameseName})</span>
-                </button>
-            `}).join('');
-            
-            const totalMoviesCache = globalAdminMoviesCache.length;
-            const totalEpisodes = globalAdminMoviesCache.reduce((acc, movie) => acc + (movie.episodes?.length || 0), 0);
+        
             
             // TẠO GIAO DIỆN HERO SLIDER MANAGEMENT
             const sliderManagementHtml = `
