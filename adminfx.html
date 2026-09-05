@@ -2621,6 +2621,8 @@
             }
         };
 
+        const selectedGenreName = filterState.genre === '' ? '-- Tất cả thể loại --' : (GENRE_TRANSLATIONS[filterState.genre] ? `${filterState.genre} (${GENRE_TRANSLATIONS[filterState.genre]})` : filterState.genre);
+
         const renderDashboardDynamicContent = () => {
             const container = $('dynamic-dashboard-content');
             if (!container) return;
