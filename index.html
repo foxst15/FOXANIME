@@ -73,8 +73,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module">
-
+    
+   <script type="module">
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {getAuth, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signInAnonymously, updateProfile} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, Timestamp, serverTimestamp, writeBatch, increment, orderBy, limit} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -95,12 +95,7 @@
         let globalSliderSettings = {mode: 'random', selectedMovieIds: []};
         const COMMENT_LIMIT = 20; const COMMENT_DISPLAY_LIMIT = 10; const REVIEW_DISPLAY_LIMIT = 10;
 
-
-
-
-        // Thêm danh sách thể loại đầy đủ để dùng cho Mobile Menu
         const ALL_GENRES = ["Action", "Adventure", "Boys Love", "Cartoon", "Comedy", "Dementia", "Demons", "Drama", "Ecchi", "Fantasy", "Game", "Harem", "Historical", "Horror", "Josei", "Kids", "Live Action", "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police", "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural", "Suspense", "Thriller", "Tokusatsu", "Vampire", "Yaoi", "Yuri"];
-
 
         const GENRE_TRANSLATIONS = {
             "Action": "Hành động", "Adventure": "Phiêu lưu", "Boys Love": "Đam mỹ", "Cartoon": "Hoạt hình", "Comedy": "Hài hước",
@@ -141,12 +136,12 @@
             const user = userFromCallback || auth?.currentUser;
             return user && user.providerData.some(p => p.providerId === 'google.com');
         };
+        
         const BANNED_WORDS = ["đụ", "cặc", "lồn", "buồi", "địt", "mẹ mày", "đm", "dcm", "cc", "chó chết", "súc vật", "phản động", "kích war", "xuyên tạc", "tự tử", "chết đi", "đánh nhau", "chia rẽ", "phá hoại", "vô học", "thằng ngu", "con điên", "chửi", "bố láo", "cút", "biến", "đồ khốn", "khốn nạn", "sản", "ngu xuẩn", "óc chó", "thiếu văn minh", "fuck", "shit"];
 
         const isCommentProfane = (content) => {
             const normalizedContent = content.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/[^a-z0-9\s]/g, "");
             const contentNoSpace = normalizedContent.replace(/\s+/g, '');
-
             for (const word of BANNED_WORDS) {
                 const normalizedBannedWord = word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd').replace(/Đ/g, 'd').replace(/\s+/g, '');
                 if (contentNoSpace.includes(normalizedBannedWord) || content.toLowerCase().includes(word.toLowerCase())) {
@@ -173,32 +168,23 @@
             return date.toLocaleString('vi-VN');
         };
 
-
         const escapeHtml = (unsafe) => {
             return unsafe
                 .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         };
 
-
-
         const formatCommentContent = (text) => {
             let safeText = escapeHtml(text || "");
-
-            // Bôi đậm màu xanh lá cho chữ @Tag_Tên
             safeText = safeText.replace(/@([^\s]+)/g, '<span class="text-lime-400 font-bold">@$1</span>');
-
             safeText = safeText.replace(/\[gif:(https?:\/\/[^\]]+)\]/g, '<img src="$1" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">');
-
             safeText = safeText.replace(/\[sticker:(\d+)\]/g, (match, indexStr) => {
                 const index = parseInt(indexStr);
-
                 if (GIF_ICONS[index]) {
                     return `<img src="${GIF_ICONS[index]}" referrerpolicy="no-referrer" class="inline-block w-16 h-16 mx-1 object-contain hover:scale-110 transition-transform cursor-pointer" alt="sticker" loading="lazy">`;
                 }
                 return match;
             });
-
             return safeText;
         };
 
@@ -209,12 +195,9 @@
             const input = getEl('#comment-input');
             const indicator = getEl('#reply-indicator');
             const nameDisplay = getEl('#reply-to-name');
-
             if (input && indicator && nameDisplay) {
                 nameDisplay.textContent = displayName;
                 indicator.classList.remove('hidden');
-
-
                 const mentionTag = `@${displayName.replace(/\s+/g, '_')} `;
                 if (!input.value.startsWith(mentionTag)) {
                     input.value = mentionTag + input.value.replace(/^@[^\s]+\s*/, '');
@@ -222,7 +205,6 @@
                 input.focus();
                 input.scrollIntoView({behavior: 'smooth', block: 'center'});
             } else {
-
                 window.location.hash = '#login';
             }
         };
@@ -243,6 +225,7 @@
             modal.classList.remove('hidden'); modal.classList.add('flex');
             return new Promise(resolve => {resolveResumeModal = resolve;});
         };
+        
         window.hideResumeModal = () => {
             const modal = getEl('#resume-modal');
             modal.classList.add('hidden'); modal.classList.remove('flex'); resolveResumeModal = null;
@@ -255,9 +238,22 @@
             }
         };
 
-        // ========================================================
-        // HỆ THỐNG GACHA & ĐỀ XUẤT PHIM THEO CUNG HOÀNG ĐẠO
-        // ========================================================
+        // 🌟 HÀM SWITCH SERVER TOÀN CỤC CHUẨN XÁC 🌟
+        window.switchServer = (movieId, serverName) => {
+            const cache = globalMovieCache || window.globalMovieCache || [];
+            const movie = cache.find(m => m.id === movieId);
+            if (!movie) return;
+
+            const targetServer = (movie.episodes || []).find(s => s.serverName === serverName) || movie.episodes[0];
+            if (!targetServer || !targetServer.items || targetServer.items.length === 0) return;
+
+            const firstEp = targetServer.items[0];
+            const firstEpId = `${movieId}_${createSlug(serverName)}_${firstEp.episodeNumber}_0`;
+            const movieSlug = createSlug(movie.title);
+
+            window.location.hash = `#phim/${movieSlug}-${movieId}/tap-${firstEp.episodeNumber}-${firstEpId}.html?server=${encodeURIComponent(serverName)}`;
+        };
+
         const getZodiacInfo = (d, m) => {
             if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return {name: "Bạch Dương", genre: "Action", fortune: "Năng lượng rực rỡ! Một bộ phim Hành động (Action) sẽ rất phù hợp với bạn hôm nay."};
             if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return {name: "Kim Ngưu", genre: "Slice of Life", fortune: "Bình yên là chân ái. Hãy thư giãn cùng một bộ phim Đời thường (Slice of Life) nhé!"};
@@ -278,12 +274,10 @@
             const today = new Date().toDateString();
             let lastDate = localStorage.getItem('_gachaDate');
             let pullsLeft = parseInt(localStorage.getItem('_gachaPulls'));
-
             if (lastDate !== today || isNaN(pullsLeft)) {
                 pullsLeft = 5;
                 localStorage.setItem('_gachaDate', today);
             }
-
             const msgEl = getEl('#gacha-msg');
             const resultsEl = getEl('#gacha-results');
             const fortuneEl = getEl('#fortune-results');
@@ -292,15 +286,12 @@
                 msgEl.innerHTML = `<span class="text-red-400">Bạn chỉ còn ${pullsLeft} lượt quay hôm nay. Vui lòng quay lại vào ngày mai!</span>`;
                 return;
             }
-
             pullsLeft -= amount;
             localStorage.setItem('_gachaPulls', pullsLeft);
             getEl('#gacha-pulls-left').textContent = pullsLeft;
-
             msgEl.innerHTML = `<span class="text-lime-400">Đang tìm kiếm anime ngẫu nhiên...</span>`;
             resultsEl.innerHTML = `<div class="col-span-full flex justify-center py-10"><svg class="animate-spin h-12 w-12 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
             fortuneEl.innerHTML = '';
-
             setTimeout(() => {
                 const randomMovies = [...globalMovieCache].sort(() => 0.5 - Math.random()).slice(0, amount);
                 resultsEl.innerHTML = randomMovies.map(MovieCardTemplate).join('');
@@ -312,19 +303,15 @@
             e.preventDefault();
             const dobStr = getEl('#dob-input').value;
             if (!dobStr) return;
-
             const date = new Date(dobStr);
             const zodiac = getZodiacInfo(date.getDate(), date.getMonth() + 1);
-
             let recommended = globalMovieCache.filter(m => (m.genre || '').includes(zodiac.genre)).sort(() => 0.5 - Math.random()).slice(0, 5);
             if (recommended.length < 5) {
                 const extra = [...globalMovieCache].sort(() => 0.5 - Math.random()).slice(0, 5 - recommended.length);
                 recommended = [...recommended, ...extra];
             }
-
             getEl('#gacha-results').innerHTML = '';
             getEl('#gacha-msg').innerHTML = '';
-
             getEl('#fortune-results').innerHTML = `
         <div class="bg-gray-800/80 p-8 rounded-2xl border border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)] mt-8 text-center animate-fade-in">
             <div class="text-6xl mb-4">🔮</div>
@@ -345,15 +332,12 @@
                 <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400 mb-4 drop-shadow-lg uppercase tracking-wide">🌟 Góc Nhân Phẩm 🌟</h2>
                 <p class="text-gray-400 text-lg">Thử vận may hôm nay hoặc để hệ thống chọn phim giúp bạn nhé!</p>
             </div>
-
             <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <!-- BOX GACHA -->
                 <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(163,230,53,0.15)] border border-lime-500/30 flex flex-col items-center relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-lime-500/10 rounded-full blur-3xl"></div>
                     <img src="anh/FOX anime.gif" class="w-24 h-24 rounded-full border-4 border-lime-400 mb-6 shadow-[0_0_15px_rgba(163,230,53,0.6)] animate-bounce object-cover">
                     <h3 class="text-2xl font-bold text-white mb-2">Gacha Phim Ngẫu Nhiên</h3>
                     <p class="text-gray-300 mb-6 text-center">Hôm nay bạn còn <span id="gacha-pulls-left" class="text-3xl font-black text-lime-400 mx-1 drop-shadow-md">5</span> lượt</p>
-                    
                     <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full">
                         <button onclick="window.handleGachaPull(1)" class="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-lime-600 hover:to-lime-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-gray-500 hover:border-lime-400">
                             Quay x1 <ion-icon name="ticket-outline" class="ml-1"></ion-icon>
@@ -364,14 +348,11 @@
                     </div>
                     <div id="gacha-msg" class="mt-5 h-6 text-sm font-semibold tracking-wide"></div>
                 </div>
-
-                <!-- BOX BÓI TOÁN -->
                 <div class="bg-gray-800 p-8 rounded-3xl shadow-[0_0_25px_rgba(168,85,247,0.15)] border border-purple-500/30 flex flex-col items-center relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
                     <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">🔮</div>
                     <h3 class="text-2xl font-bold text-white mb-2">Đề Xuất Theo Cung Hoàng Đạo</h3>
                     <p class="text-gray-300 mb-6 text-center">Nhập ngày sinh để hệ thống đề xuất thể loại phim phù hợp với bạn hôm nay!</p>
-                    
                     <form id="fortune-form" class="w-full flex flex-col space-y-4 relative z-10">
                         <input type="date" id="dob-input" required class="w-full px-5 py-3.5 bg-gray-900 border-2 border-purple-500/50 rounded-xl text-white focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 text-center font-bold tracking-widest cursor-pointer">
                         <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 border border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
@@ -380,8 +361,6 @@
                     </form>
                 </div>
             </div>
-
-            <!-- KẾT QUẢ -->
             <div class="w-full max-w-7xl">
                 <div id="gacha-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
                 <div id="fortune-results" class="w-full"></div>
@@ -389,23 +368,16 @@
         </section>
     `;
         };
-        // ========================================================
 
         const setupCommentsListener = (movieId) => {
             if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
-
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
-            // Nâng limit lên để vét cả những comment rep ẩn bên dưới
             const commentsQuery = query(commentsColRef, orderBy('createdAt', 'desc'), limit(50));
-
             unsubscribeCommentsListener = onSnapshot(commentsQuery, (snapshot) => {
                 const allComments = [];
                 snapshot.forEach(doc => {allComments.push({id: doc.id, ...doc.data()});});
-
-                // Phân loại Cha - Con
                 const parents = [];
                 const repliesMap = {};
-
                 allComments.forEach(c => {
                     if (c.replyTo) {
                         if (!repliesMap[c.replyTo]) repliesMap[c.replyTo] = [];
@@ -414,8 +386,6 @@
                         parents.push(c);
                     }
                 });
-
-                // Cứu vớt trẻ lạc (Câu rep nhưng câu gốc đã cũ bị trôi mất khỏi limit)
                 const parentIds = new Set(parents.map(p => p.id));
                 Object.keys(repliesMap).forEach(parentId => {
                     if (!parentIds.has(parentId)) {
@@ -423,29 +393,21 @@
                         delete repliesMap[parentId];
                     }
                 });
-
-                // Xếp Cha: Mới nhất lên trên
                 parents.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-
                 let html = '';
                 parents.slice(0, 15).forEach(parent => {
-                    html += CommentTemplate(parent, false); // Vẽ Cha
+                    html += CommentTemplate(parent, false);
                     if (repliesMap[parent.id]) {
-                        // Xếp Con: Cũ trên, Mới dưới (đọc thuận mắt)
                         repliesMap[parent.id].sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
-
-                        // Bao bọc các câu con trong 1 khối thụt lề có vạch xám bên trái
                         html += `<div class="ml-10 md:ml-12 border-l-2 border-gray-600 pl-3 md:pl-4 mt-[-10px] mb-4 space-y-2">`;
                         repliesMap[parent.id].forEach(reply => {
-                            html += CommentTemplate(reply, true); // Vẽ Con
+                            html += CommentTemplate(reply, true);
                         });
                         html += `</div>`;
                     }
                 });
-
                 const commentsListElement = getEl('#comments-list');
                 const commentCountElement = getEl('#comment-count-display');
-
                 if (commentCountElement) commentCountElement.textContent = allComments.length;
                 if (commentsListElement) {
                     commentsListElement.innerHTML = `
@@ -528,7 +490,6 @@
                 const dataSrcAttr = isStreamEmbed ? `data-stream-src="${finalSrc}"` : '';
                 const sandboxAttr = isStreamEmbed ? `sandbox="allow-scripts allow-same-origin allow-popups"` : `allow="autoplay; fullscreen"`;
                 const allowAttr = isStreamEmbed ? `allow="autoplay"` : `allow="autoplay; fullscreen"`;
-
                 html = `<iframe id="video-player-iframe" class="w-full h-full" ${srcAttr} title="Video player" frameborder="0" ${allowAttr} allowfullscreen disablepictureinpicture ${isYoutube ? 'data-is-youtube="true"' : ''} ${dataSrcAttr} ${isStreamEmbed ? sandboxAttr : ''}></iframe>`;
             }
             return {html, isHtml5Video};
@@ -548,13 +509,12 @@
                 const streamSrc = iframeElement.dataset.streamSrc;
                 if (streamSrc && !iframeElement.src) {
                     iframeElement.src = streamSrc;
-                    console.log("[STREAMC] Kích hoạt tải video bằng user gesture.");
                 }
                 const frameSrc = iframeElement.src;
                 if (frameSrc.includes('youtube.com/embed')) {
                     setTimeout(() => {
                         const message = JSON.stringify({'event': 'command', 'func': 'playVideo'});
-                        try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {console.error("Lỗi gửi postMessage tới YouTube:", e);}
+                        try {iframeElement.contentWindow.postMessage(message, '*');} catch (e) {}
                     }, 100);
                 }
             }
@@ -571,15 +531,10 @@
                     errorElement.classList.add('text-lime-400');
                 }
                 await setPersistence(auth, browserLocalPersistence);
-
-
                 try {
                     await signInWithPopup(auth, new GoogleAuthProvider());
                     if (window.location.hash === '#login') window.location.hash = '#home';
                 } catch (popupError) {
-                    console.warn("⚠️ Popup bị chặn, Bé Lôi đang tự động chuyển sang Redirect...", popupError);
-
-
                     if (popupError.code === 'auth/popup-blocked' || popupError.message.includes('Cross-Origin')) {
                         await signInWithRedirect(auth, new GoogleAuthProvider());
                     } else {
@@ -603,17 +558,14 @@
         };
 
         const fetchUserLikes = async (shouldRerender = false) => {
-
             if (unsubscribeLikesListener) {
                 unsubscribeLikesListener();
                 unsubscribeLikesListener = null;
             }
-
             if (!auth?.currentUser || !db || userId === 'guest' || !userId || !isGoogleAuth(auth.currentUser)) {
                 currentUserLikeDocIds = {};
                 return;
             }
-
             try {
                 const q = query(collection(db, userLikesCollectionPath));
                 unsubscribeLikesListener = onSnapshot(q, (snapshot) => {
@@ -622,12 +574,8 @@
                     currentUserLikeDocIds = likes;
                     const hash = window.location.hash;
                     if (hash.startsWith('#library')) router(false);
-                }, (error) => {
-
                 });
-            } catch (e) {
-
-            }
+            } catch (e) {}
         };
 
         const handleLike = async (e) => {
@@ -639,24 +587,20 @@
             const isLiked = !!currentUserLikeDocIds[movieId];
             const movieDocRef = doc(db, dataCollectionPath, movieId);
 
-
             const likeButtonText = button.querySelector('#like-button-text') || button.querySelector('span');
             const likeButtonIcon = button.querySelector('ion-icon');
 
             if (isLiked) {
-
                 button.classList.remove('bg-lime-600', 'text-white', 'font-bold');
                 button.classList.add('bg-gray-700', 'text-gray-300', 'font-medium');
                 if (likeButtonText) likeButtonText.textContent = 'Thích';
                 if (likeButtonIcon) likeButtonIcon.setAttribute('name', 'thumbs-up-outline');
             } else {
-
                 button.classList.remove('bg-gray-700', 'text-gray-300', 'font-medium');
                 button.classList.add('bg-lime-600', 'text-white', 'font-bold');
                 if (likeButtonText) likeButtonText.textContent = 'Đã thích';
                 if (likeButtonIcon) likeButtonIcon.setAttribute('name', 'thumbs-up');
             }
-            // -------------------------------------------------------------------
 
             try {
                 const batch = writeBatch(db);
@@ -665,7 +609,6 @@
 
                 if (isLiked) {
                     const likeDocId = currentUserLikeDocIds[movieId];
-
                     delete currentUserLikeDocIds[movieId];
                     if (likeDocId) {
                         batch.delete(doc(userLikesColRef, likeDocId));
@@ -673,16 +616,12 @@
                     batch.update(movieDocRef, {likeCount: increment(-1)});
                 } else {
                     newLikeDocRef = doc(userLikesColRef);
-
                     currentUserLikeDocIds[movieId] = newLikeDocRef.id;
                     batch.set(newLikeDocRef, {movieId: movieId, userId: auth.currentUser.uid, createdAt: serverTimestamp()});
                     batch.update(movieDocRef, {likeCount: increment(1)});
                 }
-
-
                 await batch.commit();
             } catch (e) {
-
                 console.error("[Hệ thống] Thao tác Like thất bại:", e);
             } finally {
                 button.disabled = false;
@@ -691,10 +630,8 @@
 
         const handleCommentSubmit = async (e) => {
             e.preventDefault();
-
             const user = auth.currentUser;
             if (!db || !user || user.isAnonymous || !isGoogleAuth(user)) {
-                console.error("Người dùng chưa đăng nhập hợp lệ (chỉ chấp nhận Google Auth) để bình luận.");
                 window.location.hash = '#login';
                 return;
             }
@@ -758,7 +695,6 @@
             } catch (e) {console.error("Lỗi tạo user profile lần đầu:", e);}
         };
 
-
         const handleProfileUpdate = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
@@ -769,7 +705,7 @@
             }
 
             const newName = getEl('#profile-name-input').value.trim();
-            const newAvatarUrl = getEl('#profile-avatar-input').value.trim(); // Nhặt link ảnh nè
+            const newAvatarUrl = getEl('#profile-avatar-input').value.trim();
             const errorEl = getEl('#profile-error');
             errorEl.classList.add('hidden');
 
@@ -780,14 +716,10 @@
             }
 
             try {
-                // Gói quà update gồm Tên và Ảnh
                 const updateData = {displayName: newName};
                 if (newAvatarUrl) updateData.photoURL = newAvatarUrl;
-
-                // Cập nhật vào Auth gốc của Firebase
                 await updateProfile(user, updateData);
 
-                // Cập nhật cả vào Database người dùng để backup
                 const userDocRef = doc(db, userRoleCollectionPath, user.uid);
                 await updateDoc(userDocRef, {
                     displayName: newName,
@@ -798,8 +730,6 @@
                 getEl('#profile-success').textContent = "Cập nhật hồ sơ thành công! (Ảnh bình luận sẽ đổi ở lần bình luận tới nha)";
                 getEl('#profile-success').classList.remove('hidden');
                 getEl('#profile-success').classList.add('bg-lime-900/50');
-
-                // Ép UI tải lại ngay lập tức
                 updateAuthStateUI(auth.currentUser);
                 setTimeout(() => {
                     getEl('#profile-success').classList.add('hidden');
@@ -850,7 +780,6 @@
                 } else {
                     batch.update(movieDocRef, {reviewTotal: increment(rating), reviewCount: increment(1)});
                 }
-
                 await batch.commit();
             } catch (e) {
                 console.error("[REVIEW ERROR] Lỗi khi gửi đánh giá:", e);
@@ -944,7 +873,6 @@
             const fullStars = Math.floor(score);
             const halfStar = score % 1 >= 0.5 ? 1 : 0;
             const emptyStars = 5 - fullStars - halfStar;
-
             let starsHtml = '';
             for (let i = 0; i < fullStars; i++) starsHtml += `<ion-icon name="star" class="text-yellow-400"></ion-icon>`;
             if (halfStar === 1) starsHtml += `<ion-icon name="star-half" class="text-yellow-400"></ion-icon>`;
@@ -952,12 +880,10 @@
             return starsHtml;
         };
 
-
         const renderSubtleRatingHtml = (movie) => {
             const reviewCount = movie.reviewCount || 0;
             const reviewTotal = movie.reviewTotal || 0;
             const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
-
             const ratingDisplay = averageRating.toFixed(1);
 
             if (reviewCount === 0) {
@@ -1109,7 +1035,6 @@
                 }
             }
             const genres = movie.genre ? movie.genre.split(',').map(g => g.trim()).join(', ') : '';
-
             const ratingHtml = renderSubtleRatingHtml(movie);
 
             return `
@@ -1153,8 +1078,6 @@
 
         const SliderSectionTemplate = (movieList) => {
             if (!movieList || movieList.length === 0) return '';
-
-            // Lấy tối đa 5 phim mới nhất cho mượt ạ
             const slideItems = movieList.slice(0, 6).map(movie => {
                 const movieSlug = createSlug(movie.title);
                 const infoUrl = `#phim/${movieSlug}-${movie.id}`;
@@ -1241,7 +1164,6 @@
             const timeStr = formatCommentDate(comment.createdAt);
             const contentStr = formatCommentContent(comment.content);
 
-            // Nếu là Rep thì Avatar nhỏ lại, khoảng cách hẹp lại
             const avatarClass = isReply ? "w-8 h-8" : "w-10 h-10";
             const marginClass = isReply ? "mb-2" : "mb-4";
 
@@ -1274,22 +1196,18 @@
                 <div class="min-h-[70vh] flex items-center justify-center">
                     <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg">
                         <h2 class="text-3xl font-bold text-white text-center mb-8">Hồ Sơ Cá Nhân</h2>
-
                         <div class="flex flex-col items-center mb-8">
                             <img src="${photoURL}" alt="Avatar" id="live-avatar-preview" class="w-32 h-32 rounded-full object-cover mb-4 border-4 border-lime-500" onerror="this.onerror=null;this.src='https://placehold.co/128x128/a3e635/111827?text=${displayName.charAt(0).toUpperCase()}'">
                             <p class="text-xl font-bold text-white">${displayName}</p>
                             <p class="text-gray-400 text-sm">${email}</p>
                             <p class="text-gray-500 text-xs mt-1">Đăng nhập qua: ${provider}</p>
                         </div>
-
                         <form id="profile-update-form" class="space-y-4">
                             <div class="space-y-1">
                                 <label for="profile-name-input" class="block text-sm font-medium text-gray-300">Tên Hiển Thị Mới</label>
                                 <input type="text" id="profile-name-input" value="${displayName}" required minlength="3"
                                     class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
                             </div>
-
-                            <!-- BÉ LÔI THÊM Ô NHẬP LINK ẢNH VÀO ĐÂY NÈ -->
                             <div class="space-y-1 mt-4">
                                 <label for="profile-avatar-input" class="block text-sm font-medium text-gray-300">URL Ảnh Đại Diện (Link ảnh)</label>
                                 <input type="url" id="profile-avatar-input" value="${user.photoURL || ''}" placeholder="Dán link ảnh (VD: https://i.imgur.com/...)"
@@ -1297,10 +1215,8 @@
                                     oninput="document.getElementById('live-avatar-preview').src = this.value || '${photoURL}'">
                                 <p class="text-xs text-gray-400 mt-1">Mẹo: Dùng link ảnh để bình luận load nhanh hơn nha!</p>
                             </div>
-
                             <div id="profile-success" class="p-3 rounded-lg text-sm text-lime-300 hidden transition-all"></div>
                             <p id="profile-error" class="text-red-400 text-sm hidden"></p>
-
                             <button type="submit" class="w-full bg-lime-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-lime-600 transition-colors mt-4">
                                 Cập Nhật Hồ Sơ
                             </button>
@@ -1310,12 +1226,124 @@
     `;
         };
 
+        window.renderInfoPage = async (movieId) => {
+            if (!db) {showLoading(); return;}
+            if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
+            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
+            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
+
+            const movieDocRef = doc(db, dataCollectionPath, movieId);
+            let hasRenderedFullPage = false;
+
+            unsubscribeMovieListener = onSnapshot(movieDocRef, (movieDocSnap) => {
+                if (!movieDocSnap.exists()) {
+                    showError("Không tìm thấy bộ phim này.");
+                    return;
+                }
+
+                const updatedMovieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
+                const isLiked = !!currentUserLikeDocIds[movieId];
+
+                if (!hasRenderedFullPage) {
+                    const rawEpisodes = updatedMovieData.episodes || [];
+                    
+                    let actualEpisodes = [];
+                    const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
+                    
+                    if (hasMultipleServers) {
+                        actualEpisodes = rawEpisodes[0].items || [];
+                    } else {
+                        actualEpisodes = rawEpisodes;
+                    }
+
+                    const serverSlug = hasMultipleServers ? createSlug(rawEpisodes[0].serverName) : '';
+                    const episodesWithId = actualEpisodes.map((ep, index) => ({
+                        ...ep,
+                        id: hasMultipleServers ? `${movieId}_${serverSlug}_${ep.episodeNumber}_${index}` : `${movieId}_${ep.episodeNumber}_${index}`
+                    }));
+
+                    const movieSlug = createSlug(updatedMovieData.title);
+                    const firstEpUrl = episodesWithId.length > 0 ? `#phim/${movieSlug}-${updatedMovieData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html${hasMultipleServers ? `?server=${encodeURIComponent(rawEpisodes[0].serverName)}` : ''}` : '#';
+
+                    const resumeTime = localStorage.getItem(`_watchTime_${episodesWithId[0]?.id}`);
+                    const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
+
+                    getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked);
+
+                    if (hasWatchTime) {
+                        window.showResumeModal(updatedMovieData.title, parseInt(resumeTime)).then(shouldResume => {
+                            let finalUrl = firstEpUrl;
+                            if (shouldResume) {
+                                finalUrl += finalUrl.includes('?') ? `&time=${resumeTime}` : `?time=${resumeTime}`;
+                            } else {
+                                localStorage.removeItem(`_watchTime_${episodesWithId[0]?.id}`);
+                            }
+                            window.location.hash = finalUrl;
+                        });
+                    }
+
+                    getEl('#like-button')?.addEventListener('click', handleLike);
+                    setupPublicReviewsListener(movieId);
+
+                    if (auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser)) {
+                        setupUserReviewListener(movieId);
+                    } else {
+                        setupReviewSection(updatedMovieData, null);
+                    }
+
+                    hasRenderedFullPage = true;
+                }
+
+                incrementViewCount(movieId);
+
+                const likeCountEl = getEl('#like-count');
+                const viewCountEl = getEl('#view-count');
+                const avgRatingContainer = getEl('.text-yellow-400.mb-4');
+
+                if (viewCountEl) viewCountEl.textContent = (updatedMovieData.viewCount || 0).toLocaleString('vi-VN') + " Lượt xem";
+                if (likeCountEl) likeCountEl.textContent = (updatedMovieData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
+
+                if (avgRatingContainer) {
+                    const reviewCount = updatedMovieData.reviewCount || 0;
+                    const reviewTotal = updatedMovieData.reviewTotal || 0;
+                    const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
+                    avgRatingContainer.innerHTML = `
+                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
+                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
+                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
+                    `;
+                }
+
+                const button = getEl('#like-button');
+                const likeButtonText = getEl('#like-button-text');
+                const likeButtonIcon = button?.querySelector('ion-icon');
+
+                if (button) {
+                    button.classList.toggle('bg-lime-600', isLiked);
+                    button.classList.toggle('text-white', isLiked);
+                    button.classList.toggle('font-bold', isLiked);
+                    button.classList.toggle('bg-gray-700', !isLiked);
+                    button.classList.toggle('text-gray-300', !isLiked);
+                    button.classList.toggle('font-medium', !isLiked);
+                    if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
+                    if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
+                }
+
+            }, (error) => {
+                console.error("Lỗi listener phim:", error);
+                showError("Lỗi khi tải dữ liệu phim thời gian thực.", error.message);
+            });
+        };
+
         const InfoPageTemplate = (movie, episodes, isLiked) => {
             const firstEpisode = episodes.length > 0 ? episodes[0] : null;
             const movieSlug = createSlug(movie.title);
-            const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html` : '#';
+            
+            const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+            const firstServerQuery = hasMultipleServers ? `?server=${encodeURIComponent(movie.episodes[0].serverName)}` : '';
+            const firstEpUrl = firstEpisode ? `#phim/${movieSlug}-${movie.id}/tap-${firstEpisode.episodeNumber}-${firstEpisode.id}.html${firstServerQuery}` : '#';
+            
             const imageUrl = movie.bannerUrl || movie.posterUrl;
-
             const reviewCount = movie.reviewCount || 0;
             const reviewTotal = movie.reviewTotal || 0;
             const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
@@ -1390,7 +1418,7 @@
                     ${episodes.length > 0
                     ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 episode-list-grid max-h-[50vh] overflow-y-auto schedule-scroll-area pr-2">
                         ${episodes.map(ep => `
-                                <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html" 
+                                <a href="#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html${firstServerQuery}" 
                                     class="block bg-gray-700 text-white text-center font-medium py-3 px-4 rounded-lg hover:bg-lime-500 hover:text-gray-900 transition-colors duration-200">
                                     Tập ${ep.episodeNumber}
                                 </a>
@@ -1404,29 +1432,72 @@
     `;
         };
 
-        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink) => {
+        const WatchPageTemplate = (movie, episode, comments, allEpisodes, currentEpNumber, nextEpisodeLink, currentServerName = 'Vietsub #1') => {
             const {html: videoPlayerHtml} = getVideoPlayer(episode.videoUrl, movie.posterUrl);
             const movieSlug = createSlug(movie.title);
             const user = auth?.currentUser;
             const canComment = !!user && !user.isAnonymous && isGoogleAuth(user);
             const displayedComments = comments.slice(0, COMMENT_DISPLAY_LIMIT);
 
-            const previousEpisode = allEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
+            const hasMultipleServers = Array.isArray(movie.episodes) && movie.episodes.length > 0 && movie.episodes[0].serverName;
+            let serversListHtml = '';
+            let activeEpisodes = allEpisodes;
+            let totalEpCount = 0;
+
+            if (hasMultipleServers) {
+                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                const currentServer = urlParams.get('server') || movie.episodes[0].serverName;
+                
+                serversListHtml = `
+                    <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+                        <span class="text-xs font-bold text-gray-400 uppercase mr-2"><ion-icon name="server-outline" class="text-lime-400 mr-1"></ion-icon> Chọn Server:</span>
+                        ${movie.episodes.map(srv => {
+                            const isSelected = srv.serverName === currentServer;
+                            return `
+                                <button onclick="window.switchServer('${movie.id}', '${srv.serverName}')" 
+                                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-lime-500 text-gray-900 shadow-[0_0_10px_rgba(163,230,53,0.4)]' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                                    ${srv.serverName}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                const currentServerObj = movie.episodes.find(s => s.serverName === currentServer) || movie.episodes[0];
+                if (currentServerObj && Array.isArray(currentServerObj.items)) {
+                    activeEpisodes = currentServerObj.items.map((ep, index) => ({
+                        ...ep,
+                        id: `${movie.id}_${createSlug(currentServerObj.serverName)}_${ep.episodeNumber}_${index}`
+                    }));
+                }
+
+                movie.episodes.forEach(srv => {
+                    if (Array.isArray(srv.items)) totalEpCount += srv.items.length;
+                });
+            } else {
+                totalEpCount = allEpisodes.length;
+            }
+
+            const previousEpisode = activeEpisodes.find(ep => ep.episodeNumber === currentEpNumber - 1);
             let previousEpisodeLink = null;
             if (previousEpisode) {
                 const prevEpId = previousEpisode.id;
-                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html`;
+                previousEpisodeLink = `#phim/${movieSlug}-${movie.id}/tap-${previousEpisode.episodeNumber}-${prevEpId}.html${hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : ''}`;
+            }
+
+            if (nextEpisodeLink && currentServerName && hasMultipleServers) {
+                nextEpisodeLink += `?server=${encodeURIComponent(currentServerName)}`;
             }
 
             const previousButton = previousEpisodeLink ? `
                 <a href="${previousEpisodeLink}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors flex-grow md:flex-grow-0 md:w-auto">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập ${currentEpNumber - 1}
                 </a>
-                                ` : `
+            ` : `
                 <button disabled class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed flex-grow md:flex-grow-0 md:w-auto opacity-50">
                     <ion-icon name="arrow-back-circle-outline" class="text-xl mr-2"></ion-icon> Tập Trước
                 </button>
-                            `;
+            `;
 
             const nextButton = nextEpisodeLink ? `
             <a href="${nextEpisodeLink}" class="btn-next-episode-glow bg-lime-500 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-lime-400 transition-colors flex items-center justify-center flex-grow md:flex-grow-0 md:w-auto ml-2">
@@ -1437,7 +1508,6 @@
                 Tập Cuối <ion-icon name="lock-closed" class="text-xl ml-2"></ion-icon>
             </button>
         `;
-
 
             return `
                 <section class="text-white">
@@ -1462,7 +1532,7 @@
                             <div class="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg border-l-4 border-lime-500">
                                 <h1 class="text-3xl font-extrabold text-white mb-1">${movie.title}</h1>
                                 ${movie.titleOriginal ? `<h4 class="text-lg font-semibold text-gray-400 mb-2">${movie.titleOriginal}</h4>` : ''}
-                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'}</h2>
+                                <h2 class="text-xl font-bold text-lime-400">Tập ${currentEpNumber}: ${episode.title || 'Đang cập nhật'} ${hasMultipleServers ? `<span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded ml-2">${currentServerName}</span>` : ''}</h2>
                                 <p class="text-gray-400 text-sm mt-2">${movie.genre}</p>
                                 <div class="flex flex-col space-y-3 mt-4 pt-3 border-t border-gray-700">
                                     <div class="flex flex-wrap items-center justify-start space-x-3">
@@ -1522,231 +1592,28 @@
 
                         <div class="lg:col-span-1">
                             <div class="bg-gray-800 p-6 rounded-lg shadow-xl sticky top-[100px]">
-                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${movie.episodes.length} Tập)</h3>
+                                <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Danh Sách Tập (${totalEpCount} Tập)</h3>
+                                
+                                ${serversListHtml}
 
-                                <div class="space-y-2 max-h-[80vh] overflow-y-auto schedule-scroll-area">
-                                    ${allEpisodes.map(ep => {
-                    const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html`;
-                    const isActive = ep.episodeNumber === currentEpNumber;
-                    return `
+                                <div class="space-y-2 max-h-[70vh] overflow-y-auto schedule-scroll-area">
+                                    ${activeEpisodes.map(ep => {
+                                        const epLink = `#phim/${movieSlug}-${movie.id}/tap-${ep.episodeNumber}-${ep.id}.html${hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : ''}`;
+                                        const isActive = ep.episodeNumber === currentEpNumber;
+                                        return `
                                             <a href="${epLink}" 
                                                 class="block py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 
-                                                ${isActive
-                            ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                        }">
+                                                ${isActive ? 'bg-lime-500 text-gray-900 font-bold shadow-md hover:bg-lime-600' : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'}">
                                                 Tập ${ep.episodeNumber} - ${ep.title || 'Đang cập nhật'}
                                             </a>
-                                                    `;
-                }).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                                                `;
-        };
-
-        const renderScheduleMovieCard = (movie) => {
-            const infoUrl = `#phim/${createSlug(movie.title)}-${movie.id}`;
-            const episodeCount = movie.episodes ? movie.episodes.length : 0;
-            const totalEpisodes = movie.totalEpisodes || '??';
-            const statusColor = movie.status === 'sap-chieu' ? 'text-yellow-400' : 'text-lime-400';
-            const statusText = movie.status === 'sap-chieu' ? 'Sắp Chiếu' : `Tập ${episodeCount}/${totalEpisodes}`;
-
-
-            return `
-                <a href="${infoUrl}" class="group block bg-gray-700 p-2 rounded-lg flex items-center space-x-2 transition duration-200 hover:bg-lime-500/20 border border-gray-600 hover:border-lime-500/50">
-                    <img src="${movie.posterUrl}" alt="${movie.title}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/40x56/1f2937/d1d5db?text=...'">
-                    <div class="flex-grow overflow-hidden">
-                        <p class="text-white font-semibold text-sm truncate group-hover:text-lime-400">${movie.title}</p>
-                        <p class="text-xs ${statusColor}">${statusText}</p>
-                    </div>
-                </a>
-                                                `;
-        };
-
-        const SchedulePageTemplate = (moviesByDay) => {
-            const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-
-            return `
-                <section class="min-h-[70vh]">
-                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-lime-500 pb-3">LỊCH CHIẾU ANIME TRONG TUẦN</h2>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
-                                                    ${daysOfWeek.map(day => `
-                            <div class="bg-gray-800 p-3 rounded-xl shadow-xl border border-gray-700 hover:border-lime-500/50 transition min-h-[250px] flex flex-col">
-                                <h3 class="text-xl font-extrabold text-lime-400 mb-3 text-center border-b border-gray-700 pb-2">${day}</h3>
-                                <div class="flex-grow space-y-2 max-h-[60vh] overflow-y-auto schedule-scroll-area">
-                                    ${(moviesByDay[day] && moviesByDay[day].length > 0)
-                    ? moviesByDay[day].map(renderScheduleMovieCard).join('')
-                    : '<p class="text-gray-500 text-xs italic text-center py-4">Không có phim chiếu.</p>'
-                }
-                                </div>
-                            </div>
-                                        `).join('')}
-                    </div>
-
-                                                    ${(moviesByDay["Không có"] && moviesByDay["Không có"].length > 0) ? `
-                        <div class="mt-12">
-                            <h3 class="text-2xl font-bold text-gray-400 mb-4 border-b border-gray-700 pb-2">PHIM CHƯA GÁN LỊCH HOẶC SẮP CHIẾU KHÁC</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                ${(moviesByDay["Không có"]).map(MovieCardTemplate).join('')}
-                            </div>
-                        </div>
-                                                        ` : ''}
-                </section>
-                                                    `;
-        };
-
-        const renderSchedulePage = () => {
-            const moviesByDay = {"Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ Nhật": [], "Không có": []};
-            const airingMovies = globalMovieCache.filter(m => m.status === 'dang-chieu' || m.status === 'sap-chieu');
-            airingMovies.forEach(movie => {
-                const day = movie.airingDay || "Không có";
-                moviesByDay.hasOwnProperty(day) ? moviesByDay[day].push(movie) : moviesByDay["Không có"].push(movie);
-            });
-            getEl('#app').innerHTML = SchedulePageTemplate(moviesByDay);
-        };
-
-        const showError = (message, details = '') => {
-            console.error(message, details);
-            const appEl = getEl('#app');
-            if (appEl) {
-                appEl.innerHTML = `
-                    <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg shadow-lg">
-                        <h3 class="text-2xl font-bold mb-3">Đã xảy ra lỗi hệ thống</h3>
-                        <p class="text-lg mb-2">${message}</p>
-                                                            ${details ? `<pre class="bg-gray-800 p-3 rounded-md text-sm text-red-300 overflow-auto">${details}</pre>` : ''}
-                        <button onclick="window.location.hash = '#home'" class="mt-4 px-4 py-2 bg-lime-500 text-gray-900 font-bold rounded-lg hover:bg-lime-600 transition-colors">Về Trang Chủ</button>
-                    </div>
-                                                        `;
-            }
-        };
-
-        const showLoading = () => {
-            const appEl = getEl('#app');
-            if (appEl) {
-                appEl.innerHTML = `
-                    <div class="flex justify-center items-center h-[50vh]">
-                        <svg class="animate-spin h-10 w-10 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                                                        `;
-            }
-        };
-
-        window.renderInfoPage = async (movieId) => {
-            if (!db) {showLoading(); return;}
-            if (unsubscribeMovieListener) {unsubscribeMovieListener(); unsubscribeMovieListener = null;}
-            if (unsubscribeReviewListener) {unsubscribeReviewListener(); unsubscribeReviewListener = null;}
-            if (unsubscribePublicReviewsListener) {unsubscribePublicReviewsListener(); unsubscribePublicReviewsListener = null;}
-
-            const movieDocRef = doc(db, dataCollectionPath, movieId);
-            let hasRenderedFullPage = false;
-
-            unsubscribeMovieListener = onSnapshot(movieDocRef, (movieDocSnap) => {
-                if (!movieDocSnap.exists()) {
-                    showError("Không tìm thấy bộ phim này.");
-                    return;
-                }
-
-                const updatedMovieData = {id: movieDocSnap.id, ...movieDocSnap.data()};
-                const isLiked = !!currentUserLikeDocIds[movieId];
-
-                if (!hasRenderedFullPage) {
-                    const rawEpisodes = updatedMovieData.episodes || [];
-                    
-                    // 🌟 XỬ LÝ LỌC TẬP CHO CẢ MẢNG ĐA SERVER HOẶC MẢNG PHẲNG CŨ 🌟
-                    let actualEpisodes = [];
-                    const hasMultipleServers = rawEpisodes.length > 0 && rawEpisodes[0].serverName;
-                    
-                    if (hasMultipleServers) {
-                        // Lấy mảng items của server đầu tiên làm mặc định cho trang Info
-                        actualEpisodes = rawEpisodes[0].items || [];
-                    } else {
-                        actualEpisodes = rawEpisodes;
-                    }
-
-                    const episodesWithId = actualEpisodes.map((ep, index) => ({
-                        ...ep,
-                        id: `${movieId}_${ep.episodeNumber}_${index}`
-                    }));
-
-                    const movieSlug = createSlug(updatedMovieData.title);
-                    const firstEpUrl = episodesWithId.length > 0 ? `#phim/${movieSlug}-${updatedMovieData.id}/tap-${episodesWithId[0]?.episodeNumber}-${episodesWithId[0]?.id}.html` : '#';
-
-                    const resumeTime = localStorage.getItem(`_watchTime_${episodesWithId[0]?.id}`);
-                    const hasWatchTime = resumeTime && parseInt(resumeTime) > 0;
-
-                    getEl('#app').innerHTML = InfoPageTemplate(updatedMovieData, episodesWithId, isLiked);
-
-                    if (hasWatchTime) {
-                        window.showResumeModal(updatedMovieData.title, parseInt(resumeTime)).then(shouldResume => {
-                            let finalUrl = firstEpUrl;
-                            if (shouldResume) {
-                                finalUrl += `?time=${resumeTime}`;
-                            } else {
-                                localStorage.removeItem(`_watchTime_${episodesWithId[0]?.id}`);
-                            }
-                            window.location.hash = finalUrl;
-                        });
-                    }
-
-                    getEl('#like-button')?.addEventListener('click', handleLike);
-                    setupPublicReviewsListener(movieId);
-
-                    if (auth?.currentUser && !auth.currentUser.isAnonymous && isGoogleAuth(auth.currentUser)) {
-                        setupUserReviewListener(movieId);
-                    } else {
-                        setupReviewSection(updatedMovieData, null);
-                    }
-
-                    hasRenderedFullPage = true;
-                }
-
-                incrementViewCount(movieId);
-
-                const likeCountEl = getEl('#like-count');
-                const viewCountEl = getEl('#view-count');
-                const avgRatingContainer = getEl('.text-yellow-400.mb-4');
-
-                if (viewCountEl) viewCountEl.textContent = (updatedMovieData.viewCount || 0).toLocaleString('vi-VN') + " Lượt xem";
-                if (likeCountEl) likeCountEl.textContent = (updatedMovieData.likeCount || 0).toLocaleString('vi-VN') + " Lượt thích";
-
-                if (avgRatingContainer) {
-                    const reviewCount = updatedMovieData.reviewCount || 0;
-                    const reviewTotal = updatedMovieData.reviewTotal || 0;
-                    const averageRating = reviewCount > 0 ? (reviewTotal / reviewCount) : 0;
-
-                    avgRatingContainer.innerHTML = `
-                        <span class="text-3xl font-bold">${averageRating.toFixed(1)}</span>
-                        <div class="flex text-2xl">${renderStars(averageRating)}</div>
-                        <span class="text-gray-400 text-sm ml-2">(${reviewCount.toLocaleString('vi-VN')} Đánh giá)</span>
-                    `;
-                }
-
-                const button = getEl('#like-button');
-                const likeButtonText = getEl('#like-button-text');
-                const likeButtonIcon = button?.querySelector('ion-icon');
-
-                if (button) {
-                    button.classList.toggle('bg-lime-600', isLiked);
-                    button.classList.toggle('text-white', isLiked);
-                    button.classList.toggle('font-bold', isLiked);
-                    button.classList.toggle('bg-gray-700', !isLiked);
-                    button.classList.toggle('text-gray-300', !isLiked);
-                    button.classList.toggle('font-medium', !isLiked);
-                    if (likeButtonText) likeButtonText.textContent = isLiked ? 'Đã thích' : 'Thích';
-                    if (likeButtonIcon) likeButtonIcon.setAttribute('name', isLiked ? 'thumbs-up' : 'thumbs-up-outline');
-                }
-
-            }, (error) => {
-                console.error("Lỗi listener phim:", error);
-                showError("Lỗi khi tải dữ liệu phim thời gian thực.", error.message);
-            });
+            `;
         };
 
         window.renderWatchPage = async (movieId, episodeUniqueId) => {
@@ -1765,13 +1632,37 @@
                     } else {showError("Không tìm thấy bộ phim này."); return;}
                 }
 
-                const episodesList = movieData.episodes || [];
-                const episodeMatch = episodeUniqueId.match(/_(\d+)_(\d+)$/);
+                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                const requestedServer = urlParams.get('server');
+
+                const rawEpisodes = movieData.episodes || [];
+                let currentServerName = 'Server 1';
+                let episodesList = [];
+
+                const hasMultipleServers = Array.isArray(rawEpisodes) && rawEpisodes.length > 0 && rawEpisodes[0].serverName;
+
+                if (hasMultipleServers) {
+                    const activeServerObj = rawEpisodes.find(s => s.serverName === requestedServer) || rawEpisodes[0];
+                    currentServerName = activeServerObj.serverName;
+                    const serverItems = activeServerObj.items || [];
+                    episodesList = serverItems.map((ep, index) => ({
+                        ...ep,
+                        id: `${movieId}_${createSlug(currentServerName)}_${ep.episodeNumber}_${index}`
+                    }));
+                } else {
+                    episodesList = rawEpisodes.map((ep, index) => ({
+                        ...ep,
+                        id: `${movieId}_${ep.episodeNumber}_${index}`
+                    }));
+                }
+
+                // CẮT ID TẬP CHUẨN XÁC
+                const episodeMatch = episodeUniqueId.match(/_(\d+)_\d+$/) || episodeUniqueId.match(/_(\d+)$/) || episodeUniqueId.match(/tap-(\d+)/);
                 const episodeNumber = episodeMatch ? parseInt(episodeMatch[1]) : NaN;
 
                 if (isNaN(episodeNumber)) {showError("Lỗi: Không tìm thấy số tập phim."); return;}
 
-                const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber);
+                const episodeData = episodesList.find(ep => ep.episodeNumber === episodeNumber) || episodesList[0];
                 if (!episodeData) {showError("Không tìm thấy tập phim này trong mảng."); return;}
 
                 const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
@@ -1787,17 +1678,12 @@
                 const nextEpisode = episodesList.find(ep => ep.episodeNumber === episodeNumber + 1);
                 let nextEpisodeLink = null;
                 if (nextEpisode) {
-                    const nextEpId = `${movieId}_${nextEpisode.episodeNumber}_${episodesList.indexOf(nextEpisode)}`;
-                    nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpId}.html`;
+                    nextEpisodeLink = `#phim/${createSlug(movieData.title)}-${movieId}/tap-${nextEpisode.episodeNumber}-${nextEpisode.id}.html`;
                 }
 
-                const allEpisodesWithId = episodesList.map((ep, index) => ({...ep, id: `${movieId}_${ep.episodeNumber}_${index}`}));
-
-                getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, allEpisodesWithId, episodeNumber, nextEpisodeLink);
+                getEl('#app').innerHTML = WatchPageTemplate(movieData, episodeData, commentsList, episodesList, episodeNumber, nextEpisodeLink, currentServerName);
 
                 const videoElement = getEl('#video-player-element');
-
-                const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
                 const startTime = parseInt(urlParams.get('time') || localStorage.getItem(`_watchTime_${episodeUniqueId}`) || '0');
 
                 if (videoElement && startTime > 0) {
@@ -1805,153 +1691,69 @@
                 }
 
                 if (videoElement) {
-                    // Lưu thời gian xem dở
                     videoElement.addEventListener('timeupdate', () => {saveWatchTime(episodeUniqueId, videoElement.currentTime);});
-
-                    // Sự kiện khi xem hết phim
                     videoElement.addEventListener('ended', () => {
-                        // Xóa thời gian xem dở
                         localStorage.removeItem(`_watchTime_${episodeUniqueId}`);
-
-                        // --- BÉ LÔI PHÙ PHÉP TỰ ĐỘNG CHUYỂN TẬP KẾ TIẾP ---
                         if (nextEpisodeLink) {
-                            console.log("Phim đã hết! Đang tự động chuyển sang tập tiếp theo...");
-
-                            // Hiện bảng thông báo chuyển tập cho ngầu
-                            const overlay = getEl('#video-overlay');
-                            const container = getEl('#video-player-container');
-
-                            if (!overlay && container) {
-                                // Nếu overlay đã bị xóa lúc bấm Play thì mình tạo lại nè
-                                const newOverlay = document.createElement('div');
-                                newOverlay.id = 'video-overlay';
-                                newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
-                                newOverlay.innerHTML = `
-                        <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-lime-500 shadow-[0_0_30px_rgba(163,230,53,0.3)] text-center flex flex-col items-center">
-                            <svg class="animate-spin h-12 w-12 text-lime-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
-                        </div>
-                    `;
-                                container.appendChild(newOverlay);
-                            }
-
-                            // Đợi 2 giây rồi mới trượt qua tập mới cho mượt
-                            setTimeout(() => {
-                                window.location.hash = nextEpisodeLink;
-                            }, 2000);
+                            const nextLinkWithServer = nextEpisodeLink + (hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : '');
+                            window.location.hash = nextLinkWithServer;
                         }
                     });
                 }
 
-                // --- BÉ LÔI CHÈN MÁY NGHE LÉN IFRAME VÀO ĐÂY NÈ ---
                 const iframeElement = getEl('#video-player-iframe');
                 if (iframeElement && nextEpisodeLink) {
                     if (window.iframeEndedListener) {
                         window.removeEventListener('message', window.iframeEndedListener);
                     }
-
                     window.iframeEndedListener = function (e) {
-                        // --- MÁY GHI ÂM BÉ LÔI: IN RA TẤT CẢ MỌI THỨ IFRAME NÓI ---
-                        console.log("🎧 BÉ LÔI ĐANG NGHE TỪ IFRAME:", e.data);
-
                         try {
                             let data = e.data;
                             if (typeof data === 'string') {
                                 try {data = JSON.parse(data);} catch (err) { }
                             }
-
-                            // Bé Lôi bổ sung thêm một đống từ khóa dự phòng xem có trúng không
-                            const isEnded =
-                                data === 'ended' ||
-                                data === 'videoEnded' ||
-                                data.event === 'complete' ||
-                                data.event === 'ended' ||
-                                data.message === 'complete' ||
-                                data.action === 'ended' ||
-                                data.status === 'ended' ||
-                                (data.info && data.info === 'ended');
+                            const isEnded = data === 'ended' || data === 'videoEnded' || data.event === 'complete' || data.event === 'ended' || data.message === 'complete' || data.action === 'ended' || data.status === 'ended' || (data.info && data.info === 'ended');
 
                             if (isEnded) {
-                                console.log("[Hệ thống]: Đã phát hiện kết thúc video. Đang tự động chuyển tập...");
                                 window.removeEventListener('message', window.iframeEndedListener);
-
-                                const container = getEl('#video-player-container');
-                                const existingOverlay = getEl('#video-overlay');
-                                if (!existingOverlay && container) {
-                                    const newOverlay = document.createElement('div');
-                                    newOverlay.id = 'video-overlay';
-                                    newOverlay.className = 'absolute inset-0 flex items-center justify-center p-4 z-10 bg-black/60 backdrop-blur-sm';
-                                    newOverlay.innerHTML = `
-                            <div class="bg-gray-900/90 px-8 py-6 rounded-2xl border border-lime-500 shadow-[0_0_30px_rgba(163,230,53,0.3)] text-center flex flex-col items-center">
-                                <svg class="animate-spin h-12 w-12 text-lime-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <p class="text-white text-lg font-bold">Chuẩn bị sang Tập Kế Tiếp...</p>
-                            </div>
-                        `;
-                                    container.appendChild(newOverlay);
-                                }
-
-                                setTimeout(() => {
-                                    window.location.hash = nextEpisodeLink;
-                                }, 2000);
+                                const nextLinkWithServer = nextEpisodeLink + (hasMultipleServers ? `?server=${encodeURIComponent(currentServerName)}` : '');
+                                window.location.hash = nextLinkWithServer;
                             }
                         } catch (error) { }
                     };
-
                     window.addEventListener('message', window.iframeEndedListener);
                 }
-                // ----------------------------------------------------
 
                 getEl('#play-video-button')?.addEventListener('click', handlePlayVideo);
-
                 if (commentsSnapshot) getEl('#comment-count-display').textContent = commentsSnapshot.size;
-
                 setupCommentsListener(movieId);
-                // --- BÉ LÔI: GẮN SỰ KIỆN CHO BẢNG STICKER ---
+
                 const toggleGifBtn = getEl('#toggle-gif-btn');
                 const gifPopup = getEl('#gif-picker-popup');
                 const commentInput = getEl('#comment-input');
 
                 if (toggleGifBtn && gifPopup && commentInput) {
-                    // Bấm nút mặt cười thì hiện/ẩn bảng
                     toggleGifBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         gifPopup.classList.toggle('hidden');
                     });
-
-                    // Bấm ra ngoài thì đóng bảng lại
                     document.addEventListener('click', (e) => {
                         if (!gifPopup.contains(e.target) && !toggleGifBtn.contains(e.target)) {
                             gifPopup.classList.add('hidden');
                         }
                     });
-
-                    // Khi bấm vào 1 bé icon bất kỳ
                     const gifItems = document.querySelectorAll('.gif-item');
                     gifItems.forEach(item => {
                         item.addEventListener('click', (e) => {
-                            // Lấy số thứ tự của bé icon đó
                             const index = e.currentTarget.getAttribute('data-sticker-index');
-
-                            // Chèn mã code siêu ngắn vào khung chat
                             commentInput.value += ` [sticker:${index}] `;
                             commentInput.focus();
-
-                            // Đóng bảng đi cho gọn
                             gifPopup.classList.add('hidden');
                         });
                     });
                 }
-                // -------------------------------------------
-
             } catch (e) {showError("Lỗi khi tải trang xem phim.", e.message);}
         };
-
 
         const renderPage = (pageType, param) => {
             if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
@@ -1966,10 +1768,8 @@
                     const sapChieuList = cache.filter(a => a.status === 'sap-chieu').slice(0, HOME_PAGE_LIMIT);
                     const deCuList = cache.filter(a => a.status === 'tron-bo').slice(0, HOME_PAGE_LIMIT);
 
-                    // --- BÉ LÔI PHÙ PHÉP SLIDER LẤY TỪ DATABASE ADMIN ---
                     let slideMovies = [];
                     if (globalSliderSettings.mode === 'manual' && globalSliderSettings.selectedMovieIds.length > 0) {
-                        // Chế độ thủ công: Lấy đúng thứ tự danh sách ID Admin đã chọn
                         globalSliderSettings.selectedMovieIds.forEach(id => {
                             const movie = cache.find(m => m.id === id);
                             if (movie) slideMovies.push(movie);
@@ -1983,36 +1783,21 @@
                             }
                         }
                     }
-                    // Gắn giao diện Slider ngẫu nhiên và các Section khác
                     getEl('#app').innerHTML =
                         SliderSectionTemplate(slideMovies) +
                         MovieSectionTemplate('Mới Cập Nhật', moiCapNhatList, '#genre/dang-chieu') +
                         MovieSectionTemplate('Sắp Chiếu', sapChieuList, '#genre/sap-chieu') +
                         MovieSectionTemplate('Đề Cử', deCuList, '#genre/tron-bo');
 
-                    // Phép thuật bắt đầu: Khởi tạo Swiper.js sau khi DOM đã render
                     setTimeout(() => {
                         new Swiper('.hero-swiper', {
                             effect: 'fade',
-                            fadeEffect: {
-                                crossFade: true
-                            },
-                            speed: 1500, // Phép thuật ở đây ạ: Chuyển cảnh kéo dài 1.5 giây siêu mượt mà như phim!
-                            autoplay: {
-                                delay: 4500, // Đứng hình 4.5s để người xem đọc nội dung
-                                disableOnInteraction: false,
-                                pauseOnMouseEnter: true // Tự động dừng mượt mà khi chủ nhân rê chuột vào
-                            },
-                            pagination: {
-                                el: '.swiper-pagination',
-                                clickable: true,
-                                dynamicBullets: true
-                            },
-                            navigation: {
-                                nextEl: '.swiper-button-next',
-                                prevEl: '.swiper-button-prev'
-                            },
-                            loop: slideMovies.length > 1, // Fix lỗi: Chỉ loop nếu có nhiều hơn 1 phim
+                            fadeEffect: { crossFade: true },
+                            speed: 1500,
+                            autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
+                            pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+                            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                            loop: slideMovies.length > 1,
                             grabCursor: true,
                         });
                     }, 100);
@@ -2020,19 +1805,17 @@
 
                 case '#gacha':
                     getEl('#app').innerHTML = GachaPageTemplate();
-
-                    // Khởi tạo và đếm số lượt quay hôm nay
                     const today = new Date().toDateString();
                     let lastDate = localStorage.getItem('_gachaDate');
-                    if (lastDate !== today) {
+                    let pullsLeft = parseInt(localStorage.getItem('_gachaPulls'));
+                    if (lastDate !== today || isNaN(pullsLeft)) {
+                        pullsLeft = 5;
                         localStorage.setItem('_gachaDate', today);
                         localStorage.setItem('_gachaPulls', 5);
                     }
                     getEl('#gacha-pulls-left').textContent = localStorage.getItem('_gachaPulls');
-
-                    // Gắn sự kiện cho nút Xem Bói
                     getEl('#fortune-form').addEventListener('submit', window.handleFortuneTelling);
-                    return; // Dừng lại ở đây vì mình tự vẽ HTML rồi
+                    return; 
 
                 case '#login':
                     getEl('#app').innerHTML = AuthPageTemplate();
@@ -2057,7 +1840,7 @@
                     const filterName = GENRE_TRANSLATIONS[(param || '').split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')] || filterSlug.replace(/-/g, ' ');
                     title = filterSlug ? `Thể loại: ${filterName}` : 'Tất cả Thể Loại';
                     results = cache.filter(m => {
-                        if (!filterSlug) return true; // Nếu không có param thì hiện tất cả
+                        if (!filterSlug) return true; 
                         if ((m.formatType && m.formatType.toLowerCase() === filterSlug) || (m.status && m.status.toLowerCase() === filterSlug)) {
                             return true;
                         }
@@ -2092,8 +1875,6 @@
             getEl('#app').innerHTML = SearchPageTemplate(results, title);
         };
 
-
-
         const router = (shouldUpdateHash = true) => {
             if (setupError) {showError(setupError.message, setupError.stack || ''); return;}
             if (!isAuthInitialised) return;
@@ -2127,12 +1908,15 @@
                 if (!mId) return showError("Lỗi URL.", "Không tìm thấy ID phim hợp lệ.");
 
                 if (pathSegments.length === 2) {
-
                     window.renderInfoPage(mId);
-                } else if (pathSegments.length === 3 && pathSegments[2].endsWith('.html')) {
-                    const episodeMatch = pathSegments[2].match(/-([a-zA-Z0-9_]+)\.html$/);
-                    const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
-                    if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
+                } else if (pathSegments.length === 3) {
+                    // 🌟 CẮT QUERY ?SERVER ĐỂ TRÁNH LỖI ĐỊNH TUYẾN 🌟
+                    const rawEpisodeSegment = pathSegments[2].split('?')[0];
+                    if (rawEpisodeSegment.endsWith('.html')) {
+                        const episodeMatch = rawEpisodeSegment.match(/-([a-zA-Z0-9_]+)\.html$/);
+                        const episodeUniqueId = episodeMatch ? episodeMatch[1] : null;
+                        if (episodeUniqueId) window.renderWatchPage(mId, episodeUniqueId);
+                    }
                 }
                 return;
             }
@@ -2154,7 +1938,6 @@
                     await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Lỗi đăng nhập bằng Custom Token:", e));
                 }
 
-                // --- BÉ LÔI PHÙ PHÉP: Ép hệ thống phải đón kết quả Google về trước ---
                 try {
                     await getRedirectResult(auth);
                 } catch (err) {
@@ -2176,7 +1959,6 @@
                             userEmail = user.email;
                             await ensureUserProfile(user);
                             updateAuthStateUI(user);
-                            // Đăng nhập xong mà đang kẹt ở trang login thì đá về sảnh nha!
                             if (window.location.hash === '#login') window.location.hash = '#home';
                         } else {
                             userEmail = user.email || 'Admin User';
@@ -2195,8 +1977,6 @@
                         }
                         updateAuthStateUI(null);
 
-                        // --- BÉ LÔI DỜI TẠO TÀI KHOẢN ẨN DANH VÀO ĐÂY ---
-                        // Chỉ khi nào chắc chắn Google không trả về, mới tạo account khách
                         try {
                             await signInAnonymously(auth);
                         } catch (e) {
@@ -2228,7 +2008,6 @@
             if (!db || isGlobalCacheLoaded) return;
 
             try {
-                // 1. NGHE LÉN CẤU HÌNH SLIDER TỪ ADMIN
                 const sliderSettingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'heroSlider');
                 onSnapshot(sliderSettingsDocRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -2236,13 +2015,11 @@
                     } else {
                         globalSliderSettings = {mode: 'random', selectedMovieIds: []};
                     }
-                    // Gọi lại router để vẽ lại trang chủ nếu đang đứng ở trang chủ
                     if (window.location.hash.startsWith('#home') || window.location.hash === '') {
                         router(false);
                     }
                 });
 
-                // 2. NGHE LÉN TOÀN BỘ PHIM
                 const q = query(collection(db, dataCollectionPath));
 
                 onSnapshot(q, (snapshot) => {
@@ -2254,17 +2031,13 @@
                         const data = {id: doc.id, ...doc.data()};
                         movieList.push(data);
 
-                        // --- CẬP NHẬT TRỰC TIẾP VÀO DOM CỰC NHẸ BẰNG REQUEST ANIMATION FRAME ---
                         requestAnimationFrame(() => {
-                            // Cập nhật lượt xem (Chỉ tìm và sửa nếu phần tử thực sự tồn tại trên màn hình)
                             const viewEls = document.querySelectorAll(`.view-count-${data.id}`);
                             if (viewEls.length > 0) viewEls.forEach(el => el.textContent = (data.viewCount || 0).toLocaleString('vi-VN'));
 
-                            // Cập nhật lượt thích
                             const likeEls = document.querySelectorAll(`.like-count-${data.id}`);
                             if (likeEls.length > 0) likeEls.forEach(el => el.textContent = (data.likeCount || 0).toLocaleString('vi-VN'));
 
-                            // Cập nhật điểm đánh giá
                             const ratingEls = document.querySelectorAll(`.rating-score-${data.id}`);
                             if (ratingEls.length > 0) {
                                 const reviewCount = data.reviewCount || 0;
@@ -2272,10 +2045,8 @@
                                 ratingEls.forEach(el => el.textContent = averageRating.toFixed(1));
                             }
                         });
-                        // ------------------------------------------------------------------------------------------
                     });
 
-                    // Sắp xếp lại kho phim
                     movieList.sort((a, b) => {
                         const timeA = b.lastEpisodeUpdate?.toMillis() || b.createdAt?.toMillis() || 0;
                         const timeB = a.lastEpisodeUpdate?.toMillis() || a.createdAt?.toMillis() || 0;
@@ -2283,8 +2054,8 @@
                     });
 
                     globalMovieCache = movieList;
+                    window.globalMovieCache = movieList; // 🌟 PHÉP MÀU NẰM Ở ĐÂY 🌟
 
-                    // CHỈ TẢI LẠI TRANG Ở LẦN ĐẦU TIÊN VÀO WEB! KHÔNG TẢI LẠI KHI CÓ SỐ THAY ĐỔI
                     if (!wasCacheLoaded) {
                         router(false);
                     }
@@ -2354,7 +2125,6 @@
             }
         };
 
-
         window.addEventListener('hashchange', router);
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2367,19 +2137,17 @@
                 if (typeof resolveResumeModal === 'function') resolveResumeModal(false);
                 window.hideResumeModal();
             });
-            // --- 1. Nút mở Menu chính ---
+            
             getEl('#mobile-menu-button')?.addEventListener('click', () => {
                 getEl('#mobile-menu')?.classList.toggle('menu-open');
                 getEl('#mobile-menu-overlay')?.classList.toggle('menu-open');
             });
 
-            // Ấn ra ngoài tấm màn thì tự đóng menu mượt mà
             getEl('#mobile-menu-overlay')?.addEventListener('click', () => {
                 getEl('#mobile-menu')?.classList.remove('menu-open');
                 getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
             });
 
-            // Khi tìm kiếm xong trên mobile cũng tự trượt menu vào
             getEl('#search-form-mobile')?.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const searchTerm = getEl('#search-input-mobile').value.trim();
@@ -2388,18 +2156,15 @@
                 getEl('#mobile-menu-overlay')?.classList.remove('menu-open');
             });
 
-            // --- 2. Xổ Menu Con mượt mà (Accordion) ---
             getAllEl('.mobile-dropdown-toggle').forEach(button => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
                     const target = e.currentTarget.nextElementSibling;
-                    // Thêm/Xóa class is-open để CSS tạo hiệu ứng sổ xuống
                     target.classList.toggle('is-open');
                     e.currentTarget.querySelector('.dropdown-icon')?.classList.toggle('rotate-180');
                 });
             });
 
-            // Ấn vào link thì trượt cất menu đi
             getAllEl('#mobile-menu a').forEach(link => {
                 link.addEventListener('click', function () {
                     if (!this.classList.contains('mobile-dropdown-toggle')) {
@@ -2419,7 +2184,6 @@
                 }
             });
 
-            // --- MAGIC: GỢI Ý TÌM KIẾM TRỰC TIẾP CỦA BÉ LÔI ---
             const renderSuggestItem = (movie) => {
                 const slug = createSlug(movie.title);
                 const imageUrl = movie.posterUrl || '';
@@ -2471,7 +2235,6 @@
                     }
                 });
 
-                // Tự động xoay ngang màn hình khi bật toàn màn hình (Fullscreen)
                 const handleFullscreenRotation = async () => {
                     const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
 
@@ -2480,21 +2243,16 @@
                             if (screen.orientation && screen.orientation.lock) {
                                 await screen.orientation.lock('landscape');
                             }
-                        } catch (err) {
-                            // Trình duyệt không hỗ trợ hoặc bị chặn, bỏ qua lỗi
-                        }
+                        } catch (err) {}
                     } else {
                         try {
                             if (screen.orientation && screen.orientation.unlock) {
                                 screen.orientation.unlock();
                             }
-                        } catch (err) {
-                            // Bỏ qua lỗi
-                        }
+                        } catch (err) {}
                     }
                 };
 
-                // Lắng nghe sự kiện toàn màn hình trên các trình duyệt
                 document.addEventListener('fullscreenchange', handleFullscreenRotation);
                 document.addEventListener('webkitfullscreenchange', handleFullscreenRotation);
                 document.addEventListener('mozfullscreenchange', handleFullscreenRotation);
@@ -2506,20 +2264,18 @@
                     }
                 });
 
-                // Nằm bên trong setupLiveSearch: Xóa chữ và đóng menu mượt khi bấm vô xem phim
                 resultsEl.addEventListener('click', (e) => {
                     if (e.target.closest('a')) {
                         resultsEl.classList.add('hidden');
                         inputEl.value = '';
-                        getEl('#mobile-menu')?.classList.remove('menu-open'); // Đổi ở đây
-                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open'); // Đổi ở đây
+                        getEl('#mobile-menu')?.classList.remove('menu-open'); 
+                        getEl('#mobile-menu-overlay')?.classList.remove('menu-open'); 
                     }
                 });
             };
 
             setupLiveSearch('#search-input-desktop', '#search-results-desktop');
             setupLiveSearch('#search-input-mobile', '#search-results-mobile');
-            // --- KẾT THÚC MAGIC ---
 
             document.addEventListener('click', function (e) {
                 const userDropdown = getEl('.user-profile-dropdown');
