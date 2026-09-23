@@ -1,55 +1,1020 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>FOXANIME - Kênh Cập Nhật Anime Mới Nhất</title>
-    <link>https://foxanime.top</link>
-    <description>Kênh phân phối dữ liệu tự động các tập phim mới nhất của hệ thống FOXANIME dành cho các ứng dụng ngoại vi (Discord Bot, RSS Reader, Mobile App).</description>
-    <language>vi-VN</language>
-    <lastBuildDate>Tue, 25 Aug 2026 08:30:00 +0700</lastBuildDate>
-    <generator>FOXANIME RSS Engine 2.0</generator>
-    <atom:link href="https://foxanime.top/rss.xml" rel="self" type="application/rss+xml" />
-
-    <!-- Bản tin tập phim 1 -->
-    <item>
-      <title>[Cập Nhật Tập 12] Solo Leveling Season 2: Arise from the Shadow</title>
-      <link>https://foxanime.top/#movie/solo-leveling-s2</link>
-      <guid isPermaLink="false">foxanime-solo-leveling-s2-ep12</guid>
-      <pubDate>Tue, 25 Aug 2026 08:00:00 +0700</pubDate>
-      <category>Hành Động, Phiêu Lưu, Phép Thuật</category>
-      <description><![CDATA[
-        <p><img src="https://foxanime.top/anh/solo-leveling-s2.jpg" width="320" alt="Solo Leveling S2" style="border-radius:8px;"/></p>
-        <p><strong>Solo Leveling Season 2</strong> vừa cập nhật <strong>Tập 12</strong> (Tập Cuối Mùa) chất lượng Full HD 1080p Vietsub.</p>
-        <p>👉 Thợ săn Sung Jin-woo chỉ huy đội quân bóng tối tiến vào hầm ngục cấp S!</p>
-      ]]></description>
-      <enclosure url="https://foxanime.top/anh/solo-leveling-s2.jpg" length="124500" type="image/jpeg" />
-    </item>
-
-    <!-- Bản tin tập phim 2 -->
-    <item>
-      <title>[Cập Nhật Trọn Bộ 23 Tập] Chú Thuật Hồi Chiến Mùa 2 (Biến Cố Shibuya)</title>
-      <link>https://foxanime.top/#movie/jujutsu-kaisen-s2</link>
-      <guid isPermaLink="false">foxanime-jjk-s2-full</guid>
-      <pubDate>Mon, 24 Aug 2026 19:30:00 +0700</pubDate>
-      <category>Hành Động, Siêu Nhiên, Shounen</category>
-      <description><![CDATA[
-        <p><img src="https://foxanime.top/anh/jujutsu-kaisen-s2.jpg" width="320" alt="Jujutsu Kaisen S2" style="border-radius:8px;"/></p>
-        <p>Trọn bộ 23 tập <strong>Chú Thuật Hồi Chiến Mùa 2</strong> đã hoàn tất cập nhật trên FOXANIME với chất lượng âm thanh 5.1 và hình ảnh sắc nét.</p>
-      ]]></description>
-      <enclosure url="https://foxanime.top/anh/jujutsu-kaisen-s2.jpg" length="118200" type="image/jpeg" />
-    </item>
-
-    <!-- Bản tin tập phim 3 -->
-    <item>
-      <title>[Cập Nhật Tập 8] Thanh Gươm Diệt Quỷ: Đại Trụ Đặc Huấn</title>
-      <link>https://foxanime.top/#movie/kimetsu-hashira-training</link>
-      <guid isPermaLink="false">foxanime-kny-ht-ep8</guid>
-      <pubDate>Sun, 23 Aug 2026 14:15:00 +0700</pubDate>
-      <category>Hành Động, Siêu Nhiên, Fantasy</category>
-      <description><![CDATA[
-        <p><img src="https://foxanime.top/anh/kimetsu-hashira.jpg" width="320" alt="Kimetsu no Yaiba" style="border-radius:8px;"/></p>
-        <p>Tập 8 (Thời lượng đặc biệt 48 phút) đã chính thức lên sóng, sẵn sàng cho trận đại chiến Vô Hạn Thành!</p>
-      ]]></description>
-      <enclosure url="https://foxanime.top/anh/kimetsu-hashira.jpg" length="135000" type="image/jpeg" />
-    </item>
-  </channel>
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:ns0="http://www.w3.org/2005/Atom" version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>FOXANIME - Cập Nhật Phim Mới Nhất</title>
+        <link>https://foxanime.top</link>
+        <description>Kênh phân phối dữ liệu các tập phim mới nhất của hệ thống FOXANIME.</description>
+        <language>vi-VN</language>
+        <lastBuildDate>Wed, 23 Sep 2026 10:54:53 +0000</lastBuildDate>
+        <generator>FOXANIME Realtime RSS Generator</generator>
+        <ns0:link href="https://foxanime.top/rss.xml" rel="self" type="application/rss+xml" />
+        <item>
+            <title>[Tập 1] Toukutsu Ou</title>
+            <link>https://foxanime.top/#movie/0SqW2qUEpcy2OGVPiZrz</link>
+            <guid isPermaLink="false">foxanime-0SqW2qUEpcy2OGVPiZrz-ep1</guid>
+            <pubDate>Thu, 23 Jul 2026 06:12:36 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/8/toukutsu-ou.jpg" width="300" style="border-radius:8px;" alt="Toukutsu Ou"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Toukutsu Ou Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/0SqW2qUEpcy2OGVPiZrz"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/8/toukutsu-ou.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Hanaori-san wa Tensei shitemo Kenka ga Shitai</title>
+            <link>https://foxanime.top/#movie/11HQvbVTQhpZqODDG8Ve</link>
+            <guid isPermaLink="false">foxanime-11HQvbVTQhpZqODDG8Ve-ep1</guid>
+            <pubDate>Thu, 23 Jul 2026 14:25:59 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Giả Tưởng, Lãng Mạn, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/hanaori-san-wa-tensei-shitemo-kenka-ga-shitai.jpg" width="300" style="border-radius:8px;" alt="Hanaori-san wa Tensei shitemo Kenka ga Shitai"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Hanaori-san wa Tensei shitemo Kenka ga Shitai Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/11HQvbVTQhpZqODDG8Ve"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/hanaori-san-wa-tensei-shitemo-kenka-ga-shitai.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Part 2</title>
+            <link>https://foxanime.top/#movie/18vHgbnn77LoIi50lHl8</link>
+            <guid isPermaLink="false">foxanime-18vHgbnn77LoIi50lHl8-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:33 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3065.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Part 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Part 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/18vHgbnn77LoIi50lHl8"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3065.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 26] Sousei no Aquarion</title>
+            <link>https://foxanime.top/#movie/1n5Dpo7Huk135Nny5MTS</link>
+            <guid isPermaLink="false">foxanime-1n5Dpo7Huk135Nny5MTS-ep26</guid>
+            <pubDate>Mon, 22 Dec 2025 01:43:42 +0000</pubDate>
+            <category>Action, Mecha, Romance</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2091.jpg" width="300" style="border-radius:8px;" alt="Sousei no Aquarion"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Sousei no Aquarion Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/1n5Dpo7Huk135Nny5MTS"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2091.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Isekai Seikatsu 3rd Season</title>
+            <link>https://foxanime.top/#movie/1uC30GW6vcgix4Rm8gPL</link>
+            <guid isPermaLink="false">foxanime-1uC30GW6vcgix4Rm8gPL-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:26 +0000</pubDate>
+            <category>Hoạt Hình, Chính Kịch, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/144725.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu 3rd Season"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu 3rd Season Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/1uC30GW6vcgix4Rm8gPL"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/144725.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 3)</title>
+            <link>https://foxanime.top/#movie/25OPXcaZfxE0uezOr1Ip</link>
+            <guid isPermaLink="false">foxanime-25OPXcaZfxE0uezOr1Ip-ep1</guid>
+            <pubDate>Mon, 31 Aug 2026 11:56:01 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Lãng Mạn, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/6/100-co-ban-gai-yeu-ban-rat-rat-rat-rat-rat-nhieu-phan-3.jpg" width="300" style="border-radius:8px;" alt="100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 3)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 3) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/25OPXcaZfxE0uezOr1Ip"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/6/100-co-ban-gai-yeu-ban-rat-rat-rat-rat-rat-nhieu-phan-3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Grand Blue 3rd Season</title>
+            <link>https://foxanime.top/#movie/2Y83NvOMiO6wuN7urlSq</link>
+            <guid isPermaLink="false">foxanime-2Y83NvOMiO6wuN7urlSq-ep1</guid>
+            <pubDate>Thu, 09 Jul 2026 14:44:32 +0000</pubDate>
+            <category>Cartoon, Comedy, Slice of Life</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/6/grand-blue-3rd-season.jpg" width="300" style="border-radius:8px;" alt="Grand Blue 3rd Season"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Grand Blue 3rd Season Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/2Y83NvOMiO6wuN7urlSq"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/6/grand-blue-3rd-season.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 24] Tu Bian Yingxiong X</title>
+            <link>https://foxanime.top/#movie/42sPG9xGwl73ug0lh5tx</link>
+            <guid isPermaLink="false">foxanime-42sPG9xGwl73ug0lh5tx-ep24</guid>
+            <pubDate>Tue, 30 Dec 2025 14:38:30 +0000</pubDate>
+            <category>Action, Super Power, Supernatural</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/tu-bian-yingxiong-x.jpg" width="300" style="border-radius:8px;" alt="Tu Bian Yingxiong X"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tu Bian Yingxiong X Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/42sPG9xGwl73ug0lh5tx"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/tu-bian-yingxiong-x.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Đại chiến người và thần (Phần 1)</title>
+            <link>https://foxanime.top/#movie/4K4h4522F9NdIEkpkCMx</link>
+            <guid isPermaLink="false">foxanime-4K4h4522F9NdIEkpkCMx-ep12</guid>
+            <pubDate>Sun, 21 Dec 2025 07:03:55 +0000</pubDate>
+            <category>Hành Động, Hoạt Hình, Chính Kịch, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3261.jpg" width="300" style="border-radius:8px;" alt="Đại chiến người và thần (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Đại chiến người và thần (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/4K4h4522F9NdIEkpkCMx"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3261.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Cô Mèo Nghiện Thuốc Lá</title>
+            <link>https://foxanime.top/#movie/5MBkYj07CniaPqBbe2vk</link>
+            <guid isPermaLink="false">foxanime-5MBkYj07CniaPqBbe2vk-ep1</guid>
+            <pubDate>Fri, 10 Jul 2026 12:58:15 +0000</pubDate>
+            <category>Cartoon, Comedy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/3/co-meo-nghien-thuoc-la.jpg" width="300" style="border-radius:8px;" alt="Cô Mèo Nghiện Thuốc Lá"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Cô Mèo Nghiện Thuốc Lá Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/5MBkYj07CniaPqBbe2vk"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/3/co-meo-nghien-thuoc-la.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Toumei na Yoru ni Kakeru Kimi to, Me ni Mienai Koi wo Shita.</title>
+            <link>https://foxanime.top/#movie/5NpOENDSav3MhHzweSE3</link>
+            <guid isPermaLink="false">foxanime-5NpOENDSav3MhHzweSE3-ep1</guid>
+            <pubDate>Tue, 18 Aug 2026 13:42:41 +0000</pubDate>
+            <category>Hoạt Hình, Chính Kịch, Lãng Mạn, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/6/toumei-na-yoru-ni-kakeru-kimi-to-me-ni-mienai-koi-wo-shita.jpg" width="300" style="border-radius:8px;" alt="Toumei na Yoru ni Kakeru Kimi to, Me ni Mienai Koi wo Shita."/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Toumei na Yoru ni Kakeru Kimi to, Me ni Mienai Koi wo Shita. Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/5NpOENDSav3MhHzweSE3"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/6/toumei-na-yoru-ni-kakeru-kimi-to-me-ni-mienai-koi-wo-shita.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Tên Cậu Là Gì?</title>
+            <link>https://foxanime.top/#movie/79Z6sJfRn5v95WaExieS</link>
+            <guid isPermaLink="false">foxanime-79Z6sJfRn5v95WaExieS-ep1</guid>
+            <pubDate>Sun, 30 Nov 2025 03:58:26 +0000</pubDate>
+            <category>Cartoon, Comedy, Romance</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/yV8ARrvpWaWd509QM4LwMScNDvZ.jpg" width="300" style="border-radius:8px;" alt="Tên Cậu Là Gì?"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tên Cậu Là Gì? Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/79Z6sJfRn5v95WaExieS"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/yV8ARrvpWaWd509QM4LwMScNDvZ.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 1)</title>
+            <link>https://foxanime.top/#movie/7JVCxLmUJOvqynrtEh43</link>
+            <guid isPermaLink="false">foxanime-7JVCxLmUJOvqynrtEh43-ep12</guid>
+            <pubDate>Mon, 31 Aug 2026 11:54:33 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/i756656.jpg" width="300" style="border-radius:8px;" alt="100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/7JVCxLmUJOvqynrtEh43"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/i756656.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 6] Tu Tiên Giả Đại Chiến Siêu Năng Lực 3D</title>
+            <link>https://foxanime.top/#movie/7abpzA6FGLfonRrgofPk</link>
+            <guid isPermaLink="false">foxanime-7abpzA6FGLfonRrgofPk-ep6</guid>
+            <pubDate>Sat, 14 Feb 2026 14:15:18 +0000</pubDate>
+            <category>Action, Adventure, Martial Arts, Mecha, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/tu-tien-gia-dai-chien-sieu-nang-luc-3d.jpg" width="300" style="border-radius:8px;" alt="Tu Tiên Giả Đại Chiến Siêu Năng Lực 3D"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tu Tiên Giả Đại Chiến Siêu Năng Lực 3D Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/7abpzA6FGLfonRrgofPk"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/tu-tien-gia-dai-chien-sieu-nang-luc-3d.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Mèo Và Rồng</title>
+            <link>https://foxanime.top/#movie/8vxpOfRtrzqhATSp439n</link>
+            <guid isPermaLink="false">foxanime-8vxpOfRtrzqhATSp439n-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:14:43 +0000</pubDate>
+            <category>Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/1/neko-to-ryuu.jpg" width="300" style="border-radius:8px;" alt="Mèo Và Rồng"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Mèo Và Rồng Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/8vxpOfRtrzqhATSp439n"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/1/neko-to-ryuu.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] thành phố động vật phi vụ động trời</title>
+            <link>https://foxanime.top/#movie/9ubxFyMDFW7ZbaNOnhK0</link>
+            <guid isPermaLink="false">foxanime-9ubxFyMDFW7ZbaNOnhK0-ep2</guid>
+            <pubDate>Sat, 06 Dec 2025 10:37:23 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Comedy, Dementia, Drama, Kids, Police, Psychological, Romance</category>
+            <description>&lt;p&gt;&lt;img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9tSY_HnIQFDI9qCW5wyNBeq7od-mWl0t5qw&amp;s" width="300" style="border-radius:8px;" alt="thành phố động vật phi vụ động trời"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim thành phố động vật phi vụ động trời Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/9ubxFyMDFW7ZbaNOnhK0"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9tSY_HnIQFDI9qCW5wyNBeq7od-mWl0t5qw&amp;s" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Phàm Nhân Tu Tiên</title>
+            <link>https://foxanime.top/#movie/BJsHEoK2C2zTpcImZc6H</link>
+            <guid isPermaLink="false">foxanime-BJsHEoK2C2zTpcImZc6H-ep1</guid>
+            <pubDate>Sun, 30 Nov 2025 04:16:16 +0000</pubDate>
+            <category>Action, Adventure, Harem, Martial Arts, Supernatural</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3078-1634943074.jpg" width="300" style="border-radius:8px;" alt="Phàm Nhân Tu Tiên"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Phàm Nhân Tu Tiên Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/BJsHEoK2C2zTpcImZc6H"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3078-1634943074.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 104] Trong Tông Môn Trừ Ta Ra Tất Cả Đều Là Gián Điệp</title>
+            <link>https://foxanime.top/#movie/CNQK5YRmj4FVoZ3oou30</link>
+            <guid isPermaLink="false">foxanime-CNQK5YRmj4FVoZ3oou30-ep104</guid>
+            <pubDate>Sun, 30 Nov 2025 04:20:11 +0000</pubDate>
+            <category>Action, Adventure, Harem, Martial Arts, Supernatural</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/765g565.jpg" width="300" style="border-radius:8px;" alt="Trong Tông Môn Trừ Ta Ra Tất Cả Đều Là Gián Điệp"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Trong Tông Môn Trừ Ta Ra Tất Cả Đều Là Gián Điệp Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/CNQK5YRmj4FVoZ3oou30"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/765g565.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Oh Boy, Was I Wrong About Her</title>
+            <link>https://foxanime.top/#movie/DEYSpmbDRi6quz4GdCkc</link>
+            <guid isPermaLink="false">foxanime-DEYSpmbDRi6quz4GdCkc-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:07:17 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Lãng Mạn, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/6/oh-boy-was-i-wrong-about-her.jpg" width="300" style="border-radius:8px;" alt="Oh Boy, Was I Wrong About Her"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Oh Boy, Was I Wrong About Her Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/DEYSpmbDRi6quz4GdCkc"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/6/oh-boy-was-i-wrong-about-her.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] 5-toubun no Hanayome Movie</title>
+            <link>https://foxanime.top/#movie/DQsOuDQA49GfY2ecjFw9</link>
+            <guid isPermaLink="false">foxanime-DQsOuDQA49GfY2ecjFw9-ep1</guid>
+            <pubDate>Thu, 25 Dec 2025 09:58:13 +0000</pubDate>
+            <category>Harem, Romance, School, Slice of Life</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/122516.jpg" width="300" style="border-radius:8px;" alt="5-toubun no Hanayome Movie"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 5-toubun no Hanayome Movie Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/DQsOuDQA49GfY2ecjFw9"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/122516.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Isekai Nonbiri Nouka</title>
+            <link>https://foxanime.top/#movie/EWOkw3poOUCQA2amVknf</link>
+            <guid isPermaLink="false">foxanime-EWOkw3poOUCQA2amVknf-ep12</guid>
+            <pubDate>Wed, 24 Jun 2026 15:44:38 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/132329.jpg" width="300" style="border-radius:8px;" alt="Isekai Nonbiri Nouka"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Isekai Nonbiri Nouka Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/EWOkw3poOUCQA2amVknf"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/132329.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 143] Tiên Võ Đế Tôn</title>
+            <link>https://foxanime.top/#movie/F4C3RMTOy2InxEfaifYf</link>
+            <guid isPermaLink="false">foxanime-F4C3RMTOy2InxEfaifYf-ep143</guid>
+            <pubDate>Sun, 30 Nov 2025 04:29:15 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/543445456.jpg" width="300" style="border-radius:8px;" alt="Tiên Võ Đế Tôn"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiên Võ Đế Tôn Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/F4C3RMTOy2InxEfaifYf"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/543445456.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Isekai Seikatsu 4th Season</title>
+            <link>https://foxanime.top/#movie/FMBybaaLr9d1uSOfidQ3</link>
+            <guid isPermaLink="false">foxanime-FMBybaaLr9d1uSOfidQ3-ep1</guid>
+            <pubDate>Fri, 04 Sep 2026 15:34:13 +0000</pubDate>
+            <category>Hoạt Hình, Chính Kịch, Giả Tưởng, Bí Ẩn</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/10/rezero-kara-hajimeru-isekai-seikatsu-4th-season.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu 4th Season"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu 4th Season Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/FMBybaaLr9d1uSOfidQ3"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/10/rezero-kara-hajimeru-isekai-seikatsu-4th-season.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Trảm Thần (Trảm Thần Chi Phàm Trần Thần Vực)</title>
+            <link>https://foxanime.top/#movie/FlFFtZWZzK7abAayrdKb</link>
+            <guid isPermaLink="false">foxanime-FlFFtZWZzK7abAayrdKb-ep1</guid>
+            <pubDate>Mon, 07 Sep 2026 02:51:44 +0000</pubDate>
+            <category>Action, Adventure, Cartoon</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/76u76u7623.jpg" width="300" style="border-radius:8px;" alt="Trảm Thần (Trảm Thần Chi Phàm Trần Thần Vực)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Trảm Thần (Trảm Thần Chi Phàm Trần Thần Vực) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/FlFFtZWZzK7abAayrdKb"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/76u76u7623.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 15] Đại chiến người và thần (Phần 2)</title>
+            <link>https://foxanime.top/#movie/GATgm7Tzdk17aTJaiTUa</link>
+            <guid isPermaLink="false">foxanime-GATgm7Tzdk17aTJaiTUa-ep15</guid>
+            <pubDate>Sun, 21 Dec 2025 07:04:41 +0000</pubDate>
+            <category>Hành Động, Hoạt Hình, Chính Kịch, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3712.jpg" width="300" style="border-radius:8px;" alt="Đại chiến người và thần (Phần 2)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Đại chiến người và thần (Phần 2) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/GATgm7Tzdk17aTJaiTUa"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3712.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] 86</title>
+            <link>https://foxanime.top/#movie/GCMJl0luWe6iwmsOgsWL</link>
+            <guid isPermaLink="false">foxanime-GCMJl0luWe6iwmsOgsWL-ep12</guid>
+            <pubDate>Fri, 28 Nov 2025 17:03:55 +0000</pubDate>
+            <category>Adventure, Cartoon, Mecha, Sci-Fi</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3236.jpg" width="300" style="border-radius:8px;" alt="86"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 86 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/GCMJl0luWe6iwmsOgsWL"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3236.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] One Piece</title>
+            <link>https://foxanime.top/#movie/GXS6SYs5v0XDaWe7P6ij</link>
+            <guid isPermaLink="false">foxanime-GXS6SYs5v0XDaWe7P6ij-ep2</guid>
+            <pubDate>Mon, 01 Dec 2025 02:21:21 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Phim Hài, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/5/one-piece.jpg" width="300" style="border-radius:8px;" alt="One Piece"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim One Piece Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/GXS6SYs5v0XDaWe7P6ij"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/5/one-piece.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 11] Tiến sĩ Đá (Phần 2)</title>
+            <link>https://foxanime.top/#movie/GyRpQPApIqxPa4tvgvmB</link>
+            <guid isPermaLink="false">foxanime-GyRpQPApIqxPa4tvgvmB-ep11</guid>
+            <pubDate>Sun, 28 Jun 2026 15:59:22 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Khoa Học Viễn Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3171.jpg" width="300" style="border-radius:8px;" alt="Tiến sĩ Đá (Phần 2)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiến sĩ Đá (Phần 2) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/GyRpQPApIqxPa4tvgvmB"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3171.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Fuuto PI, Thám Tử Thành Phố Fuuto</title>
+            <link>https://foxanime.top/#movie/HDNhDVl5NQTwzq9kvYRK</link>
+            <guid isPermaLink="false">foxanime-HDNhDVl5NQTwzq9kvYRK-ep12</guid>
+            <pubDate>Fri, 21 Nov 2025 13:56:46 +0000</pubDate>
+            <category>Action, Drama, Super Power, Tokusatsu</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/123588.jpg" width="300" style="border-radius:8px;" alt="Fuuto PI, Thám Tử Thành Phố Fuuto"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Fuuto PI, Thám Tử Thành Phố Fuuto Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/HDNhDVl5NQTwzq9kvYRK"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/123588.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 13] Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo Minai</title>
+            <link>https://foxanime.top/#movie/HIrIjp6XptEH5Oa9tKuL</link>
+            <guid isPermaLink="false">foxanime-HIrIjp6XptEH5Oa9tKuL-ep13</guid>
+            <pubDate>Sun, 30 Nov 2025 04:21:09 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2661.jpg" width="300" style="border-radius:8px;" alt="Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo Minai"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo Minai Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/HIrIjp6XptEH5Oa9tKuL"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2661.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Super no Ura de Yani Suu Futari</title>
+            <link>https://foxanime.top/#movie/HcshcIbll7MII3jEQrlK</link>
+            <guid isPermaLink="false">foxanime-HcshcIbll7MII3jEQrlK-ep12</guid>
+            <pubDate>Fri, 10 Jul 2026 12:56:44 +0000</pubDate>
+            <category>Cartoon, Romance, Slice of Life</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/super-no-ura-de-yani-suu-futari.jpg" width="300" style="border-radius:8px;" alt="Super no Ura de Yani Suu Futari"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Super no Ura de Yani Suu Futari Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/HcshcIbll7MII3jEQrlK"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/super-no-ura-de-yani-suu-futari.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Tojima Wants to Be a Kamen Rider, Tojima Tanzaburo Wants to Be a Masked Rider</title>
+            <link>https://foxanime.top/#movie/IZbunnylDPKEtFbAMgaY</link>
+            <guid isPermaLink="false">foxanime-IZbunnylDPKEtFbAMgaY-ep12</guid>
+            <pubDate>Fri, 21 Nov 2025 14:01:10 +0000</pubDate>
+            <category>Action, Seinen, Super Power, Tokusatsu</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/toujima-tanzaburou-wa-kamen-rider-ni-naritai.jpg" width="300" style="border-radius:8px;" alt="Tojima Wants to Be a Kamen Rider, Tojima Tanzaburo Wants to Be a Masked Rider"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tojima Wants to Be a Kamen Rider, Tojima Tanzaburo Wants to Be a Masked Rider Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/IZbunnylDPKEtFbAMgaY"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/toujima-tanzaburou-wa-kamen-rider-ni-naritai.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 13] Mai Mối Cho Độc Sư</title>
+            <link>https://foxanime.top/#movie/J67PpmMUd1fnY1W650wt</link>
+            <guid isPermaLink="false">foxanime-J67PpmMUd1fnY1W650wt-ep13</guid>
+            <pubDate>Sun, 28 Jun 2026 16:15:10 +0000</pubDate>
+            <category>Action, Cartoon</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/7/mai-moi-cho-doc-su.jpg" width="300" style="border-radius:8px;" alt="Mai Mối Cho Độc Sư"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Mai Mối Cho Độc Sư Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/J67PpmMUd1fnY1W650wt"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/7/mai-moi-cho-doc-su.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Lớp Học Ám Sát: 365 Ngày</title>
+            <link>https://foxanime.top/#movie/JODp4lhqHIygglrJthqj</link>
+            <guid isPermaLink="false">foxanime-JODp4lhqHIygglrJthqj-ep1</guid>
+            <pubDate>Sun, 14 Dec 2025 11:01:02 +0000</pubDate>
+            <category>Action, Adventure, Boys Love, Cartoon, Comedy, Demons, Drama, Fantasy, Historical, Horror, Kids, Military, Romance, School, Sci-Fi, Shoujo, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/v5waYdxdV6oMBdXufNtSk1hidWZ.jpg" width="300" style="border-radius:8px;" alt="Lớp Học Ám Sát: 365 Ngày"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Lớp Học Ám Sát: 365 Ngày Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/JODp4lhqHIygglrJthqj"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/v5waYdxdV6oMBdXufNtSk1hidWZ.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 14] 86 Part 2</title>
+            <link>https://foxanime.top/#movie/JffZVyumVFS9QE6NMPsR</link>
+            <guid isPermaLink="false">foxanime-JffZVyumVFS9QE6NMPsR-ep14</guid>
+            <pubDate>Fri, 28 Nov 2025 17:07:12 +0000</pubDate>
+            <category>Adventure, Cartoon, Mecha, Sci-Fi</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3335.jpg" width="300" style="border-radius:8px;" alt="86 Part 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 86 Part 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/JffZVyumVFS9QE6NMPsR"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3335.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Nguyệt Đạo Dị Giới (Phần 1)</title>
+            <link>https://foxanime.top/#movie/Lsvv7zTa8Vupwe1XTvXE</link>
+            <guid isPermaLink="false">foxanime-Lsvv7zTa8Vupwe1XTvXE-ep12</guid>
+            <pubDate>Mon, 22 Dec 2025 01:47:39 +0000</pubDate>
+            <category>Adventure, Comedy, Harem</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3285.jpg" width="300" style="border-radius:8px;" alt="Nguyệt Đạo Dị Giới (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Nguyệt Đạo Dị Giới (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Lsvv7zTa8Vupwe1XTvXE"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3285.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Kono Subarashii Sekai ni Shukufuku wo! Movie: Kurenai Densetsu</title>
+            <link>https://foxanime.top/#movie/Mc5LExFnrXirekGB8gfY</link>
+            <guid isPermaLink="false">foxanime-Mc5LExFnrXirekGB8gfY-ep1</guid>
+            <pubDate>Sun, 28 Jun 2026 16:07:40 +0000</pubDate>
+            <category>Adventure, Cartoon, Comedy, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3003.jpg" width="300" style="border-radius:8px;" alt="Kono Subarashii Sekai ni Shukufuku wo! Movie: Kurenai Densetsu"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kono Subarashii Sekai ni Shukufuku wo! Movie: Kurenai Densetsu Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Mc5LExFnrXirekGB8gfY"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3003.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 20] Kage no Jitsuryokusha ni Naritakute!</title>
+            <link>https://foxanime.top/#movie/N3pIrUrqnOEQAEn7OztA</link>
+            <guid isPermaLink="false">foxanime-N3pIrUrqnOEQAEn7OztA-ep20</guid>
+            <pubDate>Thu, 25 Dec 2025 14:09:30 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/121869.jpg" width="300" style="border-radius:8px;" alt="Kage no Jitsuryokusha ni Naritakute!"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kage no Jitsuryokusha ni Naritakute! Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/N3pIrUrqnOEQAEn7OztA"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/121869.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 51] Song Sinh Võ Hồn</title>
+            <link>https://foxanime.top/#movie/NBwA36VpKgeF7rr9nHkp</link>
+            <guid isPermaLink="false">foxanime-NBwA36VpKgeF7rr9nHkp-ep51</guid>
+            <pubDate>Wed, 17 Dec 2025 06:48:42 +0000</pubDate>
+            <category>Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/song-sinh-vo-hon.jpg" width="300" style="border-radius:8px;" alt="Song Sinh Võ Hồn"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Song Sinh Võ Hồn Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/NBwA36VpKgeF7rr9nHkp"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/song-sinh-vo-hon.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 37] Tiến sĩ Đá (Phần 4)</title>
+            <link>https://foxanime.top/#movie/NgJcD4J7pwAYoJMPmFD2</link>
+            <guid isPermaLink="false">foxanime-NgJcD4J7pwAYoJMPmFD2-ep37</guid>
+            <pubDate>Sun, 28 Jun 2026 16:01:43 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Phim Hài, Khoa Học Viễn Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/5/dr-stone-4th-season.jpg" width="300" style="border-radius:8px;" alt="Tiến sĩ Đá (Phần 4)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiến sĩ Đá (Phần 4) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/NgJcD4J7pwAYoJMPmFD2"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/5/dr-stone-4th-season.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 26] Aquarion Evol</title>
+            <link>https://foxanime.top/#movie/Nl3pwE0HteKhB2K8TdpM</link>
+            <guid isPermaLink="false">foxanime-Nl3pwE0HteKhB2K8TdpM-ep26</guid>
+            <pubDate>Mon, 22 Dec 2025 01:44:38 +0000</pubDate>
+            <category>Action, Adventure, Mecha, Sci-Fi</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2092.jpg" width="300" style="border-radius:8px;" alt="Aquarion Evol"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Aquarion Evol Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Nl3pwE0HteKhB2K8TdpM"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2092.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 11] Kono Subarashii Sekai ni Shukufuku wo! 3</title>
+            <link>https://foxanime.top/#movie/NqihRhbKXYuWYHP3UhpI</link>
+            <guid isPermaLink="false">foxanime-NqihRhbKXYuWYHP3UhpI-ep11</guid>
+            <pubDate>Sun, 28 Jun 2026 16:06:39 +0000</pubDate>
+            <category>Phiêu Lưu, Hoạt Hình, Phim Hài, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/141268.jpg" width="300" style="border-radius:8px;" alt="Kono Subarashii Sekai ni Shukufuku wo! 3"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kono Subarashii Sekai ni Shukufuku wo! 3 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/NqihRhbKXYuWYHP3UhpI"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/141268.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 10] Kono Subarashii Sekai ni Shukufuku wo! 2</title>
+            <link>https://foxanime.top/#movie/O4mhMxqdvwjtYOrWXwfC</link>
+            <guid isPermaLink="false">foxanime-O4mhMxqdvwjtYOrWXwfC-ep10</guid>
+            <pubDate>Sun, 28 Jun 2026 16:05:57 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/1762.jpg" width="300" style="border-radius:8px;" alt="Kono Subarashii Sekai ni Shukufuku wo! 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kono Subarashii Sekai ni Shukufuku wo! 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/O4mhMxqdvwjtYOrWXwfC"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/1762.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Sắp Chiếu] Re:Zero kara Hajimeru Isekai Seikatsu - Memory Snow</title>
+            <link>https://foxanime.top/#movie/OQesY4ev1QiueG3KY5GQ</link>
+            <guid isPermaLink="false">foxanime-OQesY4ev1QiueG3KY5GQ-ep0</guid>
+            <pubDate>Sat, 05 Sep 2026 16:32:55 +0000</pubDate>
+            <category>Cartoon</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2815.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu - Memory Snow"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu - Memory Snow Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/OQesY4ev1QiueG3KY5GQ"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2815.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 10] Kono Subarashii Sekai ni Shukufuku wo!</title>
+            <link>https://foxanime.top/#movie/OXSgJhEvqq3OuVVsnJ3n</link>
+            <guid isPermaLink="false">foxanime-OXSgJhEvqq3OuVVsnJ3n-ep10</guid>
+            <pubDate>Sun, 28 Jun 2026 16:04:44 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/313.jpg" width="300" style="border-radius:8px;" alt="Kono Subarashii Sekai ni Shukufuku wo!"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kono Subarashii Sekai ni Shukufuku wo! Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/OXSgJhEvqq3OuVVsnJ3n"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/313.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Ta Muốn Trở Thành Chúa Tể Bóng Tối Phần 2</title>
+            <link>https://foxanime.top/#movie/OzRBGbDrEwjFKWZ5NKOH</link>
+            <guid isPermaLink="false">foxanime-OzRBGbDrEwjFKWZ5NKOH-ep12</guid>
+            <pubDate>Mon, 22 Dec 2025 02:12:32 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/138295.jpg" width="300" style="border-radius:8px;" alt="Ta Muốn Trở Thành Chúa Tể Bóng Tối Phần 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Ta Muốn Trở Thành Chúa Tể Bóng Tối Phần 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/OzRBGbDrEwjFKWZ5NKOH"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/138295.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 2)</title>
+            <link>https://foxanime.top/#movie/PvbuB4X7Ial7yDFORBYv</link>
+            <guid isPermaLink="false">foxanime-PvbuB4X7Ial7yDFORBYv-ep12</guid>
+            <pubDate>Mon, 31 Aug 2026 11:55:30 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/9/100-co-ban-gai-yeu-ban-rat-rat-rat-rat-rat-nhieu-phan-2.jpg" width="300" style="border-radius:8px;" alt="100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 2)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 100 Cô Bạn Gái Yêu Bạn Rất Rất Rất Rất Rất Nhiều (Phần 2) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/PvbuB4X7Ial7yDFORBYv"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/9/100-co-ban-gai-yeu-ban-rat-rat-rat-rat-rat-nhieu-phan-2.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Sắp Chiếu] Re:Zero kara Hajimeru Isekai Seikatsu - Hyouketsu no Kizuna</title>
+            <link>https://foxanime.top/#movie/PxYlm5RklLg1uAib4mCM</link>
+            <guid isPermaLink="false">foxanime-PxYlm5RklLg1uAib4mCM-ep0</guid>
+            <pubDate>Sat, 05 Sep 2026 16:32:59 +0000</pubDate>
+            <category>Cartoon</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3039.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu - Hyouketsu no Kizuna"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu - Hyouketsu no Kizuna Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/PxYlm5RklLg1uAib4mCM"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3039.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 13] Xưởng Phép Thuật</title>
+            <link>https://foxanime.top/#movie/QdQL4lby2k88k6IlX0ha</link>
+            <guid isPermaLink="false">foxanime-QdQL4lby2k88k6IlX0ha-ep13</guid>
+            <pubDate>Fri, 10 Jul 2026 13:03:33 +0000</pubDate>
+            <category>Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/5/xuong-phep-thuat.jpg" width="300" style="border-radius:8px;" alt="Xưởng Phép Thuật"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Xưởng Phép Thuật Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/QdQL4lby2k88k6IlX0ha"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/5/xuong-phep-thuat.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Kizoku Tensei: Megumareta Umare kara Saikyou no Chikara wo Eru</title>
+            <link>https://foxanime.top/#movie/Qxf0nBsH7lFgWZbFpxln</link>
+            <guid isPermaLink="false">foxanime-Qxf0nBsH7lFgWZbFpxln-ep12</guid>
+            <pubDate>Wed, 25 Mar 2026 14:43:56 +0000</pubDate>
+            <category>Action, Adventure, Fantasy, Harem, Martial Arts</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/kizoku-tensei-megumareta-umare-kara-saikyou-no-chikara-wo-eru.jpg" width="300" style="border-radius:8px;" alt="Kizoku Tensei: Megumareta Umare kara Saikyou no Chikara wo Eru"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Kizoku Tensei: Megumareta Umare kara Saikyou no Chikara wo Eru Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Qxf0nBsH7lFgWZbFpxln"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/kizoku-tensei-megumareta-umare-kara-saikyou-no-chikara-wo-eru.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Grand Blue</title>
+            <link>https://foxanime.top/#movie/RngkdShQJzrJCu9KApFM</link>
+            <guid isPermaLink="false">foxanime-RngkdShQJzrJCu9KApFM-ep12</guid>
+            <pubDate>Thu, 13 Aug 2026 12:24:24 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2595.jpg" width="300" style="border-radius:8px;" alt="Grand Blue"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Grand Blue Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/RngkdShQJzrJCu9KApFM"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2595.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 47] Lớp Học Ám Sát</title>
+            <link>https://foxanime.top/#movie/RwSXoPpYxcDJEJkUsxZh</link>
+            <guid isPermaLink="false">foxanime-RwSXoPpYxcDJEJkUsxZh-ep47</guid>
+            <pubDate>Sun, 14 Dec 2025 10:59:18 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/110.jpg" width="300" style="border-radius:8px;" alt="Lớp Học Ám Sát"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Lớp Học Ám Sát Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/RwSXoPpYxcDJEJkUsxZh"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/110.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 14] Pacific Rim: Vùng Tối</title>
+            <link>https://foxanime.top/#movie/T3D2HseKPLAMJPQ14jPf</link>
+            <guid isPermaLink="false">foxanime-T3D2HseKPLAMJPQ14jPf-ep14</guid>
+            <pubDate>Thu, 09 Jul 2026 14:54:48 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Khoa Học Viễn Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3200.jpg" width="300" style="border-radius:8px;" alt="Pacific Rim: Vùng Tối"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Pacific Rim: Vùng Tối Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/T3D2HseKPLAMJPQ14jPf"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3200.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Boku no Pico</title>
+            <link>https://foxanime.top/#movie/TTC4dYeSLAMEZC2tHCcW</link>
+            <guid isPermaLink="false">foxanime-TTC4dYeSLAMEZC2tHCcW-ep1</guid>
+            <pubDate>Mon, 29 Dec 2025 00:33:48 +0000</pubDate>
+            <category>Action, Boys Love, Cartoon, Comedy, Dementia, Demons, Drama, Harem, Horror, Kids, Magic, Mystery</category>
+            <description>&lt;p&gt;&lt;img src="https://upload.wikimedia.org/wikipedia/vi/f/f8/Bokunopico.jpg" width="300" style="border-radius:8px;" alt="Boku no Pico"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Boku no Pico Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/TTC4dYeSLAMEZC2tHCcW"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://upload.wikimedia.org/wikipedia/vi/f/f8/Bokunopico.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Class de 2-banme ni Kawaii Onnanoko to Tomodachi ni Natta</title>
+            <link>https://foxanime.top/#movie/Ta8268sVcmrcLzzDrBQE</link>
+            <guid isPermaLink="false">foxanime-Ta8268sVcmrcLzzDrBQE-ep12</guid>
+            <pubDate>Wed, 24 Jun 2026 15:36:00 +0000</pubDate>
+            <category>Hoạt Hình, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/8/class-de-2-banme-ni-kawaii-onnanoko-to-tomodachi-ni-natta.jpg" width="300" style="border-radius:8px;" alt="Class de 2-banme ni Kawaii Onnanoko to Tomodachi ni Natta"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Class de 2-banme ni Kawaii Onnanoko to Tomodachi ni Natta Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Ta8268sVcmrcLzzDrBQE"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/8/class-de-2-banme-ni-kawaii-onnanoko-to-tomodachi-ni-natta.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Cô Giáo Mỏng Manh</title>
+            <link>https://foxanime.top/#movie/Tj0WqhP8Q3s1pZK2jXPN</link>
+            <guid isPermaLink="false">foxanime-Tj0WqhP8Q3s1pZK2jXPN-ep12</guid>
+            <pubDate>Sun, 28 Jun 2026 15:56:03 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/co-giao-mong-manh.jpg" width="300" style="border-radius:8px;" alt="Cô Giáo Mỏng Manh"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Cô Giáo Mỏng Manh Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Tj0WqhP8Q3s1pZK2jXPN"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/co-giao-mong-manh.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 24] Tiến sĩ Đá (Phần 1)</title>
+            <link>https://foxanime.top/#movie/TyG1oKeZoHWyvvxwAamL</link>
+            <guid isPermaLink="false">foxanime-TyG1oKeZoHWyvvxwAamL-ep24</guid>
+            <pubDate>Sun, 28 Jun 2026 15:58:19 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Khoa Học Viễn Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2826.jpg" width="300" style="border-radius:8px;" alt="Tiến sĩ Đá (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiến sĩ Đá (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/TyG1oKeZoHWyvvxwAamL"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2826.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Thiếu Nữ Quái Vật Caramelise</title>
+            <link>https://foxanime.top/#movie/V41EOzRPY5ygjYEJdlnj</link>
+            <guid isPermaLink="false">foxanime-V41EOzRPY5ygjYEJdlnj-ep1</guid>
+            <pubDate>Fri, 10 Jul 2026 12:59:40 +0000</pubDate>
+            <category>Cartoon, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/3/thieu-nu-quai-vat-caramelise.jpg" width="300" style="border-radius:8px;" alt="Thiếu Nữ Quái Vật Caramelise"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Thiếu Nữ Quái Vật Caramelise Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/V41EOzRPY5ygjYEJdlnj"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/3/thieu-nu-quai-vat-caramelise.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Quang Âm Chi Ngoại (Vượt Ranh Giới Thời Gian)</title>
+            <link>https://foxanime.top/#movie/VPqdQkgNmHnZq4YOnl06</link>
+            <guid isPermaLink="false">foxanime-VPqdQkgNmHnZq4YOnl06-ep1</guid>
+            <pubDate>Wed, 24 Jun 2026 15:03:07 +0000</pubDate>
+            <category>Action, Adventure, Cartoon</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/8/quang-am-chi-ngoai-vuot-ranh-gioi-thoi-gian.jpg" width="300" style="border-radius:8px;" alt="Quang Âm Chi Ngoại (Vượt Ranh Giới Thời Gian)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Quang Âm Chi Ngoại (Vượt Ranh Giới Thời Gian) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/VPqdQkgNmHnZq4YOnl06"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/8/quang-am-chi-ngoai-vuot-ranh-gioi-thoi-gian.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 24] Vong Linh Đau Khổ Muốn Giải Nghệ</title>
+            <link>https://foxanime.top/#movie/VSczXMUicrCD5ragj0kv</link>
+            <guid isPermaLink="false">foxanime-VSczXMUicrCD5ragj0kv-ep24</guid>
+            <pubDate>Sun, 16 Nov 2025 06:49:28 +0000</pubDate>
+            <category>Action, Adventure, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/145660.jpg" width="300" style="border-radius:8px;" alt="Vong Linh Đau Khổ Muốn Giải Nghệ"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Vong Linh Đau Khổ Muốn Giải Nghệ Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/VSczXMUicrCD5ragj0kv"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/145660.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] 5-toubun no Hanayome*</title>
+            <link>https://foxanime.top/#movie/VUNDqixnHzMxoIZZTvBy</link>
+            <guid isPermaLink="false">foxanime-VUNDqixnHzMxoIZZTvBy-ep2</guid>
+            <pubDate>Thu, 25 Dec 2025 09:55:56 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/1/5-toubun-no-hanayome-special-2.jpg" width="300" style="border-radius:8px;" alt="5-toubun no Hanayome*"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 5-toubun no Hanayome* Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/VUNDqixnHzMxoIZZTvBy"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/1/5-toubun-no-hanayome-special-2.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 164] Tiên Võ Đế Tôn</title>
+            <link>https://foxanime.top/#movie/Vje4INoxVjGxnNNJNqQU</link>
+            <guid isPermaLink="false">foxanime-Vje4INoxVjGxnNNJNqQU-ep164</guid>
+            <pubDate>Wed, 25 Mar 2026 14:45:29 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/543445456.jpg" width="300" style="border-radius:8px;" alt="Tiên Võ Đế Tôn"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiên Võ Đế Tôn Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Vje4INoxVjGxnNNJNqQU"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/543445456.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Lv999 no Murabito</title>
+            <link>https://foxanime.top/#movie/XRuq1gJFKWYSjQ6GmZw7</link>
+            <guid isPermaLink="false">foxanime-XRuq1gJFKWYSjQ6GmZw7-ep1</guid>
+            <pubDate>Thu, 09 Jul 2026 13:43:21 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Comedy, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/3/lv999-no-murabito.jpg" width="300" style="border-radius:8px;" alt="Lv999 no Murabito"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Lv999 no Murabito Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/XRuq1gJFKWYSjQ6GmZw7"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/3/lv999-no-murabito.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Isekai Nonbiri Nouka 2</title>
+            <link>https://foxanime.top/#movie/Y6tpn2ZAP4zYy7JSm9IG</link>
+            <guid isPermaLink="false">foxanime-Y6tpn2ZAP4zYy7JSm9IG-ep12</guid>
+            <pubDate>Wed, 24 Jun 2026 15:38:38 +0000</pubDate>
+            <category>Phiêu Lưu, Hoạt Hình, Phim Hài</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/6/isekai-nonbiri-nouka-2.jpg" width="300" style="border-radius:8px;" alt="Isekai Nonbiri Nouka 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Isekai Nonbiri Nouka 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Y6tpn2ZAP4zYy7JSm9IG"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/6/isekai-nonbiri-nouka-2.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 13] Tôi Có Thể Thỉnh Cầu Một Điều Cuối Cùng Không?</title>
+            <link>https://foxanime.top/#movie/YFAHIAPUdgU5AJ7aJh3D</link>
+            <guid isPermaLink="false">foxanime-YFAHIAPUdgU5AJ7aJh3D-ep13</guid>
+            <pubDate>Sat, 15 Nov 2025 15:38:15 +0000</pubDate>
+            <category>Action, Comedy, Josei, Romance</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/10/toi-co-the-thinh-cau-mot-dieu-cuoi-cung-khong.jpg" width="300" style="border-radius:8px;" alt="Tôi Có Thể Thỉnh Cầu Một Điều Cuối Cùng Không?"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tôi Có Thể Thỉnh Cầu Một Điều Cuối Cùng Không? Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/YFAHIAPUdgU5AJ7aJh3D"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/10/toi-co-the-thinh-cau-mot-dieu-cuoi-cung-khong.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 26] Macross Delta</title>
+            <link>https://foxanime.top/#movie/Yd84GydJ5K7INRZtxwsa</link>
+            <guid isPermaLink="false">foxanime-Yd84GydJ5K7INRZtxwsa-ep26</guid>
+            <pubDate>Mon, 22 Dec 2025 01:41:12 +0000</pubDate>
+            <category>Action, Fantasy, Mecha, Sci-Fi, Seinen</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/445.jpg" width="300" style="border-radius:8px;" alt="Macross Delta"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Macross Delta Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/Yd84GydJ5K7INRZtxwsa"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/445.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] 5-toubun no Hanayome∽</title>
+            <link>https://foxanime.top/#movie/agbYnn81N6xR5LY2qCSC</link>
+            <guid isPermaLink="false">foxanime-agbYnn81N6xR5LY2qCSC-ep2</guid>
+            <pubDate>Sun, 30 Nov 2025 04:24:42 +0000</pubDate>
+            <category>Comedy, Harem, Romance, School</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/135752.jpg" width="300" style="border-radius:8px;" alt="5-toubun no Hanayome∽"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 5-toubun no Hanayome∽ Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/agbYnn81N6xR5LY2qCSC"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/135752.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 14] Aquarion Logos</title>
+            <link>https://foxanime.top/#movie/bRt9yzWbd3WAGQl5MoB4</link>
+            <guid isPermaLink="false">foxanime-bRt9yzWbd3WAGQl5MoB4-ep14</guid>
+            <pubDate>Mon, 22 Dec 2025 01:45:11 +0000</pubDate>
+            <category>Action, Adventure, Harem, Mecha, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/74989.jpg" width="300" style="border-radius:8px;" alt="Aquarion Logos"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Aquarion Logos Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/bRt9yzWbd3WAGQl5MoB4"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/74989.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 25] Cross Ange: Tenshi to Ryuu no Rondo</title>
+            <link>https://foxanime.top/#movie/bafe7cMcj8Zjbo546VqQ</link>
+            <guid isPermaLink="false">foxanime-bafe7cMcj8Zjbo546VqQ-ep25</guid>
+            <pubDate>Mon, 22 Dec 2025 01:46:49 +0000</pubDate>
+            <category>Action, Fantasy, Mecha, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/686.jpg" width="300" style="border-radius:8px;" alt="Cross Ange: Tenshi to Ryuu no Rondo"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Cross Ange: Tenshi to Ryuu no Rondo Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/bafe7cMcj8Zjbo546VqQ"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/686.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Tôi Đã Chuyển Sinh Thành Slime: Nhật Ký Của Rimuru</title>
+            <link>https://foxanime.top/#movie/bhWzh255jRQba1qJV9Ga</link>
+            <guid isPermaLink="false">foxanime-bhWzh255jRQba1qJV9Ga-ep12</guid>
+            <pubDate>Sun, 30 Nov 2025 04:14:09 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Comedy, Harem, Kids, Magic</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3221.jpg" width="300" style="border-radius:8px;" alt="Tôi Đã Chuyển Sinh Thành Slime: Nhật Ký Của Rimuru"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tôi Đã Chuyển Sinh Thành Slime: Nhật Ký Của Rimuru Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/bhWzh255jRQba1qJV9Ga"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3221.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] Thám Tử Lừng Danh Conan</title>
+            <link>https://foxanime.top/#movie/bw131M4C9a32k7SLFPRo</link>
+            <guid isPermaLink="false">foxanime-bw131M4C9a32k7SLFPRo-ep2</guid>
+            <pubDate>Sat, 05 Sep 2026 03:04:47 +0000</pubDate>
+            <category>Hoạt Hình, Hình Sự, Chính Kịch</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/375.jpg" width="300" style="border-radius:8px;" alt="Thám Tử Lừng Danh Conan"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Thám Tử Lừng Danh Conan Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/bw131M4C9a32k7SLFPRo"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/375.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 131] Bảy Viên Ngọc Rồng Siêu Cấp</title>
+            <link>https://foxanime.top/#movie/bxIntKhNF9dHrFaWXT5f</link>
+            <guid isPermaLink="false">foxanime-bxIntKhNF9dHrFaWXT5f-ep131</guid>
+            <pubDate>Mon, 01 Dec 2025 02:36:38 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3.jpg" width="300" style="border-radius:8px;" alt="Bảy Viên Ngọc Rồng Siêu Cấp"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Bảy Viên Ngọc Rồng Siêu Cấp Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/bxIntKhNF9dHrFaWXT5f"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 27] Tuyệt Thế Thần Hoàng</title>
+            <link>https://foxanime.top/#movie/ck6kQXmEF1mRZbnpR5Y6</link>
+            <guid isPermaLink="false">foxanime-ck6kQXmEF1mRZbnpR5Y6-ep27</guid>
+            <pubDate>Sun, 30 Nov 2025 04:23:49 +0000</pubDate>
+            <category>Action, Adventure, Harem, Martial Arts</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/tuyet-the-than-hoang.jpg" width="300" style="border-radius:8px;" alt="Tuyệt Thế Thần Hoàng"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tuyệt Thế Thần Hoàng Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/ck6kQXmEF1mRZbnpR5Y6"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/tuyet-the-than-hoang.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Mở Ra Một Thế Giới Tuyệt Vời: Truyền Thuyết Đỏ</title>
+            <link>https://foxanime.top/#movie/dcbIwqrIo9y9Z1Q6QsYj</link>
+            <guid isPermaLink="false">foxanime-dcbIwqrIo9y9Z1Q6QsYj-ep1</guid>
+            <pubDate>Sun, 28 Jun 2026 16:10:18 +0000</pubDate>
+            <category>Adventure, Cartoon, Comedy, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/paPEULn3SddHe7PlK2Bjod6g9z2.jpg" width="300" style="border-radius:8px;" alt="Mở Ra Một Thế Giới Tuyệt Vời: Truyền Thuyết Đỏ"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Mở Ra Một Thế Giới Tuyệt Vời: Truyền Thuyết Đỏ Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/dcbIwqrIo9y9Z1Q6QsYj"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/paPEULn3SddHe7PlK2Bjod6g9z2.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Dáng Hình Thanh Âm</title>
+            <link>https://foxanime.top/#movie/fhUzlmc1ztRThziXEanE</link>
+            <guid isPermaLink="false">foxanime-fhUzlmc1ztRThziXEanE-ep1</guid>
+            <pubDate>Fri, 28 Nov 2025 15:49:22 +0000</pubDate>
+            <category>Cartoon, Comedy, Romance</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/aqri8up06zMaCn0oyYcZporiwj3.jpg" width="300" style="border-radius:8px;" alt="Dáng Hình Thanh Âm"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Dáng Hình Thanh Âm Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/fhUzlmc1ztRThziXEanE"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/aqri8up06zMaCn0oyYcZporiwj3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 25] Thất Nghiệp Chuyển Sinh (Phần 2)</title>
+            <link>https://foxanime.top/#movie/gKRWEDKHJTk1f6W2HbAs</link>
+            <guid isPermaLink="false">foxanime-gKRWEDKHJTk1f6W2HbAs-ep25</guid>
+            <pubDate>Fri, 10 Jul 2026 13:07:54 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/136728.jpg" width="300" style="border-radius:8px;" alt="Thất Nghiệp Chuyển Sinh (Phần 2)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Thất Nghiệp Chuyển Sinh (Phần 2) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/gKRWEDKHJTk1f6W2HbAs"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/136728.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Katainaka no Ossan, Kensei ni Naru II</title>
+            <link>https://foxanime.top/#movie/gQyCp356BUM3u9sIGtfb</link>
+            <guid isPermaLink="false">foxanime-gQyCp356BUM3u9sIGtfb-ep1</guid>
+            <pubDate>Thu, 09 Jul 2026 14:50:27 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/8/katainaka-no-ossan-kensei-ni-naru-ii.jpg" width="300" style="border-radius:8px;" alt="Katainaka no Ossan, Kensei ni Naru II"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Katainaka no Ossan, Kensei ni Naru II Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/gQyCp356BUM3u9sIGtfb"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/8/katainaka-no-ossan-kensei-ni-naru-ii.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 44] Ẩm thực dã ngoại tại dị giới với kỹ năng không tưởng</title>
+            <link>https://foxanime.top/#movie/gnZXkc0ApJDby0rujw1M</link>
+            <guid isPermaLink="false">foxanime-gnZXkc0ApJDby0rujw1M-ep44</guid>
+            <pubDate>Wed, 19 Nov 2025 14:15:04 +0000</pubDate>
+            <category>Adventure, Fantasy, Magic, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://image.tmdb.org/t/p/original/cXc3yiQ5RrimzfucovjO83RTrnq.jpg" width="300" style="border-radius:8px;" alt="Ẩm thực dã ngoại tại dị giới với kỹ năng không tưởng"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Ẩm thực dã ngoại tại dị giới với kỹ năng không tưởng Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/gnZXkc0ApJDby0rujw1M"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://image.tmdb.org/t/p/original/cXc3yiQ5RrimzfucovjO83RTrnq.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Công Chúa Chiến Binh Và Vua Dã Nhân</title>
+            <link>https://foxanime.top/#movie/hcP3MZ0sD2hGC7YcWOCH</link>
+            <guid isPermaLink="false">foxanime-hcP3MZ0sD2hGC7YcWOCH-ep12</guid>
+            <pubDate>Sun, 28 Jun 2026 15:52:27 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/cong-chua-chien-binh-va-vua-da-nhan.jpg" width="300" style="border-radius:8px;" alt="Công Chúa Chiến Binh Và Vua Dã Nhân"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Công Chúa Chiến Binh Và Vua Dã Nhân Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/hcP3MZ0sD2hGC7YcWOCH"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/cong-chua-chien-binh-va-vua-da-nhan.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 108] Bách Luyện Thành Thần</title>
+            <link>https://foxanime.top/#movie/i6hllKydlOGtQuIX4b3o</link>
+            <guid isPermaLink="false">foxanime-i6hllKydlOGtQuIX4b3o-ep108</guid>
+            <pubDate>Wed, 17 Dec 2025 06:50:32 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/64117.jpg" width="300" style="border-radius:8px;" alt="Bách Luyện Thành Thần"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Bách Luyện Thành Thần Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/i6hllKydlOGtQuIX4b3o"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/64117.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Hiên Sau Siêu Thị, Muộn Phiền Bay Đi</title>
+            <link>https://foxanime.top/#movie/iFYhEhjgvvMPLcrlTs9d</link>
+            <guid isPermaLink="false">foxanime-iFYhEhjgvvMPLcrlTs9d-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:06:18 +0000</pubDate>
+            <category>Hoạt Hình, Lãng Mạn</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/super-no-ura-de-yani-suu-futari.jpg" width="300" style="border-radius:8px;" alt="Hiên Sau Siêu Thị, Muộn Phiền Bay Đi"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Hiên Sau Siêu Thị, Muộn Phiền Bay Đi Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/iFYhEhjgvvMPLcrlTs9d"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/super-no-ura-de-yani-suu-futari.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 78] Spy x family</title>
+            <link>https://foxanime.top/#movie/j4fwAxUIqOdLNsNFgKWm</link>
+            <guid isPermaLink="false">foxanime-j4fwAxUIqOdLNsNFgKWm-ep78</guid>
+            <pubDate>Sat, 22 Nov 2025 02:29:49 +0000</pubDate>
+            <category>Action, Cartoon, Fantasy, Kids, School</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/gia-dinh-diep-vien-phan-3.jpg" width="300" style="border-radius:8px;" alt="Spy x family"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Spy x family Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/j4fwAxUIqOdLNsNFgKWm"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/gia-dinh-diep-vien-phan-3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 22] Tiến sĩ Đá (Phần 3)</title>
+            <link>https://foxanime.top/#movie/jdZMZqEaj2b4PYfPoKt1</link>
+            <guid isPermaLink="false">foxanime-jdZMZqEaj2b4PYfPoKt1-ep22</guid>
+            <pubDate>Sun, 28 Jun 2026 16:00:27 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Khoa Học Viễn Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/131775.jpg" width="300" style="border-radius:8px;" alt="Tiến sĩ Đá (Phần 3)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tiến sĩ Đá (Phần 3) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/jdZMZqEaj2b4PYfPoKt1"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/131775.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Thất Nghiệp Chuyển Sinh (Phần 3)</title>
+            <link>https://foxanime.top/#movie/jfT58S1lg9zTBKRXYP8y</link>
+            <guid isPermaLink="false">foxanime-jfT58S1lg9zTBKRXYP8y-ep1</guid>
+            <pubDate>Fri, 10 Jul 2026 13:08:40 +0000</pubDate>
+            <category>Action, Adventure, Drama, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/that-nghiep-chuyen-sinh-phan-3.jpg" width="300" style="border-radius:8px;" alt="Thất Nghiệp Chuyển Sinh (Phần 3)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Thất Nghiệp Chuyển Sinh (Phần 3) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/jfT58S1lg9zTBKRXYP8y"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/that-nghiep-chuyen-sinh-phan-3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 2] Pokemon (2023)</title>
+            <link>https://foxanime.top/#movie/jh76f7bLBPfEILo3aC4a</link>
+            <guid isPermaLink="false">foxanime-jh76f7bLBPfEILo3aC4a-ep2</guid>
+            <pubDate>Sun, 28 Jun 2026 15:54:45 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/133946.jpg" width="300" style="border-radius:8px;" alt="Pokemon (2023)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Pokemon (2023) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/jh76f7bLBPfEILo3aC4a"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/133946.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Ác Nữ Nửa Vời</title>
+            <link>https://foxanime.top/#movie/jjnKNSx07GoYTpYujZEm</link>
+            <guid isPermaLink="false">foxanime-jjnKNSx07GoYTpYujZEm-ep1</guid>
+            <pubDate>Mon, 07 Sep 2026 02:47:07 +0000</pubDate>
+            <category>Hoạt Hình, Chính Kịch, Giả Tưởng, Lãng Mạn, Tình Cảm</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/ac-nu-nua-voi.jpg" width="300" style="border-radius:8px;" alt="Ác Nữ Nửa Vời"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Ác Nữ Nửa Vời Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/jjnKNSx07GoYTpYujZEm"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/ac-nu-nua-voi.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Break Time 2nd Season</title>
+            <link>https://foxanime.top/#movie/k3dtYudOxujoIqWNUf2V</link>
+            <guid isPermaLink="false">foxanime-k3dtYudOxujoIqWNUf2V-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:03 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3069.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Break Time 2nd Season"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Break Time 2nd Season Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/k3dtYudOxujoIqWNUf2V"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3069.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Grand Blue Season 2</title>
+            <link>https://foxanime.top/#movie/kEr3M0ce78rR9OOawkHp</link>
+            <guid isPermaLink="false">foxanime-kEr3M0ce78rR9OOawkHp-ep12</guid>
+            <pubDate>Thu, 13 Aug 2026 12:25:35 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/grand-blue-season-2.jpg" width="300" style="border-radius:8px;" alt="Grand Blue Season 2"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Grand Blue Season 2 Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/kEr3M0ce78rR9OOawkHp"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/grand-blue-season-2.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] 5-toubun no Hanayome</title>
+            <link>https://foxanime.top/#movie/keJcKgQP3lvEps7IsdV0</link>
+            <guid isPermaLink="false">foxanime-keJcKgQP3lvEps7IsdV0-ep12</guid>
+            <pubDate>Thu, 25 Dec 2025 09:57:37 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2736.jpg" width="300" style="border-radius:8px;" alt="5-toubun no Hanayome"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 5-toubun no Hanayome Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/keJcKgQP3lvEps7IsdV0"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2736.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] 5-toubun no Hanayome ∬</title>
+            <link>https://foxanime.top/#movie/ko3SYVDMUv38Oed76ZcF</link>
+            <guid isPermaLink="false">foxanime-ko3SYVDMUv38Oed76ZcF-ep12</guid>
+            <pubDate>Thu, 25 Dec 2025 09:57:05 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3154.jpg" width="300" style="border-radius:8px;" alt="5-toubun no Hanayome ∬"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim 5-toubun no Hanayome ∬ Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/ko3SYVDMUv38Oed76ZcF"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3154.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 13] Từ tầm thường đến bất khả chiến bại</title>
+            <link>https://foxanime.top/#movie/lKeYcgRGNmntptEinwFy</link>
+            <guid isPermaLink="false">foxanime-lKeYcgRGNmntptEinwFy-ep13</guid>
+            <pubDate>Wed, 19 Nov 2025 14:05:41 +0000</pubDate>
+            <category>Action, Adventure, Fantasy, Harem</category>
+            <description>&lt;p&gt;&lt;img src="https://i.imgur.com/Q99M0L5.png" width="300" style="border-radius:8px;" alt="Từ tầm thường đến bất khả chiến bại"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Từ tầm thường đến bất khả chiến bại Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/lKeYcgRGNmntptEinwFy"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://i.imgur.com/Q99M0L5.png" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Ushiro no Shoumen Kamui-san</title>
+            <link>https://foxanime.top/#movie/nYz1fqinef1ThNgqftQ6</link>
+            <guid isPermaLink="false">foxanime-nYz1fqinef1ThNgqftQ6-ep1</guid>
+            <pubDate>Mon, 31 Aug 2026 11:58:41 +0000</pubDate>
+            <category>Cartoon, Comedy, Ecchi, Fantasy, Supernatural</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/10/ushiro-no-shoumen-kamui-san.jpg" width="300" style="border-radius:8px;" alt="Ushiro no Shoumen Kamui-san"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Ushiro no Shoumen Kamui-san Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/nYz1fqinef1ThNgqftQ6"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/10/ushiro-no-shoumen-kamui-san.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season</title>
+            <link>https://foxanime.top/#movie/nrShYpZ8GA1XSFATOQDk</link>
+            <guid isPermaLink="false">foxanime-nrShYpZ8GA1XSFATOQDk-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:18 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/108005.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/nrShYpZ8GA1XSFATOQDk"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/108005.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Siêu Đại Chiến</title>
+            <link>https://foxanime.top/#movie/oVCCioohgISlPhVOZWKT</link>
+            <guid isPermaLink="false">foxanime-oVCCioohgISlPhVOZWKT-ep1</guid>
+            <pubDate>Thu, 16 Jul 2026 02:55:43 +0000</pubDate>
+            <category>Action</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/aJLJkeJM9F6hUnD5yTsETQrPP5o.jpg" width="300" style="border-radius:8px;" alt="Siêu Đại Chiến"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Siêu Đại Chiến Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/oVCCioohgISlPhVOZWKT"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/aJLJkeJM9F6hUnD5yTsETQrPP5o.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 5] Tensei shitara Slime Datta Ken OVA</title>
+            <link>https://foxanime.top/#movie/pRQktkbGyRBg37KEza02</link>
+            <guid isPermaLink="false">foxanime-pRQktkbGyRBg37KEza02-ep5</guid>
+            <pubDate>Sun, 14 Dec 2025 11:04:00 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3194.jpg" width="300" style="border-radius:8px;" alt="Tensei shitara Slime Datta Ken OVA"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Tensei shitara Slime Datta Ken OVA Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/pRQktkbGyRBg37KEza02"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3194.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 34] Vạn Cổ Kiếm Đế</title>
+            <link>https://foxanime.top/#movie/pvKDYu7BCIBrrSL3rl21</link>
+            <guid isPermaLink="false">foxanime-pvKDYu7BCIBrrSL3rl21-ep34</guid>
+            <pubDate>Sun, 30 Nov 2025 04:22:10 +0000</pubDate>
+            <category>Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/9/van-co-kiem-de.jpg" width="300" style="border-radius:8px;" alt="Vạn Cổ Kiếm Đế"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Vạn Cổ Kiếm Đế Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/pvKDYu7BCIBrrSL3rl21"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/9/van-co-kiem-de.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Mắc Kẹt Trong Game Hẹn Hò: Thế Giới Game Otome Thật Khắc Nghiệt Với Nhân Vật Quần Chúng (Phần 1)</title>
+            <link>https://foxanime.top/#movie/qYOCvVD8AoKhKZpkzcz2</link>
+            <guid isPermaLink="false">foxanime-qYOCvVD8AoKhKZpkzcz2-ep12</guid>
+            <pubDate>Thu, 09 Jul 2026 13:41:26 +0000</pubDate>
+            <category>Hoạt Hình, Giả Tưởng, Lãng Mạn</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3470.jpg" width="300" style="border-radius:8px;" alt="Mắc Kẹt Trong Game Hẹn Hò: Thế Giới Game Otome Thật Khắc Nghiệt Với Nhân Vật Quần Chúng (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Mắc Kẹt Trong Game Hẹn Hò: Thế Giới Game Otome Thật Khắc Nghiệt Với Nhân Vật Quần Chúng (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/qYOCvVD8AoKhKZpkzcz2"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3470.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 24] Thất Nghiệp Chuyển Sinh (Phần 1)</title>
+            <link>https://foxanime.top/#movie/qkW8LdRumd3sRP0mabNR</link>
+            <guid isPermaLink="false">foxanime-qkW8LdRumd3sRP0mabNR-ep24</guid>
+            <pubDate>Fri, 10 Jul 2026 13:05:35 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/3165.jpg" width="300" style="border-radius:8px;" alt="Thất Nghiệp Chuyển Sinh (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Thất Nghiệp Chuyển Sinh (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/qkW8LdRumd3sRP0mabNR"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/3165.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Bảo Mẫu Bí Mật Của Tiểu Thư</title>
+            <link>https://foxanime.top/#movie/rf2lR3UzPdSZA3VtKFjJ</link>
+            <guid isPermaLink="false">foxanime-rf2lR3UzPdSZA3VtKFjJ-ep1</guid>
+            <pubDate>Mon, 31 Aug 2026 04:53:52 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài, Lãng Mạn</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/bao-mau-bi-mat-cua-tieu-thu.jpg" width="300" style="border-radius:8px;" alt="Bảo Mẫu Bí Mật Của Tiểu Thư"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Bảo Mẫu Bí Mật Của Tiểu Thư Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/rf2lR3UzPdSZA3VtKFjJ"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/bao-mau-bi-mat-cua-tieu-thu.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 11] Sousei no Aquarion: Myth of Emotions</title>
+            <link>https://foxanime.top/#movie/s3lkiGaxfPhMpMN3XXQa</link>
+            <guid isPermaLink="false">foxanime-s3lkiGaxfPhMpMN3XXQa-ep11</guid>
+            <pubDate>Mon, 22 Dec 2025 01:42:49 +0000</pubDate>
+            <category>Action, Fantasy, Mecha, Sci-Fi, Super Power</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/4/sousei-no-aquarion-myth-of-emotions.jpg" width="300" style="border-radius:8px;" alt="Sousei no Aquarion: Myth of Emotions"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Sousei no Aquarion: Myth of Emotions Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/s3lkiGaxfPhMpMN3XXQa"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/4/sousei-no-aquarion-myth-of-emotions.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 882] Doremon, Chú Mèo máy thần kỳ</title>
+            <link>https://foxanime.top/#movie/tThKtz2LcBhn4G4xvR2i</link>
+            <guid isPermaLink="false">foxanime-tThKtz2LcBhn4G4xvR2i-ep882</guid>
+            <pubDate>Fri, 28 Nov 2025 15:32:35 +0000</pubDate>
+            <category>Adventure, Cartoon, Kids</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/292.jpg" width="300" style="border-radius:8px;" alt="Doremon, Chú Mèo máy thần kỳ"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Doremon, Chú Mèo máy thần kỳ Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/tThKtz2LcBhn4G4xvR2i"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/292.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Break Time</title>
+            <link>https://foxanime.top/#movie/tz0DEbaUIwjWJbOHY1QU</link>
+            <guid isPermaLink="false">foxanime-tz0DEbaUIwjWJbOHY1QU-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:42 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/1563.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Break Time"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Break Time Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/tz0DEbaUIwjWJbOHY1QU"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/1563.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 7] Học Viện Cao Võ Đông Đại</title>
+            <link>https://foxanime.top/#movie/uXWSL8QR9FolqgqDwDTE</link>
+            <guid isPermaLink="false">foxanime-uXWSL8QR9FolqgqDwDTE-ep7</guid>
+            <pubDate>Tue, 11 Aug 2026 02:07:04 +0000</pubDate>
+            <category>Cartoon, Comedy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/7/hoc-vien-cao-vo-dong-dai.jpg" width="300" style="border-radius:8px;" alt="Học Viện Cao Võ Đông Đại"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Học Viện Cao Võ Đông Đại Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/uXWSL8QR9FolqgqDwDTE"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/7/hoc-vien-cao-vo-dong-dai.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 15] Đại chiến người và thần (Phần 3)</title>
+            <link>https://foxanime.top/#movie/uZaUd9sKcwBrbsQXEWkB</link>
+            <guid isPermaLink="false">foxanime-uZaUd9sKcwBrbsQXEWkB-ep15</guid>
+            <pubDate>Sun, 21 Dec 2025 07:05:15 +0000</pubDate>
+            <category>Hành Động, Hoạt Hình, Chính Kịch, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/2/dai-chien-nguoi-va-than-phan-3.jpg" width="300" style="border-radius:8px;" alt="Đại chiến người và thần (Phần 3)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Đại chiến người và thần (Phần 3) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/uZaUd9sKcwBrbsQXEWkB"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/2/dai-chien-nguoi-va-than-phan-3.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Rakudai Kenja no Gakuin Musou: Nidome no Tensei, S-Rank Cheat Majutsushi Boukenroku</title>
+            <link>https://foxanime.top/#movie/vaFuInEHuptm9rOzFXPh</link>
+            <guid isPermaLink="false">foxanime-vaFuInEHuptm9rOzFXPh-ep1</guid>
+            <pubDate>Sat, 18 Jul 2026 13:16:54 +0000</pubDate>
+            <category>Hành Động, Phiêu Lưu, Hoạt Hình, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/10/rakudai-kenja-no-gakuin-musou-nidome-no-tensei-s-rank-cheat-majutsushi-boukenroku.jpg" width="300" style="border-radius:8px;" alt="Rakudai Kenja no Gakuin Musou: Nidome no Tensei, S-Rank Cheat Majutsushi Boukenroku"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Rakudai Kenja no Gakuin Musou: Nidome no Tensei, S-Rank Cheat Majutsushi Boukenroku Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/vaFuInEHuptm9rOzFXPh"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/10/rakudai-kenja-no-gakuin-musou-nidome-no-tensei-s-rank-cheat-majutsushi-boukenroku.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 10] Yasei no Last Boss ga Arawareta!</title>
+            <link>https://foxanime.top/#movie/vxCqc6xwT7Gn1TVkVAla</link>
+            <guid isPermaLink="false">foxanime-vxCqc6xwT7Gn1TVkVAla-ep10</guid>
+            <pubDate>Sun, 30 Nov 2025 04:05:38 +0000</pubDate>
+            <category>Action, Adventure, Fantasy, Game</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/1/yasei-no-last-boss-ga-arawareta-1.jpg" width="300" style="border-radius:8px;" alt="Yasei no Last Boss ga Arawareta!"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Yasei no Last Boss ga Arawareta! Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/vxCqc6xwT7Gn1TVkVAla"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/1/yasei-no-last-boss-ga-arawareta-1.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 24] Lúc Đó, Tôi Đã Chuyển Sinh Thành Slime (Phần 1)</title>
+            <link>https://foxanime.top/#movie/x2C1yapk5B6c7cLfeu3i</link>
+            <guid isPermaLink="false">foxanime-x2C1yapk5B6c7cLfeu3i-ep24</guid>
+            <pubDate>Sun, 14 Dec 2025 11:04:49 +0000</pubDate>
+            <category>Hành Động, Hoạt Hình, Phim Hài, Giả Tưởng</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/2658.jpg" width="300" style="border-radius:8px;" alt="Lúc Đó, Tôi Đã Chuyển Sinh Thành Slime (Phần 1)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Lúc Đó, Tôi Đã Chuyển Sinh Thành Slime (Phần 1) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/x2C1yapk5B6c7cLfeu3i"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/2658.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Linh Cảnh Hành Giả</title>
+            <link>https://foxanime.top/#movie/xdycQry4Xh9dlt0lsUtX</link>
+            <guid isPermaLink="false">foxanime-xdycQry4Xh9dlt0lsUtX-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 13:14:37 +0000</pubDate>
+            <category>Hoạt Hình, Phim Hài</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Post/1/linh-canh-hanh-gia.jpg" width="300" style="border-radius:8px;" alt="Linh Cảnh Hành Giả"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Linh Cảnh Hành Giả Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/xdycQry4Xh9dlt0lsUtX"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Post/1/linh-canh-hanh-gia.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Luyện Khí Mười Vạn Năm</title>
+            <link>https://foxanime.top/#movie/yiIywePBIqHEYnkcfBE4</link>
+            <guid isPermaLink="false">foxanime-yiIywePBIqHEYnkcfBE4-ep1</guid>
+            <pubDate>Sun, 30 Nov 2025 04:25:29 +0000</pubDate>
+            <category>Action, Adventure, Cartoon, Fantasy</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/133308.jpg" width="300" style="border-radius:8px;" alt="Luyện Khí Mười Vạn Năm"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Luyện Khí Mười Vạn Năm Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/yiIywePBIqHEYnkcfBE4"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/133308.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 1] Re:Zero kara Hajimeru Isekai Seikatsu</title>
+            <link>https://foxanime.top/#movie/ymgBOz89iVMcnTwpg795</link>
+            <guid isPermaLink="false">foxanime-ymgBOz89iVMcnTwpg795-ep1</guid>
+            <pubDate>Sat, 05 Sep 2026 16:33:50 +0000</pubDate>
+            <category>Hoạt Hình</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/442.jpg" width="300" style="border-radius:8px;" alt="Re:Zero kara Hajimeru Isekai Seikatsu"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Re:Zero kara Hajimeru Isekai Seikatsu Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/ymgBOz89iVMcnTwpg795"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/442.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 25] Nguyệt Đạo Dị Giới (Phần 2)</title>
+            <link>https://foxanime.top/#movie/zKYj7yP1hmADtbUCXK1N</link>
+            <guid isPermaLink="false">foxanime-zKYj7yP1hmADtbUCXK1N-ep25</guid>
+            <pubDate>Mon, 22 Dec 2025 01:48:10 +0000</pubDate>
+            <category>Adventure, Fantasy, Harem</category>
+            <description>&lt;p&gt;&lt;img src="https://phim.nguonc.com/public/images/Film/139314.jpg" width="300" style="border-radius:8px;" alt="Nguyệt Đạo Dị Giới (Phần 2)"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Nguyệt Đạo Dị Giới (Phần 2) Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/zKYj7yP1hmADtbUCXK1N"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://phim.nguonc.com/public/images/Film/139314.jpg" length="125000" type="image/jpeg" />
+        </item>
+        <item>
+            <title>[Tập 12] Trường Học Ngục Tù</title>
+            <link>https://foxanime.top/#movie/zfmfUfzLTk1pLqVQrMhp</link>
+            <guid isPermaLink="false">foxanime-zfmfUfzLTk1pLqVQrMhp-ep12</guid>
+            <pubDate>Wed, 19 Nov 2025 17:03:34 +0000</pubDate>
+            <category>Comedy, Drama, Ecchi, School</category>
+            <description>&lt;p&gt;&lt;img src="https://th.bing.com/th/id/R.2d7906adcc66a05d37da72fa732d8e4c?rik=erQVzUc0TayCnA&amp;pid=ImgRaw&amp;r=0" width="300" style="border-radius:8px;" alt="Trường Học Ngục Tù"/&gt;&lt;/p&gt;&lt;p&gt;Xem phim Trường Học Ngục Tù Vietsub HD trên FoxAnime.&lt;/p&gt;&lt;p&gt;👉 &lt;a href="https://foxanime.top/#movie/zfmfUfzLTk1pLqVQrMhp"&gt;Xem phim tại đây&lt;/a&gt;&lt;/p&gt;</description>
+            <enclosure url="https://th.bing.com/th/id/R.2d7906adcc66a05d37da72fa732d8e4c?rik=erQVzUc0TayCnA&amp;pid=ImgRaw&amp;r=0" length="125000" type="image/jpeg" />
+        </item>
+    </channel>
 </rss>
