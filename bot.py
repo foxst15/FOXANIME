@@ -2,6 +2,7 @@ import os
 import json
 import smtplib
 import time
+import requests # <-- Bé Lôi thêm thư viện này để gọi Discord nè!
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import firebase_admin
@@ -11,6 +12,7 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
 FIREBASE_CREDS_JSON = os.environ.get("FIREBASE_CREDENTIALS")
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK") # <-- Lấy khóa Discord từ biến môi trường
 
 print("Bé Lôi đang khởi động hệ thống đây ạ! 🐾✨")
 
@@ -99,88 +101,111 @@ email_list = [doc.to_dict().get("email") for doc in docs if doc.to_dict().get("e
 
 if not email_list:
     print("Chưa có ai đăng ký nhận mail cả!")
-    exit()
-
-# Gửi mail thông báo bằng Gmail Smtplib cũ mà chất lượng
-try:
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls() 
-    server.login(SENDER_EMAIL, APP_PASSWORD)
-    
-    # --- THIẾT KẾ THẺ BÀI: Tích hợp Văn mẫu tự động ---
-    movie_cards_html = ""
-    for m in movies_to_announce:
-        movie_cards_html += f"""
-        <div style="background-color: #1e1346; border-radius: 12px; border: 1px solid #5d3f9e; overflow: hidden; max-width: 320px; margin: 0 auto 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: Arial, sans-serif; text-align: left;">
-            
-            <img src="{m['image']}" style="width: 100%; height: auto; display: block; border-bottom: 2px solid #5d3f9e;" alt="{m['name']}">
-            
-            <div style="padding: 15px;">
-                <!-- Huy hiệu Văn mẫu -->
-                <div style="display: inline-block; background-color: {m['badge_color']}20; color: {m['badge_color']}; border: 1px solid {m['badge_color']}; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;">
-                    {m['badge_text']}
+else:
+    # Gửi mail thông báo bằng Gmail Smtplib cũ mà chất lượng
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls() 
+        server.login(SENDER_EMAIL, APP_PASSWORD)
+        
+        # --- THIẾT KẾ THẺ BÀI: Tích hợp Văn mẫu tự động ---
+        movie_cards_html = ""
+        for m in movies_to_announce:
+            movie_cards_html += f"""
+            <div style="background-color: #1e1346; border-radius: 12px; border: 1px solid #5d3f9e; overflow: hidden; max-width: 320px; margin: 0 auto 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: Arial, sans-serif; text-align: left;">
+                
+                <img src="{m['image']}" style="width: 100%; height: auto; display: block; border-bottom: 2px solid #5d3f9e;" alt="{m['name']}">
+                
+                <div style="padding: 15px;">
+                    <!-- Huy hiệu Văn mẫu -->
+                    <div style="display: inline-block; background-color: {m['badge_color']}20; color: {m['badge_color']}; border: 1px solid {m['badge_color']}; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;">
+                        {m['badge_text']}
+                    </div>
+                    
+                    <h3 style="color: #e0e7ff; font-size: 20px; font-weight: bold; margin: 0 0 5px 0; line-height: 1.3;">{m['name']}</h3>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 0 0 10px 0; line-height: 1.5;">{m['genre']}</p>
+                    
+                    <!-- Lời chào mời riêng cho từng loại -->
+                    <p style="color: #ff69b4; font-size: 14px; font-weight: bold; margin: 0;">
+                        👉 {m['desc_text']}
+                    </p>
                 </div>
                 
-                <h3 style="color: #e0e7ff; font-size: 20px; font-weight: bold; margin: 0 0 5px 0; line-height: 1.3;">{m['name']}</h3>
-                <p style="color: #94a3b8; font-size: 13px; margin: 0 0 10px 0; line-height: 1.5;">{m['genre']}</p>
-                
-                <!-- Lời chào mời riêng cho từng loại -->
-                <p style="color: #ff69b4; font-size: 14px; font-weight: bold; margin: 0;">
-                    👉 {m['desc_text']}
-                </p>
             </div>
+            """
+
+        # TIÊU ĐỀ BIẾN HÌNH: Có thêm thẻ [Tập Mới] hay [Sắp Chiếu]
+        first_movie = movies_to_announce[0]
+        subject_line = f"🎉 FoxAnime: {first_movie['subject_prefix']} {first_movie['name']} đã có mặt!"
+
+        for recipient_email in email_list:
+            msg = MIMEMultipart()
+            msg['From'] = f"FoxAnime 🦊 <{SENDER_EMAIL}>"
+            msg['To'] = recipient_email
+            msg['Subject'] = subject_line
             
-        </div>
-        """
-
-    # TIÊU ĐỀ BIẾN HÌNH: Có thêm thẻ [Tập Mới] hay [Sắp Chiếu]
-    first_movie = movies_to_announce[0]
-    subject_line = f"🎉 FoxAnime: {first_movie['subject_prefix']} {first_movie['name']} đã có mặt!"
-
-    for recipient_email in email_list:
-        msg = MIMEMultipart()
-        msg['From'] = f"FoxAnime 🦊 <{SENDER_EMAIL}>"
-        msg['To'] = recipient_email
-        msg['Subject'] = subject_line
+            body = f"""
+            <html>
+              <body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9; padding: 20px; margin: 0;">
+                <div style="background-color: #ffffff; padding: 30px 20px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
+                  <h2 style="color: #4CAF50; font-size: 26px; margin-bottom: 10px;">Oha-yooo! 🐾✨</h2>
+                  <p style="font-size: 16px; color: #555; margin-bottom: 30px;">Trạm tin tức <strong>FoxAnime</strong> vừa bắt được tín hiệu nóng hổi dành cho cậu nè:</p>
+                  
+                  <!-- NHÚNG DANH SÁCH CARD VÀO ĐÂY -->
+                  {movie_cards_html}
+                  
+                  <p style="font-size: 16px; color: #555; margin-top: 30px;">Mau mau chuẩn bị bắp nước và truy cập pháo đài ngay thôi!</p>
+                  <div style="margin-top: 30px; margin-bottom: 30px;">
+                    <a href="https://foxanime.top" style="background-color: #a3e635; color: #000000; padding: 14px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 6px rgba(163, 230, 53, 0.3);">🍿 Khám Phá Ngay 🍿</a>
+                  </div>
+                  
+                  <!-- Tấm bùa hộ mệnh chống Spam -->
+                  <hr style="border: none; border-top: 1px solid #eee; margin-bottom: 15px;">
+                  <p style="font-size: 12px; color: #999; margin: 0;">
+                    Bạn nhận được thư này vì đã đăng ký nhận thông báo từ FoxAnime.<br>
+                    Nếu không muốn nhận thư nữa, cậu có thể <a href="https://foxanime.top" style="color: #4CAF50; text-decoration: underline;">nhấn vào đây để hủy đăng ký</a>.
+                  </p>
+                </div>
+              </body>
+            </html>
+            """
+            msg.attach(MIMEText(body, 'html'))
+            server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
+            
+            # Bắt Bé Bot đi ngủ 2 giây để tránh bị khóa mõm!
+            time.sleep(2)
         
-        body = f"""
-        <html>
-          <body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9; padding: 20px; margin: 0;">
-            <div style="background-color: #ffffff; padding: 30px 20px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
-              <h2 style="color: #4CAF50; font-size: 26px; margin-bottom: 10px;">Oha-yooo! 🐾✨</h2>
-              <p style="font-size: 16px; color: #555; margin-bottom: 30px;">Trạm tin tức <strong>FoxAnime</strong> vừa bắt được tín hiệu nóng hổi dành cho cậu nè:</p>
-              
-              <!-- NHÚNG DANH SÁCH CARD VÀO ĐÂY -->
-              {movie_cards_html}
-              
-              <p style="font-size: 16px; color: #555; margin-top: 30px;">Mau mau chuẩn bị bắp nước và truy cập pháo đài ngay thôi!</p>
-              <div style="margin-top: 30px; margin-bottom: 30px;">
-                <a href="https://foxanime.top" style="background-color: #a3e635; color: #000000; padding: 14px 30px; text-decoration: none; font-weight: bold; font-size: 18px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 6px rgba(163, 230, 53, 0.3);">🍿 Khám Phá Ngay 🍿</a>
-              </div>
-              
-              <!-- Tấm bùa hộ mệnh chống Spam -->
-              <hr style="border: none; border-top: 1px solid #eee; margin-bottom: 15px;">
-              <p style="font-size: 12px; color: #999; margin: 0;">
-                Bạn nhận được thư này vì đã đăng ký nhận thông báo từ FoxAnime.<br>
-                Nếu không muốn nhận thư nữa, cậu có thể <a href="https://foxanime.top" style="color: #4CAF50; text-decoration: underline;">nhấn vào đây để hủy đăng ký</a>.
-              </p>
-            </div>
-          </body>
-        </html>
-        """
-        msg.attach(MIMEText(body, 'html'))
-        server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
-        
-        # Bắt Bé Bot đi ngủ 2 giây để tránh bị khóa mõm!
-        time.sleep(2)
-    
-    server.quit()
-    print("Đã gửi mail thành công cho tất cả khán giả!")
+        server.quit()
+        print("Đã gửi mail thành công cho tất cả khán giả!")
+    except Exception as e:
+        print(f"Huhu, lỗi gửi mail rồi cậu chủ ơi: {e}")
 
-    # Đánh dấu phim đã thông báo xong (lật cờ thành True)
+# --- PHÂN HỆ BẮN THÔNG BÁO SANG DISCORD ---
+if DISCORD_WEBHOOK:
+    print("Bắt đầu kết nối và gửi thông báo lên kênh Discord...")
     for m in movies_to_announce:
-        m["ref"].update({"isNotified": True})
-        print(f"Dã cập nhật trạng thái isNotified=True cho: {m['name']}")
+        movie_link = f"https://foxanime.top/#movie/{m['id']}"
+        discord_data = {
+            "content": f"{m['badge_text']} MỌI NGƯỜI ƠI!\n🎬 **{m['name']}**\n🍿 {m['desc_text']}\n👉 Cày ngay tại: {movie_link}",
+            "username": "Bé Lôi - FoxAnime Bot",
+            "avatar_url": "https://i.imgur.com/Q99M0L5.png" # Avatar của Bé Bot
+        }
+        try:
+            requests.post(DISCORD_WEBHOOK, json=discord_data)
+            time.sleep(1) # Ngủ 1 giây để Discord không đánh dấu spam
+        except Exception as e:
+            print(f"Lỗi khi gửi Discord phim {m['name']}: {e}")
+    print("Đã thả bom thông báo Discord hoàn tất! 💥")
+else:
+    print("Không tìm thấy Webhook Discord, Bé Lôi bỏ qua bước này nha!")
+# ------------------------------------------
 
-except Exception as e:
-    print(f"Huhu, lỗi gửi mail rồi cậu chủ ơi: {e}")
+# Đánh dấu phim đã thông báo xong (lật cờ thành True)
+for m in movies_to_announce:
+    try:
+        m["ref"].update({"isNotified": True})
+        print(f"Đã cập nhật trạng thái isNotified=True cho: {m['name']}")
+    except Exception as e:
+        print(f"Lỗi cập nhật cờ cho phim {m['name']}: {e}")
+
+print("Nhiệm vụ hoàn thành! Bé Lôi lui xuống đi ngủ đây ạ! ( ˘ ³˘)♥")
