@@ -71,7 +71,7 @@ for movie in new_movies:
     
     # Màng lọc bảo vệ và lách luật Hotlink của các web nguồn
     if raw_image.startswith("data:image") or raw_image.strip() == "":
-        movie_image = "https://i.imgur.com/Q99M0L5.png" 
+    movie_image = "https://foxanime.top/anh/foxlogoanime.jpg"
     else:
         # Ép qua Proxy để Gmail chịu hiển thị ảnh
         movie_image = f"https://wsrv.nl/?url={raw_image}"
@@ -185,10 +185,29 @@ if DISCORD_WEBHOOK:
     print("Bắt đầu kết nối và gửi thông báo lên kênh Discord...")
     for m in movies_to_announce:
         movie_link = f"https://foxanime.top/#movie/{m['id']}"
+        
+        # Chuyển mã màu Hex (vd: #ff69b4) sang số nguyên cho Discord
+        color_int = int(m['badge_color'].replace("#", ""), 16) if m['badge_color'].startswith("#") else 16711680
+        
         discord_data = {
-            "content": f"{m['badge_text']} MỌI NGƯỜI ƠI!\n🎬 **{m['name']}**\n🍿 {m['desc_text']}\n👉 Cày ngay tại: {movie_link}",
             "username": "Bé Lôi - FoxAnime Bot",
-            "avatar_url": "https://i.imgur.com/Q99M0L5.png" # Avatar của Bé Bot
+            "avatar_url": "https://foxanime.top/anh/foxlogoanime.jpg",
+            "content": "✨ **Ting ting! Có thông báo mới nè mọi người ơi!** ✨",
+            "embeds": [
+                {
+                    "title": f"🎬 {m['name']}",
+                    "url": movie_link,
+                    "description": f"**{m['badge_text']}**\n\n🍿 {m['desc_text']}\n\n👉 **[BẤM VÀO ĐÂY ĐỂ CÀY NGAY]({movie_link})**",
+                    "color": color_int,
+                    "image": {
+                        "url": m['image']
+                    },
+                    "footer": {
+                        "text": "FoxAnime - Trạm tin tức siêu tốc",
+                        "icon_url": "https://foxanime.top/anh/foxlogoanime.jpg"
+                    }
+                }
+            ]
         }
         try:
             requests.post(DISCORD_WEBHOOK, json=discord_data)
