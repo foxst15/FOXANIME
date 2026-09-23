@@ -71,7 +71,7 @@ for movie in new_movies:
     
     # Màng lọc bảo vệ và lách luật Hotlink của các web nguồn
     if raw_image.startswith("data:image") or raw_image.strip() == "":
-    movie_image = "https://foxanime.top/anh/foxlogoanime.jpg"
+        movie_image = "https://foxanime.top/anh/foxlogoanime.jpg"
     else:
         # Ép qua Proxy để Gmail chịu hiển thị ảnh
         movie_image = f"https://wsrv.nl/?url={raw_image}"
