@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
+# Trao đổi dữ liệu cấu trúc website với Bot tìm kiếm
 Sitemap: https://foxanime.top/sitemap_v2.xml

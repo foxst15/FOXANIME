@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           elementFormDefault="qualified">
+
+  <!-- Cấu trúc gốc RSS -->
+  <xs:element name="rss">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="channel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="title" type="xs:string"/>
+              <xs:element name="link" type="xs:anyURI"/>
+              <xs:element name="description" type="xs:string"/>
+              <xs:element name="language" type="xs:string" minOccurs="0"/>
+              <xs:element name="lastBuildDate" type="xs:string"/>
+              <xs:element name="generator" type="xs:string" minOccurs="0"/>
+              <xs:any namespace="http://www.w3.org/2005/Atom" processContents="lax" minOccurs="0"/>
+              
+              <!-- Danh sách các tin tức trao đổi -->
+              <xs:element name="item" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="title" type="xs:string"/>
+                    <xs:element name="link" type="xs:anyURI"/>
+                    <xs:element name="guid">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute name="isPermaLink" type="xs:boolean" default="false"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="pubDate" type="xs:string"/>
+                    <xs:element name="category" type="xs:string" minOccurs="0"/>
+                    <xs:element name="description" type="xs:string"/>
+                    <xs:element name="enclosure" minOccurs="0">
+                      <xs:complexType>
+                        <xs:attribute name="url" type="xs:anyURI" use="required"/>
+                        <xs:attribute name="length" type="xs:nonNegativeInteger" use="required"/>
+                        <xs:attribute name="type" type="xs:string" use="required"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" use="required" fixed="2.0"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

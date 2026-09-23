@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>FOXANIME - Kênh Cập Nhật Anime Mới Nhất</title>
+    <link>https://foxanime.top</link>
+    <description>Kênh phân phối dữ liệu tự động các tập phim mới nhất của hệ thống FOXANIME dành cho các ứng dụng ngoại vi (Discord Bot, RSS Reader, Mobile App).</description>
+    <language>vi-VN</language>
+    <lastBuildDate>Tue, 25 Aug 2026 08:30:00 +0700</lastBuildDate>
+    <generator>FOXANIME RSS Engine 2.0</generator>
+    <atom:link href="https://foxanime.top/rss.xml" rel="self" type="application/rss+xml" />
+
+    <!-- Bản tin tập phim 1 -->
+    <item>
+      <title>[Cập Nhật Tập 12] Solo Leveling Season 2: Arise from the Shadow</title>
+      <link>https://foxanime.top/#movie/solo-leveling-s2</link>
+      <guid isPermaLink="false">foxanime-solo-leveling-s2-ep12</guid>
+      <pubDate>Tue, 25 Aug 2026 08:00:00 +0700</pubDate>
+      <category>Hành Động, Phiêu Lưu, Phép Thuật</category>
+      <description><![CDATA[
+        <p><img src="https://foxanime.top/anh/solo-leveling-s2.jpg" width="320" alt="Solo Leveling S2" style="border-radius:8px;"/></p>
+        <p><strong>Solo Leveling Season 2</strong> vừa cập nhật <strong>Tập 12</strong> (Tập Cuối Mùa) chất lượng Full HD 1080p Vietsub.</p>
+        <p>👉 Thợ săn Sung Jin-woo chỉ huy đội quân bóng tối tiến vào hầm ngục cấp S!</p>
+      ]]></description>
+      <enclosure url="https://foxanime.top/anh/solo-leveling-s2.jpg" length="124500" type="image/jpeg" />
+    </item>
+
+    <!-- Bản tin tập phim 2 -->
+    <item>
+      <title>[Cập Nhật Trọn Bộ 23 Tập] Chú Thuật Hồi Chiến Mùa 2 (Biến Cố Shibuya)</title>
+      <link>https://foxanime.top/#movie/jujutsu-kaisen-s2</link>
+      <guid isPermaLink="false">foxanime-jjk-s2-full</guid>
+      <pubDate>Mon, 24 Aug 2026 19:30:00 +0700</pubDate>
+      <category>Hành Động, Siêu Nhiên, Shounen</category>
+      <description><![CDATA[
+        <p><img src="https://foxanime.top/anh/jujutsu-kaisen-s2.jpg" width="320" alt="Jujutsu Kaisen S2" style="border-radius:8px;"/></p>
+        <p>Trọn bộ 23 tập <strong>Chú Thuật Hồi Chiến Mùa 2</strong> đã hoàn tất cập nhật trên FOXANIME với chất lượng âm thanh 5.1 và hình ảnh sắc nét.</p>
+      ]]></description>
+      <enclosure url="https://foxanime.top/anh/jujutsu-kaisen-s2.jpg" length="118200" type="image/jpeg" />
+    </item>
+
+    <!-- Bản tin tập phim 3 -->
+    <item>
+      <title>[Cập Nhật Tập 8] Thanh Gươm Diệt Quỷ: Đại Trụ Đặc Huấn</title>
+      <link>https://foxanime.top/#movie/kimetsu-hashira-training</link>
+      <guid isPermaLink="false">foxanime-kny-ht-ep8</guid>
+      <pubDate>Sun, 23 Aug 2026 14:15:00 +0700</pubDate>
+      <category>Hành Động, Siêu Nhiên, Fantasy</category>
+      <description><![CDATA[
+        <p><img src="https://foxanime.top/anh/kimetsu-hashira.jpg" width="320" alt="Kimetsu no Yaiba" style="border-radius:8px;"/></p>
+        <p>Tập 8 (Thời lượng đặc biệt 48 phút) đã chính thức lên sóng, sẵn sàng cho trận đại chiến Vô Hạn Thành!</p>
+      ]]></description>
+      <enclosure url="https://foxanime.top/anh/kimetsu-hashira.jpg" length="135000" type="image/jpeg" />
+    </item>
+  </channel>
+</rss>
