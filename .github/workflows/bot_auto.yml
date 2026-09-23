@@ -26,11 +26,20 @@ jobs:
           pip install -r requirements.txt
           pip install resend
 
-      - name: 🚀 Khởi động Bé Bot quét phim và gửi Mail
+      - name: 🚀 Khởi động Bé Bot quét phim, gửi Mail và tạo RSS thật
         env:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: python bot.py
-        
+        run: |
+          python bot.py
+          python generate_real_rss.py
+
+      - name: 💾 Bot tự động lưu RSS và Sitemap thật lên Github
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add rss.xml sitemap_v2.xml
+          git commit -m "Auto: Cập nhật RSS và Sitemap từ CSDL thật" || echo "Không có thay đổi dữ liệu"
+          git push
