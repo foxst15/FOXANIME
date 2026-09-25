@@ -47,7 +47,17 @@ for movie in new_movies:
     # --- TUỆ NHÃN: ĐỌC TRẠNG THÁI VÀ SỐ TẬP ĐỂ TẠO "VĂN MẪU" ---
     status = data.get("status", "dang-chieu")
     episodes = data.get("episodes", [])
-    ep_count = len(episodes)
+    
+    # BÉ LÔI FIX LỖI: Nhận diện cấu trúc Đa Server của API Nguồn C
+    ep_count = 0
+    if episodes:
+        # Nếu phần tử đầu tiên là một object có chứa 'serverName' (Dữ liệu API)
+        if isinstance(episodes[0], dict) and "serverName" in episodes[0]:
+            # Đếm số lượng tập (items) nằm bên trong Server đầu tiên
+            ep_count = len(episodes[0].get("items", []))
+        else:
+            # Cấu trúc nhập tay cũ
+            ep_count = len(episodes)
     
     if status == "sap-chieu":
         badge_text = "🔥 PHIM SẮP CHIẾU"

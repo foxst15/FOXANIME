@@ -3491,7 +3491,8 @@
                 await updateDoc(targetDocRef, {
                     episodes: formattedServers, // Lưu danh sách các server vào Database
                     totalEpisodes: formattedServers[0]?.items.length || 0,
-                    lastEpisodeUpdate: serverTimestamp()
+                    lastEpisodeUpdate: serverTimestamp(),
+                    isNotified: false 
                 });
 
                 showLoading(false);
