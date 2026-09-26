@@ -3212,10 +3212,29 @@
             $('edit-banner-upload-status').textContent = isBannerBase64 ? 'Phim đang dùng banner Base64. Tải tệp mới/dán URL sẽ ghi đè.' : '';
             $('edit-movie-banner').value = isBannerBase64 ? '' : movie.bannerUrl || '';
 
-            const savedGenres = (movie.genre || '').split(',').map(g => g.trim());
-            document.querySelectorAll('#edit-genre-tag-container .genre-tag').forEach(tag => {
-                tag.classList.toggle('selected', savedGenres.includes(tag.dataset.genre));
+            const savedGenres = (movie.genre || '').split(',').map(g => g.trim()).filter(Boolean);
+            const container = document.getElementById('edit-genre-tag-container');
+            
+            container.querySelectorAll('.genre-tag').forEach(tag => tag.classList.remove('selected'));
+            container.querySelectorAll('.dynamic-tag').forEach(tag => tag.remove());
+
+            savedGenres.forEach(genre => {
+                let existingBtn = Array.from(container.querySelectorAll('.genre-tag')).find(btn => 
+                    btn.dataset.genre.toLowerCase() === genre.toLowerCase()
+                );
+
+                if (existingBtn) {
+                    existingBtn.classList.add('selected');
+                } else {
+                    const newBtn = document.createElement('button');
+                    newBtn.type = 'button';
+                    newBtn.className = 'genre-tag dynamic-tag selected font-bold text-sm';
+                    newBtn.dataset.genre = genre; 
+                    newBtn.innerHTML = `${genre} <br><span class="text-[10px] text-yellow-400 font-normal ml-1">(Tag API)</span>`;
+                    container.appendChild(newBtn);
+                }
             });
+            // ---------------------------------------------------------------------
 
             // NEW: Cập nhật nút xóa tất cả tập phim
             const deleteAllBtn = $('delete-all-episodes-btn');
@@ -3487,13 +3506,26 @@
                     return;
                 }
 
+                const currentEpText = rawMovie.current_episode || '';
+                let updatedStatus = 'dang-chieu';
+                if (currentEpText.includes('Hoàn tất') || currentEpText.includes('Trọn bộ')) {
+                    updatedStatus = 'tron-bo';
+                } else if (rawMovie.status === 'Sắp chiếu') {
+                    updatedStatus = 'sap-chieu';
+                }
+                
+                
+                const realTotalEp = parseInt(rawMovie.total_episodes) || formattedServers[0]?.items.length || 0;
+
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
-                    episodes: formattedServers, // Lưu danh sách các server vào Database
-                    totalEpisodes: formattedServers[0]?.items.length || 0,
+                    episodes: formattedServers,
+                    totalEpisodes: realTotalEp, 
+                    status: updatedStatus,     
                     lastEpisodeUpdate: serverTimestamp(),
-                    isNotified: false 
+                    isNotified: false           
                 });
+                
 
                 showLoading(false);
                 alert(`Thành công rực rỡ! Đã nạp thành công ${formattedServers.length} Server vào Database! 🎉`);
@@ -3506,23 +3538,23 @@
             }
         };
 
-        // 5. Hàm Tự Động Thêm Phim Mới Toanh Vào DB (Bản Chuẩn)
+        
         window.autoAddNewMovie = async (apiSlug) => {
             try {
                 showLoading(true);
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
 
-                // Dùng lại hàm chuẩn hóa Dữ liệu đã có sẵn trong web
+                
                 const convertedMovie = mapApiToSchema(dataDetail);
                 const sanitizedMovie = sanitizeMovieData(convertedMovie, userId);
 
-                // Lưu phim mới vào Database
+               
                 await setDoc(doc(moviesCollectionRef), sanitizedMovie);
 
                 showLoading(false);
                 alert("Quá xịn! Đã thêm siêu phẩm mới vào kho thành công!");
-                window.scanNguonCApi(); // Refresh lại bảng
+                window.scanNguonCApi(); 
 
             } catch (err) {
                 showLoading(false);
