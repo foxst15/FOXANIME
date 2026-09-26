@@ -1138,8 +1138,8 @@
 
                     <div class="absolute bottom-0 left-0 p-6 md:p-14 max-w-3xl text-white">
                         <span class="inline-block bg-lime-500/90 backdrop-blur-sm text-gray-900 text-sm font-extrabold px-4 py-1.5 rounded-lg uppercase mb-4 shadow-[0_0_15px_rgba(163,230,53,0.5)]">Mới Cập Nhật</span>
-                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-3 leading-tight drop-shadow-2xl">${movie.title}</h1>
-                        ${movie.titleOriginal ? `<h4 class="text-xl md:text-2xl font-semibold text-lime-400/80 mb-3 drop-shadow-lg">${movie.titleOriginal}</h4>` : ''}
+                       <h1 title="${movie.title}" class="text-4xl md:text-6xl font-extrabold text-white mb-3 leading-tight drop-shadow-2xl line-clamp-2">${movie.title}</h1>
+                       ${movie.titleOriginal ? `<h4 title="${movie.titleOriginal}" class="text-xl md:text-2xl font-semibold text-lime-400/80 mb-3 drop-shadow-lg truncate">${movie.titleOriginal}</h4>` : ''}
                         <p class="text-gray-300 text-base md:text-lg mb-6 line-clamp-3 drop-shadow-md">${movie.summary || 'Đang cập nhật nội dung...'}</p>
                         <div class="flex items-center space-x-4">
                             <a href="${infoUrl}" class="inline-flex items-center justify-center px-8 py-3.5 bg-lime-500 text-gray-900 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(163,230,53,0.4)] hover:bg-lime-400 hover:scale-105 transition-all duration-300">
