@@ -1618,7 +1618,7 @@
                 summary: data.description || data.content || '',
 
                 posterUrl: data.thumb_url || data.poster_url || '',
-                bannerUrl: data.cover_url || data.banner_url || data.thumb_url || '',
+                bannerUrl: data.thumb_url || data.cover_url || data.banner_url || '',
 
                 status: status,
                 genre: genres.join(', '),
@@ -2027,43 +2027,115 @@
             }
         };
 
+        // --- BÉ LÔI NÂNG CẤP: NÚT FIX DATA SIÊU CẤP VŨ TRỤ ---
         window.handleFixLegacyData = async () => {
-            const confirmed = await window.showConfirmModal("Bạn có chắc muốn quét và sửa dữ liệu Review cho TẤT CẢ phim không? (Chỉ cần chạy 1 lần)");
-            if (!confirmed) return;
+            const fixImageOption = confirm("Chủ nhân muốn thay thế hàng loạt Tên Miền Ảnh bị hỏng đúng không ạ?\n(Nhấn OK để thay link ảnh, Cancel để chỉ fix dữ liệu Review)");
+            
+            let oldDomain = "";
+            let newDomain = "";
+            
+            if (fixImageOption) {
+                oldDomain = prompt("Nhập đoạn link HOẶC tên miền CŨ bị lỗi\n(Ví dụ: img.nguonc.com):");
+                if (!oldDomain) {
+                    alert("Chủ nhân chưa nhập link cũ nên Bé Lôi hủy thao tác nha!");
+                    return;
+                }
+                newDomain = prompt(`Thay thế "${oldDomain}" thành gì?\n(Ví dụ: phimgi.cc hoặc để trống nếu muốn xóa đoạn đó):`, "");
+                if (newDomain === null) return; // Chủ nhân bấm Cancel
+            }
 
             const msgEl = $('fix-legacy-status');
-            if (msgEl) msgEl.textContent = "Đang quét dữ liệu... Vui lòng đợi...";
+            if (msgEl) msgEl.textContent = "Bé Lôi đang rà soát kho dữ liệu... Vui lòng đợi...";
 
             try {
-                const q = query(moviesCollectionRef);
-                const querySnapshot = await getDocs(q);
-                const batch = writeBatch(db);
+                const querySnapshot = await getDocs(query(moviesCollectionRef));
                 let updateCount = 0;
+                let imgUpdateCount = 0;
+                
+                // Thuật toán chia nhỏ mảng để né giới hạn 500 writes/batch của Firebase
+                const batches = [];
+                let currentBatch = writeBatch(db);
+                let currentBatchCount = 0;
 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
+                    const docRef = doc(moviesCollectionRef, docSnap.id);
+                    let needsUpdate = false;
+                    let updatePayload = {};
+
+                    // 1. Dọn dẹp lỗi Review cũ
                     if (data.reviewCount === undefined || data.reviewTotal === undefined) {
-                        const docRef = doc(moviesCollectionRef, docSnap.id);
-                        batch.update(docRef, {
-                            reviewCount: data.reviewCount || 0,
-                            reviewTotal: data.reviewTotal || 0
-                        });
+                        updatePayload.reviewCount = data.reviewCount || 0;
+                        updatePayload.reviewTotal = data.reviewTotal || 0;
+                        needsUpdate = true;
+                    }
+
+                    // 2. Chữa bệnh hỏng link Ảnh Poster & Banner
+                    if (fixImageOption && oldDomain) {
+                        let newPoster = data.posterUrl || "";
+                        let newBanner = data.bannerUrl || "";
+                        let imgChanged = false;
+
+                        // Dùng split.join để thay thế an toàn tất cả các chỗ khớp
+                        if (newPoster.includes(oldDomain)) {
+                            newPoster = newPoster.split(oldDomain).join(newDomain);
+                            updatePayload.posterUrl = newPoster;
+                            imgChanged = true;
+                        }
+                        if (newBanner.includes(oldDomain)) {
+                            newBanner = newBanner.split(oldDomain).join(newDomain);
+                            updatePayload.bannerUrl = newBanner;
+                            imgChanged = true;
+                        }
+
+                        if (imgChanged) {
+                            needsUpdate = true;
+                            imgUpdateCount++;
+                        }
+                    }
+
+                    // Nếu có bất kỳ cái gì cần sửa thì tống vào xe hàng (Batch)
+                    if (needsUpdate) {
+                        currentBatch.update(docRef, updatePayload);
+                        currentBatchCount++;
                         updateCount++;
+
+                        // Đầy 450 món thì đẩy xe đi, lấy xe mới (Giới hạn tối đa là 500)
+                        if (currentBatchCount >= 450) {
+                            batches.push(currentBatch);
+                            currentBatch = writeBatch(db);
+                            currentBatchCount = 0;
+                        }
                     }
                 });
 
-                if (updateCount > 0) {
-                    alert(`Đã sửa dữ liệu cho ${updateCount} phim cũ thành công!`);
-                } else {
-                    alert("Dữ liệu tất cả phim đều đã chuẩn. Không cần sửa gì thêm.");
+                // Đẩy nốt xe hàng cuối cùng nếu còn dư
+                if (currentBatchCount > 0) {
+                    batches.push(currentBatch);
                 }
+
+                if (updateCount > 0) {
+                    if (msgEl) msgEl.textContent = `Đang lưu ${updateCount} thay đổi lên máy chủ... (Có thể mất vài giây)`;
+                    
+                    // Thực thi tất cả các Batch
+                    for (let i = 0; i < batches.length; i++) {
+                        await batches[i].commit();
+                    }
+                    
+                    alert(`✨ Tuyệt vời! Bé Lôi đã sửa thành công ${updateCount} phim!\n(Trong đó có ${imgUpdateCount} phim được thay link ảnh mới)`);
+                } else {
+                    alert("Mọi thứ đã hoàn hảo, không có link ảnh cũ nào khớp hoặc không có phim nào cần sửa ạ!");
+                }
+                
                 if (msgEl) msgEl.textContent = "";
 
             } catch (error) {
                 console.error("Lỗi khi sửa dữ liệu cũ:", error);
                 alert("Lỗi: " + error.message);
+                if (msgEl) msgEl.textContent = "";
             }
         };
+        // -----------------------------------------------------------
 
         // NEW: Thêm hàm xóa tất cả tập phim
         window.handleDeleteAllEpisodes = async (movieId, movieTitle) => {
