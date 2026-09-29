@@ -1642,7 +1642,7 @@
                 summary: data.description || data.content || '',
 
                 posterUrl: data.thumb_url || data.poster_url || '',
-                bannerUrl: data.thumb_url || data.cover_url || data.banner_url || '',
+                bannerUrl: data.poster_url || data.cover_url || data.banner_url || data.thumb_url || '',
 
                 status: status,
                 genre: genres.join(', '),
@@ -2076,8 +2076,8 @@
                         // Nếu API trả về success thì mới lấy ảnh
                         if (dataDetail.status === 'success' && dataDetail.movie) {
                             const rawMovie = dataDetail.movie;
-                            const newPoster = rawMovie.poster_url || rawMovie.thumb_url || movie.posterUrl;
-                            const newBanner = rawMovie.thumb_url || rawMovie.cover_url || rawMovie.banner_url || movie.bannerUrl;
+                            const newPoster = rawMovie.thumb_url || rawMovie.poster_url || movie.posterUrl;
+                            const newBanner = rawMovie.poster_url || rawMovie.cover_url || rawMovie.banner_url || movie.bannerUrl;
                             
                             // Ghi đè Link ảnh mới vào Database
                             const targetDocRef = doc(moviesCollectionRef, movie.id);
@@ -3589,8 +3589,8 @@
                 const realTotalEp = parseInt(rawMovie.total_episodes) || formattedServers[0]?.items.length || 0;
 
 
-                const newPoster = rawMovie.poster_url || rawMovie.thumb_url || '';
-                const newBanner = rawMovie.thumb_url || rawMovie.cover_url || rawMovie.banner_url || '';
+                const newPoster = rawMovie.thumb_url || rawMovie.poster_url || '';
+                const newBanner = rawMovie.poster_url || rawMovie.cover_url || rawMovie.banner_url || '';
 
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
