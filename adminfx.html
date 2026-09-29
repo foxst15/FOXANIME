@@ -469,12 +469,13 @@
         }
 
         .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 
@@ -572,19 +573,21 @@
 
     <div id="admin-main-view" class="max-w-7xl mx-auto hidden">
         <!-- BÉ LÔI SỬA: Thêm flex-col cho mobile, md:flex-row cho desktop, thêm gap-4 -->
-        <header class="mb-8 border-b border-gray-700 pb-4 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+        <header
+            class="mb-8 border-b border-gray-700 pb-4 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
             <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <img src="anh/foxanimelogo.jpg" alt="FoxAnime Logo"
                     class="w-16 h-16 object-contain rounded-full border-2 border-[#ff69b4] shadow-lg"
                     onerror="this.onerror=null;this.src='https://placehold.co/64x64/ff69b4/ffffff?text=FX';" />
                 <div>
                     <!-- BÉ LÔI SỬA: Giảm size chữ xíu trên mobile (text-2xl md:text-4xl) -->
-                    <h1 class="text-2xl md:text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN - FOXANIME ADMIN</h1>
+                    <h1 class="text-2xl md:text-4xl font-extrabold text-[#00ffaa] neon-glow mb-2">BẢNG ĐIỀU KHIỂN -
+                        FOXANIME ADMIN</h1>
                     <p class="text-gray-400 text-sm md:text-base">Quản lý Phim và Tài khoản Admin.</p>
                     <div id="auth-status" class="mt-2 text-sm text-[#ff69b4]"></div>
                 </div>
             </div>
-            
+
             <div id="admin-profile-header"
                 class="hidden items-center space-x-4 bg-[#2f1d56] p-3 rounded-lg panel-border w-full md:w-auto justify-center md:justify-end">
                 <img id="admin-avatar-header" src="https://placehold.co/40x40/ff69b4/ffffff?text=AD" alt="Admin Avatar"
@@ -593,24 +596,28 @@
                     <span id="admin-display-name-header" class="font-bold text-[#00ffaa] block text-sm"></span>
                     <a href="#profile" class="text-xs text-[#ff69b4] hover:underline transition">Chỉnh sửa Profile</a>
                 </div>
-                <button onclick="handleLogout()" class="text-white hover:text-red-500 transition duration-300 ml-auto md:ml-4">
+                <button onclick="handleLogout()"
+                    class="text-white hover:text-red-500 transition duration-300 ml-auto md:ml-4">
                     <i class="fas fa-sign-out-alt text-xl" title="Đăng Xuất"></i>
                 </button>
             </div>
         </header>
 
         <!-- BÉ LÔI SỬA: Thêm overflow-x-auto và hide-scrollbar để lướt ngang trên điện thoại -->
-        <div class="flex space-x-2 md:space-x-4 mb-8 border-b border-gray-700 overflow-x-auto hide-scrollbar whitespace-nowrap pb-2">
+        <div
+            class="flex space-x-2 md:space-x-4 mb-8 border-b border-gray-700 overflow-x-auto hide-scrollbar whitespace-nowrap pb-2">
             <button id="nav-dashboard" data-hash="#dashboard"
                 class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-[#00ffaa]">DASHBOARD</button>
             <button id="nav-schedule" data-hash="#schedule"
-                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH CHIẾU</button>
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">LỊCH
+                CHIẾU</button>
             <button id="nav-api-hunter" data-hash="#api-hunter"
                 class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent text-yellow-400">
                 <i class="fas fa-spider mr-1"></i> KHO API PHIM
             </button>
             <button id="nav-profile" data-hash="#profile"
-                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI KHOẢN ADMIN</button>
+                class="py-2 px-3 md:px-4 text-sm md:text-base font-semibold hover:text-[#ff69b4] transition border-b-4 border-transparent">TÀI
+                KHOẢN ADMIN</button>
         </div>
 
 
@@ -620,7 +627,8 @@
 
     <!-- START: BULK IMPORT MODAL -->
     <div id="bulk-import-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
 
             <h3 class="text-2xl font-bold mb-4 text-[#bf94e4] border-b border-[#5d3f9e] pb-2">
                 <i class="fas fa-file-import mr-2"></i> SPMODE IMPORT MOVIES (Thêm hàng loạt)
@@ -685,7 +693,8 @@
     <!-- END: BULK IMPORT MODAL -->
 
     <div id="add-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
 
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">CREATE NEW MOVIE CARD</h3>
             <form id="add-movie-form">
@@ -828,7 +837,8 @@
     </div>
 
     <div id="edit-movie-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
 
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT MOVIE CARD</h3>
             <form id="edit-movie-form">
@@ -986,7 +996,8 @@
 
 
     <div id="add-episode-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
 
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">ADD NEW EPISODE</h3>
             <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="episode-movie-title" class="text-white"></span>
@@ -1026,7 +1037,8 @@
     <!-- START: BULK ADD EPISODES MODAL (New Feature) -->
     <div id="bulk-add-episode-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
 
             <h3 class="text-2xl font-bold mb-4 text-purple-400 border-b border-[#5d3f9e] pb-2">
                 <i class="fas fa-stream mr-2"></i> BULK ADD EPISODES (Thêm hàng loạt)
@@ -1076,8 +1088,9 @@
 
     <div id="edit-episode-modal"
         class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden items-center justify-center z-50">
-        <div class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
-            
+        <div
+            class="bg-[#2f1d56] p-4 md:p-6 rounded-xl w-full max-w-3xl mx-2 md:mx-4 shadow-2xl panel-border max-h-[95vh] overflow-y-auto">
+
             <h3 class="text-2xl font-bold mb-4 text-[#ff69b4] border-b border-[#5d3f9e] pb-2">EDIT EPISODE</h3>
             <h4 class="text-lg text-[#00ffaa] mb-4">Target: <span id="edit-episode-movie-title"
                     class="text-white"></span></h4>
@@ -1585,22 +1598,22 @@
             let status = 'dang-chieu';
             if (currentEpisodeText.includes('Hoàn tất') || currentEpisodeText.includes('Trọn bộ')) {
                 status = 'tron-bo';
-            } else if (data.status === 'Sắp chiếu') { 
+            } else if (data.status === 'Sắp chiếu') {
                 status = 'sap-chieu';
             }
 
-            
+
             let genres = [];
-            
+
             if (data.category && data.category['2'] && data.category['2'].list) {
                 genres = data.category['2'].list.map(g => (g.name || g.title).trim());
             } else if (data.category && Array.isArray(data.category)) {
-               
+
                 genres = data.category.map(g => (typeof g === 'string' ? g : g.name || g.title)).filter(Boolean);
             }
 
-            
-            let detectedFormat = 'tv-series'; 
+
+            let detectedFormat = 'tv-series';
             const genresCheck = genres.map(g => g.toLowerCase());
 
             if (genresCheck.some(g => g.includes('trung quốc') || g.includes('chinese'))) {
@@ -1801,8 +1814,8 @@
 
             container.innerHTML = selectedIds.map(id => {
                 const movie = globalAdminMoviesCache.find(m => m.id === id);
-                
-                
+
+
                 if (!movie) {
                     return `
                         <div class="relative bg-red-900/40 rounded-lg border border-red-500 border-dashed p-2 flex flex-col items-center justify-center group min-h-[160px]">
@@ -2027,115 +2040,86 @@
             }
         };
 
-        // --- BÉ LÔI NÂNG CẤP: NÚT FIX DATA SIÊU CẤP VŨ TRỤ ---
+        // --- BÉ LÔI ĐẠI TU NÚT FIX DATA: TỰ ĐỘNG CÀO ẢNH TỪ API ---
         window.handleFixLegacyData = async () => {
-            const fixImageOption = confirm("Chủ nhân muốn thay thế hàng loạt Tên Miền Ảnh bị hỏng đúng không ạ?\n(Nhấn OK để thay link ảnh, Cancel để chỉ fix dữ liệu Review)");
+            const mode = prompt("Bạn muốn làm gì?\n1. Tự quét TẤT CẢ phim, gọi API xin ẢNH MỚI (Khuyên dùng)\n2. Chỉ sửa dữ liệu Review (Dọn rác)\nNhập số 1 hoặc 2:", "1");
             
-            let oldDomain = "";
-            let newDomain = "";
-            
-            if (fixImageOption) {
-                oldDomain = prompt("Nhập đoạn link HOẶC tên miền CŨ bị lỗi\n(Ví dụ: img.nguonc.com):");
-                if (!oldDomain) {
-                    alert("Chủ nhân chưa nhập link cũ nên Bé Lôi hủy thao tác nha!");
-                    return;
-                }
-                newDomain = prompt(`Thay thế "${oldDomain}" thành gì?\n(Ví dụ: phimgi.cc hoặc để trống nếu muốn xóa đoạn đó):`, "");
-                if (newDomain === null) return; // Chủ nhân bấm Cancel
-            }
+            if (mode === "1") {
+                const confirmed = await window.showConfirmModal("Bé Lôi sẽ tự động chạy qua toàn bộ kho phim, lấy tên phim gõ cửa API Nguồn C xin ảnh mới nhất nha. Sẽ hơi lâu xíu (nửa giây/phim để tránh bị khóa IP). Bạn đồng ý không?");
+                if (!confirmed) return;
 
-            const msgEl = $('fix-legacy-status');
-            if (msgEl) msgEl.textContent = "Bé Lôi đang rà soát kho dữ liệu... Vui lòng đợi...";
-
-            try {
-                const querySnapshot = await getDocs(query(moviesCollectionRef));
-                let updateCount = 0;
-                let imgUpdateCount = 0;
+                const msgEl = $('fix-legacy-status');
+                let successCount = 0;
+                let failCount = 0;
                 
-                // Thuật toán chia nhỏ mảng để né giới hạn 500 writes/batch của Firebase
-                const batches = [];
-                let currentBatch = writeBatch(db);
-                let currentBatchCount = 0;
-
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const docRef = doc(moviesCollectionRef, docSnap.id);
-                    let needsUpdate = false;
-                    let updatePayload = {};
-
-                    // 1. Dọn dẹp lỗi Review cũ
-                    if (data.reviewCount === undefined || data.reviewTotal === undefined) {
-                        updatePayload.reviewCount = data.reviewCount || 0;
-                        updatePayload.reviewTotal = data.reviewTotal || 0;
-                        needsUpdate = true;
-                    }
-
-                    // 2. Chữa bệnh hỏng link Ảnh Poster & Banner
-                    if (fixImageOption && oldDomain) {
-                        let newPoster = data.posterUrl || "";
-                        let newBanner = data.bannerUrl || "";
-                        let imgChanged = false;
-
-                        // Dùng split.join để thay thế an toàn tất cả các chỗ khớp
-                        if (newPoster.includes(oldDomain)) {
-                            newPoster = newPoster.split(oldDomain).join(newDomain);
-                            updatePayload.posterUrl = newPoster;
-                            imgChanged = true;
-                        }
-                        if (newBanner.includes(oldDomain)) {
-                            newBanner = newBanner.split(oldDomain).join(newDomain);
-                            updatePayload.bannerUrl = newBanner;
-                            imgChanged = true;
-                        }
-
-                        if (imgChanged) {
-                            needsUpdate = true;
-                            imgUpdateCount++;
-                        }
-                    }
-
-                    // Nếu có bất kỳ cái gì cần sửa thì tống vào xe hàng (Batch)
-                    if (needsUpdate) {
-                        currentBatch.update(docRef, updatePayload);
-                        currentBatchCount++;
-                        updateCount++;
-
-                        // Đầy 450 món thì đẩy xe đi, lấy xe mới (Giới hạn tối đa là 500)
-                        if (currentBatchCount >= 450) {
-                            batches.push(currentBatch);
-                            currentBatch = writeBatch(db);
-                            currentBatchCount = 0;
-                        }
-                    }
-                });
-
-                // Đẩy nốt xe hàng cuối cùng nếu còn dư
-                if (currentBatchCount > 0) {
-                    batches.push(currentBatch);
-                }
-
-                if (updateCount > 0) {
-                    if (msgEl) msgEl.textContent = `Đang lưu ${updateCount} thay đổi lên máy chủ... (Có thể mất vài giây)`;
+                // Vòng lặp siêu cấp chạy qua toàn bộ cache phim
+                for (let i = 0; i < globalAdminMoviesCache.length; i++) {
+                    const movie = globalAdminMoviesCache[i];
+                    if(msgEl) msgEl.textContent = `Đang rà quét phim ${i+1}/${globalAdminMoviesCache.length} - ${movie.title}...`;
                     
-                    // Thực thi tất cả các Batch
-                    for (let i = 0; i < batches.length; i++) {
-                        await batches[i].commit();
+                    try {
+                        const apiSlug = createSlug(movie.title);
+                        const res = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
+                        const dataDetail = await res.json();
+                        
+                        // Nếu API trả về success thì mới lấy ảnh
+                        if (dataDetail.status === 'success' && dataDetail.movie) {
+                            const rawMovie = dataDetail.movie;
+                            const newPoster = rawMovie.poster_url || rawMovie.thumb_url || movie.posterUrl;
+                            const newBanner = rawMovie.thumb_url || rawMovie.cover_url || rawMovie.banner_url || movie.bannerUrl;
+                            
+                            // Ghi đè Link ảnh mới vào Database
+                            const targetDocRef = doc(moviesCollectionRef, movie.id);
+                            await updateDoc(targetDocRef, {
+                                posterUrl: newPoster,
+                                bannerUrl: newBanner
+                            });
+                            successCount++;
+                        } else {
+                            failCount++; // Không tìm thấy tên phim này trên API
+                        }
+                    } catch(err) {
+                        failCount++;
                     }
                     
-                    alert(`✨ Tuyệt vời! Bé Lôi đã sửa thành công ${updateCount} phim!\n(Trong đó có ${imgUpdateCount} phim được thay link ảnh mới)`);
-                } else {
-                    alert("Mọi thứ đã hoàn hảo, không có link ảnh cũ nào khớp hoặc không có phim nào cần sửa ạ!");
+                    // Tuyệt chiêu: Ngủ 0.5s để API Nguồn C không phát hiện mình spam!
+                    await new Promise(r => setTimeout(r, 500));
                 }
                 
-                if (msgEl) msgEl.textContent = "";
+                if(msgEl) msgEl.textContent = "";
+                alert(`✨ THÀNH CÔNG RỰC RỠ! Bé Lôi đã hồi sinh ảnh mới cho ${successCount} phim!\n(Có ${failCount} phim không tự lấy được do tên không khớp API, Bạn có thể dùng nút SYNC API sửa tay nha)`);
 
-            } catch (error) {
-                console.error("Lỗi khi sửa dữ liệu cũ:", error);
-                alert("Lỗi: " + error.message);
-                if (msgEl) msgEl.textContent = "";
+            } else if (mode === "2") {
+                // Sửa lỗi Review cũ (Code dọn rác)
+                const msgEl = $('fix-legacy-status');
+                if (msgEl) msgEl.textContent = "Đang quét dữ liệu Review...";
+                try {
+                    const querySnapshot = await getDocs(query(moviesCollectionRef));
+                    const batch = writeBatch(db);
+                    let updateCount = 0;
+                    querySnapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        if (data.reviewCount === undefined || data.reviewTotal === undefined) {
+                            batch.update(doc(moviesCollectionRef, docSnap.id), {
+                                reviewCount: data.reviewCount || 0,
+                                reviewTotal: data.reviewTotal || 0
+                            });
+                            updateCount++;
+                        }
+                    });
+                    if (updateCount > 0) {
+                        await batch.commit();
+                        alert(`Đã dọn dẹp dữ liệu Review cho ${updateCount} phim!`);
+                    } else {
+                        alert("Dữ liệu Review đã hoàn hảo!");
+                    }
+                    if (msgEl) msgEl.textContent = "";
+                } catch (error) {
+                    alert("Lỗi: " + error.message);
+                }
             }
         };
-        // -----------------------------------------------------------
+        // -------------------------------------------------------------
 
         // NEW: Thêm hàm xóa tất cả tập phim
         window.handleDeleteAllEpisodes = async (movieId, movieTitle) => {
@@ -2458,13 +2442,13 @@
             const confirmed = await window.showConfirmModal(`Bạn có chắc chắn muốn xóa TOÀN BỘ phim "${movieTitle}"?`);
             if (confirmed) {
                 try {
-                    
+
                     await deleteDoc(doc(moviesCollectionRef, movieId));
 
                     if (currentSliderSettings && currentSliderSettings.selectedMovieIds.includes(movieId)) {
-    
+
                         currentSliderSettings.selectedMovieIds = currentSliderSettings.selectedMovieIds.filter(id => id !== movieId);
-                        
+
                         if (sliderSettingsDocRef) {
                             await setDoc(sliderSettingsDocRef, {
                                 mode: currentSliderSettings.mode,
@@ -2473,7 +2457,7 @@
                                 updatedBy: userId
                             });
                         }
-                        
+
                         window.renderSelectedSliderMoviesUI();
                     }
 
@@ -3218,6 +3202,9 @@
                                         <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-stream mr-1"></i> EP BULK
                                         </button>
+                                        <button onclick="window.autoSyncEpisodes('${movie.id}', '${createSlug(movie.title)}')" class="anime-button bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
+                                            <i class="fas fa-sync-alt mr-1"></i> SYNC API
+                                        </button>
                                         <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-edit mr-1"></i> EDIT
                                         </button>
@@ -3286,12 +3273,12 @@
 
             const savedGenres = (movie.genre || '').split(',').map(g => g.trim()).filter(Boolean);
             const container = document.getElementById('edit-genre-tag-container');
-            
+
             container.querySelectorAll('.genre-tag').forEach(tag => tag.classList.remove('selected'));
             container.querySelectorAll('.dynamic-tag').forEach(tag => tag.remove());
 
             savedGenres.forEach(genre => {
-                let existingBtn = Array.from(container.querySelectorAll('.genre-tag')).find(btn => 
+                let existingBtn = Array.from(container.querySelectorAll('.genre-tag')).find(btn =>
                     btn.dataset.genre.toLowerCase() === genre.toLowerCase()
                 );
 
@@ -3301,7 +3288,7 @@
                     const newBtn = document.createElement('button');
                     newBtn.type = 'button';
                     newBtn.className = 'genre-tag dynamic-tag selected font-bold text-sm';
-                    newBtn.dataset.genre = genre; 
+                    newBtn.dataset.genre = genre;
                     newBtn.innerHTML = `${genre} <br><span class="text-[10px] text-yellow-400 font-normal ml-1">(Tag API)</span>`;
                     container.appendChild(newBtn);
                 }
@@ -3414,13 +3401,13 @@
                     <div id="api-results-container"><p class="text-center text-gray-400 py-8 italic">Hãy chọn mục và bấm "Quét" thưa Chủ nhân!</p></div>
                 </div>
             `;
-            
+
             // Lắng nghe sự thay đổi của Dropdown để đổi Placeholder cho hợp lý
             $('api-type').addEventListener('change', (e) => {
                 const type = e.target.value;
                 const slugInput = $('api-slug');
                 const slugLabel = $('label-api-slug');
-                
+
                 if (type === 'moi-cap-nhat') {
                     slugInput.disabled = true;
                     slugInput.placeholder = "Không cần nhập";
@@ -3444,7 +3431,7 @@
             const container = $('api-results-container');
 
             if (type !== 'moi-cap-nhat' && !slug) {
-                alert("Chủ nhân quên nhập Từ khóa hoặc Slug rồi ạ!"); 
+                alert("Chủ nhân quên nhập Từ khóa hoặc Slug rồi ạ!");
                 return;
             }
 
@@ -3468,17 +3455,17 @@
                 const items = data.items || data.data || [];
 
                 if (items.length === 0) {
-                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Bé Lôi không tìm thấy phim nào khớp ạ! (╥﹏╥)</p>'; 
+                    container.innerHTML = '<p class="text-center text-yellow-400 py-8">Bé Lôi không tìm thấy phim nào khớp ạ! (╥﹏╥)</p>';
                     return;
                 }
 
                 let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
                 items.forEach(apiMovie => {
-                    const dbMovie = globalAdminMoviesCache.find(m => 
-                        m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() || 
+                    const dbMovie = globalAdminMoviesCache.find(m =>
+                        m.title.toLowerCase().trim() === apiMovie.name.toLowerCase().trim() ||
                         (m.titleOriginal && apiMovie.original_name && m.titleOriginal.toLowerCase().trim() === apiMovie.original_name.toLowerCase().trim())
                     );
-                    
+
                     let statusBadge = '';
                     let actionButton = '';
                     const apiEpText = apiMovie.current_episode || 'Chưa rõ';
@@ -3488,9 +3475,9 @@
                         if (Array.isArray(dbMovie.episodes) && dbMovie.episodes.length > 0) {
                             dbEpCount = dbMovie.episodes[0].serverName ? Math.max(...dbMovie.episodes.map(srv => Array.isArray(srv.items) ? srv.items.length : 0)) : dbMovie.episodes.length;
                         }
-                        const apiEpMatch = apiEpText.match(/\d+/); 
+                        const apiEpMatch = apiEpText.match(/\d+/);
                         const apiEpNumber = apiEpMatch ? parseInt(apiEpMatch[0]) : 0;
-                        
+
                         if (apiEpNumber > dbEpCount) {
                             statusBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">🚨 CÓ TẬP MỚI (DB: ${dbEpCount} ➔ API: ${apiEpText})</span>`;
                             actionButton = `<button onclick="window.autoSyncEpisodes('${dbMovie.id}', '${apiMovie.slug}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"><i class="fas fa-sync-alt mr-1"></i> Đồng bộ</button>`;
@@ -3517,8 +3504,8 @@
                         </div>`;
                 });
                 container.innerHTML = htmlContent + '</div>';
-            } catch (error) { 
-                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi gọi API: ${error.message}</p>`; 
+            } catch (error) {
+                container.innerHTML = `<p class="text-red-500 text-center py-8">Lỗi gọi API: ${error.message}</p>`;
             }
         };
 
@@ -3578,6 +3565,7 @@
                     return;
                 }
 
+
                 const currentEpText = rawMovie.current_episode || '';
                 let updatedStatus = 'dang-chieu';
                 if (currentEpText.includes('Hoàn tất') || currentEpText.includes('Trọn bộ')) {
@@ -3585,19 +3573,26 @@
                 } else if (rawMovie.status === 'Sắp chiếu') {
                     updatedStatus = 'sap-chieu';
                 }
-                
-                
+
+
                 const realTotalEp = parseInt(rawMovie.total_episodes) || formattedServers[0]?.items.length || 0;
+
+
+                const newPoster = rawMovie.poster_url || rawMovie.thumb_url || '';
+                const newBanner = rawMovie.thumb_url || rawMovie.cover_url || rawMovie.banner_url || '';
 
                 const targetDocRef = doc(moviesCollectionRef, dbMovieId);
                 await updateDoc(targetDocRef, {
                     episodes: formattedServers,
-                    totalEpisodes: realTotalEp, 
-                    status: updatedStatus,     
+                    totalEpisodes: realTotalEp,
+                    status: updatedStatus,
+                    posterUrl: newPoster,
+                    bannerUrl: newBanner,
                     lastEpisodeUpdate: serverTimestamp(),
-                    isNotified: false           
+                    isNotified: false
                 });
-                
+
+
 
                 showLoading(false);
                 alert(`Thành công rực rỡ! Đã nạp thành công ${formattedServers.length} Server vào Database! 🎉`);
@@ -3610,23 +3605,23 @@
             }
         };
 
-        
+
         window.autoAddNewMovie = async (apiSlug) => {
             try {
                 showLoading(true);
                 const resDetail = await fetch(`https://phim.nguonc.com/api/film/${apiSlug}`);
                 const dataDetail = await resDetail.json();
 
-                
+
                 const convertedMovie = mapApiToSchema(dataDetail);
                 const sanitizedMovie = sanitizeMovieData(convertedMovie, userId);
 
-               
+
                 await setDoc(doc(moviesCollectionRef), sanitizedMovie);
 
                 showLoading(false);
                 alert("Quá xịn! Đã thêm siêu phẩm mới vào kho thành công!");
-                window.scanNguonCApi(); 
+                window.scanNguonCApi();
 
             } catch (err) {
                 showLoading(false);
