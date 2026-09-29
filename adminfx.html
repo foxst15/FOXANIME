@@ -1176,6 +1176,17 @@
 
         const $ = (id) => document.getElementById(id);
 
+        window.createSlug = (text) => {
+            if (!text) return '';
+            return text.toLowerCase().normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "") // Bỏ dấu tiếng Việt
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D') // Đổi chữ đ
+                .replace(/[^a-z0-9\s-]/g, "") // Xóa ký tự đặc biệt
+                .trim()
+                .replace(/\s+/g, '-') // Đổi khoảng trắng thành dấu gạch ngang
+                .replace(/-+/g, '-'); // Tránh bị dư gạch ngang trùng nhau
+        };
+
         const COLORS = {
             SUCCESS: '#00ffaa',
             ERROR: '#ff69b4',
@@ -3202,7 +3213,7 @@
                                         <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-stream mr-1"></i> EP BULK
                                         </button>
-                                        <button onclick="window.autoSyncEpisodes('${movie.id}', '${createSlug(movie.title)}')" class="anime-button bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
+                                        <button onclick="window.autoSyncEpisodes('${movie.id}', '${window.createSlug(movie.title)}')" class="anime-button bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-sync-alt mr-1"></i> SYNC API
                                         </button>
                                         <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
