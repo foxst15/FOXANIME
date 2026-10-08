@@ -79,6 +79,12 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://foxanime.top/#movie/2tgC9oif97zPUofjURw2</loc>
+        <lastmod>2026-10-08</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>https://foxanime.top/#movie/42sPG9xGwl73ug0lh5tx</loc>
         <lastmod>2025-12-30</lastmod>
         <changefreq>weekly</changefreq>
@@ -201,6 +207,12 @@
     <url>
         <loc>https://foxanime.top/#movie/GXS6SYs5v0XDaWe7P6ij</loc>
         <lastmod>2025-12-01</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://foxanime.top/#movie/GrVxjIgVXx0vlu9XWkhc</loc>
+        <lastmod>2026-10-08</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
