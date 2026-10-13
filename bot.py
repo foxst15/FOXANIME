@@ -2,7 +2,7 @@ import os
 import json
 import smtplib
 import time
-import requests # <-- Bé Lôi thêm thư viện này để gọi Discord nè!
+import requests 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import firebase_admin
@@ -12,7 +12,7 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
 FIREBASE_CREDS_JSON = os.environ.get("FIREBASE_CREDENTIALS")
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK") # <-- Lấy khóa Discord từ biến môi trường
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK") 
 
 print("Bé Lôi đang khởi động hệ thống đây ạ! 🐾✨")
 
@@ -48,7 +48,7 @@ for movie in new_movies:
     status = data.get("status", "dang-chieu")
     episodes = data.get("episodes", [])
     
-    # BÉ LÔI FIX LỖI: Nhận diện cấu trúc Đa Server của API Nguồn C
+    # Nhận diện cấu trúc Đa Server của API
     ep_count = 0
     if episodes:
         # Nếu phần tử đầu tiên là một object có chứa 'serverName' (Dữ liệu API)
@@ -61,17 +61,17 @@ for movie in new_movies:
     
     if status == "sap-chieu":
         badge_text = "🔥 PHIM SẮP CHIẾU"
-        badge_color = "#fbbf24" # Vàng
+        badge_color = "#fbbf24" 
         desc_text = "Phim mới sắp cập bến, lót dép hóng ngay!"
         subject_prefix = "[Sắp Chiếu]"
     elif ep_count > 0:
         badge_text = f"✨ CẬP NHẬT: TẬP {ep_count}"
-        badge_color = "#00ffaa" # Xanh Neon
+        badge_color = "#00ffaa" 
         desc_text = f"Vừa cập nhật Tập {ep_count} nóng hổi, xem ngay!"
         subject_prefix = f"[Tập {ep_count}]"
     else:
         badge_text = "🎉 PHIM MỚI LÊN SÓNG"
-        badge_color = "#ff69b4" # Hồng
+        badge_color = "#ff69b4"
         desc_text = "Siêu phẩm vừa cập bến FoxAnime, cày ngay cho nóng!"
         subject_prefix = "[Phim Mới]"
     # -----------------------------------------------------------
