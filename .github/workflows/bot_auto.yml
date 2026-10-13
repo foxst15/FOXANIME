@@ -2,9 +2,9 @@ name: FoxAnime Bot Notifier
 
 on:
   schedule:
-    # Lịch trình: Bé Bot sẽ thức dậy lặp lại mỗi 5 phút
+    
     - cron: '*/5 * * * *'
-  # Cho phép FoxST-sama bấm nút chạy thử bằng tay bất cứ lúc nào
+ 
   workflow_dispatch: 
 
 jobs:
