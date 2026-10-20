@@ -418,125 +418,249 @@
         // Muốn có ảnh thật: điền link vào "image" (ví dụ image: 'anh/waifu/zero-two.jpg').
         // Để trống '' thì hệ thống tự vẽ avatar chữ cái.
         const WAIFU_LIST = [
-            {id: 'zero-two', name: 'Zero Two', anime: 'Darling in the Franxx', image: ''},
-            {id: 'rem', name: 'Rem', anime: 'Re:Zero', image: ''},
-            {id: 'mikasa', name: 'Mikasa Ackerman', anime: 'Attack on Titan', image: ''},
-            {id: 'nezuko', name: 'Nezuko Kamado', anime: 'Kimetsu no Yaiba', image: ''},
-            {id: 'asuna', name: 'Asuna Yuuki', anime: 'Sword Art Online', image: ''},
-            {id: 'hinata', name: 'Hinata Hyuga', anime: 'Naruto', image: ''},
-            {id: 'kaguya', name: 'Kaguya Shinomiya', anime: 'Kaguya-sama: Love is War', image: ''},
-            {id: 'makima', name: 'Makima', anime: 'Chainsaw Man', image: ''},
-            {id: 'marin', name: 'Marin Kitagawa', anime: 'Sono Bisque Doll', image: ''},
-            {id: 'frieren', name: 'Frieren', anime: 'Sousou no Frieren', image: ''},
-            {id: 'anya', name: 'Anya Forger', anime: 'Spy x Family', image: ''},
-            {id: 'yor', name: 'Yor Forger', anime: 'Spy x Family', image: ''},
-            {id: 'emilia', name: 'Emilia', anime: 'Re:Zero', image: ''},
-            {id: 'megumin', name: 'Megumin', anime: 'KonoSuba', image: ''},
-            {id: 'power', name: 'Power', anime: 'Chainsaw Man', image: ''}
+            {id: 'zero-two', name: 'Zero Two', anime: 'Darling in the FranXX', role: 'Nữ chính – phi công lai Klaxosaur', voice: 'Miyuri Shimabukuro', traits: ['Tóc hồng', 'Sừng đỏ', 'Táo bạo'], desc: 'Cô gái lai giữa người và Klaxosaur với đôi sừng đỏ nổi bật, từng bị đồn là "khắc" mọi đối tác lái cùng. Cô gọi Hiro là "Darling" và mong muốn trở thành một con người thật sự.', image: ''},
+            {id: 'rem', name: 'Rem', anime: 'Re:Zero', role: 'Hầu gái nhà Roswaal – tộc Oni', voice: 'Inori Minase', traits: ['Tóc xanh', 'Hầu gái', 'Trung thành'], desc: 'Hầu gái tộc Oni, em song sinh của Ram, chiến đấu bằng chùy gai. Sự tận tụy và tình cảm dành cho Subaru khiến cô trở thành một trong những nhân vật được yêu thích nhất của Re:Zero.', image: ''},
+            {id: 'mikasa', name: 'Mikasa Ackerman', anime: 'Attack on Titan', role: 'Binh sĩ ưu tú – tộc Ackerman', voice: 'Yui Ishikawa', traits: ['Khăn đỏ', 'Chiến binh', 'Trầm lặng'], desc: 'Chiến binh thuộc tộc Ackerman với sức mạnh vượt trội, luôn sát cánh bảo vệ Eren, người đã trao cho cô chiếc khăn quàng đỏ gắn bó suốt cuộc đời.', image: ''},
+            {id: 'nezuko', name: 'Nezuko Kamado', anime: 'Kimetsu no Yaiba', role: 'Em gái Tanjiro – quỷ giữ được nhân tính', voice: 'Akari Kito', traits: ['Ống tre', 'Hiền lành', 'Sức mạnh quỷ'], desc: 'Bị biến thành quỷ nhưng vẫn giữ lại nhân tính nhờ tình thương dành cho anh trai Tanjiro. Cô ngậm ống tre và chiến đấu để bảo vệ những người mình yêu quý.', image: ''},
+            {id: 'asuna', name: 'Asuna Yuuki', anime: 'Sword Art Online', role: 'Phó chỉ huy Hiệp sĩ Huyết Minh', voice: 'Haruka Tomatsu', traits: ['Kiếm rapier', 'Tia chớp', 'Dịu dàng'], desc: 'Kiếm sĩ rapier nhanh đến mức được gọi là "Tia chớp". Cô là bạn đồng hành quan trọng nhất của Kirito trong hành trình thoát khỏi Sword Art Online.', image: ''},
+            {id: 'hinata', name: 'Hinata Hyuga', anime: 'Naruto', role: 'Kunoichi làng Lá – tộc Hyuga', voice: 'Nana Mizuki', traits: ['Byakugan', 'Nhút nhát', 'Kiên cường'], desc: 'Cô gái nhút nhát nhưng kiên cường, sở hữu Byakugan và Nhu Quyền. Cô luôn ngưỡng mộ Naruto và trở thành người ở bên cậu về sau.', image: ''},
+            {id: 'kaguya', name: 'Kaguya Shinomiya', anime: 'Kaguya-sama: Love is War', role: 'Phó chủ tịch hội học sinh Shuchiin', voice: 'Aoi Koga', traits: ['Tiểu thư', 'Thông minh', 'Tsundere'], desc: 'Tiểu thư nhà Shinomiya xuất sắc mọi mặt, nhưng không chịu "tỏ tình trước" nên cuộc chiến tâm lý với chủ tịch Shirogane trở thành tâm điểm của bộ anime.', image: ''},
+            {id: 'makima', name: 'Makima', anime: 'Chainsaw Man', role: 'Thợ săn quỷ – Cục An ninh Công cộng', voice: 'Tomori Kusunoki', traits: ['Tóc đỏ', 'Bí ẩn', 'Quyền lực'], desc: 'Người đứng đầu một đội Thợ săn quỷ với vẻ ngoài điềm tĩnh, cuốn hút, nhưng phía sau là những bí mật và sức mạnh đáng sợ.', image: ''},
+            {id: 'marin', name: 'Marin Kitagawa', anime: 'Sono Bisque Doll wa Koi wo Suru', role: 'Nữ chính – cosplayer học đường', voice: 'Hina Suguta', traits: ['Gyaru', 'Cosplay', 'Thẳng thắn'], desc: 'Cô gái gyaru hoạt bát, mê cosplay và không ngại thể hiện đam mê của mình. Cô nhờ Gojo may trang phục và hai người dần trở nên gắn bó.', image: ''},
+            {id: 'frieren', name: 'Frieren', anime: 'Sousou no Frieren', role: 'Pháp sư Elf – thành viên đội anh hùng', voice: 'Atsumi Tanezaki', traits: ['Elf', 'Pháp sư', 'Sống thọ'], desc: 'Pháp sư elf sống hơn một nghìn năm, từng cùng đội anh hùng đánh bại Ma Vương. Sau khi Himmel qua đời, cô bắt đầu hành trình tìm hiểu con người và những người bạn cũ.', image: ''},
+            {id: 'violet', name: 'Violet Evergarden', anime: 'Violet Evergarden', role: 'Búp bê Ký ức Tự động', voice: 'Yui Ishikawa', traits: ['Tóc vàng', 'Cựu binh', 'Tinh tế'], desc: 'Cựu binh được nuôi dạy như một vũ khí, sau chiến tranh trở thành Búp bê Ký ức Tự động chấp bút thư, và dần học cách hiểu cảm xúc con người.', image: ''},
+            {id: 'yor', name: 'Yor Forger', anime: 'Spy x Family', role: 'Sát thủ "Công chúa Gai" – mẹ nhà Forger', voice: 'Saori Hayami', traits: ['Sát thủ', 'Vụng về', 'Mạnh mẽ'], desc: 'Nhân viên hành chính hiền lành ban ngày, nhưng là sát thủ thượng hạng "Công chúa Gai" ban đêm. Dù vụng về đời thường, cô hết lòng bảo vệ gia đình mình.', image: ''},
+            {id: 'emilia', name: 'Emilia', anime: 'Re:Zero', role: 'Ứng viên vua – bán tinh linh', voice: 'Rie Takahashi', traits: ['Tóc bạc', 'Bán tinh linh', 'Ma thuật băng'], desc: 'Cô gái bán tinh linh tóc bạc tham gia cuộc tuyển chọn vua của vương quốc Lugunica, sử dụng ma thuật băng và đã giúp Subaru trong những ngày đầu ở thế giới mới.', image: ''},
+            {id: 'megumin', name: 'Megumin', anime: 'KonoSuba', role: 'Đại pháp sư – tộc Hồng Ma', voice: 'Rie Takahashi', traits: ['Explosion', 'Chuunibyou', 'Hài hước'], desc: 'Pháp sư tộc Hồng Ma chỉ học đúng một chiêu, Explosion, và luôn thể hiện nó đầy kịch tính. Cô là thành viên không thể thiếu trong nhóm của Kazuma.', image: ''},
+            {id: 'power', name: 'Power', anime: 'Chainsaw Man', role: 'Quỷ Máu – đồng đội của Denji', voice: 'Sumire Uesaka', traits: ['Quỷ Máu', 'Hỗn loạn', 'Tự tin'], desc: 'Quỷ Máu kiêu ngạo, lém lỉnh và hay nói dối, nhưng lại gắn bó sâu sắc với chú mèo Meowy và các đồng đội trong đội Thợ săn quỷ.', image: ''}
         ];
         const WAIFU_COLLECTION_PATH = `artifacts/${appId}/public/data/waifu_votes`;
-        let waifuVoteCounts = {};
-        let waifuUseRemote = false;
+        const WAIFU_GRADIENTS = ['from-pink-500 to-purple-600', 'from-sky-500 to-indigo-600', 'from-rose-500 to-orange-500', 'from-emerald-500 to-teal-600', 'from-fuchsia-500 to-violet-600', 'from-amber-500 to-pink-500'];
+
+        let waifuRemoteCounts = {};
+        let waifuLocalCounts = {};
+        let waifuMode = 'loading'; // 'loading' | 'remote' | 'local'
+        let waifuUnsub = null;
+        let waifuOpenId = null;
+        let waifuEscBound = false;
 
         const waifuReadLocal = (key, fallback) => {
             try {const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback;} catch (e) {return fallback;}
         };
         const waifuVotedToday = () => {
-            const today = new Date().toDateString();
             const data = waifuReadLocal('_waifuVoted', {});
-            return data.date === today ? (data.ids || []) : [];
+            return data.date === new Date().toDateString() ? (data.ids || []) : [];
+        };
+        const waifuSaveVoted = (ids) => {
+            localStorage.setItem('_waifuVoted', JSON.stringify({date: new Date().toDateString(), ids}));
+        };
+        const waifuGradient = (id) => WAIFU_GRADIENTS[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % WAIFU_GRADIENTS.length];
+        const waifuVotesOf = (id) => (waifuMode === 'local' ? waifuLocalCounts : waifuRemoteCounts)[id] || 0;
+        const fmtVotes = (n) => n.toLocaleString('vi-VN');
+
+        const getWaifuRanking = () => WAIFU_LIST
+            .map(w => ({...w, votes: waifuVotesOf(w.id)}))
+            .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name))
+            .map((w, i) => ({...w, rank: i + 1}));
+
+        const waifuToast = (msg) => {
+            const t = document.createElement('div');
+            t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-5 py-3 rounded-full bg-gray-900 border border-pink-400/60 text-pink-200 font-bold shadow-lg waifu-fade';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2600);
+        };
+
+        const waifuAvatar = (w, size, text) => w.image
+            ? `<img src="${w.image}" alt="${w.name}" loading="lazy" class="${size} rounded-2xl object-cover border-2 border-pink-400/60 flex-shrink-0">`
+            : `<div class="${size} rounded-2xl bg-gradient-to-br ${waifuGradient(w.id)} flex items-center justify-center ${text} font-black text-white border-2 border-white/30 flex-shrink-0 shadow-lg">${w.name.charAt(0)}</div>`;
+
+        const waifuVoteBtn = (w, extra = '') => {
+            if (waifuVotedToday().includes(w.id)) {
+                return `<button disabled class="px-4 py-2 rounded-xl bg-gray-700 text-gray-400 font-bold text-sm cursor-not-allowed inline-flex items-center justify-center ${extra}"><ion-icon name="checkmark-circle" class="mr-1"></ion-icon>Đã bình chọn</button>`;
+            }
+            return `<button onclick="event.stopPropagation(); window.handleWaifuVote('${w.id}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-sm transition-all hover:-translate-y-0.5 shadow-lg inline-flex items-center justify-center ${extra}"><ion-icon name="heart" class="mr-1"></ion-icon>Bình chọn</button>`;
+        };
+
+        const waifuClickAttrs = (id) => `onclick="window.openWaifuModal('${id}')" onkeydown="if(event.key==='Enter')window.openWaifuModal('${id}')" role="button" tabindex="0"`;
+
+        const waifuPodiumCard = (w) => {
+            const st = {
+                1: {medal: '🥇', border: 'border-yellow-400/70 shadow-[0_0_28px_rgba(250,204,21,0.3)]', pos: 'sm:order-2 sm:-mt-6', size: 'w-28 h-28 sm:w-32 sm:h-32', text: 'text-5xl'},
+                2: {medal: '🥈', border: 'border-gray-300/60', pos: 'sm:order-1', size: 'w-20 h-20 sm:w-24 sm:h-24', text: 'text-4xl'},
+                3: {medal: '🥉', border: 'border-orange-500/60', pos: 'sm:order-3', size: 'w-20 h-20 sm:w-24 sm:h-24', text: 'text-4xl'}
+            }[w.rank];
+            return `
+            <div ${waifuClickAttrs(w.id)} class="group cursor-pointer bg-gray-800 rounded-3xl p-5 border-2 ${st.border} ${st.pos} flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:bg-gray-800/80">
+                <div class="text-3xl mb-2">${st.medal}</div>
+                ${waifuAvatar(w, st.size, st.text)}
+                <div class="mt-3 font-extrabold text-white text-lg leading-tight">${w.name}</div>
+                <div class="text-xs text-gray-400 mb-2">${w.anime}</div>
+                <div class="text-pink-400 font-black text-xl leading-none mb-3">${fmtVotes(w.votes)} <span class="text-xs font-semibold text-gray-400">phiếu</span></div>
+                ${waifuVoteBtn(w, 'w-full')}
+                <div class="mt-2 text-xs text-gray-500 group-hover:text-pink-300 transition-colors">Bấm để xem thông tin</div>
+            </div>`;
+        };
+
+        const waifuRow = (w, maxVotes) => {
+            const percent = Math.round((w.votes / maxVotes) * 100);
+            return `
+            <div ${waifuClickAttrs(w.id)} class="group cursor-pointer bg-gray-800 rounded-2xl p-4 border border-gray-700 hover:border-pink-400/60 flex items-center gap-3 sm:gap-4 transition-all hover:-translate-y-0.5">
+                <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center font-bold flex-shrink-0">${w.rank}</div>
+                ${waifuAvatar(w, 'w-16 h-16 sm:w-20 sm:h-20', 'text-3xl')}
+                <div class="flex-1 min-w-0">
+                    <div class="font-extrabold text-white text-base sm:text-lg truncate group-hover:text-pink-300 transition-colors">${w.name}</div>
+                    <div class="text-xs sm:text-sm text-gray-400 truncate mb-2">${w.anime}</div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500" style="width:${percent}%"></div></div>
+                </div>
+                <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                    <div class="text-pink-400 font-black text-lg leading-none">${fmtVotes(w.votes)} <span class="text-xs font-semibold text-gray-400">phiếu</span></div>
+                    ${waifuVoteBtn(w)}
+                </div>
+            </div>`;
+        };
+
+        const renderWaifuModal = () => {
+            const box = getEl('#waifu-modal');
+            if (!box) return;
+            const w = getWaifuRanking().find(x => x.id === waifuOpenId);
+            if (!w) {window.closeWaifuModal(); return;}
+            const medal = {1: '🥇', 2: '🥈', 3: '🥉'}[w.rank] || '🏅';
+            box.innerHTML = `
+            <div role="dialog" aria-modal="true" aria-label="Thông tin ${w.name}" class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 rounded-3xl border border-pink-500/40 shadow-[0_0_40px_rgba(244,114,182,0.25)] waifu-pop">
+                <button onclick="window.closeWaifuModal()" aria-label="Đóng" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-gray-800 hover:bg-pink-500 text-gray-300 hover:text-white flex items-center justify-center transition-colors z-10"><ion-icon name="close" class="text-xl"></ion-icon></button>
+                <div class="p-6 sm:p-8">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-6">
+                        ${waifuAvatar(w, 'w-32 h-32 sm:w-40 sm:h-40', 'text-6xl')}
+                        <div class="text-center sm:text-left flex-1 min-w-0">
+                            <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-400/50 text-pink-300 font-bold text-sm mb-2">${medal} Hạng #${w.rank}</div>
+                            <h3 class="text-3xl font-extrabold text-white leading-tight">${w.name}</h3>
+                            <p class="text-gray-400 mt-1">${w.anime}</p>
+                            <p class="mt-3 text-pink-400 font-black text-2xl">${fmtVotes(w.votes)} <span class="text-sm font-semibold text-gray-400">phiếu bình chọn</span></p>
+                        </div>
+                    </div>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                        <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700"><dt class="text-xs uppercase tracking-wider text-gray-500 mb-1">Anime</dt><dd class="font-bold text-white">${w.anime}</dd></div>
+                        <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700"><dt class="text-xs uppercase tracking-wider text-gray-500 mb-1">Vai trò</dt><dd class="font-bold text-white">${w.role}</dd></div>
+                        <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 sm:col-span-2"><dt class="text-xs uppercase tracking-wider text-gray-500 mb-1">Lồng tiếng (bản Nhật)</dt><dd class="font-bold text-white">${w.voice}</dd></div>
+                    </dl>
+                    <div class="flex flex-wrap gap-2 mb-5">${w.traits.map(t => `<span class="px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-sm font-semibold">${t}</span>`).join('')}</div>
+                    <div class="mb-6">
+                        <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Giới thiệu</div>
+                        <p class="text-gray-200 leading-relaxed">${w.desc}</p>
+                    </div>
+                    ${waifuVoteBtn(w, 'w-full !py-3 text-base')}
+                </div>
+            </div>`;
         };
 
         const renderWaifuList = () => {
-            const listEl = getEl('#waifu-list');
-            if (!listEl) return;
-            const voted = waifuVotedToday();
-            const ranked = WAIFU_LIST
-                .map(w => ({...w, votes: waifuVoteCounts[w.id] || 0}))
-                .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
-            const maxVotes = Math.max(1, ...ranked.map(w => w.votes));
-            const rankStyle = [
-                'from-yellow-400 to-amber-500 text-gray-900',
-                'from-gray-200 to-gray-400 text-gray-900',
-                'from-orange-400 to-orange-700 text-white'
-            ];
-            const borderStyle = [
-                'border-yellow-400/60 shadow-[0_0_20px_rgba(250,204,21,0.25)]',
-                'border-gray-300/50',
-                'border-orange-500/50'
-            ];
-
-            listEl.innerHTML = ranked.map((w, i) => {
-                const hasVoted = voted.includes(w.id);
-                const percent = Math.round((w.votes / maxVotes) * 100);
-                const avatar = w.image
-                    ? `<img src="${w.image}" alt="${w.name}" loading="lazy" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-pink-400/60 flex-shrink-0">`
-                    : `<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-3xl font-black text-white border-2 border-pink-400/60 flex-shrink-0">${w.name.charAt(0)}</div>`;
-                const badge = i < 3
-                    ? `<div class="w-10 h-10 rounded-full bg-gradient-to-br ${rankStyle[i]} flex items-center justify-center font-black text-lg flex-shrink-0 shadow-lg">${i + 1}</div>`
-                    : `<div class="w-10 h-10 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center font-bold flex-shrink-0">${i + 1}</div>`;
-                const voteBtn = hasVoted
-                    ? `<button disabled class="px-4 py-2 rounded-xl bg-gray-700 text-gray-400 font-bold text-sm cursor-not-allowed flex items-center"><ion-icon name="checkmark-circle" class="mr-1"></ion-icon>Đã bình chọn</button>`
-                    : `<button onclick="window.handleWaifuVote('${w.id}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-sm transition-all transform hover:-translate-y-0.5 shadow-lg flex items-center"><ion-icon name="heart" class="mr-1"></ion-icon>Bình chọn</button>`;
-                return `
-                <div class="bg-gray-800 rounded-2xl p-4 border ${i < 3 ? borderStyle[i] : 'border-gray-700'} flex items-center gap-3 sm:gap-4">
-                    ${badge}
-                    ${avatar}
-                    <div class="flex-1 min-w-0">
-                        <div class="font-extrabold text-white text-base sm:text-lg truncate">${w.name}</div>
-                        <div class="text-xs sm:text-sm text-gray-400 truncate mb-2">${w.anime}</div>
-                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500" style="width:${percent}%"></div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                        <div class="text-pink-400 font-black text-lg leading-none">${w.votes.toLocaleString('vi-VN')} <span class="text-xs font-semibold text-gray-400">phiếu</span></div>
-                        ${voteBtn}
-                    </div>
-                </div>`;
-            }).join('');
+            const el = getEl('#waifu-list');
+            if (!el) return;
+            if (waifuMode === 'loading') {
+                el.innerHTML = '<div class="flex justify-center py-16"><svg class="animate-spin h-10 w-10 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>';
+                return;
+            }
+            const ranking = getWaifuRanking();
+            const maxVotes = Math.max(1, ...ranking.map(w => w.votes));
+            const total = ranking.reduce((a, w) => a + w.votes, 0);
+            const notice = waifuMode === 'local'
+                ? '<div class="mb-5 px-4 py-3 rounded-xl bg-yellow-500/10 border border-yellow-500/40 text-yellow-200 text-sm">Chưa kết nối được bảng xếp hạng chung, phiếu của bạn tạm thời chỉ lưu trên máy này.</div>'
+                : '';
+            el.innerHTML = `
+                ${notice}
+                <div class="text-center mb-6 text-gray-400 text-sm">Tổng cộng <span class="text-pink-400 font-black">${fmtVotes(total)}</span> phiếu bình chọn</div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:items-end mb-8">${ranking.slice(0, 3).map(waifuPodiumCard).join('')}</div>
+                <div class="flex flex-col gap-3">${ranking.slice(3).map(w => waifuRow(w, maxVotes)).join('')}</div>`;
+            if (waifuOpenId) renderWaifuModal();
         };
 
         const WaifuPageTemplate = () => `
         <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 mb-4 drop-shadow-lg uppercase tracking-wide">💖 BXH Waifu 💖</h2>
-                <p class="text-gray-400 text-lg">Bình chọn cho waifu yêu thích của bạn. Mỗi waifu được bình chọn 1 lần mỗi ngày!</p>
+                <p class="text-gray-400 text-lg">Bấm vào từng waifu để xem thông tin. Mỗi waifu được bình chọn 1 lần mỗi ngày!</p>
             </div>
-            <div id="waifu-list" class="w-full max-w-4xl flex flex-col gap-3"></div>
+            <div id="waifu-list" class="w-full max-w-4xl"></div>
         </section>`;
 
-        window.loadWaifuPage = async () => {
-            getEl('#app').innerHTML = WaifuPageTemplate();
-            const localCounts = waifuReadLocal('_waifuLocalCounts', {});
-            waifuVoteCounts = {...localCounts};
-            renderWaifuList();
-            try {
-                const snap = await getDocs(collection(db, WAIFU_COLLECTION_PATH));
-                const remote = {};
-                snap.forEach(d => {remote[d.id] = d.data().votes || 0;});
-                waifuVoteCounts = remote;
-                waifuUseRemote = true;
-            } catch (e) {
-                console.warn('[BXH Waifu] Không đọc được Firestore, dùng dữ liệu cục bộ:', e);
-                waifuUseRemote = false;
+        window.openWaifuModal = (id) => {
+            waifuOpenId = id;
+            if (!getEl('#waifu-modal')) {
+                const box = document.createElement('div');
+                box.id = 'waifu-modal';
+                box.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm waifu-fade';
+                box.addEventListener('click', (e) => {if (e.target === box) window.closeWaifuModal();});
+                document.body.appendChild(box);
             }
-            if (window.location.hash === '#waifu') renderWaifuList();
+            document.body.style.overflow = 'hidden';
+            renderWaifuModal();
         };
 
-        window.handleWaifuVote = async (waifuId) => {
-            const voted = waifuVotedToday();
-            if (voted.includes(waifuId)) return;
-            waifuVoteCounts[waifuId] = (waifuVoteCounts[waifuId] || 0) + 1;
-            localStorage.setItem('_waifuVoted', JSON.stringify({date: new Date().toDateString(), ids: [...voted, waifuId]}));
-            localStorage.setItem('_waifuLocalCounts', JSON.stringify(waifuVoteCounts));
+        window.closeWaifuModal = () => {
+            waifuOpenId = null;
+            getEl('#waifu-modal')?.remove();
+            document.body.style.overflow = '';
+        };
+
+        window.cleanupWaifuPage = () => {
+            if (waifuUnsub) {waifuUnsub(); waifuUnsub = null;}
+            if (waifuOpenId || getEl('#waifu-modal')) window.closeWaifuModal();
+        };
+
+        window.loadWaifuPage = () => {
+            window.cleanupWaifuPage();
+            getEl('#app').innerHTML = WaifuPageTemplate();
+            waifuMode = 'loading';
+            waifuLocalCounts = waifuReadLocal('_waifuLocalCounts', {});
+            if (!waifuEscBound) {
+                waifuEscBound = true;
+                document.addEventListener('keydown', (e) => {if (e.key === 'Escape' && waifuOpenId) window.closeWaifuModal();});
+            }
             renderWaifuList();
-            if (waifuUseRemote) {
-                try {
-                    await setDoc(doc(db, WAIFU_COLLECTION_PATH, waifuId), {votes: increment(1)}, {merge: true});
-                } catch (e) {
-                    console.warn('[BXH Waifu] Không ghi được phiếu lên Firestore:', e);
-                }
+            try {
+                // Số phiếu luôn lấy trực tiếp từ server (realtime), không tự cộng ở máy nữa.
+                waifuUnsub = onSnapshot(collection(db, WAIFU_COLLECTION_PATH), (snap) => {
+                    const counts = {};
+                    snap.forEach(d => {counts[d.id] = d.data().votes || 0;});
+                    waifuRemoteCounts = counts;
+                    waifuMode = 'remote';
+                    if (window.location.hash === '#waifu') renderWaifuList();
+                }, (err) => {
+                    console.warn('[BXH Waifu] Không đọc được Firestore, dùng chế độ cục bộ:', err);
+                    waifuMode = 'local';
+                    if (window.location.hash === '#waifu') renderWaifuList();
+                });
+            } catch (e) {
+                console.warn('[BXH Waifu] Lỗi khởi tạo listener:', e);
+                waifuMode = 'local';
+                renderWaifuList();
+            }
+        };
+
+        window.handleWaifuVote = async (id) => {
+            if (waifuMode === 'loading') return;
+            const voted = waifuVotedToday();
+            if (voted.includes(id)) return;
+            waifuSaveVoted([...voted, id]);
+
+            if (waifuMode === 'local') {
+                waifuLocalCounts[id] = (waifuLocalCounts[id] || 0) + 1;
+                localStorage.setItem('_waifuLocalCounts', JSON.stringify(waifuLocalCounts));
+                renderWaifuList();
+                waifuToast('💖 Đã bình chọn!');
+                return;
+            }
+
+            renderWaifuList(); // khóa nút ngay lập tức; số phiếu sẽ cập nhật qua snapshot
+            try {
+                await setDoc(doc(db, WAIFU_COLLECTION_PATH, id), {votes: increment(1)}, {merge: true});
+                waifuToast('💖 Đã bình chọn!');
+            } catch (e) {
+                console.warn('[BXH Waifu] Không ghi được phiếu:', e);
+                waifuSaveVoted(voted);
+                renderWaifuList();
+                waifuToast('Không ghi được phiếu, bạn thử lại sau nhé.');
             }
         };
         // =================== HẾT BXH WAIFU ===================
@@ -2191,6 +2315,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             }
 
             if (primaryHash !== '#phim' && unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
+            if (primaryHash !== '#waifu' && window.cleanupWaifuPage) window.cleanupWaifuPage();
 
             if (primaryHash === '#phim' && pathSegments.length >= 2) {
                 
@@ -2882,6 +3007,12 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                 animation: none !important;
             }
         }
+
+        .waifu-fade { animation: waifuFade 0.2s ease-out; }
+        .waifu-pop { animation: waifuPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes waifuFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes waifuPop { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .waifu-fade, .waifu-pop { animation: none; } }
 
         .dropdown-icon {
             transition: transform 0.2s ease-in-out;
