@@ -72,7 +72,7 @@
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     
    <script type="module">
         import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -2686,26 +2686,201 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             background-color: #4b5563;
         }
 
-        .nav-link.nav-active {
-            color: #a3e635;
+        /* ================= TAG MENU KIỂU ANIME ================= */
+        header nav a.nav-link {
+            font-family: 'Nunito', 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.95rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: #e5e7eb;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: none;
             position: relative;
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
         }
 
-        .nav-link.nav-active::after {
-            content: '';
+        header nav a.nav-link:hover {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(244, 114, 182, 0.28), rgba(163, 230, 53, 0.22));
+            border-color: rgba(244, 114, 182, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(244, 114, 182, 0.25);
+        }
+
+        header nav a.nav-link ion-icon.nav-ico {
+            font-size: 1.05rem;
+            margin-right: 0;
+            color: #f9a8d4;
+        }
+
+        header nav a.nav-link.nav-active {
+            color: #1f2937;
+            background: linear-gradient(135deg, #f9a8d4, #bef264);
+            border-color: #fff;
+            box-shadow: 0 0 18px rgba(244, 114, 182, 0.55);
+        }
+
+        header nav a.nav-link.nav-active::after {
+            content: '✦';
             position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background-color: #a3e635;
-            border-radius: 2px;
+            top: -7px;
+            right: -2px;
+            width: auto;
+            height: auto;
+            background: none;
+            font-size: 0.8rem;
+            color: #fde047;
+            animation: navTwinkle 1.8s ease-in-out infinite;
         }
 
-        .mobile-nav-link.mobile-nav-active {
-            background-color: #374151;
-            color: #a3e635;
+        header nav a.nav-link.nav-active ion-icon.nav-ico {
+            color: #be185d;
+        }
+
+        /* Tag đặc biệt: Nhân Phẩm & BXH Waifu */
+        header nav a.nav-link[href="#gacha"] {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(236, 72, 153, 0.2));
+            border-color: rgba(168, 85, 247, 0.55);
+            color: #e9d5ff;
+        }
+
+        header nav a.nav-link[href="#waifu"] {
+            background: linear-gradient(135deg, rgba(244, 114, 182, 0.32), rgba(251, 113, 133, 0.22));
+            border-color: rgba(244, 114, 182, 0.65);
+            color: #fbcfe8;
+        }
+
+        header nav a.nav-link[href="#gacha"] ion-icon {
+            color: #c084fc;
+            margin-right: 0;
+            animation: navTwinkle 2s ease-in-out infinite;
+        }
+
+        header nav a.nav-link[href="#waifu"] ion-icon {
+            color: #f472b6;
+            margin-right: 0;
+            animation: navHeartBeat 1.6s ease-in-out infinite;
+        }
+
+        header nav a[href="/manga"] {
+            font-family: 'Nunito', 'Inter', sans-serif;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            padding: 0.4rem 0.95rem;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(250, 204, 21, 0.16));
+            border: 1px solid rgba(249, 115, 22, 0.55);
+        }
+
+        @keyframes navHeartBeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.2); }
+            70% { transform: scale(1); }
+        }
+
+        @keyframes navTwinkle {
+            0%, 100% { transform: rotate(0deg) scale(1); opacity: 1; }
+            50% { transform: rotate(18deg) scale(1.25); opacity: 0.75; }
+        }
+
+        /* Dropdown mềm mại, viền hồng */
+        .dropdown-content {
+            background: linear-gradient(160deg, #1f2937, #2b2140);
+            border: 1px solid rgba(244, 114, 182, 0.35);
+            border-radius: 1rem !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 18px rgba(244, 114, 182, 0.15) !important;
+        }
+
+        .dropdown-content.mega-menu-1-col {
+            gap: 0.15rem;
+        }
+
+        .dropdown-content a {
+            font-family: 'Nunito', 'Inter', sans-serif;
             font-weight: 700;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.65rem;
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        }
+
+        .dropdown-content a::before {
+            content: '✦';
+            color: #f472b6;
+            font-size: 0.7rem;
+            margin-right: 0.5rem;
+            opacity: 0.65;
+        }
+
+        .dropdown-content a:hover,
+        .dropdown-content.mega-menu-1-col a:hover {
+            background-color: rgba(244, 114, 182, 0.18) !important;
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        /* Menu mobile */
+        #mobile-menu .mobile-nav-link {
+            font-family: 'Nunito', 'Inter', sans-serif;
+            font-weight: 800;
+            color: #e5e7eb;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-left: 4px solid #f472b6;
+            border-radius: 1rem;
+            margin-bottom: 0.25rem;
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        #mobile-menu .mobile-nav-link ion-icon.nav-ico {
+            color: #f9a8d4;
+            font-size: 1.1rem;
+        }
+
+        #mobile-menu .mobile-nav-link:hover {
+            background: linear-gradient(90deg, rgba(244, 114, 182, 0.25), rgba(163, 230, 53, 0.12));
+            color: #fff;
+            transform: translateX(3px);
+        }
+
+        #mobile-menu .mobile-nav-link.mobile-nav-active {
+            background: linear-gradient(90deg, #f9a8d4, #bef264);
+            color: #1f2937;
+            border-left-color: #fff;
+            box-shadow: 0 0 14px rgba(244, 114, 182, 0.45);
+        }
+
+        #mobile-menu .mobile-nav-link.mobile-nav-active ion-icon.nav-ico {
+            color: #be185d;
+        }
+
+        #mobile-menu a.mobile-nav-link[href="#gacha"] {
+            color: #e9d5ff;
+            border-left-color: #c084fc;
+        }
+
+        #mobile-menu a.mobile-nav-link[href="#waifu"] {
+            color: #fbcfe8;
+            border-left-color: #f472b6;
+        }
+
+        #mobile-menu a.mobile-nav-link[href="#waifu"] ion-icon {
+            animation: navHeartBeat 1.6s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            header nav a.nav-link ion-icon,
+            #mobile-menu a.mobile-nav-link ion-icon,
+            header nav a.nav-link.nav-active::after {
+                animation: none !important;
+            }
         }
 
         .dropdown-icon {
@@ -3071,15 +3246,14 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             </div>
 
             <nav class="hidden lg:flex py-3 border-t border-gray-700/50">
-                <div class="flex space-x-6 items-center">
+                <div class="flex flex-wrap items-center gap-2">
                     <a href="#home"
-                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Trang
-                        Chủ</a>
+                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon name="home" class="nav-ico"></ion-icon>Trang Chủ</a>
 
                     <div class="dropdown">
                         <a href="#genre" data-hash-group="#genre"
                             class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                            Dạng Anime
+                            <ion-icon name="film" class="nav-ico"></ion-icon>Dạng Anime
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3097,7 +3271,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     <div class="dropdown">
                         <a href="#top" data-hash-group="#top"
                             class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                            Top Anime
+                            <ion-icon name="trophy" class="nav-ico"></ion-icon>Top Anime
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3115,7 +3289,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     <div class="dropdown">
                         <a href="#genre" data-hash-group="#genre"
                             class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                            Thể Loại
+                            <ion-icon name="pricetags" class="nav-ico"></ion-icon>Thể Loại
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3273,7 +3447,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     <div class="dropdown">
                         <a href="#season" data-hash-group="#season"
                             class="nav-link flex items-center text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">
-                            Season
+                            <ion-icon name="leaf" class="nav-ico"></ion-icon>Season
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3328,11 +3502,9 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     </div>
 
                     <a href="#library"
-                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Thư
-                        Viện</a>
+                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon name="library" class="nav-ico"></ion-icon>Thư Viện</a>
                     <a href="#schedule"
-                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors">Lịch
-                        Chiếu</a>
+                        class="nav-link text-gray-300 hover:text-lime-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon name="calendar" class="nav-ico"></ion-icon>Lịch Chiếu</a>
                     <a href="#gacha"
                         class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
                             name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
@@ -3357,14 +3529,13 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
     <div class="lg:hidden hidden bg-gray-900 border-l border-gray-700" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <a href="#home"
-                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trang
-                Chủ</a>
+                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"><ion-icon name="home" class="nav-ico"></ion-icon>Trang Chủ</a>
 
             <div>
                 <button
                     class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
                     data-hash-group="#genre">
-                    <span>Dạng Anime</span>
+                    <span class="flex items-center gap-2"><ion-icon name="film" class="nav-ico"></ion-icon>Dạng Anime</span>
                     <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3390,7 +3561,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                 <button
                     class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
                     data-hash-group="#genre">
-                    <span>Thể Loại Chi Tiết</span>
+                    <span class="flex items-center gap-2"><ion-icon name="pricetags" class="nav-ico"></ion-icon>Thể Loại Chi Tiết</span>
                     <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3540,7 +3711,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                 <button
                     class="mobile-nav-link mobile-dropdown-toggle w-full flex justify-between items-center text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium"
                     data-hash-group="#season">
-                    <span>Season</span>
+                    <span class="flex items-center gap-2"><ion-icon name="leaf" class="nav-ico"></ion-icon>Season</span>
                     <svg class="dropdown-icon w-5 h-5 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -3586,11 +3757,9 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             </div>
 
             <a href="#library"
-                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Thư
-                Viện</a>
+                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"><ion-icon name="library" class="nav-ico"></ion-icon>Thư Viện</a>
             <a href="#schedule"
-                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Lịch
-                Chiếu</a>
+                class="mobile-nav-link text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"><ion-icon name="calendar" class="nav-ico"></ion-icon>Lịch Chiếu</a>
             <a href="#gacha"
                 class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
                     name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
