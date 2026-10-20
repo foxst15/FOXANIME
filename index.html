@@ -414,6 +414,133 @@
     `;
         };
 
+        // ===================== BXH WAIFU =====================
+        // Muốn có ảnh thật: điền link vào "image" (ví dụ image: 'anh/waifu/zero-two.jpg').
+        // Để trống '' thì hệ thống tự vẽ avatar chữ cái.
+        const WAIFU_LIST = [
+            {id: 'zero-two', name: 'Zero Two', anime: 'Darling in the Franxx', image: ''},
+            {id: 'rem', name: 'Rem', anime: 'Re:Zero', image: ''},
+            {id: 'mikasa', name: 'Mikasa Ackerman', anime: 'Attack on Titan', image: ''},
+            {id: 'nezuko', name: 'Nezuko Kamado', anime: 'Kimetsu no Yaiba', image: ''},
+            {id: 'asuna', name: 'Asuna Yuuki', anime: 'Sword Art Online', image: ''},
+            {id: 'hinata', name: 'Hinata Hyuga', anime: 'Naruto', image: ''},
+            {id: 'kaguya', name: 'Kaguya Shinomiya', anime: 'Kaguya-sama: Love is War', image: ''},
+            {id: 'makima', name: 'Makima', anime: 'Chainsaw Man', image: ''},
+            {id: 'marin', name: 'Marin Kitagawa', anime: 'Sono Bisque Doll', image: ''},
+            {id: 'frieren', name: 'Frieren', anime: 'Sousou no Frieren', image: ''},
+            {id: 'anya', name: 'Anya Forger', anime: 'Spy x Family', image: ''},
+            {id: 'yor', name: 'Yor Forger', anime: 'Spy x Family', image: ''},
+            {id: 'emilia', name: 'Emilia', anime: 'Re:Zero', image: ''},
+            {id: 'megumin', name: 'Megumin', anime: 'KonoSuba', image: ''},
+            {id: 'power', name: 'Power', anime: 'Chainsaw Man', image: ''}
+        ];
+        const WAIFU_COLLECTION_PATH = `artifacts/${appId}/public/data/waifu_votes`;
+        let waifuVoteCounts = {};
+        let waifuUseRemote = false;
+
+        const waifuReadLocal = (key, fallback) => {
+            try {const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback;} catch (e) {return fallback;}
+        };
+        const waifuVotedToday = () => {
+            const today = new Date().toDateString();
+            const data = waifuReadLocal('_waifuVoted', {});
+            return data.date === today ? (data.ids || []) : [];
+        };
+
+        const renderWaifuList = () => {
+            const listEl = getEl('#waifu-list');
+            if (!listEl) return;
+            const voted = waifuVotedToday();
+            const ranked = WAIFU_LIST
+                .map(w => ({...w, votes: waifuVoteCounts[w.id] || 0}))
+                .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
+            const maxVotes = Math.max(1, ...ranked.map(w => w.votes));
+            const rankStyle = [
+                'from-yellow-400 to-amber-500 text-gray-900',
+                'from-gray-200 to-gray-400 text-gray-900',
+                'from-orange-400 to-orange-700 text-white'
+            ];
+            const borderStyle = [
+                'border-yellow-400/60 shadow-[0_0_20px_rgba(250,204,21,0.25)]',
+                'border-gray-300/50',
+                'border-orange-500/50'
+            ];
+
+            listEl.innerHTML = ranked.map((w, i) => {
+                const hasVoted = voted.includes(w.id);
+                const percent = Math.round((w.votes / maxVotes) * 100);
+                const avatar = w.image
+                    ? `<img src="${w.image}" alt="${w.name}" loading="lazy" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-pink-400/60 flex-shrink-0">`
+                    : `<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-3xl font-black text-white border-2 border-pink-400/60 flex-shrink-0">${w.name.charAt(0)}</div>`;
+                const badge = i < 3
+                    ? `<div class="w-10 h-10 rounded-full bg-gradient-to-br ${rankStyle[i]} flex items-center justify-center font-black text-lg flex-shrink-0 shadow-lg">${i + 1}</div>`
+                    : `<div class="w-10 h-10 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center font-bold flex-shrink-0">${i + 1}</div>`;
+                const voteBtn = hasVoted
+                    ? `<button disabled class="px-4 py-2 rounded-xl bg-gray-700 text-gray-400 font-bold text-sm cursor-not-allowed flex items-center"><ion-icon name="checkmark-circle" class="mr-1"></ion-icon>Đã bình chọn</button>`
+                    : `<button onclick="window.handleWaifuVote('${w.id}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-sm transition-all transform hover:-translate-y-0.5 shadow-lg flex items-center"><ion-icon name="heart" class="mr-1"></ion-icon>Bình chọn</button>`;
+                return `
+                <div class="bg-gray-800 rounded-2xl p-4 border ${i < 3 ? borderStyle[i] : 'border-gray-700'} flex items-center gap-3 sm:gap-4">
+                    ${badge}
+                    ${avatar}
+                    <div class="flex-1 min-w-0">
+                        <div class="font-extrabold text-white text-base sm:text-lg truncate">${w.name}</div>
+                        <div class="text-xs sm:text-sm text-gray-400 truncate mb-2">${w.anime}</div>
+                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500" style="width:${percent}%"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                        <div class="text-pink-400 font-black text-lg leading-none">${w.votes.toLocaleString('vi-VN')} <span class="text-xs font-semibold text-gray-400">phiếu</span></div>
+                        ${voteBtn}
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        const WaifuPageTemplate = () => `
+        <section class="min-h-[75vh] flex flex-col items-center pt-4 pb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 mb-4 drop-shadow-lg uppercase tracking-wide">💖 BXH Waifu 💖</h2>
+                <p class="text-gray-400 text-lg">Bình chọn cho waifu yêu thích của bạn. Mỗi waifu được bình chọn 1 lần mỗi ngày!</p>
+            </div>
+            <div id="waifu-list" class="w-full max-w-4xl flex flex-col gap-3"></div>
+        </section>`;
+
+        window.loadWaifuPage = async () => {
+            getEl('#app').innerHTML = WaifuPageTemplate();
+            const localCounts = waifuReadLocal('_waifuLocalCounts', {});
+            waifuVoteCounts = {...localCounts};
+            renderWaifuList();
+            try {
+                const snap = await getDocs(collection(db, WAIFU_COLLECTION_PATH));
+                const remote = {};
+                snap.forEach(d => {remote[d.id] = d.data().votes || 0;});
+                waifuVoteCounts = remote;
+                waifuUseRemote = true;
+            } catch (e) {
+                console.warn('[BXH Waifu] Không đọc được Firestore, dùng dữ liệu cục bộ:', e);
+                waifuUseRemote = false;
+            }
+            if (window.location.hash === '#waifu') renderWaifuList();
+        };
+
+        window.handleWaifuVote = async (waifuId) => {
+            const voted = waifuVotedToday();
+            if (voted.includes(waifuId)) return;
+            waifuVoteCounts[waifuId] = (waifuVoteCounts[waifuId] || 0) + 1;
+            localStorage.setItem('_waifuVoted', JSON.stringify({date: new Date().toDateString(), ids: [...voted, waifuId]}));
+            localStorage.setItem('_waifuLocalCounts', JSON.stringify(waifuVoteCounts));
+            renderWaifuList();
+            if (waifuUseRemote) {
+                try {
+                    await setDoc(doc(db, WAIFU_COLLECTION_PATH, waifuId), {votes: increment(1)}, {merge: true});
+                } catch (e) {
+                    console.warn('[BXH Waifu] Không ghi được phiếu lên Firestore:', e);
+                }
+            }
+        };
+        // =================== HẾT BXH WAIFU ===================
+
         const setupCommentsListener = (movieId) => {
             if (unsubscribeCommentsListener) {unsubscribeCommentsListener(); unsubscribeCommentsListener = null;}
             const commentsColRef = collection(db, dataCollectionPath, movieId, 'comments');
@@ -1976,6 +2103,10 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     getEl('#fortune-form').addEventListener('submit', window.handleFortuneTelling);
                     return; 
 
+                case '#waifu':
+                    window.loadWaifuPage();
+                    return;
+
                 case '#login':
                     getEl('#app').innerHTML = AuthPageTemplate();
                     getEl('#google-login-btn')?.addEventListener('click', handleGoogleLogin);
@@ -2044,7 +2175,7 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
 
             getAllEl('.nav-active, .mobile-nav-active').forEach(el => el.classList.remove('nav-active', 'mobile-nav-active'));
 
-            const navMap = {'#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile', '#gacha': '#gacha'};
+            const navMap = {'#home': '#home', '#login': '#login', '#library': '#library', '#schedule': '#schedule', '#profile': '#profile', '#gacha': '#gacha', '#waifu': '#waifu'};
             const groupMap = {'#phim': '#home', '#search': '#home', '#genre': '#genre', '#top': '#top', '#season': '#season'};
             const targetHash = navMap[primaryHash] || groupMap[primaryHash];
 
@@ -3205,6 +3336,9 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
                     <a href="#gacha"
                         class="nav-link text-gray-300 hover:text-purple-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
                             name="sparkles" class="mr-1"></ion-icon>Nhân Phẩm</a>
+                    <a href="#waifu"
+                        class="nav-link text-gray-300 hover:text-pink-400 text-sm font-medium uppercase tracking-wider transition-colors"><ion-icon
+                            name="heart" class="mr-1"></ion-icon>BXH Waifu</a>
                     <div class="h-4 w-px bg-gray-600 mx-2"></div> <!-- Vạch kẻ dọc phân cách -->
                     <a href="/manga"
                         class="text-orange-500 hover:text-orange-400 font-extrabold uppercase text-sm tracking-wider flex items-center transition-all hover:scale-105 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">
@@ -3460,6 +3594,9 @@ const InfoPageTemplate = (movie, episodes, isLiked, currentServerName = '') => {
             <a href="#gacha"
                 class="mobile-nav-link text-purple-400 hover:bg-gray-700 hover:text-purple-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
                     name="sparkles" class="mr-2"></ion-icon>Góc Nhân Phẩm</a>
+            <a href="#waifu"
+                class="mobile-nav-link text-pink-400 hover:bg-gray-700 hover:text-pink-300 block px-3 py-2 rounded-md text-base font-bold"><ion-icon
+                    name="heart" class="mr-2"></ion-icon>BXH Waifu</a>
             <a href="/manga"
                 class="block px-3 py-2 mt-2 bg-gradient-to-r from-orange-600/20 to-transparent border-l-4 border-orange-500 rounded-r-md text-orange-400 text-base font-extrabold transition-colors">
                 <ion-icon name="book" class="mr-2"></ion-icon>Sang Đọc Truyện (FoxManga)
