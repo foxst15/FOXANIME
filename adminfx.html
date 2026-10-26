@@ -1176,6 +1176,9 @@
 
         const $ = (id) => document.getElementById(id);
 
+        // FIX: escape ký tự đặc biệt khi nhét tên phim vào thuộc tính HTML
+        const escapeHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
         window.createSlug = (text) => {
             if (!text) return '';
             return text.toLowerCase().normalize("NFD")
@@ -2762,6 +2765,15 @@
                 });
             });
 
+            // FIX: Listener cho nút xóa phim (không còn nhét tên phim vào onclick)
+            container.querySelectorAll('.delete-movie-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.getAttribute('data-movie-id');
+                    const m = globalAdminMoviesCache.find(x => x.id === id);
+                    window.handleDeleteMovie(id, m ? m.title : '');
+                });
+            });
+
             // Thêm listeners cho nút sửa phim
             container.querySelectorAll('.edit-movie-btn').forEach(button => {
                 button.addEventListener('click', function () {
@@ -3191,14 +3203,14 @@
                         
                         <div class="flex items-start space-x-4">
                             <img src="${posterSrc}" onerror="this.onerror=null;this.src='https://placehold.co/100x150/1f2937/d1d5db?text=POSTER';" 
-                                 class="w-20 h-30 object-cover rounded-lg shadow-lg flex-shrink-0 border-2 border-[#ff69b4]" alt="Poster ${movie.title}">
+                                 class="w-20 h-30 object-cover rounded-lg shadow-lg flex-shrink-0 border-2 border-[#ff69b4]" alt="Poster ${escapeHtml(movie.title)}">
                             
                             <div class="flex-grow">
                                 ${titleHtml}
                                 <p class="text-sm text-[#00ffaa] mb-2 italic">Genre: ${movie.genre || 'N/A'}</p>
                                 <p class="text-gray-300 text-sm line-clamp-2">${movie.summary || 'Không có tóm tắt.'}</p>
                                 
-                                <<!-- BÉ LÔI SỬA: Cấu trúc lại khu vực nút bấm cho Mobile -->
+                                <!-- BÉ LÔI SỬA: Cấu trúc lại khu vực nút bấm cho Mobile -->
                                 <div class="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-2 items-start sm:items-center">
                                     <div class="flex gap-2">
                                         ${getStatusBadge(movie.status)}
@@ -3207,10 +3219,10 @@
                                     
                                     <!-- Nhóm nút bấm: Trên mobile sẽ dàn thành 2 cột (grid-cols-2), desktop xếp ngang -->
                                     <div class="w-full sm:w-auto sm:ml-auto grid grid-cols-2 sm:flex sm:space-x-2 gap-2 mt-2 sm:mt-0">
-                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
+                                        <button data-movie-id="${movie.id}" data-movie-title="${escapeHtml(movie.title)}" class="add-episode-btn anime-button bg-[#ff69b4] hover:bg-[#ff0080] text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-bolt mr-1"></i> EP SINGLE
                                         </button>
-                                        <button data-movie-id="${movie.id}" data-movie-title="${movie.title}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
+                                        <button data-movie-id="${movie.id}" data-movie-title="${escapeHtml(movie.title)}" class="bulk-add-episode-btn anime-button bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-stream mr-1"></i> EP BULK
                                         </button>
                                         <button onclick="window.autoSyncEpisodes('${movie.id}', '${window.createSlug(movie.title)}')" class="anime-button bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
@@ -3219,7 +3231,7 @@
                                         <button data-movie-id="${movie.id}" class="edit-movie-btn anime-button bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-edit mr-1"></i> EDIT
                                         </button>
-                                        <button onclick="window.handleDeleteMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" class="anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
+                                        <button data-movie-id="${movie.id}" class="delete-movie-btn anime-button bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2 px-3 rounded-md sm:rounded-full transition duration-300 w-full sm:w-auto flex justify-center items-center">
                                             <i class="fas fa-skull-crossbones mr-1"></i> DELETE
                                         </button>
                                     </div>
